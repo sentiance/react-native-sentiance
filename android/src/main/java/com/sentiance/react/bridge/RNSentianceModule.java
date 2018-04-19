@@ -54,7 +54,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@Override
 	public String getName() {
-		return "RNSentianceLibrary";
+		return "RNSentiance";
 	}
 
 

@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.facebook.react:react-native:+'
-    compile ('com.sentiance:sdk:3.11.17-R@aar') {transitive = true}
+    implementation 'com.facebook.react:react-native:+'
+    api('com.sentiance:sdk:3.11.17-R@aar') {transitive = true}
 }
   
