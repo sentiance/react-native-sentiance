@@ -1,6 +1,6 @@
 
-import { NativeModules } from 'react-native';
+const { NativeModules } = require('react-native');
 
 const { RNSentiance } = NativeModules;
 
-export default RNSentiance;
+module.exports = RNSentiance;
