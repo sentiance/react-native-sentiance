@@ -35,106 +35,78 @@
       compile project(':react-native-sentiance')
   	```
 
-Android is not supported yet!
-
 
 ## Usage
 ```javascript
-import RNSentianceLibrary from 'react-native-sentiance-library';
+import RNSentiance from 'react-native-sentiance';
 ```
 
 #### Initializing the Sentiance SDK
 Initialization is a very important step; before initialization, almost none of the methods on the Sentiance SDK interface are allowed to be called (with the exception of `init`, `isInitialized` and `getVersion`).
 ```javascript
-RNSentianceLibrary.init('APPID', 'SECRET').then(
-	res => {
-		// SDK init has successfully initialized
-	},
-	err => {
-		// SDK init has failed initializing
-	})
+try {
+	const initResponse = await RNSentiance.init('APPID', 'SECRET');
+	// SDK init has successfully initialized
+} catch (err) {
+	// SDK init has failed initializing
+}
 ```
 
 #### Starting the Sentiance SDK
 Starting is only allowed after successful initialization.
 ```javascript
-RNSentianceLibrary.start().then(
-	res => {
-		if (res === 'STARTED') {
-			// SDK started properly.
-		} else if (res === 'PENDING') {
-			// Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.
-		}
-	},
-	err => {
-		// SDK did not start.
-	})
+try {
+	const startResponse = await RNSentiance.start();
+	if (startResponse === 'STARTED') {
+		// SDK started properly.
+	} else if (startResponse === 'PENDING') {
+		// Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.
+	}
+} catch (err) {
+	// SDK did not start.
+}
 ```
 
 #### Stopping the Sentiance SDK
 Stopping is only allowed after successful initialization. While it's possible to "pause" the detections modules of the Sentiance SDK's, it's not recommended.
 ```javascript
-RNSentianceLibrary.stop().then(
-	res => {
-		// SDK stopped properly.
-	},
-	err => {
-		// SDK did not stop.
-	})
+try {
+	const stopResponse = await RNSentiance.stop();
+	// SDK stopped properly.
+} catch(err) {
+	// An error prevented the SDK from stopping correctly
+}
 ```
 
 #### Cooldown period
 It's best practice to implement a cooldown period to protect against flip-flops or state race conditions. To cancel a scheduled stop-with-cooldown, simply call start again.
 ```javascript
-RNSentianceLibrary.stopAfter(300).then(
-	res => {
-		// SDK scheduled stop properly.
-	},
-	err => {
-		// SDK did not schedule stop.
-	})
+await RNSentiance.stopAfter(300);
 ```
 
 #### Init status
 Checking if SDK is initialized
 ```javascript
-RNSentianceLibrary.isInitialized().then(
-	res => {
-		if (res) {
-			// SDK is initialized
-		} else {
-			// SDK is not initialized
-		}
-	},
-	err => {
-		// Unable to check init status
-	})
+const isInitialized = await RNSentiance.isInitialized();
 ```
 
 #### SDK status
 The status of the Sentiance SDK
 ```javascript
-RNSentianceLibrary.getSdkStatus().then(
-	res => {
-		// Returns SDK status
-	},
-	err => {
-		// Unable to get SDK status
-	}
-)
+const sdkStatus = await RNSentiance.getSdkStatus();
 ```
 
 The SDK can signal SDK status updates to JavaScript without being invoked directly. You can subscribe to these status updates by creating a new NativeEventEmitter instance around your module, and adding a listener for `SDKStatusUpdate`.
 ```javascript
 import { NativeEventEmitter } from 'react-native'
 
-const sentianceEmitter = new NativeEventEmitter(RNSentianceLibrary)
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
 const subscription = sentianceEmitter.addListener(
 	'SDKStatusUpdate',
 	res => {
 		// Returns SDK status
 	}
-)
+);
 
 // Don't forget to unsubscribe, typically in componentWillUnmount
 subscription.remove();
@@ -142,40 +114,19 @@ subscription.remove();
 
 #### Get SDK version
 ```javascript
-RNSentianceLibrary.getVersion().then(
-	res => {
-		// Returns SDK version
-	},
-	err => {
-		// Unable to get SDK version
-	}
-)
+const version = await RNSentiance.getVersion();
 ```
 
 #### Get user id
 If the SDK is initialized, you can get the user id as follows. This user id will allow you to interact with the API's from Sentiance. You need a token and user to authorize requests and query the right data.
 ```javascript
-RNSentianceLibrary.getUserId().then(
-	res => {
-		// Returns user id
-	},
-	err => {
-		// Unable to get user id
-	}
-)
+const userId = await RNSentiance.getUserId();
 ```
 
 #### Get user access token
 If the SDK is initialized, you can get a user access token as follows. This token will allow you to interact with the API's from Sentiance. You need a token and user to authorize requests and query the right data. If the token has expired, or will expire soon, the SDK will get a new bearer token before passing it to the callback. Generally, this operation will complete instantly by returning a cached bearer token, but if a new token has to be obtained from the Sentiance API, there is a possibility it will fail.
 ```javascript
-RNSentianceLibrary.getUserAccessToken().then(
-	res => {
-		// Returns user access token
-	},
-	err => {
-		// Unable to get user access token
-	}
-)
+const { tokenId, expiryDate } = await RNSentiance.getUserAccessToken();
 ```
 
 #### Adding custom metadata
@@ -185,14 +136,7 @@ Examples are custom user id's, application related properties you need after the
 const label = 'correlation_id'
 const value = '3a5276ec-b2b2-4636-b893-eb9a9f014938'
 
-RNSentianceLibrary.addUserMetadataField(label, value).then(
-	res => {
-		// Added user metadata field
-	},
-	err => {
-		// Unable to add user metadata field
-	}
-)
+await RNSentiance.addUserMetadataField(label, value);
 ```
 
 #### Remove custom metadata
@@ -200,14 +144,7 @@ You can remove previously added metadata fields by passing the metadata label to
 ```javascript
 const label = 'correlation_id'
 
-RNSentianceLibrary.removeUserMetadataField(label).then(
-	res => {
-		// Removed user metadata field
-	},
-	err => {
-		// Unable to remove user metadata field
-	}
-)
+await RNSentiance.removeUserMetadataField(label);
 ```
 
 #### Adding multiple custom metadata fields
@@ -215,14 +152,7 @@ You can add multiple custom metadata fields by passing an object to the addUserM
 ```javascript
 const metadata = { corrolation_id: '3a5276ec-b2b2-4636-b893-eb9a9f014938' }
 
-RNSentianceLibrary.addUserMetadataFields(metadata).then(
-	res => {
-		// Added user metadata fields
-	},
-	err => {
-		// Unable to add user metadata fields
-	}
-)
+await RNSentiance.addUserMetadataFields(metadata);
 ```
 
 #### Starting trip
@@ -247,27 +177,22 @@ Example:
 ```javascript
 const metadata = { corrolation_id: '3a5276ec-b2b2-4636-b893-eb9a9f014938' }
 const transportModeHint = 1
-
-RNSentianceLibrary.startTrip(metadata, transportModeHint).then(
-	res => {
-		// Started trip
-	},
-	err => {
-		// Unable to start trip
-	}
-)
+try {
+	await RNSentiance.startTrip(metadata, transportModeHint);
+	// trip is started
+} catch (err) {
+	// Unable to start trip
+}
 ```
 
 #### Stopping trip
 ```javascript
-RNSentianceLibrary.stopTrip().then(
-	res => {
-		// Stopped trip, returns a trip object
-	},
-	err => {
-		// Unable to stop trip
-	}
-)
+try {
+	const trip = await RNSentiance.stopTrip();
+	// Stopped trip
+} catch (err) {
+	// Unable to stop trip
+}
 ```
 
 The SDK can also signal trip timeouts to JavaScript. You can subscribe to these trip timeouts by creating a new NativeEventEmitter instance around your module, and adding a listener for `TripTimeout`.
@@ -286,18 +211,7 @@ const subscription = sentianceEmitter.addListener(
 #### Trip status
 Checking trip status
 ```javascript
-RNSentianceLibrary.isTripOngoing().then(
-	res => {
-		if (res) {
-			// Trip is ongoing
-		} else {
-			// Trip is not ongoing
-		}
-	},
-	err => {
-		// Unable to check trip status
-	}
-)
+const isTripOngoing = await RNSentiance.isTripOngoing();
 ```
 
 #### Adding external events
@@ -317,13 +231,10 @@ const timestamp = Date.now() // timestamp should be in UNIX Epoch time
 const id = 'a247ee7b-6438-477b-ab23-b8f039db2106'
 const label = 'iBeacon is within 10 meter'
 
-RNSentianceLibrary.registerExternalEvent(externalEventType, timestamp, id, label).then(
-	res => {
-		// Registered external event
-	},
-	err => {
-		// Unable to register external event
-	}
+try {
+	await RNSentiance.registerExternalEvent(externalEventType, timestamp, id, label);
+} catch (err) {
+	// Unable to register external event
 )
 ```
 
@@ -344,42 +255,30 @@ const timestamp = Date.now() // timestamp should be in UNIX Epoch time
 const id = 'a247ee7b-6438-477b-ab23-b8f039db2106'
 const label = 'iBeacon is out of range'
 
-RNSentianceLibrary.deregisterExternalEvent(externalEventType, timestamp, id, label).then(
-	res => {
-		// Registered external event
-	},
-	err => {
-		// Unable to register external event
-	}
-)
+try {
+	await RNSentiance.deregisterExternalEvent(externalEventType, timestamp, id, label);
+	// Registered external event
+} catch (err) {
+	// Unable to register external event
+}
 ```
 
 #### Control sending data
 If you want to override the default behavior, you can initiate a force submission of detections. Ideally, you use this method only after explaining to the user that your app will consume more bandwidth in case the device is not connected to Wi-Fi.
 
 ```javascript
-RNSentianceLibrary.submitDetections().then(
-	res => {
-		// If any data was pending, this now is submitted.
-	},
-	err => {
-		// Something went wrong with submitting data, for more information, see the error variable
-	}
-)
+try {
+	await RNSentiance.submitDetections();
+} catch (err) {
+	// Something went wrong with submitting data, for more information, see the error variable
+}
 ```
 
 #### Disk, mobile network and Wi-Fi quotas
 The actual usages and limits in bytes can be obtained using the getWiFiQuotaUsage, getWiFiQuotaLimit and similar methods on the Sentiance SDK interface.
 
 ```javascript
-RNSentianceLibrary.getWiFiQuotaLimit().then(
-	res => {
-		// Returns quota
-	},
-	err => {
-		// Unable to get quota
-	}
-)
+const limit = await RNSentiance.getWiFiQuotaLimit();
 ```
 
 All quota functions:
@@ -394,12 +293,5 @@ All quota functions:
 
 #### Last time seen Wi-Fi
 ```javascript
-RNSentianceLibrary.getWiFiLastSeenTimestamp().then(
-	res => {
-		// Returns Wi-Fi last seen timestamp
-	},
-	err => {
-		// Unable to get Wi-Fi last seen timestamp
-	}
-)
+const timestamp = await RNSentiance.getWiFiLastSeenTimestamp();
 ```

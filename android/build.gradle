@@ -12,8 +12,8 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    compileSdkVersion 25
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         minSdkVersion 16
@@ -28,9 +28,13 @@ android {
 
 repositories {
     mavenCentral()
+    maven {
+        url "http://repository.sentiance.com"
+    }
 }
 
 dependencies {
-    compile 'com.facebook.react:react-native:+'
+    implementation 'com.facebook.react:react-native:+'
+    api('com.sentiance:sdk:3.11.17-R@aar') {transitive = true}
 }
   
