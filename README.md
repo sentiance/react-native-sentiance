@@ -81,55 +81,32 @@ try {
 #### Cooldown period
 It's best practice to implement a cooldown period to protect against flip-flops or state race conditions. To cancel a scheduled stop-with-cooldown, simply call start again.
 ```javascript
-RNSentiance.stopAfter(300).then(
-	res => {
-		// SDK scheduled stop properly.
-	},
-	err => {
-		// SDK did not schedule stop.
-	})
+await RNSentiance.stopAfter(300);
 ```
 
 #### Init status
 Checking if SDK is initialized
 ```javascript
-RNSentiance.isInitialized().then(
-	res => {
-		if (res) {
-			// SDK is initialized
-		} else {
-			// SDK is not initialized
-		}
-	},
-	err => {
-		// Unable to check init status
-	})
+const isInitialized = await RNSentiance.isInitialized();
 ```
 
 #### SDK status
 The status of the Sentiance SDK
 ```javascript
-RNSentiance.getSdkStatus().then(
-	res => {
-		// Returns SDK status
-	},
-	err => {
-		// Unable to get SDK status
-	}
-)
+const sdkStatus = await RNSentiance.getSdkStatus();
 ```
 
 The SDK can signal SDK status updates to JavaScript without being invoked directly. You can subscribe to these status updates by creating a new NativeEventEmitter instance around your module, and adding a listener for `SDKStatusUpdate`.
 ```javascript
 import { NativeEventEmitter } from 'react-native'
 
-const sentianceEmitter = new NativeEventEmitter(RNSentianceLibrary)
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
 const subscription = sentianceEmitter.addListener(
 	'SDKStatusUpdate',
 	res => {
 		// Returns SDK status
 	}
-)
+);
 
 // Don't forget to unsubscribe, typically in componentWillUnmount
 subscription.remove();
