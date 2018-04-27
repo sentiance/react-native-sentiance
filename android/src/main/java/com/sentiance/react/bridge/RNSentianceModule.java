@@ -13,28 +13,28 @@ import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import com.sentiance.sdk.OnInitCallback;
-import com.sentiance.sdk.MetadataCallback;
 import com.sentiance.sdk.OnSdkStatusUpdateHandler;
 import com.sentiance.sdk.OnStartFinishedHandler;
-import com.sentiance.sdk.StartTripCallback;
-import com.sentiance.sdk.StopTripCallback;
 import com.sentiance.sdk.SdkConfig;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.Token;
 import com.sentiance.sdk.TokenResultCallback;
-import com.sentiance.sdk.modules.trip.Trip;
-import com.sentiance.sdk.modules.trip.Waypoint;
+import com.sentiance.sdk.trip.StartTripCallback;
+import com.sentiance.sdk.trip.StopTripCallback;
+import com.sentiance.sdk.trip.TripType;
 import com.sentiance.core.model.thrift.ExternalEventType;
 import com.sentiance.core.model.thrift.TransportMode;
 
+import android.content.Context;
+import android.content.Intent;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.support.v4.app.NotificationCompat;
 import java.util.HashMap;
 import java.util.Map;
 
 import android.util.Log;
-import android.content.Intent;
-import android.content.Context;
-
 
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
@@ -45,6 +45,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 	private final String E_SDK_INIT_ERROR = "E_SDK_INIT_ERROR";
 	private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
 	private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
+	private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
 	private final String E_SDK_ADD_USER_METADATA_FIELD_ERROR = "E_SDK_ADD_USER_METADATA_FIELD_ERROR";
 
 	public RNSentianceModule(ReactApplicationContext reactContext) {
@@ -56,7 +57,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 	public String getName() {
 		return "RNSentiance";
 	}
-
 
 	private void log(String msg, Object... params) {
 		if (DEBUG) {
@@ -110,31 +110,16 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 		return map;
 	}
 
-	private WritableMap convertTrip(Trip trip) {
-		WritableMap map = Arguments.createMap();
-		if (trip == null) {
-			return map;
+	private TripType toTripType(final String type) {
+		if(type.equals("sdk")) {
+			return TripType.SDK_TRIP;
 		}
-
-		try {
-			WritableArray waypoints = Arguments.createArray();
-			for(Waypoint wp : trip.waypoints) {
-				WritableMap waypoint = Arguments.createMap();
-				waypoint.putString("timestamp", String.valueOf(wp.timestamp));
-				waypoint.putString("latitude", String.valueOf(wp.latitude));
-				waypoint.putString("longitude", String.valueOf(wp.longitude));
-				waypoint.putString("accuracy", String.valueOf(wp.accuracy));
-				waypoints.pushMap(waypoint);
-			}
-			map.putString("tripId", trip.tripId.toString());
-			map.putString("start", String.valueOf(trip.start));
-			map.putString("stop", String.valueOf(trip.stop));
-			map.putString("distance", String.valueOf(trip.distance));
-			map.putArray("waypoints", waypoints);
-		} catch (Exception ignored) {
+		else if (type.equals("external")) {
+			return TripType.EXTERNAL_TRIP;
 		}
-
-		return map;
+		else {
+			return TripType.ANY;
+		}
 	}
 
 	@ReactMethod
@@ -149,9 +134,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 			promise.resolve(null);
 			return;
 		}
-//		Context context = getReactApplicationContext();
-//		Intent locationPermissionIntent = new Intent(context, PermissionCheckActivity.class);
-//		this.reactContext.startActivity(locationPermissionIntent);
+		Context context = getReactApplicationContext();
+		Notification notification = new NotificationCompat.Builder(context)
+			.build();
 
 		OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
 			@Override
@@ -159,7 +144,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 				sendStatusUpdate(status);
 			}
 		};
-		final SdkConfig sdkConfig = new SdkConfig.Builder(appId, appSecret)
+		final SdkConfig sdkConfig = new SdkConfig.Builder(appId, appSecret, notification)
 				.setOnSdkStatusUpdateHandler(statusHandler)
 				.build();
 
@@ -183,15 +168,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 				.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
 				.emit(STATUS_UPDATE, convertSdkStatus(sdkStatus));
 	}
-
-	private void sendTripTimeout(
-			Trip trip
-	) {
-		this.reactContext
-				.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-				.emit(TRIP_TIMEOUT, convertTrip(trip));
-	}
-
 
 	@ReactMethod
 	public void start(
@@ -225,10 +201,10 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 	@ReactMethod
 	public void startTrip(
 		ReadableMap metadata,
-		int hintParam,
+		String hintParam,
 		final Promise promise
 	) {
-		final TransportMode hint = hintParam == -1 ? null : TransportMode.findByValue(hintParam);
+		final TransportMode hint = hintParam == null ? null : TransportMode.valueOf(hintParam);
 		Sentiance.getInstance(this.reactContext).startTrip(null, null, new StartTripCallback() {
 			@Override
 				public void onSuccess() {
@@ -248,8 +224,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 	) {
 		Sentiance.getInstance(this.reactContext).stopTrip(new StopTripCallback() {
 			@Override
-			public void onTripStopped(Trip trip) {
-				promise.resolve(convertTrip(trip));
+			public void onSuccess() {
+				promise.resolve(null);
+			}
+
+			@Override
+			public void onFailure(SdkStatus sdkStatus) {
+				promise.reject(E_SDK_STOP_TRIP_ERROR, sdkStatus.toString());
 			}
 		});
 	}
@@ -280,9 +261,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void isTripOngoing(
+		String typeParam,
 		final Promise promise
 	) {
-		Boolean isTripOngoing = Sentiance.getInstance(this.reactContext).isTripOngoing();
+		if (typeParam == null) {
+			typeParam = "sdk";
+		}
+		final TripType type = toTripType(typeParam);
+		Boolean isTripOngoing = Sentiance.getInstance(this.reactContext).isTripOngoing(type);
 		promise.resolve(isTripOngoing);
 	}
 
@@ -318,17 +304,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 		final Promise promise
 	) {
 		Log.v("label", label);
-		Sentiance.getInstance(this.reactContext).addUserMetadataField(label, value, new MetadataCallback() {
-			@Override
-			public void onSuccess() {
-				promise.resolve("OK");
-			}
-
-			@Override
-			public void onFailure() {
-				promise.reject(E_SDK_ADD_USER_METADATA_FIELD_ERROR, "Couldn't submit metadata");
-			}
-		});
+		Sentiance.getInstance(this.reactContext).addUserMetadataField(label, value);
+		promise.resolve(null);
 	}
 
 	@ReactMethod
@@ -337,17 +314,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 			final Promise promise
 	) {
 		final Map<String, String> metadata = convertReadableMapToMap(inputMetadata);
-		Sentiance.getInstance(this.reactContext).addUserMetadataFields(metadata, new MetadataCallback() {
-			@Override
-			public void onSuccess() {
-				promise.resolve("OK");
-			}
-
-			@Override
-			public void onFailure() {
-				promise.reject(E_SDK_ADD_USER_METADATA_FIELD_ERROR, "Couldn't submit metadata");
-			}
-		});
+		Sentiance.getInstance(this.reactContext).addUserMetadataFields(metadata);
+		promise.resolve(null);
 	}
 
 	@ReactMethod
@@ -355,59 +323,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 			final String label,
 			final Promise promise
 	) {
-		Sentiance.getInstance(this.reactContext).removeUserMetadataField(label, new MetadataCallback() {
-			@Override
-			public void onSuccess() {
-				promise.resolve("OK");
-			}
-
-			@Override
-			public void onFailure() {
-				promise.reject(E_SDK_ADD_USER_METADATA_FIELD_ERROR, "Couldn't remove metadata");
-			}
-		});
-	}
-
-	@ReactMethod
-	public void setTripTimeoutListener(
-		final Promise promise
-	) {
-//		Sentiance.getInstance(this.reactContext).setTripTimeoutListener(new TripTimeoutListener() {
-//			@Override
-//			public void onTripTimeout(Trip trip) {
-//				PluginResult result = new PluginResult(PluginResult.Status.OK, convertTripToJson(trip));
-//				result.setKeepCallback(true);   // keep it since it's set once but called many times.
-//				callback.sendPluginResult(result);
-//			}
-//		});
-		promise.resolve(null);
-	}
-
-	@ReactMethod
-	public void registerExternalEvent(
-		final int typeParam,
-		String timestampString,
-		String id,
-		String label,
-		final Promise promise
-	) {
-		ExternalEventType type = ExternalEventType.findByValue(typeParam);
-		Long timestamp = Long.parseLong(timestampString, 10);
-		Sentiance.getInstance(this.reactContext).registerExternalEvent(type, timestamp, id, label);
-		promise.resolve(null);
-	}
-
-	@ReactMethod
-	public void deregisterExternalEvent(
-		final int typeParam,
-		String timestampString,
-		String id,
-		String label,
-		final Promise promise
-	) {
-		ExternalEventType type = ExternalEventType.findByValue(typeParam);
-		Long timestamp = Long.parseLong(timestampString, 10);
-		Sentiance.getInstance(this.reactContext).deregisterExternalEvent(type, timestamp, id, label);
+		Sentiance.getInstance(this.reactContext).removeUserMetadataField(label);
 		promise.resolve(null);
 	}
 
@@ -464,14 +380,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 	) {
 		Long diskQuotaUsage = Sentiance.getInstance(this.reactContext).getDiskQuotaUsage();
 		promise.resolve(diskQuotaUsage.toString());
-	}
-
-	@ReactMethod
-	public void getWiFiLastSeenTimestamp(
-		final Promise promise
-	) {
-		Long wifiLastSeenTimestamp = Sentiance.getInstance(this.reactContext).getWiFiLastSeenTimestamp();
-		promise.resolve(wifiLastSeenTimestamp.toString());
 	}
 
 	@Override
