@@ -190,15 +190,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 	}
 
 	@ReactMethod
-	public void stopAfter(
-		int seconds,
-		final Promise promise
-	) {
-		Sentiance.getInstance(this.reactContext).stopAfter(seconds);
-		promise.resolve("OK");
-	}
-
-	@ReactMethod
 	public void startTrip(
 		ReadableMap metadata,
 		String hintParam,
