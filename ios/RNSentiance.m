@@ -236,36 +236,6 @@ RCT_EXPORT_METHOD(isTripOngoing:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
   }
 }
 
-RCT_EXPORT_METHOD(registerExternalEvent:(nonnull NSNumber *)typeInt
-                  timestamp:(nonnull NSNumber *)timestamp
-                  Id:(NSString *)Id
-                  label:(NSString *)label
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-  @try {
-    SENTExternalEventType type = (SENTExternalEventType)[typeInt intValue];
-    [[SENTSDK sharedInstance] registerExternalEvent:type timestamp:[timestamp longLongValue] id:Id label:label];
-    resolve(nil);
-  } @catch (NSException *e) {
-    reject(e.name, e.reason, nil);
-  }
-}
-
-RCT_EXPORT_METHOD(deregisterExternalEvent:(nonnull NSNumber *)typeInt
-                  timestamp:(nonnull NSNumber *)timestamp
-                  Id:(NSString *)Id
-                  label:(NSString *)label
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-  @try {
-    SENTExternalEventType type = (SENTExternalEventType)[typeInt intValue];
-    [[SENTSDK sharedInstance] deregisterExternalEvent:type timestamp:[timestamp longLongValue] id:Id label:label];
-    resolve(nil);
-  } @catch (NSException *e) {
-    reject(e.name, e.reason, nil);
-  }
-}
-
 RCT_EXPORT_METHOD(submitDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
