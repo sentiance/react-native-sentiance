@@ -94,17 +94,6 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejec
   }
 }
 
-RCT_EXPORT_METHOD(stopAfter:(int)seconds
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-  @try {
-    [[SENTSDK sharedInstance] stopAfter:seconds];
-    resolve(nil);
-  } @catch (NSException *e) {
-    reject(e.name, e.reason, nil);
-  }
-}
-
 RCT_EXPORT_METHOD(isInitialized:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
