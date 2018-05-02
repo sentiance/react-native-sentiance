@@ -78,12 +78,6 @@ try {
 }
 ```
 
-#### Cooldown period
-It's best practice to implement a cooldown period to protect against flip-flops or state race conditions. To cancel a scheduled stop-with-cooldown, simply call start again.
-```javascript
-await RNSentiance.stopAfter(300);
-```
-
 #### Init status
 Checking if SDK is initialized
 ```javascript
@@ -214,55 +208,6 @@ Checking trip status
 const isTripOngoing = await RNSentiance.isTripOngoing();
 ```
 
-#### Adding external events
-When the external event state becomes active.
-
-Event types:
-```
-SENTExternalEventTypeOther = 1,
-SENTExternalEventTypeBeacon = 2,
-SENTExternalEventTypeCustomRegion = 3
-```
-
-Example:
-```javascript
-const externalEventType = 1
-const timestamp = Date.now() // timestamp should be in UNIX Epoch time
-const id = 'a247ee7b-6438-477b-ab23-b8f039db2106'
-const label = 'iBeacon is within 10 meter'
-
-try {
-	await RNSentiance.registerExternalEvent(externalEventType, timestamp, id, label);
-} catch (err) {
-	// Unable to register external event
-)
-```
-
-#### Deregistering external events
-When the external event state becomes inactive.
-
-Event types:
-```
-SENTExternalEventTypeOther = 1,
-SENTExternalEventTypeBeacon = 2,
-SENTExternalEventTypeCustomRegion = 3
-```
-
-Example:
-```javascript
-const externalEventType = 1
-const timestamp = Date.now() // timestamp should be in UNIX Epoch time
-const id = 'a247ee7b-6438-477b-ab23-b8f039db2106'
-const label = 'iBeacon is out of range'
-
-try {
-	await RNSentiance.deregisterExternalEvent(externalEventType, timestamp, id, label);
-	// Registered external event
-} catch (err) {
-	// Unable to register external event
-}
-```
-
 #### Control sending data
 If you want to override the default behavior, you can initiate a force submission of detections. Ideally, you use this method only after explaining to the user that your app will consume more bandwidth in case the device is not connected to Wi-Fi.
 
@@ -289,9 +234,3 @@ All quota functions:
 * `getMobileQuotaUsage`
 * `getDiskQuotaLimit`
 * `getDiskQuotaUsage`
-* `getWiFiLastSeenTimestamp`
-
-#### Last time seen Wi-Fi
-```javascript
-const timestamp = await RNSentiance.getWiFiLastSeenTimestamp();
-```
