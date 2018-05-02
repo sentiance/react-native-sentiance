@@ -48,4 +48,3 @@ dependencies {
     worldApi('com.sentiance:sdk:4.1.14-R@aar') {transitive = true}
     chinaApi('com.sentiance:sdk:4.1.14-R@aar') {transitive = true}
 }
-  
