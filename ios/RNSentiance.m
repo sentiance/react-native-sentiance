@@ -311,16 +311,6 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
   }
 }
 
-RCT_EXPORT_METHOD(getWiFiLastSeenTimestamp:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-  @try {
-    long long wifiLastSeenTimestamp = [[SENTSDK sharedInstance] getWiFiLastSeenTimestamp];
-    resolve(@(wifiLastSeenTimestamp));
-  } @catch (NSException *e) {
-    reject(e.name, e.reason, nil);
-  }
-}
-
 - (void)tripTimeoutReceived
 {
   [[SENTSDK sharedInstance] setTripTimeOutListener:^(SENTTrip *trip) {
