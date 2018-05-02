@@ -94,17 +94,6 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejec
   }
 }
 
-RCT_EXPORT_METHOD(stopAfter:(int)seconds
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-  @try {
-    [[SENTSDK sharedInstance] stopAfter:seconds];
-    resolve(nil);
-  } @catch (NSException *e) {
-    reject(e.name, e.reason, nil);
-  }
-}
-
 RCT_EXPORT_METHOD(isInitialized:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
@@ -247,36 +236,6 @@ RCT_EXPORT_METHOD(isTripOngoing:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
   }
 }
 
-RCT_EXPORT_METHOD(registerExternalEvent:(nonnull NSNumber *)typeInt
-                  timestamp:(nonnull NSNumber *)timestamp
-                  Id:(NSString *)Id
-                  label:(NSString *)label
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-  @try {
-    SENTExternalEventType type = (SENTExternalEventType)[typeInt intValue];
-    [[SENTSDK sharedInstance] registerExternalEvent:type timestamp:[timestamp longLongValue] id:Id label:label];
-    resolve(nil);
-  } @catch (NSException *e) {
-    reject(e.name, e.reason, nil);
-  }
-}
-
-RCT_EXPORT_METHOD(deregisterExternalEvent:(nonnull NSNumber *)typeInt
-                  timestamp:(nonnull NSNumber *)timestamp
-                  Id:(NSString *)Id
-                  label:(NSString *)label
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-  @try {
-    SENTExternalEventType type = (SENTExternalEventType)[typeInt intValue];
-    [[SENTSDK sharedInstance] deregisterExternalEvent:type timestamp:[timestamp longLongValue] id:Id label:label];
-    resolve(nil);
-  } @catch (NSException *e) {
-    reject(e.name, e.reason, nil);
-  }
-}
-
 RCT_EXPORT_METHOD(submitDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
@@ -347,16 +306,6 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
   @try {
     long long diskQuotaUsage = [[SENTSDK sharedInstance] getDiskQuotaUsage];
     resolve(@(diskQuotaUsage));
-  } @catch (NSException *e) {
-    reject(e.name, e.reason, nil);
-  }
-}
-
-RCT_EXPORT_METHOD(getWiFiLastSeenTimestamp:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-  @try {
-    long long wifiLastSeenTimestamp = [[SENTSDK sharedInstance] getWiFiLastSeenTimestamp];
-    resolve(@(wifiLastSeenTimestamp));
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
   }
