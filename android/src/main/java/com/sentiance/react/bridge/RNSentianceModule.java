@@ -38,6 +38,7 @@ import android.util.Log;
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
   private static final boolean DEBUG = true;
+  private static final String LOG_TAG = "RNSentiance";
   private final ReactApplicationContext reactContext;
   private final Sentiance sdk;
   private final String STATUS_UPDATE = "SDKStatusUpdate";
@@ -89,7 +90,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
           @Override
           public void onStartFinished(SdkStatus sdkStatus) {
             if (promise != null) {
-              Log.v("------initializeSentianceSdk()", "SDK started successfully");
+              Log.v(LOG_TAG, "SDK started successfully");
               promise.resolve(null);
             }
           }
@@ -123,12 +124,12 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       NotificationChannel channel = new NotificationChannel(channelId, "Trips", NotificationManager.IMPORTANCE_MIN);
       channel.setShowBadge(false);
       NotificationManager notificationManager = (NotificationManager) this.reactContext
-        .getSystemService(Context.NOTIFICATION_SERVICE);
+          .getSystemService(Context.NOTIFICATION_SERVICE);
       notificationManager.createNotificationChannel(channel);
     }
 
     return new NotificationCompat.Builder(this.reactContext).setContentTitle(title).setContentText(text)
-      .setContentIntent(pendingIntent).setShowWhen(false).setPriority(NotificationCompat.PRIORITY_MIN).build();
+        .setContentIntent(pendingIntent).setShowWhen(false).setPriority(NotificationCompat.PRIORITY_MIN).build();
   }
 
   @Override
@@ -200,14 +201,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   public void init(String appId, String appSecret, final Promise promise) {
-    Log.v("------init()", "appId: " + appId + " | appSecret: " + appSecret);
+    Log.v(LOG_TAG, "appId: " + appId + " | appSecret: " + appSecret + " init()");
     RNSentianceModule.setAppConfig(appId, appSecret, null);
     this.initializeSentianceSdk(promise);
   }
 
   private void sendStatusUpdate(SdkStatus sdkStatus) {
     this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(STATUS_UPDATE,
-      convertSdkStatus(sdkStatus));
+        convertSdkStatus(sdkStatus));
   }
 
   @ReactMethod
@@ -308,7 +309,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   public void addUserMetadataField(final String label, final String value, final Promise promise) {
-    Log.v("label", label);
+    Log.v(LOG_TAG, label);
     Sentiance.getInstance(this.reactContext).addUserMetadataField(label, value);
     promise.resolve(null);
   }
