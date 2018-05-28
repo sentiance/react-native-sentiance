@@ -37,409 +37,349 @@ import android.util.Log;
 
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
-	private static final boolean DEBUG = true;
-	private final ReactApplicationContext reactContext;
-	private final Sentiance sdk;
-	private final String STATUS_UPDATE = "SDKStatusUpdate";
-	private final String E_SDK_INIT_ERROR = "E_SDK_INIT_ERROR";
-	private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
-	private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
-	private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
-	private static String SENTIANCE_APP_ID = "";
-	private static String SENTIANCE_APP_SECRET = "";
-	private static Map<String,String> notificationConfig;
+  private static final boolean DEBUG = true;
+  private final ReactApplicationContext reactContext;
+  private final Sentiance sdk;
+  private final String STATUS_UPDATE = "SDKStatusUpdate";
+  private final String E_SDK_INIT_ERROR = "E_SDK_INIT_ERROR";
+  private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
+  private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
+  private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
+  private static String SENTIANCE_APP_ID = "";
+  private static String SENTIANCE_APP_SECRET = "";
+  private static Map<String, String> notificationConfig;
 
-	public RNSentianceModule(ReactApplicationContext reactContext) {
-		super(reactContext);
-		this.reactContext = reactContext;
-		this.sdk = Sentiance.getInstance(this.reactContext);
-		if (SENTIANCE_APP_ID != "" && SENTIANCE_APP_SECRET != "") {
-			// Initialize early if SENTIANCE_APP_ID and SENTIANCE_APP_SECRET have been set already
-			initializeSentianceSdk(null);
-		}
-	}
+  public RNSentianceModule(ReactApplicationContext reactContext) {
+    super(reactContext);
+    this.reactContext = reactContext;
+    this.sdk = Sentiance.getInstance(this.reactContext);
+    if (SENTIANCE_APP_ID != "" && SENTIANCE_APP_SECRET != "") {
+      // Initialize early if SENTIANCE_APP_ID and SENTIANCE_APP_SECRET have been set
+      // already
+      initializeSentianceSdk(null);
+    }
+  }
 
-	public static void setAppConfig(String appId, String appSecret, Map<String,String> config) {
-		SENTIANCE_APP_ID = appId;
-		SENTIANCE_APP_SECRET = appSecret;
-		notificationConfig = config;
-	}
+  public static void setAppConfig(String appId, String appSecret, Map<String, String> config) {
+    SENTIANCE_APP_ID = appId;
+    SENTIANCE_APP_SECRET = appSecret;
+    notificationConfig = config;
+  }
 
-	private void initializeSentianceSdk(final Promise promise) {
-		// Return early if already initialized
-		if (this.sdk.isInitialized()) {
-			return;
-		}
-		// Create the config.
-		OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
-			@Override
-			public void onSdkStatusUpdate(SdkStatus status) {
-				sendStatusUpdate(status);
-			}
-		};
+  private void initializeSentianceSdk(final Promise promise) {
+    // Return early if already initialized
+    if (this.sdk.isInitialized()) {
+      return;
+    }
+    // Create the config.
+    OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
+      @Override
+      public void onSdkStatusUpdate(SdkStatus status) {
+        sendStatusUpdate(status);
+      }
+    };
 
-		SdkConfig config = new SdkConfig.Builder(SENTIANCE_APP_ID, SENTIANCE_APP_SECRET, createNotification())
-				.setOnSdkStatusUpdateHandler(statusHandler)
-				.build();
+    SdkConfig config = new SdkConfig.Builder(SENTIANCE_APP_ID, SENTIANCE_APP_SECRET, createNotification())
+        .setOnSdkStatusUpdateHandler(statusHandler).build();
 
-		OnInitCallback initCallback = new OnInitCallback() {
-			@Override
-			public void onInitSuccess() {
-				sdk.start(new OnStartFinishedHandler() {
-					@Override
-					public void onStartFinished(SdkStatus sdkStatus) {
-						if (promise != null) {
+    OnInitCallback initCallback = new OnInitCallback() {
+      @Override
+      public void onInitSuccess() {
+        sdk.start(new OnStartFinishedHandler() {
+          @Override
+          public void onStartFinished(SdkStatus sdkStatus) {
+            if (promise != null) {
               Log.v("------initializeSentianceSdk()", "SDK started successfully");
-							promise.resolve(null);
-						}
-					}
-				});
-			}
-			@Override
-			public void onInitFailure(InitIssue issue) {
-				if (promise != null) {
-					promise.reject(E_SDK_INIT_ERROR, issue.toString());
-				}
-			}
-		};
-		// Initialize the Sentiance SDK.
-		this.sdk.init(config, initCallback);
-	}
+              promise.resolve(null);
+            }
+          }
+        });
+      }
 
-	private Notification createNotification() {
-		String packageName = this.reactContext.getPackageName();
-		Intent launchIntent = this.reactContext.getPackageManager().getLaunchIntentForPackage(packageName);
-		String className = launchIntent.getComponent().getClassName();
-		// PendingIntent that will start your application's MainActivity
-		Intent intent = new Intent(className);
-		PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent, 0);
+      @Override
+      public void onInitFailure(InitIssue issue) {
+        if (promise != null) {
+          promise.reject(E_SDK_INIT_ERROR, issue.toString());
+        }
+      }
+    };
+    // Initialize the Sentiance SDK.
+    this.sdk.init(config, initCallback);
+  }
 
-		// On Oreo and above, you must create a notification channel
-		String channelId = "trips";
-		String title = notificationConfig.get("title");
-		String text = notificationConfig.get("text");
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-			NotificationChannel channel = new NotificationChannel(channelId,
-					"Trips", NotificationManager.IMPORTANCE_MIN);
-			channel.setShowBadge(false);
-			NotificationManager notificationManager = (NotificationManager) this.reactContext.getSystemService(Context.NOTIFICATION_SERVICE);
-			notificationManager.createNotificationChannel(channel);
-		}
+  private Notification createNotification() {
+    String packageName = this.reactContext.getPackageName();
+    Intent launchIntent = this.reactContext.getPackageManager().getLaunchIntentForPackage(packageName);
+    String className = launchIntent.getComponent().getClassName();
+    // PendingIntent that will start your application's MainActivity
+    Intent intent = new Intent(className);
+    PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent, 0);
 
-		return new NotificationCompat.Builder(this.reactContext)
-      .setContentTitle(title)
-      .setContentText(text)
-      .setContentIntent(pendingIntent)
-      .setShowWhen(false)
-      .setPriority(NotificationCompat.PRIORITY_MIN)
-      .build();
-	}
+    // On Oreo and above, you must create a notification channel
+    String channelId = "trips";
+    String title = notificationConfig.get("title");
+    String text = notificationConfig.get("text");
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+      NotificationChannel channel = new NotificationChannel(channelId, "Trips", NotificationManager.IMPORTANCE_MIN);
+      channel.setShowBadge(false);
+      NotificationManager notificationManager = (NotificationManager) this.reactContext
+        .getSystemService(Context.NOTIFICATION_SERVICE);
+      notificationManager.createNotificationChannel(channel);
+    }
 
-	@Override
-	public String getName() {
-		return "RNSentiance";
-	}
+    return new NotificationCompat.Builder(this.reactContext).setContentTitle(title).setContentText(text)
+      .setContentIntent(pendingIntent).setShowWhen(false).setPriority(NotificationCompat.PRIORITY_MIN).build();
+  }
 
-	private void log(String msg, Object... params) {
-		if (DEBUG) {
-			Log.e("SentianceSDK", String.format(msg, params));
-		}
-	}
+  @Override
+  public String getName() {
+    return "RNSentiance";
+  }
 
-	private WritableMap convertSdkStatus(SdkStatus status) {
-		WritableMap map = Arguments.createMap();
-		try {
-			map.putString("startStatus", status.startStatus.name());
-			map.putBoolean("canDetect", status.canDetect);
-			map.putBoolean("isRemoteEnabled", status.isRemoteEnabled);
-			map.putBoolean("isLocationPermGranted", status.isLocationPermGranted);
-			map.putString("locationSetting", status.locationSetting.name());
-			map.putBoolean("isAccelPresent", status.isAccelPresent);
-			map.putBoolean("isGyroPresent", status.isGyroPresent);
-			map.putBoolean("isGpsPresent", status.isGpsPresent);
-			map.putBoolean("isGooglePlayServicesMissing", status.isGooglePlayServicesMissing);
-			map.putString("wifiQuotaStatus", status.wifiQuotaStatus.toString());
-			map.putString("mobileQuotaStatus", status.mobileQuotaStatus.toString());
-			map.putString("diskQuotaStatus", status.diskQuotaStatus.toString());
-		} catch (Exception ignored) {
-		}
+  private void log(String msg, Object... params) {
+    if (DEBUG) {
+      Log.e("SentianceSDK", String.format(msg, params));
+    }
+  }
 
-		return map;
-	}
+  private WritableMap convertSdkStatus(SdkStatus status) {
+    WritableMap map = Arguments.createMap();
+    try {
+      map.putString("startStatus", status.startStatus.name());
+      map.putBoolean("canDetect", status.canDetect);
+      map.putBoolean("isRemoteEnabled", status.isRemoteEnabled);
+      map.putBoolean("isLocationPermGranted", status.isLocationPermGranted);
+      map.putString("locationSetting", status.locationSetting.name());
+      map.putBoolean("isAccelPresent", status.isAccelPresent);
+      map.putBoolean("isGyroPresent", status.isGyroPresent);
+      map.putBoolean("isGpsPresent", status.isGpsPresent);
+      map.putBoolean("isGooglePlayServicesMissing", status.isGooglePlayServicesMissing);
+      map.putString("wifiQuotaStatus", status.wifiQuotaStatus.toString());
+      map.putString("mobileQuotaStatus", status.mobileQuotaStatus.toString());
+      map.putString("diskQuotaStatus", status.diskQuotaStatus.toString());
+    } catch (Exception ignored) {
+    }
 
-	private WritableMap convertToken(Token token) {
-		WritableMap map = Arguments.createMap();
-		try {
-			map.putString("tokenId", token.getTokenId());
-			map.putString("expiryDate", String.valueOf(token.getExpiryDate()));
-		} catch (Exception ignored) {
-		}
+    return map;
+  }
 
-		return map;
-	}
+  private WritableMap convertToken(Token token) {
+    WritableMap map = Arguments.createMap();
+    try {
+      map.putString("tokenId", token.getTokenId());
+      map.putString("expiryDate", String.valueOf(token.getExpiryDate()));
+    } catch (Exception ignored) {
+    }
 
-	private Map<String, String> convertReadableMapToMap(ReadableMap inputMap) {
-		Map<String, String> map = new HashMap<String, String>();
-		ReadableMapKeySetIterator iterator = inputMap.keySetIterator();
-		while (iterator.hasNextKey()) {
-			String key = iterator.nextKey();
-			try {
-				map.put(key, String.valueOf(inputMap.getString(key)));
-			} catch (Exception ignored) {
+    return map;
+  }
 
-			}
-		}
-		return map;
-	}
+  private Map<String, String> convertReadableMapToMap(ReadableMap inputMap) {
+    Map<String, String> map = new HashMap<String, String>();
+    ReadableMapKeySetIterator iterator = inputMap.keySetIterator();
+    while (iterator.hasNextKey()) {
+      String key = iterator.nextKey();
+      try {
+        map.put(key, String.valueOf(inputMap.getString(key)));
+      } catch (Exception ignored) {
 
-	private TripType toTripType(final String type) {
-		if(type.equals("sdk")) {
-			return TripType.SDK_TRIP;
-		}
-		else if (type.equals("external")) {
-			return TripType.EXTERNAL_TRIP;
-		}
-		else {
-			return TripType.ANY;
-		}
-	}
+      }
+    }
+    return map;
+  }
 
-	@ReactMethod
-	public void init(
-			String appId,
-			String appSecret,
-			final Promise promise
-	) {
-		Log.v("------init()", "appId: " + appId + " | appSecret: " + appSecret);
-		RNSentianceModule.setAppConfig(appId, appSecret, null);
-		this.initializeSentianceSdk(promise);
-	}
+  private TripType toTripType(final String type) {
+    if (type.equals("sdk")) {
+      return TripType.SDK_TRIP;
+    } else if (type.equals("external")) {
+      return TripType.EXTERNAL_TRIP;
+    } else {
+      return TripType.ANY;
+    }
+  }
 
-	private void sendStatusUpdate(
-			SdkStatus sdkStatus
-	) {
-		this.reactContext
-				.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-				.emit(STATUS_UPDATE, convertSdkStatus(sdkStatus));
-	}
+  @ReactMethod
+  public void init(String appId, String appSecret, final Promise promise) {
+    Log.v("------init()", "appId: " + appId + " | appSecret: " + appSecret);
+    RNSentianceModule.setAppConfig(appId, appSecret, null);
+    this.initializeSentianceSdk(promise);
+  }
 
-	@ReactMethod
-	public void start(
-			final Promise promise
-	) {
-		Sentiance.getInstance(this.reactContext).start(new OnStartFinishedHandler() {
-			@Override
-			public void onStartFinished(SdkStatus sdkStatus) {
-				promise.resolve(convertSdkStatus(sdkStatus));
-			}
-		});
-	}
+  private void sendStatusUpdate(SdkStatus sdkStatus) {
+    this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(STATUS_UPDATE,
+      convertSdkStatus(sdkStatus));
+  }
 
-	@ReactMethod
-	public void stop(
-			final Promise promise
-	) {
-		Sentiance.getInstance(this.reactContext).stop();
-		promise.resolve("OK");
-	}
+  @ReactMethod
+  public void start(final Promise promise) {
+    Sentiance.getInstance(this.reactContext).start(new OnStartFinishedHandler() {
+      @Override
+      public void onStartFinished(SdkStatus sdkStatus) {
+        promise.resolve(convertSdkStatus(sdkStatus));
+      }
+    });
+  }
 
-	@ReactMethod
-	public void startTrip(
-			ReadableMap metadata,
-			String hintParam,
-			final Promise promise
-	) {
-		final TransportMode hint = hintParam == null ? null : TransportMode.valueOf(hintParam);
-		Sentiance.getInstance(this.reactContext).startTrip(null, null, new StartTripCallback() {
-			@Override
-			public void onSuccess() {
-				promise.resolve(null);
-			}
+  @ReactMethod
+  public void stop(final Promise promise) {
+    Sentiance.getInstance(this.reactContext).stop();
+    promise.resolve("OK");
+  }
 
-			@Override
-			public void onFailure(SdkStatus sdkStatus) {
-				promise.reject(E_SDK_START_TRIP_ERROR, sdkStatus.toString());
-			}
-		});
-	}
+  @ReactMethod
+  public void startTrip(ReadableMap metadata, String hintParam, final Promise promise) {
+    final TransportMode hint = hintParam == null ? null : TransportMode.valueOf(hintParam);
+    Sentiance.getInstance(this.reactContext).startTrip(null, null, new StartTripCallback() {
+      @Override
+      public void onSuccess() {
+        promise.resolve(null);
+      }
 
-	@ReactMethod
-	public void stopTrip(
-			final Promise promise
-	) {
-		Sentiance.getInstance(this.reactContext).stopTrip(new StopTripCallback() {
-			@Override
-			public void onSuccess() {
-				promise.resolve(null);
-			}
+      @Override
+      public void onFailure(SdkStatus sdkStatus) {
+        promise.reject(E_SDK_START_TRIP_ERROR, sdkStatus.toString());
+      }
+    });
+  }
 
-			@Override
-			public void onFailure(SdkStatus sdkStatus) {
-				promise.reject(E_SDK_STOP_TRIP_ERROR, sdkStatus.toString());
-			}
-		});
-	}
+  @ReactMethod
+  public void stopTrip(final Promise promise) {
+    Sentiance.getInstance(this.reactContext).stopTrip(new StopTripCallback() {
+      @Override
+      public void onSuccess() {
+        promise.resolve(null);
+      }
 
-	@ReactMethod
-	public void getSdkStatus(
-			final Promise promise
-	) {
-		SdkStatus sdkStatus = Sentiance.getInstance(this.reactContext).getSdkStatus();
-		promise.resolve(convertSdkStatus(sdkStatus));
-	}
+      @Override
+      public void onFailure(SdkStatus sdkStatus) {
+        promise.reject(E_SDK_STOP_TRIP_ERROR, sdkStatus.toString());
+      }
+    });
+  }
 
-	@ReactMethod
-	public void getVersion(
-			final Promise promise
-	) {
-		String version = Sentiance.getInstance(this.reactContext).getVersion();
-		promise.resolve(version);
-	}
+  @ReactMethod
+  public void getSdkStatus(final Promise promise) {
+    SdkStatus sdkStatus = Sentiance.getInstance(this.reactContext).getSdkStatus();
+    promise.resolve(convertSdkStatus(sdkStatus));
+  }
 
-	@ReactMethod
-	public void isInitialized(
-			final Promise promise
-	) {
-		Boolean isInitialized = Sentiance.getInstance(this.reactContext).isInitialized();
-		promise.resolve(isInitialized);
-	}
+  @ReactMethod
+  public void getVersion(final Promise promise) {
+    String version = Sentiance.getInstance(this.reactContext).getVersion();
+    promise.resolve(version);
+  }
 
-	@ReactMethod
-	public void isTripOngoing(
-			String typeParam,
-			final Promise promise
-	) {
-		if (typeParam == null) {
-			typeParam = "sdk";
-		}
-		final TripType type = toTripType(typeParam);
-		Boolean isTripOngoing = Sentiance.getInstance(this.reactContext).isTripOngoing(type);
-		promise.resolve(isTripOngoing);
-	}
+  @ReactMethod
+  public void isInitialized(final Promise promise) {
+    Boolean isInitialized = Sentiance.getInstance(this.reactContext).isInitialized();
+    promise.resolve(isInitialized);
+  }
 
-	@ReactMethod
-	public void getUserAccessToken(
-			final Promise promise
-	) {
-		Sentiance.getInstance(this.reactContext).getUserAccessToken(new TokenResultCallback() {
-			@Override
-			public void onSuccess(Token token) {
-				promise.resolve(convertToken(token));
-			}
+  @ReactMethod
+  public void isTripOngoing(String typeParam, final Promise promise) {
+    if (typeParam == null) {
+      typeParam = "sdk";
+    }
+    final TripType type = toTripType(typeParam);
+    Boolean isTripOngoing = Sentiance.getInstance(this.reactContext).isTripOngoing(type);
+    promise.resolve(isTripOngoing);
+  }
 
-			@Override
-			public void onFailure() {
-				promise.reject(E_SDK_GET_TOKEN_ERROR, "Something went wrong while obtaining a user token.");
-			}
-		});
-	}
+  @ReactMethod
+  public void getUserAccessToken(final Promise promise) {
+    Sentiance.getInstance(this.reactContext).getUserAccessToken(new TokenResultCallback() {
+      @Override
+      public void onSuccess(Token token) {
+        promise.resolve(convertToken(token));
+      }
 
-	@ReactMethod
-	public void getUserId(
-			final Promise promise
-	) {
-		String userId = Sentiance.getInstance(this.reactContext).getUserId();
-		promise.resolve(userId);
-	}
+      @Override
+      public void onFailure() {
+        promise.reject(E_SDK_GET_TOKEN_ERROR, "Something went wrong while obtaining a user token.");
+      }
+    });
+  }
 
-	@ReactMethod
-	public void addUserMetadataField(
-			final String label,
-			final String value,
-			final Promise promise
-	) {
-		Log.v("label", label);
-		Sentiance.getInstance(this.reactContext).addUserMetadataField(label, value);
-		promise.resolve(null);
-	}
+  @ReactMethod
+  public void getUserId(final Promise promise) {
+    String userId = Sentiance.getInstance(this.reactContext).getUserId();
+    promise.resolve(userId);
+  }
 
-	@ReactMethod
-	public void addUserMetadataFields(
-			ReadableMap inputMetadata,
-			final Promise promise
-	) {
-		final Map<String, String> metadata = convertReadableMapToMap(inputMetadata);
-		Sentiance.getInstance(this.reactContext).addUserMetadataFields(metadata);
-		promise.resolve(null);
-	}
+  @ReactMethod
+  public void addUserMetadataField(final String label, final String value, final Promise promise) {
+    Log.v("label", label);
+    Sentiance.getInstance(this.reactContext).addUserMetadataField(label, value);
+    promise.resolve(null);
+  }
 
-	@ReactMethod
-	public void removeUserMetadataField(
-			final String label,
-			final Promise promise
-	) {
-		Sentiance.getInstance(this.reactContext).removeUserMetadataField(label);
-		promise.resolve(null);
-	}
+  @ReactMethod
+  public void addUserMetadataFields(ReadableMap inputMetadata, final Promise promise) {
+    final Map<String, String> metadata = convertReadableMapToMap(inputMetadata);
+    Sentiance.getInstance(this.reactContext).addUserMetadataFields(metadata);
+    promise.resolve(null);
+  }
 
-	@ReactMethod
-	public void submitDetections(
-			final Promise promise
-	) {
-		promise.resolve(null);
-	}
+  @ReactMethod
+  public void removeUserMetadataField(final String label, final Promise promise) {
+    Sentiance.getInstance(this.reactContext).removeUserMetadataField(label);
+    promise.resolve(null);
+  }
 
-	@ReactMethod
-	public void getWiFiQuotaLimit(
-			final Promise promise
-	) {
-		Long wifiQuotaLimit = Sentiance.getInstance(this.reactContext).getWiFiQuotaLimit();
-		promise.resolve(wifiQuotaLimit.toString());
-	}
+  @ReactMethod
+  public void submitDetections(final Promise promise) {
+    promise.resolve(null);
+  }
 
-	@ReactMethod
-	public void getWiFiQuotaUsage(
-			final Promise promise
-	) {
-		Long wifiQuotaUsage = Sentiance.getInstance(this.reactContext).getWiFiQuotaUsage();
-		promise.resolve(wifiQuotaUsage.toString());
-	}
+  @ReactMethod
+  public void getWiFiQuotaLimit(final Promise promise) {
+    Long wifiQuotaLimit = Sentiance.getInstance(this.reactContext).getWiFiQuotaLimit();
+    promise.resolve(wifiQuotaLimit.toString());
+  }
 
-	@ReactMethod
-	public void getMobileQuotaLimit(
-			final Promise promise
-	) {
-		Long mobileQuotaLimit = Sentiance.getInstance(this.reactContext).getMobileQuotaLimit();
-		promise.resolve(mobileQuotaLimit.toString());
-	}
+  @ReactMethod
+  public void getWiFiQuotaUsage(final Promise promise) {
+    Long wifiQuotaUsage = Sentiance.getInstance(this.reactContext).getWiFiQuotaUsage();
+    promise.resolve(wifiQuotaUsage.toString());
+  }
 
-	@ReactMethod
-	public void getMobileQuotaUsage(
-			final Promise promise
-	) {
-		Long mobileQuotaUsage = Sentiance.getInstance(this.reactContext).getMobileQuotaUsage();
-		promise.resolve(mobileQuotaUsage.toString());
-	}
+  @ReactMethod
+  public void getMobileQuotaLimit(final Promise promise) {
+    Long mobileQuotaLimit = Sentiance.getInstance(this.reactContext).getMobileQuotaLimit();
+    promise.resolve(mobileQuotaLimit.toString());
+  }
 
-	@ReactMethod
-	public void getDiskQuotaLimit(
-			final Promise promise
-	) {
-		Long diskQuotaLimit = Sentiance.getInstance(this.reactContext).getDiskQuotaLimit();
-		promise.resolve(diskQuotaLimit.toString());
-	}
+  @ReactMethod
+  public void getMobileQuotaUsage(final Promise promise) {
+    Long mobileQuotaUsage = Sentiance.getInstance(this.reactContext).getMobileQuotaUsage();
+    promise.resolve(mobileQuotaUsage.toString());
+  }
 
-	@ReactMethod
-	public void getDiskQuotaUsage(
-			final Promise promise
-	) {
-		Long diskQuotaUsage = Sentiance.getInstance(this.reactContext).getDiskQuotaUsage();
-		promise.resolve(diskQuotaUsage.toString());
-	}
+  @ReactMethod
+  public void getDiskQuotaLimit(final Promise promise) {
+    Long diskQuotaLimit = Sentiance.getInstance(this.reactContext).getDiskQuotaLimit();
+    promise.resolve(diskQuotaLimit.toString());
+  }
 
-	@Override
-	public void onHostResume() {
-		// Activity `onResume`
-	}
+  @ReactMethod
+  public void getDiskQuotaUsage(final Promise promise) {
+    Long diskQuotaUsage = Sentiance.getInstance(this.reactContext).getDiskQuotaUsage();
+    promise.resolve(diskQuotaUsage.toString());
+  }
 
-	@Override
-	public void onHostPause() {
-		// Activity `onPause`
-	}
+  @Override
+  public void onHostResume() {
+    // Activity `onResume`
+  }
 
-	@Override
-	public void onHostDestroy() {
-		// Activity `onDestroy`
-	}
+  @Override
+  public void onHostPause() {
+    // Activity `onPause`
+  }
+
+  @Override
+  public void onHostDestroy() {
+    // Activity `onDestroy`
+  }
 
 }
