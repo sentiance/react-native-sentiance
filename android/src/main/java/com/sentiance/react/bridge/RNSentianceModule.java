@@ -69,9 +69,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   private void initializeSentianceSdk(final Promise promise) {
     // Return early if already initialized
-    if (this.sdk.isInitialized()) {
-      return;
-    }
     // Create the config.
     OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
       @Override
@@ -89,8 +86,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         sdk.start(new OnStartFinishedHandler() {
           @Override
           public void onStartFinished(SdkStatus sdkStatus) {
+            Log.v(LOG_TAG, "SDK started successfully");
             if (promise != null) {
-              Log.v(LOG_TAG, "SDK started successfully");
               promise.resolve(null);
             }
           }
