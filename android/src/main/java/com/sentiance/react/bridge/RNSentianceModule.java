@@ -7,7 +7,6 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -23,34 +22,117 @@ import com.sentiance.sdk.TokenResultCallback;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
-import com.sentiance.core.model.thrift.ExternalEventType;
 import com.sentiance.core.model.thrift.TransportMode;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.support.v4.app.NotificationCompat;
 import java.util.HashMap;
 import java.util.Map;
-
 import android.util.Log;
 
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
 	private static final boolean DEBUG = true;
 	private final ReactApplicationContext reactContext;
+	private final Sentiance sdk;
 	private final String STATUS_UPDATE = "SDKStatusUpdate";
-	private final String TRIP_TIMEOUT= "TripTimeout";
 	private final String E_SDK_INIT_ERROR = "E_SDK_INIT_ERROR";
 	private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
 	private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
 	private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
-	private final String E_SDK_ADD_USER_METADATA_FIELD_ERROR = "E_SDK_ADD_USER_METADATA_FIELD_ERROR";
+	private static String SENTIANCE_APP_ID = "";
+	private static String SENTIANCE_APP_SECRET = "";
+	private static Map<String,String> notificationConfig;
 
 	public RNSentianceModule(ReactApplicationContext reactContext) {
 		super(reactContext);
 		this.reactContext = reactContext;
+		this.sdk = Sentiance.getInstance(this.reactContext);
+		if (SENTIANCE_APP_ID != "" && SENTIANCE_APP_SECRET != "") {
+			// Initialize early if SENTIANCE_APP_ID and SENTIANCE_APP_SECRET have been set already
+			initializeSentianceSdk(null);
+		}
+	}
+
+	public static void setAppConfig(String appId, String appSecret, Map<String,String> config) {
+		SENTIANCE_APP_ID = appId;
+		SENTIANCE_APP_SECRET = appSecret;
+		notificationConfig = config;
+	}
+
+	private void initializeSentianceSdk(final Promise promise) {
+		// Return early if already initialized
+		if (this.sdk.isInitialized()) {
+			return;
+		}
+		// Create the config.
+		OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
+			@Override
+			public void onSdkStatusUpdate(SdkStatus status) {
+				sendStatusUpdate(status);
+			}
+		};
+
+		SdkConfig config = new SdkConfig.Builder(SENTIANCE_APP_ID, SENTIANCE_APP_SECRET, createNotification())
+				.setOnSdkStatusUpdateHandler(statusHandler)
+				.build();
+
+		OnInitCallback initCallback = new OnInitCallback() {
+			@Override
+			public void onInitSuccess() {
+				sdk.start(new OnStartFinishedHandler() {
+					@Override
+					public void onStartFinished(SdkStatus sdkStatus) {
+						if (promise != null) {
+              Log.v("------initializeSentianceSdk()", "SDK started successfully");
+							promise.resolve(null);
+						}
+					}
+				});
+			}
+			@Override
+			public void onInitFailure(InitIssue issue) {
+				if (promise != null) {
+					promise.reject(E_SDK_INIT_ERROR, issue.toString());
+				}
+			}
+		};
+		// Initialize the Sentiance SDK.
+		this.sdk.init(config, initCallback);
+	}
+
+	private Notification createNotification() {
+		String packageName = this.reactContext.getPackageName();
+		Intent launchIntent = this.reactContext.getPackageManager().getLaunchIntentForPackage(packageName);
+		String className = launchIntent.getComponent().getClassName();
+		// PendingIntent that will start your application's MainActivity
+		Intent intent = new Intent(className);
+		PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent, 0);
+
+		// On Oreo and above, you must create a notification channel
+		String channelId = "trips";
+		String title = notificationConfig.get("title");
+		String text = notificationConfig.get("text");
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+			NotificationChannel channel = new NotificationChannel(channelId,
+					"Trips", NotificationManager.IMPORTANCE_MIN);
+			channel.setShowBadge(false);
+			NotificationManager notificationManager = (NotificationManager) this.reactContext.getSystemService(Context.NOTIFICATION_SERVICE);
+			notificationManager.createNotificationChannel(channel);
+		}
+
+		return new NotificationCompat.Builder(this.reactContext)
+      .setContentTitle(title)
+      .setContentText(text)
+      .setContentIntent(pendingIntent)
+      .setShowWhen(false)
+      .setPriority(NotificationCompat.PRIORITY_MIN)
+      .build();
 	}
 
 	@Override
@@ -124,41 +206,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void init(
-		String appId,
-		String appSecret,
-		final Promise promise
+			String appId,
+			String appSecret,
+			final Promise promise
 	) {
 		Log.v("------init()", "appId: " + appId + " | appSecret: " + appSecret);
-
-		if (Sentiance.getInstance(this.reactContext).isInitialized()) {
-			promise.resolve(null);
-			return;
-		}
-		Context context = getReactApplicationContext();
-		Notification notification = new NotificationCompat.Builder(context)
-			.build();
-
-		OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
-			@Override
-			public void onSdkStatusUpdate(SdkStatus status) {
-				sendStatusUpdate(status);
-			}
-		};
-		final SdkConfig sdkConfig = new SdkConfig.Builder(appId, appSecret, notification)
-				.setOnSdkStatusUpdateHandler(statusHandler)
-				.build();
-
-		OnInitCallback initCallback = new OnInitCallback() {
-			@Override
-			public void onInitSuccess() {
-				promise.resolve(null);
-			}
-			@Override
-			public void onInitFailure(InitIssue issue) {
-				promise.reject(E_SDK_INIT_ERROR, issue.toString());
-			}
-		};
-		Sentiance.getInstance(this.reactContext).init(sdkConfig, initCallback);
+		RNSentianceModule.setAppConfig(appId, appSecret, null);
+		this.initializeSentianceSdk(promise);
 	}
 
 	private void sendStatusUpdate(
@@ -171,7 +225,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void start(
-		final Promise promise
+			final Promise promise
 	) {
 		Sentiance.getInstance(this.reactContext).start(new OnStartFinishedHandler() {
 			@Override
@@ -183,7 +237,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void stop(
-		final Promise promise
+			final Promise promise
 	) {
 		Sentiance.getInstance(this.reactContext).stop();
 		promise.resolve("OK");
@@ -191,15 +245,15 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void startTrip(
-		ReadableMap metadata,
-		String hintParam,
-		final Promise promise
+			ReadableMap metadata,
+			String hintParam,
+			final Promise promise
 	) {
 		final TransportMode hint = hintParam == null ? null : TransportMode.valueOf(hintParam);
 		Sentiance.getInstance(this.reactContext).startTrip(null, null, new StartTripCallback() {
 			@Override
-				public void onSuccess() {
-					promise.resolve(null);
+			public void onSuccess() {
+				promise.resolve(null);
 			}
 
 			@Override
@@ -211,7 +265,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void stopTrip(
-		final Promise promise
+			final Promise promise
 	) {
 		Sentiance.getInstance(this.reactContext).stopTrip(new StopTripCallback() {
 			@Override
@@ -228,7 +282,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void getSdkStatus(
-		final Promise promise
+			final Promise promise
 	) {
 		SdkStatus sdkStatus = Sentiance.getInstance(this.reactContext).getSdkStatus();
 		promise.resolve(convertSdkStatus(sdkStatus));
@@ -236,7 +290,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void getVersion(
-		final Promise promise
+			final Promise promise
 	) {
 		String version = Sentiance.getInstance(this.reactContext).getVersion();
 		promise.resolve(version);
@@ -244,7 +298,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void isInitialized(
-		final Promise promise
+			final Promise promise
 	) {
 		Boolean isInitialized = Sentiance.getInstance(this.reactContext).isInitialized();
 		promise.resolve(isInitialized);
@@ -252,8 +306,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void isTripOngoing(
-		String typeParam,
-		final Promise promise
+			String typeParam,
+			final Promise promise
 	) {
 		if (typeParam == null) {
 			typeParam = "sdk";
@@ -265,7 +319,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void getUserAccessToken(
-		final Promise promise
+			final Promise promise
 	) {
 		Sentiance.getInstance(this.reactContext).getUserAccessToken(new TokenResultCallback() {
 			@Override
@@ -275,14 +329,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 			@Override
 			public void onFailure() {
-				promise.reject(E_SDK_GET_TOKEN_ERROR, "test");
+				promise.reject(E_SDK_GET_TOKEN_ERROR, "Something went wrong while obtaining a user token.");
 			}
 		});
 	}
 
 	@ReactMethod
 	public void getUserId(
-		final Promise promise
+			final Promise promise
 	) {
 		String userId = Sentiance.getInstance(this.reactContext).getUserId();
 		promise.resolve(userId);
@@ -290,9 +344,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void addUserMetadataField(
-		final String label,
-		final String value,
-		final Promise promise
+			final String label,
+			final String value,
+			final Promise promise
 	) {
 		Log.v("label", label);
 		Sentiance.getInstance(this.reactContext).addUserMetadataField(label, value);
@@ -327,7 +381,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void getWiFiQuotaLimit(
-		final Promise promise
+			final Promise promise
 	) {
 		Long wifiQuotaLimit = Sentiance.getInstance(this.reactContext).getWiFiQuotaLimit();
 		promise.resolve(wifiQuotaLimit.toString());
@@ -335,7 +389,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void getWiFiQuotaUsage(
-		final Promise promise
+			final Promise promise
 	) {
 		Long wifiQuotaUsage = Sentiance.getInstance(this.reactContext).getWiFiQuotaUsage();
 		promise.resolve(wifiQuotaUsage.toString());
@@ -343,7 +397,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void getMobileQuotaLimit(
-		final Promise promise
+			final Promise promise
 	) {
 		Long mobileQuotaLimit = Sentiance.getInstance(this.reactContext).getMobileQuotaLimit();
 		promise.resolve(mobileQuotaLimit.toString());
@@ -351,7 +405,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void getMobileQuotaUsage(
-		final Promise promise
+			final Promise promise
 	) {
 		Long mobileQuotaUsage = Sentiance.getInstance(this.reactContext).getMobileQuotaUsage();
 		promise.resolve(mobileQuotaUsage.toString());
@@ -359,7 +413,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void getDiskQuotaLimit(
-		final Promise promise
+			final Promise promise
 	) {
 		Long diskQuotaLimit = Sentiance.getInstance(this.reactContext).getDiskQuotaLimit();
 		promise.resolve(diskQuotaLimit.toString());
@@ -367,7 +421,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
 	@ReactMethod
 	public void getDiskQuotaUsage(
-		final Promise promise
+			final Promise promise
 	) {
 		Long diskQuotaUsage = Sentiance.getInstance(this.reactContext).getDiskQuotaUsage();
 		promise.resolve(diskQuotaUsage.toString());
