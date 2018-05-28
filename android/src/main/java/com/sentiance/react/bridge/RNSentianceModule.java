@@ -54,10 +54,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     super(reactContext);
     this.reactContext = reactContext;
     this.sdk = Sentiance.getInstance(this.reactContext);
+    // Initialize early if SENTIANCE_APP_ID and SENTIANCE_APP_SECRET have been set
+    // already
     if (SENTIANCE_APP_ID != "" && SENTIANCE_APP_SECRET != "") {
-      // Initialize early if SENTIANCE_APP_ID and SENTIANCE_APP_SECRET have been set
-      // already
-      initializeSentianceSdk(null);
+      try {
+        initializeSentianceSdk(null);
+      } catch (Exception e) {
+        Log.v(LOG_TAG, "SDK init failed: " + e.toString());
+      }
     }
   }
 
