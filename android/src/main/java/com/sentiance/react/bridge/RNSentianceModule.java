@@ -115,7 +115,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     String className = launchIntent.getComponent().getClassName();
     // PendingIntent that will start your application's MainActivity
     Intent intent = new Intent(className);
-    PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent, 0);
+    PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
     // On Oreo and above, you must create a notification channel
     String channelId = "trips";
@@ -129,7 +129,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       notificationManager.createNotificationChannel(channel);
     }
 
-    return new NotificationCompat.Builder(this.reactContext).setContentTitle(title).setContentText(text)
+    return new NotificationCompat.Builder(this.reactContext).setContentTitle(title).setContentText(text).setAutoCancel(false)
         .setContentIntent(pendingIntent).setShowWhen(false).setPriority(NotificationCompat.PRIORITY_MIN).build();
   }
 
