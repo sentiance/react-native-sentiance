@@ -142,7 +142,7 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejec
 RCT_EXPORT_METHOD(isInitialized:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    bool isInitialized = [[SENTSDK sharedInstance] isInitialised];
+    BOOL isInitialized = [[SENTSDK sharedInstance] isInitialised];
     resolve(@(isInitialized));
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
@@ -276,7 +276,7 @@ RCT_EXPORT_METHOD(stopTrip:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseR
 RCT_EXPORT_METHOD(isTripOngoing:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    bool isTripOngoing = [[SENTSDK sharedInstance] isTripOngoing];
+    BOOL isTripOngoing = [[SENTSDK sharedInstance] isTripOngoing];
     resolve(@(isTripOngoing));
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
