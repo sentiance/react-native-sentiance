@@ -13,6 +13,45 @@
   bool hasListeners;
 }
 
+- (id)init
+{
+  self = [super init];
+
+  if (!self) {
+    return nil;
+  }
+
+  BOOL isInitialized = [[SENTSDK sharedInstance] isInitialised];
+  NSString *APPID = [SentDataManager sharedInstance].APPID;
+  NSString *SECRET = [SentDataManager sharedInstance].SECRET;
+
+  if (isInitialized || APPID == nil || SECRET == nil || [APPID length] == 0 || [SECRET length] == 0) {
+    return self;
+  }
+
+  SENTConfig *config = [[SENTConfig alloc] initWithAppId:APPID secret:SECRET launchOptions:@{}];
+  [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
+    if (hasListeners) {
+      [self sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
+    }
+  }];
+
+  [[SENTSDK sharedInstance] initWithConfig:config success:^{
+    [[SENTSDK sharedInstance] start:^(SENTSDKStatus *status) {
+      if ([status startStatus] == SENTStartStatusStarted) {
+        NSLog(@"SDK started properly.");
+      } else if ([status startStatus] == SENTStartStatusPending) {
+        NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.");
+      } else {
+        NSLog(@"SDK did not start.");
+      }
+    }];
+  } failure:^(SENTInitIssue issue) {
+  }];
+
+  return self;
+}
+
 - (dispatch_queue_t)methodQueue
 {
     return dispatch_get_main_queue();
