@@ -1,5 +1,6 @@
 
 #import "RNSentiance.h"
+#import "SentDataManager.h"
 #import <SENTTransportDetectionSDK/SENTSDK.h>
 #import <SENTTransportDetectionSDK/SENTConfig.h>
 #import <SENTTransportDetectionSDK/SENTSDKStatus.h>
@@ -309,6 +310,12 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
   }
+}
+
+- (void)setAppConfig:(NSString*) appId secret:(NSString*) secret
+{
+  [SentDataManager sharedInstance].APPID = appId;
+  [SentDataManager sharedInstance].SECRET = secret;
 }
 
 - (void)tripTimeoutReceived
