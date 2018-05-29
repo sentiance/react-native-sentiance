@@ -70,20 +70,20 @@ RCT_EXPORT_MODULE()
 }
 
 // Will be called when this module's first listener is added.
--(void)startObserving {
+- (void)startObserving {
   hasListeners = YES;
   // Set up any upstream listeners or background tasks as necessary
 }
 
 // Will be called when this module's last listener is removed, or on dealloc.
--(void)stopObserving {
+- (void)stopObserving {
   hasListeners = NO;
   // Remove upstream listeners, stop unnecessary background tasks
 }
 
 RCT_EXPORT_METHOD(init:(NSString *)appId
-                  secret:(NSString *)secret
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+                secret:(NSString *)secret
+              resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   if (appId == nil || secret == nil) {
     reject(@"", @"INVALID_CREDENTIALS", nil);
@@ -194,8 +194,8 @@ RCT_EXPORT_METHOD(getUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(R
 }
 
 RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
-                  value:(NSString *)value
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+                                 value:(NSString *)value
+                              resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
     if (label == nil || value == nil) {
@@ -213,7 +213,8 @@ RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
 }
 
 RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+                                 resolver:(RCTPromiseResolveBlock)resolve
+                                 rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
     if (label == nil) {
@@ -231,7 +232,8 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
 }
 
 RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+                               resolver:(RCTPromiseResolveBlock)resolve
+                               rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
     if (metadata == nil) {
@@ -249,8 +251,8 @@ RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
 }
 
 RCT_EXPORT_METHOD(startTrip:(NSDictionary *)metadata
-                  hint:(nonnull NSNumber *)hint
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+                       hint:(nonnull NSNumber *)hint
+                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
     SENTTransportMode mode = [hint intValue] == -1 ? SENTTransportModeUnknown : (SENTTransportMode)hint;
