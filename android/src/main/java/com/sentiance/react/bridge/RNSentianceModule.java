@@ -77,7 +77,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
     };
 
-    SdkConfig config = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, createNotification())
+    Notification sdkNotification = sentianceConfig.notification != null ? sentianceConfig.notification
+        : createNotification();
+    SdkConfig config = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
         .setOnSdkStatusUpdateHandler(statusHandler).build();
 
     OnInitCallback initCallback = new OnInitCallback() {
@@ -118,12 +120,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     String className = launchIntent.getComponent().getClassName();
     // PendingIntent that will start your application's MainActivity
     Intent intent = new Intent(className);
-    PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent,
+        PendingIntent.FLAG_UPDATE_CURRENT);
 
     // On Oreo and above, you must create a notification channel
     String channelId = "trips";
-    String title = "title"; //notificationConfig.get("title");
-    String text = "text"; //notificationConfig.get("text");
+    String title = "title"; // notificationConfig.get("title");
+    String text = "text"; // notificationConfig.get("text");
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
       NotificationChannel channel = new NotificationChannel(channelId, "Trips", NotificationManager.IMPORTANCE_MIN);
       channel.setShowBadge(false);
@@ -132,8 +135,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       notificationManager.createNotificationChannel(channel);
     }
 
-    return new NotificationCompat.Builder(this.reactContext).setContentTitle(title).setContentText(text).setAutoCancel(false)
-        .setContentIntent(pendingIntent).setShowWhen(false).setPriority(NotificationCompat.PRIORITY_MIN).build();
+    return new NotificationCompat.Builder(this.reactContext).setContentTitle(title).setContentText(text)
+        .setAutoCancel(false).setContentIntent(pendingIntent).setShowWhen(false)
+        .setPriority(NotificationCompat.PRIORITY_MIN).build();
   }
 
   @Override
@@ -207,10 +211,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   public void init(String appId, String appSecret, final Promise promise) {
     Log.v(LOG_TAG, "appId: " + appId + " | appSecret: " + appSecret + " init()");
     RNSentianceModule.with(new RNSentianceConfig(appId, appSecret));
-    if (this.sdk.isInitialized()) {
-      promise.resolve(null);
-      return;
-    }
     this.initializeSentianceSdk(promise);
   }
 

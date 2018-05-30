@@ -1,5 +1,6 @@
 package com.sentiance.react.bridge;
 
+import android.app.Notification;
 import com.sentiance.sdk.OnInitCallback;
 
 public class RNSentianceConfig {
@@ -7,6 +8,7 @@ public class RNSentianceConfig {
   public String appId;
   public String appSecret;
   public Boolean autoStart = true;
+  public Notification notification = null;
   public OnInitCallback initCallback = new OnInitCallback() {
     @Override
     public void onInitSuccess() {
@@ -25,6 +27,10 @@ public class RNSentianceConfig {
 
   public void setInitCallback(OnInitCallback initCallback) {
     this.initCallback = initCallback;
+  }
+
+  public void setNotification(Notification customNotification) {
+    this.notification = customNotification;
   }
 
   public void setAutoStart(Boolean autoStart) {
