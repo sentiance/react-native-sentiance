@@ -64,7 +64,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
   }
 
-  public static void with(RNSentianceConfig config) {
+  public static void setConfig(RNSentianceConfig config) {
     sentianceConfig = config;
   }
 
@@ -210,7 +210,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   public void init(String appId, String appSecret, final Promise promise) {
     Log.v(LOG_TAG, "appId: " + appId + " | appSecret: " + appSecret + " init()");
-    RNSentianceModule.with(new RNSentianceConfig(appId, appSecret));
+    RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret));
     this.initializeSentianceSdk(promise);
   }
 
