@@ -1,5 +1,6 @@
 
 #import "RNSentiance.h"
+#import "SentDataManager.h"
 #import <SENTTransportDetectionSDK/SENTSDK.h>
 #import <SENTTransportDetectionSDK/SENTConfig.h>
 #import <SENTTransportDetectionSDK/SENTSDKStatus.h>
@@ -12,9 +13,53 @@
   bool hasListeners;
 }
 
+- (id)init
+{
+  self = [super init];
+
+  if (!self) {
+    return nil;
+  }
+
+  BOOL isInitialized = [[SENTSDK sharedInstance] isInitialised];
+  NSString *APPID = [SentDataManager sharedInstance].APPID;
+  NSString *SECRET = [SentDataManager sharedInstance].SECRET;
+
+  if (isInitialized || APPID == nil || SECRET == nil || [APPID length] == 0 || [SECRET length] == 0) {
+    return self;
+  }
+
+  SENTConfig *config = [[SENTConfig alloc] initWithAppId:APPID secret:SECRET launchOptions:@{}];
+  [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
+    if (hasListeners) {
+      [self sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
+    }
+  }];
+
+  [[SENTSDK sharedInstance] initWithConfig:config success:^{
+    [[SENTSDK sharedInstance] start:^(SENTSDKStatus *status) {
+      if ([status startStatus] == SENTStartStatusStarted) {
+        NSLog(@"SDK started properly.");
+      } else if ([status startStatus] == SENTStartStatusPending) {
+        NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.");
+      } else {
+        NSLog(@"SDK did not start.");
+      }
+    }];
+  } failure:^(SENTInitIssue issue) {
+  }];
+
+  return self;
+}
+
 - (dispatch_queue_t)methodQueue
 {
     return dispatch_get_main_queue();
+}
+
++ (BOOL)requiresMainQueueSetup
+{
+  return YES;
 }
 
 RCT_EXPORT_MODULE()
@@ -25,20 +70,20 @@ RCT_EXPORT_MODULE()
 }
 
 // Will be called when this module's first listener is added.
--(void)startObserving {
+- (void)startObserving {
   hasListeners = YES;
   // Set up any upstream listeners or background tasks as necessary
 }
 
 // Will be called when this module's last listener is removed, or on dealloc.
--(void)stopObserving {
+- (void)stopObserving {
   hasListeners = NO;
   // Remove upstream listeners, stop unnecessary background tasks
 }
 
 RCT_EXPORT_METHOD(init:(NSString *)appId
-                  secret:(NSString *)secret
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+                secret:(NSString *)secret
+              resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   if (appId == nil || secret == nil) {
     reject(@"", @"INVALID_CREDENTIALS", nil);
@@ -97,7 +142,7 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejec
 RCT_EXPORT_METHOD(isInitialized:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    bool isInitialized = [[SENTSDK sharedInstance] isInitialised];
+    BOOL isInitialized = [[SENTSDK sharedInstance] isInitialised];
     resolve(@(isInitialized));
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
@@ -149,8 +194,8 @@ RCT_EXPORT_METHOD(getUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(R
 }
 
 RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
-                  value:(NSString *)value
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+                                 value:(NSString *)value
+                              resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
     if (label == nil || value == nil) {
@@ -168,7 +213,8 @@ RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
 }
 
 RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+                                 resolver:(RCTPromiseResolveBlock)resolve
+                                 rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
     if (label == nil) {
@@ -186,7 +232,8 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
 }
 
 RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+                               resolver:(RCTPromiseResolveBlock)resolve
+                               rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
     if (metadata == nil) {
@@ -204,8 +251,8 @@ RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
 }
 
 RCT_EXPORT_METHOD(startTrip:(NSDictionary *)metadata
-                  hint:(nonnull NSNumber *)hint
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+                       hint:(nonnull NSNumber *)hint
+                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
     SENTTransportMode mode = [hint intValue] == -1 ? SENTTransportModeUnknown : (SENTTransportMode)hint;
@@ -229,7 +276,7 @@ RCT_EXPORT_METHOD(stopTrip:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseR
 RCT_EXPORT_METHOD(isTripOngoing:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    bool isTripOngoing = [[SENTSDK sharedInstance] isTripOngoing];
+    BOOL isTripOngoing = [[SENTSDK sharedInstance] isTripOngoing];
     resolve(@(isTripOngoing));
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
@@ -309,6 +356,12 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
   }
+}
+
+- (void)setConfig:(NSString*) appId secret:(NSString*) secret
+{
+  [SentDataManager sharedInstance].APPID = appId;
+  [SentDataManager sharedInstance].SECRET = secret;
 }
 
 - (void)tripTimeoutReceived
