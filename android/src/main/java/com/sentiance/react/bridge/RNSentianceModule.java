@@ -1,5 +1,6 @@
 package com.sentiance.react.bridge;
 
+import com.sentiance.react.bridge.RNSentianceConfig;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -40,15 +41,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private static final boolean DEBUG = true;
   private static final String LOG_TAG = "RNSentiance";
   private final ReactApplicationContext reactContext;
+  private static RNSentianceConfig sentianceConfig = new RNSentianceConfig(null, null);
   private final Sentiance sdk;
   private final String STATUS_UPDATE = "SDKStatusUpdate";
   private final String E_SDK_INIT_ERROR = "E_SDK_INIT_ERROR";
   private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
   private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
   private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
-  private static String SENTIANCE_APP_ID = "";
-  private static String SENTIANCE_APP_SECRET = "";
-  private static Map<String, String> notificationConfig;
 
   public RNSentianceModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -56,7 +55,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     this.sdk = Sentiance.getInstance(this.reactContext);
     // Initialize early if SENTIANCE_APP_ID and SENTIANCE_APP_SECRET have been set
     // already
-    if (SENTIANCE_APP_ID != "" && SENTIANCE_APP_SECRET != "") {
+    if (sentianceConfig.appId != null && sentianceConfig.appSecret != null) {
       try {
         initializeSentianceSdk(null);
       } catch (Exception e) {
@@ -65,14 +64,11 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
   }
 
-  public static void setAppConfig(String appId, String appSecret, Map<String, String> config) {
-    SENTIANCE_APP_ID = appId;
-    SENTIANCE_APP_SECRET = appSecret;
-    notificationConfig = config;
+  public static void with(RNSentianceConfig config) {
+    sentianceConfig = config;
   }
 
   private void initializeSentianceSdk(final Promise promise) {
-    // Return early if already initialized
     // Create the config.
     OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
       @Override
@@ -81,25 +77,32 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
     };
 
-    SdkConfig config = new SdkConfig.Builder(SENTIANCE_APP_ID, SENTIANCE_APP_SECRET, createNotification())
+    SdkConfig config = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, createNotification())
         .setOnSdkStatusUpdateHandler(statusHandler).build();
 
     OnInitCallback initCallback = new OnInitCallback() {
       @Override
       public void onInitSuccess() {
-        sdk.start(new OnStartFinishedHandler() {
-          @Override
-          public void onStartFinished(SdkStatus sdkStatus) {
-            Log.v(LOG_TAG, "SDK started successfully");
-            if (promise != null) {
-              promise.resolve(null);
+        sentianceConfig.initCallback.onInitSuccess();
+        if (sentianceConfig.autoStart) {
+          sdk.start(new OnStartFinishedHandler() {
+            @Override
+            public void onStartFinished(SdkStatus sdkStatus) {
+              Log.v(LOG_TAG, "SDK started successfully");
+              if (promise != null) {
+                promise.resolve(null);
+              }
             }
-          }
-        });
+          });
+        } else {
+          Log.v(LOG_TAG, "No autostart configured");
+          promise.resolve(null);
+        }
       }
 
       @Override
       public void onInitFailure(InitIssue issue) {
+        sentianceConfig.initCallback.onInitFailure(issue);
         if (promise != null) {
           promise.reject(E_SDK_INIT_ERROR, issue.toString());
         }
@@ -119,8 +122,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
     // On Oreo and above, you must create a notification channel
     String channelId = "trips";
-    String title = notificationConfig.get("title");
-    String text = notificationConfig.get("text");
+    String title = "title"; //notificationConfig.get("title");
+    String text = "text"; //notificationConfig.get("text");
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
       NotificationChannel channel = new NotificationChannel(channelId, "Trips", NotificationManager.IMPORTANCE_MIN);
       channel.setShowBadge(false);
@@ -203,7 +206,11 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   public void init(String appId, String appSecret, final Promise promise) {
     Log.v(LOG_TAG, "appId: " + appId + " | appSecret: " + appSecret + " init()");
-    RNSentianceModule.setAppConfig(appId, appSecret, null);
+    RNSentianceModule.with(new RNSentianceConfig(appId, appSecret));
+    if (this.sdk.isInitialized()) {
+      promise.resolve(null);
+      return;
+    }
     this.initializeSentianceSdk(promise);
   }
 
