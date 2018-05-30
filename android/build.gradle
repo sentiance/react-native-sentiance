@@ -13,7 +13,7 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion "27.0.3"
     publishNonDefault true
     defaultConfig {
@@ -45,6 +45,6 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    worldApi('com.sentiance:sdk:4.1.15-R@aar') {transitive = true}
-    chinaApi('com.sentiance:sdk:4.1.15-R@aar') {transitive = true}
+    worldApi('com.sentiance:sdk:4.1.16-R@aar') {transitive = true}
+    chinaApi('com.sentiance:sdk:4.1.16-R@aar') {transitive = true}
 }

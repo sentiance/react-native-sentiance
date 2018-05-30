@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B1AD23E720BDAE4E00A8E7AD /* SentDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B1AD23E620BDAE4E00A8E7AD /* SentDataManager.m */; };
 		B3E7B58A1CC2AC0600A0062D /* RNSentiance.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNSentiance.m */; };
 /* End PBXBuildFile section */
 
@@ -24,6 +25,8 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libRNSentiance.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNSentiance.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1AD23E520BDAE4E00A8E7AD /* SentDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentDataManager.h; sourceTree = "<group>"; };
+		B1AD23E620BDAE4E00A8E7AD /* SentDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentDataManager.m; sourceTree = "<group>"; };
 		B3E7B5881CC2AC0600A0062D /* RNSentiance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSentiance.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RNSentiance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSentiance.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -50,6 +53,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				B1AD23E520BDAE4E00A8E7AD /* SentDataManager.h */,
+				B1AD23E620BDAE4E00A8E7AD /* SentDataManager.m */,
 				B3E7B5881CC2AC0600A0062D /* RNSentiance.h */,
 				B3E7B5891CC2AC0600A0062D /* RNSentiance.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
@@ -113,6 +118,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B3E7B58A1CC2AC0600A0062D /* RNSentiance.m in Sources */,
+				B1AD23E720BDAE4E00A8E7AD /* SentDataManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -204,7 +210,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
-				"$(inherited)",
+					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../../../React/**",
 					"$(SRCROOT)/../../react-native/React/**",
