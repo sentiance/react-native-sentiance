@@ -4,6 +4,6 @@
 
 @interface RNSentiance : RCTEventEmitter <RCTBridgeModule>
 
-- (void)setAppConfig:(NSString*) appId secret:(NSString*) secret;
+- (void)setConfig:(NSString*) appId secret:(NSString*) secret;
 
 @end

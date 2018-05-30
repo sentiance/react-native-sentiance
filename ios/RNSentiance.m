@@ -358,7 +358,7 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
   }
 }
 
-- (void)setAppConfig:(NSString*) appId secret:(NSString*) secret
+- (void)setConfig:(NSString*) appId secret:(NSString*) secret
 {
   [SentDataManager sharedInstance].APPID = appId;
   [SentDataManager sharedInstance].SECRET = secret;
