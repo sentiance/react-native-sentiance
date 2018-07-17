@@ -15,5 +15,6 @@ Pod::Spec.new do |s|
   s.source_files  = "*.{h,m}"
   s.requires_arc = true
   s.dependency "React"
+  s.xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '${PODS_ROOT}/SentianceSDK' }
 end
 
