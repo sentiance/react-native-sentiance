@@ -1,12 +1,12 @@
 
 #import "RNSentiance.h"
 #import "SentDataManager.h"
-#import <SENTTransportDetectionSDK/SENTSDK.h>
-#import <SENTTransportDetectionSDK/SENTConfig.h>
-#import <SENTTransportDetectionSDK/SENTSDKStatus.h>
-#import <SENTTransportDetectionSDK/SENTInitIssue.h>
-#import <SENTTransportDetectionSDK/SENTTrip.h>
-#import <SENTTransportDetectionSDK/SENTToken.h>
+#import <SENTSDK/SENTSDK.h>
+#import <SENTSDK/SENTConfig.h>
+#import <SENTSDK/SENTSDKStatus.h>
+#import <SENTSDK/SENTInitIssue.h>
+#import <SENTSDK/SENTTrip.h>
+#import <SENTSDK/SENTToken.h>
 
 @implementation RNSentiance
 {
@@ -375,11 +375,11 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 
 - (NSMutableDictionary*)convertSdkStatusToDict:(SENTSDKStatus*) status {
   NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
-  
+
   if (status == nil) {
     return dict;
   }
-  
+
   [dict setValue:[self convertStartStatusToString:status.startStatus] forKey:@"startStatus"];
   [dict setValue:@(status.canDetect) forKey:@"canDetect"];
   [dict setValue:@(status.isRemoteEnabled) forKey:@"isRemoteEnabled"];
@@ -391,7 +391,7 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
   [dict setValue:[self convertQuotaStatusToString:status.wifiQuotaStatus] forKey:@"wifiQuotaStatus"];
   [dict setValue:[self convertQuotaStatusToString:status.mobileQuotaStatus] forKey:@"mobileQuotaStatus"];
   [dict setValue:[self convertQuotaStatusToString:status.diskQuotaStatus] forKey:@"diskQuotaStatus"];
-  
+
   return dict;
 }
 
