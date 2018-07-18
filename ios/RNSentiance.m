@@ -1,12 +1,10 @@
 
 #import "RNSentiance.h"
 #import "SentDataManager.h"
+
 #import <SENTSDK/SENTSDK.h>
-#import <SENTSDK/SENTConfig.h>
 #import <SENTSDK/SENTSDKStatus.h>
-#import <SENTSDK/SENTInitIssue.h>
-#import <SENTSDK/SENTTrip.h>
-#import <SENTSDK/SENTToken.h>
+#import <SENTSDK/SENTPublicDefinitions.h>
 
 @implementation RNSentiance
 {
@@ -182,7 +180,7 @@ RCT_EXPORT_METHOD(getUserId:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
 RCT_EXPORT_METHOD(getUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    [[SENTSDK sharedInstance] getUserAccessToken:^(SENTToken* token) {
+    [[SENTSDK sharedInstance] getUserAccessToken:^(NSString* token) {
       NSMutableDictionary* dict = [self convertTokenToDict:token];
       resolve(dict);
     } failure:^() {
@@ -202,11 +200,8 @@ RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
       @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
     }
 
-    [[SENTSDK sharedInstance] addUserMetadataField:label value:value success:^() {
+      [[SENTSDK sharedInstance] addUserMetadataField:label value:value];
       resolve(nil);
-    } failure:^() {
-      reject(@"", @"Couldn't add user metadata field", nil);
-    }];
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
   }
@@ -221,11 +216,8 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
       @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
     }
 
-    [[SENTSDK sharedInstance] removeUserMetadataField:label success:^() {
+      [[SENTSDK sharedInstance] removeUserMetadataField:label];
       resolve(nil);
-    } failure:^() {
-      reject(@"", @"Couldn't remove user metadata field", nil);
-    }];
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
   }
@@ -240,11 +232,8 @@ RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
       @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
     }
 
-    [[SENTSDK sharedInstance] addUserMetadataFields:metadata success:^() {
+      [[SENTSDK sharedInstance] addUserMetadataFields:metadata];
       resolve(nil);
-    } failure:^() {
-      reject(@"", @"Couldn't add user metadata fields", nil);
-    }];
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
   }
@@ -256,8 +245,12 @@ RCT_EXPORT_METHOD(startTrip:(NSDictionary *)metadata
 {
   @try {
     SENTTransportMode mode = [hint intValue] == -1 ? SENTTransportModeUnknown : (SENTTransportMode)hint;
-    [[SENTSDK sharedInstance] startTrip:metadata transportModeHint:mode];
-    resolve(nil);
+      [[SENTSDK sharedInstance] startTrip:metadata transportModeHint:mode success:^ {
+        resolve(nil);
+      }
+    failure:^(SENTSDKStatus *status) {
+        reject(@"", @"Couldn't start trip", nil);
+    }];
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
   }
@@ -266,18 +259,24 @@ RCT_EXPORT_METHOD(startTrip:(NSDictionary *)metadata
 RCT_EXPORT_METHOD(stopTrip:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    SENTTrip* tripObj = [[SENTSDK sharedInstance] stopTrip];
-    resolve([self convertTripToDict:tripObj]);
+      [[SENTSDK sharedInstance] stopTrip:^{
+          resolve(nil);
+      } failure:^(SENTSDKStatus *status) {
+          reject(@"", @"Couldn't stop trip", nil);
+      }];
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
   }
 }
 
-RCT_EXPORT_METHOD(isTripOngoing:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(isTripOngoing:(NSInteger)type
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    BOOL isTripOngoing = [[SENTSDK sharedInstance] isTripOngoing];
-    resolve(@(isTripOngoing));
+      SENTTripType tripType = type;
+      BOOL isTripOngoing = [[SENTSDK sharedInstance] isTripOngoing:tripType];
+      resolve(@(isTripOngoing));
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
   }
@@ -286,12 +285,10 @@ RCT_EXPORT_METHOD(isTripOngoing:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
 RCT_EXPORT_METHOD(submitDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    [[SENTSDK sharedInstance] submitDetections:^(BOOL status, NSError* error) {
-      if (status) {
+    [[SENTSDK sharedInstance] submitDetections:^ {
         resolve(nil);
-      } else {
+    } failure: ^ {
         reject(@"", @"Couldn't submit all detections", nil);
-      }
     }];
   } @catch (NSException *e) {
     reject(e.name, e.reason, nil);
@@ -366,9 +363,9 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 
 - (void)tripTimeoutReceived
 {
-  [[SENTSDK sharedInstance] setTripTimeOutListener:^(SENTTrip *trip) {
+  [[SENTSDK sharedInstance] setTripTimeOutListener:^ {
     if (hasListeners) {
-      [self sendEventWithName:@"TripTimeout" body:[self convertTripToDict:trip]];
+      [self sendEventWithName:@"TripTimeout" body:@""];
     }
   }];
 }
@@ -395,35 +392,14 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
   return dict;
 }
 
-- (NSMutableDictionary*)convertTokenToDict:(SENTToken*) token {
+- (NSMutableDictionary*)convertTokenToDict:(NSString*) token {
   NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
 
   if (token == nil) {
     return dict;
   }
-
-  NSTimeInterval interval = [token.expiryDate timeIntervalSince1970];
-  NSInteger time = interval * 1000;
-
-  [dict setValue:token.tokenId forKey:@"tokenId"];
-  [dict setValue:[NSNumber numberWithLongLong:(long)time] forKey:@"expiryDate"];
-
+  [dict setValue:token forKey:@"tokenId"];
   return dict;
-}
-
-- (NSMutableDictionary*)convertTripToDict:(SENTTrip*) trip {
-    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
-
-    if (trip == nil)
-        return dict;
-
-    [dict setValue:trip.tripId forKey:@"tripId"];
-    [dict setValue:[NSNumber numberWithLongLong:trip.start] forKey:@"start"];
-    [dict setValue:[NSNumber numberWithLongLong:trip.stop] forKey:@"stop"];
-    [dict setValue:[NSNumber numberWithLongLong:trip.distance] forKey:@"distance"];
-    [dict setValue:trip.pWaypointsArray forKey:@"waypoints"];
-
-    return dict;
 }
 
 - (NSString*)convertInitIssueToString:(SENTInitIssue) issue {
