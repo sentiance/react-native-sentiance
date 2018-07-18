@@ -365,7 +365,7 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 {
   [[SENTSDK sharedInstance] setTripTimeOutListener:^ {
     if (hasListeners) {
-      [self sendEventWithName:@"TripTimeout" body:@""];
+      [self sendEventWithName:@"TripTimeout" body:nil];
     }
   }];
 }
