@@ -210,6 +210,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   public void init(String appId, String appSecret, final Promise promise) {
     Log.v(LOG_TAG, "appId: " + appId + " | appSecret: " + appSecret + " init()");
+    if (this.isInitialized()) {
+      return promise.resolve(null);
+    }
     RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret));
     this.initializeSentianceSdk(promise);
   }
