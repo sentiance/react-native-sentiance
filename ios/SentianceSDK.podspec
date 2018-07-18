@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
     s.ios.deployment_target = '8.0'
     s.frameworks = 'CoreMotion', 'SystemConfiguration', 'CoreLocation', 'Foundation', 'CallKit', 'CoreTelephony', 'CoreData'
     s.libraries = 'z'
-    s.compiler_flags = '-lz', '-all_load'
-    s.source_files	= '**/*.{h,m}'
+    s.compiler_flags = '-lz', '-all_load', 'lc++'
+    s.resources = '**/SENTSDK.bundle'
     s.vendored_frameworks = 'SENTSDK.framework'
 end
