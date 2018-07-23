@@ -1,7 +1,7 @@
 
 {
   "name": "react-native-sentiance",
-  "version": "1.0.0-rc.7",
+  "version": "1.0.0-rc.8",
   "description": "React Native library for the Sentiance SDK",
   "main": "index.js",
   "scripts": {
