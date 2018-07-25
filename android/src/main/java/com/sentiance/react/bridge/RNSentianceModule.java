@@ -92,7 +92,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
             public void onStartFinished(SdkStatus sdkStatus) {
               Log.v(LOG_TAG, "SDK started successfully");
               if (promise != null) {
-                promise.resolve(null);
+                promise.resolve(convertSdkStatus(sdkStatus));
               }
             }
           });
