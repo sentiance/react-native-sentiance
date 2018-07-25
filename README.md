@@ -120,7 +120,7 @@ const userId = await RNSentiance.getUserId();
 #### Get user access token
 If the SDK is initialized, you can get a user access token as follows. This token will allow you to interact with the API's from Sentiance. You need a token and user to authorize requests and query the right data. If the token has expired, or will expire soon, the SDK will get a new bearer token before passing it to the callback. Generally, this operation will complete instantly by returning a cached bearer token, but if a new token has to be obtained from the Sentiance API, there is a possibility it will fail.
 ```javascript
-const { tokenId, expiryDate } = await RNSentiance.getUserAccessToken();
+const { tokenId } = await RNSentiance.getUserAccessToken();
 ```
 
 #### Adding custom metadata
@@ -196,8 +196,8 @@ import { NativeEventEmitter } from 'react-native'
 const sentianceEmitter = new NativeEventEmitter(RNSentianceLibrary)
 const subscription = sentianceEmitter.addListener(
 	'TripTimeout',
-	res => {
-		// Returns a trip object
+	() => {
+		// Trip timeout received
 	}
 )
 ```

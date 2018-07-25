@@ -9,16 +9,12 @@ Pod::Spec.new do |s|
   s.homepage     = "https://developers.sentiance.com/docs"
   s.license      = "MIT"
   # s.license      = { :type => "MIT", :file => "FILE_LICENSE" }
-  s.author             = { "author" => "jiri.crispeyn@sentiance.com" }
+  s.author             = { "author" => "sdk@sentiance.com" }
   s.platform     = :ios, "7.0"
   s.source       = { :git => "https://github.com/sentiance/react-native-sentiance.git", :tag => "master" }
   s.source_files  = "*.{h,m}"
   s.requires_arc = true
-
-
   s.dependency "React"
-  #s.dependency "others"
-
+  s.xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '${PODS_ROOT}/SentianceSDK' }
 end
 
-  
