@@ -40,7 +40,7 @@
         NSLog(@"SDK started properly.");
       } else if ([status startStatus] == SENTStartStatusPending) {
         NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.");
-      } else {
+      } else {
         NSLog(@"SDK did not start.");
       }
     }];
@@ -111,13 +111,13 @@ RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
   @try {
     [[SENTSDK sharedInstance] start:^(SENTSDKStatus* status) {
       if ([status startStatus] == SENTStartStatusStarted) {
-        // SDK started properly.
-        resolve(@"STARTED");
+        NSLog(@"SDK started properly.");
+        resolve([self convertSdkStatusToDict:status]);
       } else if ([status startStatus] == SENTStartStatusPending) {
-        // Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.
-        resolve(@"PENDING");
+        NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.");
+        resolve([self convertSdkStatusToDict:status]);
       } else {
-        // SDK did not start.
+        NSLog(@"SDK did not start.");
         reject(@"", @"SDK did not start.", nil);
       }
     }];
