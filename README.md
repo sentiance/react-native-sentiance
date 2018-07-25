@@ -53,13 +53,14 @@ try {
 ```
 
 #### Starting the Sentiance SDK
-Starting is only allowed after successful initialization.
+Starting is only allowed after successful initialization. Resolves with an SDK status object.
 ```javascript
 try {
 	const startResponse = await RNSentiance.start();
-	if (startResponse === 'STARTED') {
+	const { startStatus } = startResponse;
+	if (startStatus === 'STARTED') {
 		// SDK started properly.
-	} else if (startResponse === 'PENDING') {
+	} else if (startStatus === 'PENDING') {
 		// Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.
 	}
 } catch (err) {
@@ -173,7 +174,7 @@ const metadata = { corrolation_id: '3a5276ec-b2b2-4636-b893-eb9a9f014938' }
 const transportModeHint = 1
 try {
 	await RNSentiance.startTrip(metadata, transportModeHint);
-	// trip is started
+	// Trip is started
 } catch (err) {
 	// Unable to start trip
 }
