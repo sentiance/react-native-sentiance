@@ -135,9 +135,15 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       notificationManager.createNotificationChannel(channel);
     }
 
-    return new NotificationCompat.Builder(this.reactContext).setContentTitle(title).setContentText(text)
-        .setAutoCancel(false).setContentIntent(pendingIntent).setShowWhen(false)
-        .setPriority(NotificationCompat.PRIORITY_MIN).build();
+    return new NotificationCompat.Builder(this.reactContext)
+      .setContentTitle(title)
+      .setContentText(text)
+      .setSmallIcon(R.mipmap.ic_launcher)
+      .setAutoCancel(false)
+      .setContentIntent(pendingIntent)
+      .setShowWhen(false)
+      .setPriority(NotificationCompat.PRIORITY_MIN)
+      .build();
   }
 
   @Override
