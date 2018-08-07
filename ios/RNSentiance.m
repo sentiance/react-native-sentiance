@@ -6,10 +6,12 @@
 #import <SENTSDK/SENTSDKStatus.h>
 #import <SENTSDK/SENTPublicDefinitions.h>
 
+@interface RNSentiance()
+@property (assign) BOOL hasListeners;
+@property (assign) BOOL isSdkInitializing;
+@end
+
 @implementation RNSentiance
-{
-  bool hasListeners;
-}
 
 - (id)init
 {
@@ -69,13 +71,13 @@ RCT_EXPORT_MODULE()
 
 // Will be called when this module's first listener is added.
 - (void)startObserving {
-  hasListeners = YES;
+  self.hasListeners = YES;
   // Set up any upstream listeners or background tasks as necessary
 }
 
 // Will be called when this module's last listener is removed, or on dealloc.
 - (void)stopObserving {
-  hasListeners = NO;
+  self.hasListeners = NO;
   // Remove upstream listeners, stop unnecessary background tasks
 }
 
@@ -91,7 +93,7 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
   @try {
     SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:secret launchOptions:@{}];
     [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
-      if (hasListeners) {
+      if (self.hasListeners) {
         [self sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
       }
     }];
@@ -364,7 +366,7 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 - (void)tripTimeoutReceived
 {
   [[SENTSDK sharedInstance] setTripTimeOutListener:^ {
-    if (hasListeners) {
+    if (self.hasListeners) {
       [self sendEventWithName:@"TripTimeout" body:nil];
     }
   }];
