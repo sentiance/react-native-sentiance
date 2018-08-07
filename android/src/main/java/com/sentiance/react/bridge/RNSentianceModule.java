@@ -138,7 +138,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     return new NotificationCompat.Builder(this.reactContext)
       .setContentTitle(title)
       .setContentText(text)
-      .setSmallIcon(R.mipmap.ic_launcher)
       .setAutoCancel(false)
       .setContentIntent(pendingIntent)
       .setShowWhen(false)
