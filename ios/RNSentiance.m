@@ -6,10 +6,12 @@
 #import <SENTSDK/SENTSDKStatus.h>
 #import <SENTSDK/SENTPublicDefinitions.h>
 
+@interface RNSentiance()
+@property (assign) BOOL hasListeners;
+@property (assign) BOOL isSdkInitializing;
+@end
+
 @implementation RNSentiance
-{
-  bool hasListeners;
-}
 
 - (id)init
 {
@@ -23,30 +25,40 @@
   NSString *APPID = [SentDataManager sharedInstance].APPID;
   NSString *SECRET = [SentDataManager sharedInstance].SECRET;
 
-  if (isInitialized || APPID == nil || SECRET == nil || [APPID length] == 0 || [SECRET length] == 0) {
+  if (self.isSdkInitializing || isInitialized || APPID == nil || SECRET == nil || [APPID length] == 0 || [SECRET length] == 0) {
     return self;
   }
 
-  SENTConfig *config = [[SENTConfig alloc] initWithAppId:APPID secret:SECRET launchOptions:@{}];
-  [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
-    if (hasListeners) {
-      [self sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
-    }
-  }];
 
-  [[SENTSDK sharedInstance] initWithConfig:config success:^{
-    [[SENTSDK sharedInstance] start:^(SENTSDKStatus *status) {
-      if ([status startStatus] == SENTStartStatusStarted) {
-        NSLog(@"SDK started properly.");
-      } else if ([status startStatus] == SENTStartStatusPending) {
-        NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.");
-      } else {
-        NSLog(@"SDK did not start.");
+dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+  if (self.isSdkInitializing) {
+    return;
+  }
+
+  self.isSdkInitializing = YES;
+
+  SENTConfig *config = [[SENTConfig alloc] initWithAppId:APPID secret:SECRET launchOptions:@{}];
+    [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
+      if (self.hasListeners) {
+        [self sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
       }
     }];
-  } failure:^(SENTInitIssue issue) {
-  }];
 
+    [[SENTSDK sharedInstance] initWithConfig:config success:^{
+      self.isSdkInitializing = NO;
+      [[SENTSDK sharedInstance] start:^(SENTSDKStatus *status) {
+        if ([status startStatus] == SENTStartStatusStarted) {
+          NSLog(@"SDK started properly.");
+        } else if ([status startStatus] == SENTStartStatusPending) {
+          NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.");
+        } else {
+          NSLog(@"SDK did not start.");
+        }
+      }];
+    } failure:^(SENTInitIssue issue) {
+        self.isSdkInitializing = NO;
+    }];
+  });
   return self;
 }
 
@@ -69,13 +81,13 @@ RCT_EXPORT_MODULE()
 
 // Will be called when this module's first listener is added.
 - (void)startObserving {
-  hasListeners = YES;
+  self.hasListeners = YES;
   // Set up any upstream listeners or background tasks as necessary
 }
 
 // Will be called when this module's last listener is removed, or on dealloc.
 - (void)stopObserving {
-  hasListeners = NO;
+  self.hasListeners = NO;
   // Remove upstream listeners, stop unnecessary background tasks
 }
 
@@ -91,7 +103,7 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
   @try {
     SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:secret launchOptions:@{}];
     [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
-      if (hasListeners) {
+      if (self.hasListeners) {
         [self sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
       }
     }];
@@ -364,7 +376,7 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 - (void)tripTimeoutReceived
 {
   [[SENTSDK sharedInstance] setTripTimeOutListener:^ {
-    if (hasListeners) {
+    if (self.hasListeners) {
       [self sendEventWithName:@"TripTimeout" body:nil];
     }
   }];
