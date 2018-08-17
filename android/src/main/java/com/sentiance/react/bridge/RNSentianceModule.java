@@ -25,6 +25,9 @@ import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
 import com.sentiance.core.model.thrift.TransportMode;
 
+import android.app.Activity;
+import android.os.Handler;
+import android.os.Looper;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -78,9 +81,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     };
 
     Notification sdkNotification = sentianceConfig.notification != null ? sentianceConfig.notification
-        : createNotification();
+            : createNotification();
     SdkConfig config = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
-        .setOnSdkStatusUpdateHandler(statusHandler).build();
+            .setOnSdkStatusUpdateHandler(statusHandler).build();
 
     OnInitCallback initCallback = new OnInitCallback() {
       @Override
@@ -121,7 +124,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     // PendingIntent that will start your application's MainActivity
     Intent intent = new Intent(className);
     PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent,
-        PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent.FLAG_UPDATE_CURRENT);
 
     // On Oreo and above, you must create a notification channel
     String channelId = "trips";
@@ -131,18 +134,18 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       NotificationChannel channel = new NotificationChannel(channelId, "Trips", NotificationManager.IMPORTANCE_MIN);
       channel.setShowBadge(false);
       NotificationManager notificationManager = (NotificationManager) this.reactContext
-          .getSystemService(Context.NOTIFICATION_SERVICE);
+              .getSystemService(Context.NOTIFICATION_SERVICE);
       notificationManager.createNotificationChannel(channel);
     }
 
     return new NotificationCompat.Builder(this.reactContext)
-      .setContentTitle(title)
-      .setContentText(text)
-      .setAutoCancel(false)
-      .setContentIntent(pendingIntent)
-      .setShowWhen(false)
-      .setPriority(NotificationCompat.PRIORITY_MIN)
-      .build();
+            .setContentTitle(title)
+            .setContentText(text)
+            .setAutoCancel(false)
+            .setContentIntent(pendingIntent)
+            .setShowWhen(false)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .build();
   }
 
   @Override
@@ -213,27 +216,37 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
-  public void init(String appId, String appSecret, final Promise promise) {
+  public void init(final String appId, final String appSecret, final Promise promise) {
     Log.v(LOG_TAG, "appId: " + appId + " | appSecret: " + appSecret + " init()");
-    if (Sentiance.getInstance(this.reactContext).isInitialized()) {
-      promise.resolve(null);
-    } else {
-      RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret));
-      this.initializeSentianceSdk(promise);
-    }
+    new Handler(Looper.getMainLooper()).post(new Runnable() {
+      @Override
+      public void run() {
+        if (Sentiance.getInstance(getReactApplicationContext()).isInitialized()) {
+          promise.resolve(null);
+        } else {
+          RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret));
+          initializeSentianceSdk(promise);
+        }
+      }
+    });
   }
 
   private void sendStatusUpdate(SdkStatus sdkStatus) {
     this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(STATUS_UPDATE,
-        convertSdkStatus(sdkStatus));
+            convertSdkStatus(sdkStatus));
   }
 
   @ReactMethod
   public void start(final Promise promise) {
-    Sentiance.getInstance(this.reactContext).start(new OnStartFinishedHandler() {
+    new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
-      public void onStartFinished(SdkStatus sdkStatus) {
-        promise.resolve(convertSdkStatus(sdkStatus));
+      public void run() {
+        Sentiance.getInstance(getReactApplicationContext()).start(new OnStartFinishedHandler() {
+          @Override
+          public void onStartFinished(SdkStatus sdkStatus) {
+            promise.resolve(convertSdkStatus(sdkStatus));
+          }
+        });
       }
     });
   }
