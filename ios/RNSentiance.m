@@ -134,13 +134,7 @@ RCT_EXPORT_METHOD(getUserId:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
 RCT_EXPORT_METHOD(getUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
   @try {
-    __block BOOL callBackGiven = NO;
     [[SENTSDK sharedInstance] getUserAccessToken:^(NSString* token) {
-      if(callBackGiven) {
-        return;
-      } else {
-        callBackGiven = YES;
-      }
       NSMutableDictionary* dict = [self convertTokenToDict:token];
       resolve(dict);
     } failure:^() {
