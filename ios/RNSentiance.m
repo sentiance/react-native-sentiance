@@ -4,6 +4,14 @@
 #import <SENTSDK/SENTSDKStatus.h>
 #import <SENTSDK/SENTPublicDefinitions.h>
 
+@interface RNSentiance()
+
+@property (nonatomic, strong) void (^metaUserLinkSuccess)(void);
+@property (nonatomic, strong) void (^metaUserLinkFailed)(void);
+
+@end
+
+
 @implementation RNSentiance
 {
   bool hasListeners;
@@ -11,14 +19,14 @@
 
 - (dispatch_queue_t)methodQueue
 {
-    return dispatch_get_main_queue();
+  return dispatch_get_main_queue();
 }
 
 RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-  return @[@"SDKStatusUpdate", @"TripTimeout"];
+  return @[@"SDKStatusUpdate", @"TripTimeout", @"SDKMetaUserLink"];
 }
 
 // Will be called when this module's first listener is added.
@@ -33,6 +41,14 @@ RCT_EXPORT_MODULE()
   // Remove upstream listeners, stop unnecessary background tasks
 }
 
+RCT_EXPORT_METHOD(metaUserLinkCallback:(BOOL)success) {
+  if (success) {
+    self.metaUserLinkSuccess();
+  } else {
+    self.metaUserLinkFailed();
+  }
+}
+
 RCT_EXPORT_METHOD(init:(NSString *)appId
                 secret:(NSString *)secret
               resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -43,9 +59,19 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
   }
 
   @try {
-    SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:secret launchOptions:@{}];
+    MetaUserLinker metaUserlink = ^(NSString *installId, void (^linkSuccess)(void),
+                                  void (^linkFailed)(void)) {
+        if (self -> hasListeners) {
+            self.metaUserLinkSuccess = linkSuccess;
+            self.metaUserLinkFailed = linkFailed;
+            [self sendEventWithName:@"SDKMetaUserLink" body:[self convertInstallIdToDict:installId]];
+        } else {
+          linkFailed();
+        }
+    };
+    SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:metaUserlink launchOptions:@{}];
     [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
-      if (hasListeners) {
+      if (self -> hasListeners) {
         [self sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
       }
     }];
@@ -354,6 +380,17 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
 
   return dict;
 }
+
+- (NSMutableDictionary*)convertInstallIdToDict:(NSString*) installId {
+    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+
+    if (installId == nil) {
+        return dict;
+    }
+    [dict setValue:installId forKey:@"installId"];
+    return dict;
+}
+
 
 - (NSMutableDictionary*)convertTokenToDict:(NSString*) token {
   NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
