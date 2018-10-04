@@ -1,6 +1,10 @@
 {
   "name": "react-native-sentiance",
+<<<<<<< HEAD
   "version": "1.0.0-rc.26",
+=======
+  "version": "1.0.0-rc.24",
+>>>>>>> version bump
   "description": "React Native library for the Sentiance SDK",
   "main": "index.js",
   "scripts": {
