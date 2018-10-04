@@ -1,6 +1,10 @@
 
 # react-native-sentiance
 
+## Status
+*`react-native-sentiance` is still in an early development stage and not ready for production use just yet. Please try it out, give feedback, and help fix bugs.
+
+
 ## Getting started
 
 `$ npm install react-native-sentiance --save`
