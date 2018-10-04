@@ -12,6 +12,7 @@ import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import com.sentiance.sdk.MetaUserLinker;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnSdkStatusUpdateHandler;
 import com.sentiance.sdk.OnStartFinishedHandler;
@@ -37,6 +38,7 @@ import android.app.PendingIntent;
 import android.support.v4.app.NotificationCompat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import android.util.Log;
 
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
@@ -47,10 +49,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private static RNSentianceConfig sentianceConfig = new RNSentianceConfig(null, null);
   private final Sentiance sdk;
   private final String STATUS_UPDATE = "SDKStatusUpdate";
+  private final String META_USER_LINK = "SDKMetaUserLink";
   private final String E_SDK_INIT_ERROR = "E_SDK_INIT_ERROR";
   private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
   private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
   private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
+  private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
+  private Boolean metaUserLinkResult = false;
 
   public RNSentianceModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -79,11 +84,26 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         sendStatusUpdate(status);
       }
     };
+    // Create metaUserLinker wich sends event to JS and waits for result via @ReactMethod metaUserLinkCallback
+    MetaUserLinker metaUserLinker = new MetaUserLinker() {
+      @Override
+      public boolean link(String installId) {
+        sendMetaUserLink(installId);
+        try {
+          metaUserLinkLatch.await();
+          return metaUserLinkResult;
+        } catch(InterruptedException e) {
+          return false;
+        }
+      }
+    };
 
     Notification sdkNotification = sentianceConfig.notification != null ? sentianceConfig.notification
             : createNotification();
     SdkConfig config = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
-            .setOnSdkStatusUpdateHandler(statusHandler).build();
+            .setOnSdkStatusUpdateHandler(statusHandler)
+            .setMetaUserLinker(metaUserLinker)
+            .build();
 
     OnInitCallback initCallback = new OnInitCallback() {
       @Override
@@ -191,6 +211,15 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     return map;
   }
 
+  private WritableMap convertInstallId(String installId) {
+    WritableMap map = Arguments.createMap();
+    try {
+      map.putString("installId", installId);
+    } catch (Exception ignored) {
+    }
+    return map;
+  }
+
   private Map<String, String> convertReadableMapToMap(ReadableMap inputMap) {
     Map<String, String> map = new HashMap<String, String>();
     ReadableMapKeySetIterator iterator = inputMap.keySetIterator();
@@ -216,6 +245,12 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  public void metaUserLinkCallback(final Boolean linkResult) {
+    metaUserLinkResult = linkResult;
+    metaUserLinkLatch.countDown();
+  }
+
+  @ReactMethod
   public void init(final String appId, final String appSecret, final Promise promise) {
     Log.v(LOG_TAG, "appId: " + appId + " | appSecret: " + appSecret + " init()");
     new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -235,6 +270,12 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(STATUS_UPDATE,
             convertSdkStatus(sdkStatus));
   }
+
+  private void sendMetaUserLink(String installId) {
+    this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(META_USER_LINK,
+            convertInstallId(installId));
+  }
+
 
   @ReactMethod
   public void start(final Promise promise) {
