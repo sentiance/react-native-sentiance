@@ -27,6 +27,7 @@ import com.sentiance.sdk.trip.TripType;
 import com.sentiance.core.model.thrift.TransportMode;
 
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.app.Notification;
@@ -34,6 +35,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.app.PendingIntent;
 import android.support.v4.app.NotificationCompat;
 import java.util.HashMap;
@@ -61,15 +63,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     super(reactContext);
     this.reactContext = reactContext;
     this.sdk = Sentiance.getInstance(this.reactContext);
-    // Initialize early if SENTIANCE_APP_ID and SENTIANCE_APP_SECRET have been set
-    // already
-    if (sentianceConfig.appId != null && sentianceConfig.appSecret != null) {
-      try {
-        initializeSentianceSdk(null);
-      } catch (Exception e) {
-        Log.v(LOG_TAG, "SDK init failed: " + e.toString());
-      }
-    }
   }
 
   public static void setConfig(RNSentianceConfig config) {
@@ -134,38 +127,45 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
     };
     // Initialize the Sentiance SDK.
+    Log.v(LOG_TAG, "Initializing through react-native-sentiance");
     this.sdk.init(config, initCallback);
   }
 
   private Notification createNotification() {
-    String packageName = this.reactContext.getPackageName();
-    Intent launchIntent = this.reactContext.getPackageManager().getLaunchIntentForPackage(packageName);
-    String className = launchIntent.getComponent().getClassName();
-    // PendingIntent that will start your application's MainActivity
-    Intent intent = new Intent(className);
-    PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent,
-            PendingIntent.FLAG_UPDATE_CURRENT);
+      Log.v(LOG_TAG, "Creating Notification through RNSentiance");
+      // PendingIntent that will start your application's MainActivity
+      String packageName = this.reactContext.getPackageName();
+      Intent launchIntent = this.reactContext.getPackageManager().getLaunchIntentForPackage(packageName);
+      String className = launchIntent.getComponent().getClassName();
+      Intent intent = new Intent(className);
+      PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent, 0);
 
-    // On Oreo and above, you must create a notification channel
-    String channelId = "trips";
-    String title = "title"; // notificationConfig.get("title");
-    String text = "text"; // notificationConfig.get("text");
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-      NotificationChannel channel = new NotificationChannel(channelId, "Trips", NotificationManager.IMPORTANCE_MIN);
-      channel.setShowBadge(false);
-      NotificationManager notificationManager = (NotificationManager) this.reactContext
-              .getSystemService(Context.NOTIFICATION_SERVICE);
-      notificationManager.createNotificationChannel(channel);
-    }
+      // On Oreo and above, you must create a notification channel
+      String channelId = "journeys";
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+          NotificationChannel channel = new NotificationChannel(channelId,
+                  "Journeys", NotificationManager.IMPORTANCE_LOW);
+          channel.setShowBadge(false);
+          NotificationManager notificationManager = (NotificationManager) this.reactContext.getSystemService(Context.NOTIFICATION_SERVICE);
+          notificationManager.createNotificationChannel(channel);
+      }
 
-    return new NotificationCompat.Builder(this.reactContext)
-            .setContentTitle(title)
-            .setContentText(text)
-            .setAutoCancel(false)
-            .setContentIntent(pendingIntent)
-            .setShowWhen(false)
-            .setPriority(NotificationCompat.PRIORITY_MIN)
-            .build();
+      Resources res = null;
+      try {
+          res = this.reactContext.getPackageManager().getResourcesForApplication(packageName);
+      } catch (PackageManager.NameNotFoundException e) {
+          e.printStackTrace();
+      }
+      int appNameId = res.getIdentifier("app_name", "string", packageName);
+
+      return new NotificationCompat.Builder(this.reactContext, channelId)
+              .setContentTitle(res.getString(appNameId) + " is running")
+              .setContentText("Touch to open.")
+              .setContentIntent(pendingIntent)
+              .setShowWhen(false)
+              .setSmallIcon(res.getIdentifier("ic_launcher", "mipmap", packageName))
+              .setPriority(NotificationCompat.PRIORITY_MIN)
+              .build();
   }
 
   @Override
@@ -252,7 +252,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   public void init(final String appId, final String appSecret, final Promise promise) {
-    Log.v(LOG_TAG, "appId: " + appId + " | appSecret: " + appSecret + " init()");
+    Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId + " and SECRET: " + appSecret);
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
