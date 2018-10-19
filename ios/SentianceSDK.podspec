@@ -7,8 +7,7 @@ Pod::Spec.new do |s|
     s.author            = { 'Name' => 'sdk@sentiance.com' }
     s.license           = { :type => 'MIT' }
     s.platform          = :ios
-    s.source            = { :http => 'https://s3-eu-west-1.amazonaws.com/sentiance-sdk/ios/transport/SENTSDK-5.1.2.framework.zip' }
-
+    s.source            = { :http => 'https://s3-eu-west-1.amazonaws.com/sentiance-sdk/ios/transport/SENTSDK-5.1.3-rc1.framework.zip' }
     s.ios.deployment_target = '8.0'
     s.frameworks = 'CoreMotion', 'SystemConfiguration', 'CoreLocation', 'Foundation', 'CallKit', 'CoreTelephony', 'CoreData'
     s.libraries = 'z'
