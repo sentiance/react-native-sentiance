@@ -1,3 +1,4 @@
+apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
@@ -9,8 +10,6 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.1.1'
     }
 }
-
-apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 26
@@ -25,14 +24,7 @@ android {
     lintOptions {
         abortOnError false
     }
-    productFlavors {
-        world {
-            flavorDimensions "region"
-        }
-        china {
-            flavorDimensions "region"
-        }
-    }
+    productFlavors {}
 }
 
 repositories {
@@ -45,6 +37,5 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    worldApi('com.sentiance:sdk:4.2.4-R@aar') {transitive = true}
-    chinaApi('com.sentiance:sdk:4.2.4-R@aar') {transitive = true}
+    api('com.sentiance:sdk:4.2.4-R@aar') {transitive = true}
 }
