@@ -158,10 +158,15 @@ RCT_EXPORT_METHOD(getUserId:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
 
 RCT_EXPORT_METHOD(getUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    __block BOOL hasReceivedToken = NO;
     @try {
         __weak typeof(self) weakSelf = self;
         [[SENTSDK sharedInstance] getUserAccessToken:^(NSString* token) {
+            if (hasReceivedToken) {
+                return;
+            }
             NSMutableDictionary* dict = [weakSelf convertTokenToDict:token];
+            hasReceivedToken = YES;
             resolve(dict);
         } failure:^() {
             reject(@"", @"Couldn't access token", nil);
