@@ -69,6 +69,9 @@ try {
 }
 ```
 
+_NOTE: Ideally, initializing the SDK is done from `Application.onCreate` as this will guarantee that the SDK is running as often as possible. If your application uses a login flow, you will want to start the SDK only if the user is logged in, at that point you could start the SDK through JavaScript. Once the user is logged in, the SDK should always start before the end of `onCreate`. Please refer to https://developers.sentiance.com/docs/sdk/android/integration for documentation on the Android SDK integration._
+
+
 #### Starting the Sentiance SDK
 Starting is only allowed after successful initialization. Resolves with an SDK status object.
 ```javascript
