@@ -24,6 +24,19 @@
 4. In XCode, in the project navigator, select your project. Add `libRNSentianceLibrary.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
 5. Run your project (`Cmd+R`)<
 
+
+__via Cocoapods__
+1. Add `RNSentiance` Pod to your Podfile
+	```
+	pod 'RNSentiance', :path => '../node_modules/react-native-sentiance/ios/RNSentiance.podspec'
+	```
+2. Add `SentianceSDK` Pod to your Podfile
+	```
+	pod 'SentianceSDK', :podspec => '../node_modules/react-native-sentiance/ios/SentianceSDK.podspec'
+	```
+3. Run `pod install` in your `ios` folder
+
+
 #### Android
 
 1. Open up `android/app/src/main/java/[...]/MainActivity.java`
