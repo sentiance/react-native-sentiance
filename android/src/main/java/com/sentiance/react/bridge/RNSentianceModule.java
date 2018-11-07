@@ -163,7 +163,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
               .setContentText("Touch to open.")
               .setContentIntent(pendingIntent)
               .setShowWhen(false)
-              .setSmallIcon(res.getIdentifier("ic_launcher", "mipmap", packageName))
+              .setSmallIcon(res.getIdentifier("notification_icon", "mipmap", packageName))
               .setPriority(NotificationCompat.PRIORITY_MIN)
               .build();
   }

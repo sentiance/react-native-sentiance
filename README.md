@@ -24,6 +24,19 @@
 4. In XCode, in the project navigator, select your project. Add `libRNSentianceLibrary.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
 5. Run your project (`Cmd+R`)<
 
+
+__via Cocoapods__
+1. Add `RNSentiance` Pod to your Podfile
+	```
+	pod 'RNSentiance', :path => '../node_modules/react-native-sentiance/ios/RNSentiance.podspec'
+	```
+2. Add `SentianceSDK` Pod to your Podfile
+	```
+	pod 'SentianceSDK', :podspec => '../node_modules/react-native-sentiance/ios/SentianceSDK.podspec'
+	```
+3. Run `pod install` in your `ios` folder
+
+
 #### Android
 
 1. Open up `android/app/src/main/java/[...]/MainActivity.java`
@@ -38,6 +51,13 @@
   	```
       compile project(':react-native-sentiance')
   	```
+
+
+__Android notification icon__
+
+The SDK may need to start a foreground service every now and again. `RNSentiance` will therefore pass a notification that can be used by the service.
+
+Creating a small icon with the name `notification_icon` located at `android/src/main/res/mipmap-[...]` is required in order for the notification to be successfully created. Android 5.0+ enforces your icon to only be white and transparent.
 
 
 ## Usage
@@ -55,6 +75,9 @@ try {
 	// SDK init has failed initializing
 }
 ```
+
+_NOTE: Ideally, initializing the SDK is done from `Application.onCreate` as this will guarantee that the SDK is running as often as possible. If your application uses a login flow, you will want to start the SDK only if the user is logged in, at that point you could start the SDK through JavaScript. Once the user is logged in, the SDK should always start before the end of `onCreate`. Please refer to https://developers.sentiance.com/docs/sdk/android/integration for documentation on the Android SDK integration._
+
 
 #### Starting the Sentiance SDK
 Starting is only allowed after successful initialization. Resolves with an SDK status object.
