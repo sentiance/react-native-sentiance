@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
-    s.name              = 'SentianceSDK'
-    s.version           = '1.0.9'
+    s.name              = 'SENTSDK'
+    s.version           = '5.1.4'
     s.summary           = 'The Sentiance iOS SDK.'
     s.homepage          = 'https://sentiance.com/'
 
