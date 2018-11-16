@@ -14,6 +14,7 @@ buildscript {
 android {
     compileSdkVersion 26
     buildToolsVersion "27.0.3"
+    defaultPublishConfig "worldRelease"
     publishNonDefault true
     defaultConfig {
         minSdkVersion 16
@@ -24,7 +25,15 @@ android {
     lintOptions {
         abortOnError false
     }
-    productFlavors {}
+    flavorDimensions "sdkVersion"
+    productFlavors {
+        world {
+            dimension "sdkVersion"
+        }
+        china {
+            dimension "sdkVersion"
+        }
+    }
 }
 
 repositories {
@@ -37,5 +46,6 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    api('com.sentiance:sdk:4.2.6-R@aar') {transitive = true}
+    worldApi('com.sentiance:sdk:4.2.7-R@aar') {transitive = true}
+    chinaApi('com.sentiance:sdk:4.2.6-R@aar') {transitive = true}
 }
