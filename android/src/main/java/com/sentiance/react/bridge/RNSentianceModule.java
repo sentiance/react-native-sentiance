@@ -56,6 +56,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
   private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
   private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
+  private final String E_SDK_DISABLE_BATTERY_OPTIMIZATION = 'E_SDK_DISABLE_BATTERY_OPTIMIZATION';
   private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
   private Boolean metaUserLinkResult = false;
 
