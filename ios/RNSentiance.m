@@ -340,6 +340,16 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
     }
 }
 
+RCT_EXPORT_METHOD(disableBatteryOptimization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    @try {
+      NSLog(@"This is an Android only method.");
+      resolve(nil);
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
+}
+
 RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     [self deleteAllKeysForSecClass:kSecClassGenericPassword];
