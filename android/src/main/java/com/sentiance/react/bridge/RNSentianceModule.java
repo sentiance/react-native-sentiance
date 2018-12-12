@@ -443,7 +443,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   public void disableBatteryOptimization(final Promise promise) {
     try {
       if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-        Sentiance.getInstance(this).disableBatteryOptimization();
+        Sentiance.getInstance(this.reactContext).disableBatteryOptimization();
       }
       promise.resolve(null);
     } catch(InterruptedException e) {
