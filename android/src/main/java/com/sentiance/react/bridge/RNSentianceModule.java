@@ -439,6 +439,18 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     promise.resolve(diskQuotaUsage.toString());
   }
 
+  @ReactMethod
+  public void disableBatteryOptimization(final Promise promise) {
+    try {
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        Sentiance.getInstance(this).disableBatteryOptimization();
+      }
+      promise.resolve(null);
+    } catch(InterruptedException e) {
+      promise.reject(E_SDK_DISABLE_BATTERY_OPTIMIZATION);
+    }
+  }
+
   @Override
   public void onHostResume() {
     // Activity `onResume`
