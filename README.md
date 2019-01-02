@@ -32,7 +32,7 @@ __via Cocoapods__
 	```
 2. Add `SENTSDK` Pod to your Podfile
 	```
-	pod 'SentianceSDK', :podspec => '../node_modules/react-native-sentiance/ios/SENTSDK.podspec'
+	pod 'SENTSDK', :podspec => '../node_modules/react-native-sentiance/ios/SENTSDK.podspec'
 	```
 3. Run `pod install` in your `ios` folder
 
