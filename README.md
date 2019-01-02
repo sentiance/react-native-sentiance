@@ -9,23 +9,12 @@
 
 `$ npm install react-native-sentiance --save`
 
-### Mostly automatic installation
-
-`$ react-native link react-native-sentiance`
-
 ### Manual installation
 
 
 #### iOS
 
-1. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
-2. Go to `node_modules` ➜ `react-native-sentiance-library` and add `RNSentianceLibrary.xcodeproj`
-3. In XCode, in the project navigator, select `RNSentianceLibrary.xcodeproj`. Add the folder where `SENTTransportDetectionSDK.framework` is located to `Search Paths` ➜ `Framework Search Paths`
-4. In XCode, in the project navigator, select your project. Add `libRNSentianceLibrary.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
-5. Run your project (`Cmd+R`)<
-
-
-__via Cocoapods__
+__with Cocoapods__
 1. Add `RNSentiance` Pod to your Podfile
 	```
 	pod 'RNSentiance', :path => '../node_modules/react-native-sentiance/ios/RNSentiance.podspec'
@@ -35,6 +24,15 @@ __via Cocoapods__
 	pod 'SENTSDK', :podspec => '../node_modules/react-native-sentiance/ios/SENTSDK.podspec'
 	```
 3. Run `pod install` in your `ios` folder
+
+
+__without Cocoapods__
+1. [Download](https://developers.sentiance.com/docs/sdk/ios/integration) the latest version of the Sentiance iOS SDK from our developer documentation.
+2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
+3. Go to `node_modules` ➜ `react-native-sentiance-library` and add `RNSentianceLibrary.xcodeproj`
+4. In XCode, in the project navigator, select `RNSentianceLibrary.xcodeproj`. Add the folder where `SENTSDK.framework` is located to `Search Paths` ➜ `Framework Search Paths`
+5. In XCode, in the project navigator, select your project. Add `libRNSentianceLibrary.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
+6. Run your project (`Cmd+R`)<
 
 
 #### Android
