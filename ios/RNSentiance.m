@@ -13,11 +13,6 @@
 
 @implementation RNSentiance
 
-- (dispatch_queue_t)methodQueue
-{
-    return dispatch_get_main_queue();
-}
-
 RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
@@ -54,34 +49,35 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
         return;
     }
 
-    @try {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        @try {
+            __weak typeof(self) weakSelf = self;
+            MetaUserLinker metaUserlink = ^(NSString *installId, void (^linkSuccess)(void),
+                                            void (^linkFailed)(void)) {
+                if (weakSelf.hasListeners) {
+                    weakSelf.metaUserLinkSuccess = linkSuccess;
+                    weakSelf.metaUserLinkFailed = linkFailed;
+                    [weakSelf sendEventWithName:@"SDKMetaUserLink" body:[self convertInstallIdToDict:installId]];
+                } else {
+                    linkFailed();
+                }
+            };
+            SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:metaUserlink launchOptions:@{}];
+            [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
+                if (weakSelf.hasListeners) {
+                    [weakSelf sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
+                }
+            }];
 
-        __weak typeof(self) weakSelf = self;
-        MetaUserLinker metaUserlink = ^(NSString *installId, void (^linkSuccess)(void),
-                                        void (^linkFailed)(void)) {
-            if (weakSelf.hasListeners) {
-                weakSelf.metaUserLinkSuccess = linkSuccess;
-                weakSelf.metaUserLinkFailed = linkFailed;
-                [weakSelf sendEventWithName:@"SDKMetaUserLink" body:[self convertInstallIdToDict:installId]];
-            } else {
-                linkFailed();
-            }
-        };
-        SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:metaUserlink launchOptions:@{}];
-        [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
-            if (weakSelf.hasListeners) {
-                [weakSelf sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
-            }
-        }];
-
-        [[SENTSDK sharedInstance] initWithConfig:config success:^{
-            resolve(nil);
-        } failure:^(SENTInitIssue issue) {
-            reject(@"", [weakSelf convertInitIssueToString: issue], nil);
-        }];
-    } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
-    }
+            [[SENTSDK sharedInstance] initWithConfig:config success:^{
+                resolve(nil);
+            } failure:^(SENTInitIssue issue) {
+                reject(@"", [weakSelf convertInitIssueToString: issue], nil);
+            }];
+        } @catch (NSException *e) {
+            reject(e.name, e.reason, nil);
+        }
+    });
 }
 
 RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
