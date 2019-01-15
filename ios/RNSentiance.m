@@ -15,6 +15,11 @@
 
 RCT_EXPORT_MODULE()
 
+- (dispatch_queue_t)methodQueue
+{
+    return dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+}
+
 - (NSArray<NSString *> *)supportedEvents
 {
     return @[@"SDKStatusUpdate", @"TripTimeout", @"SDKMetaUserLink"];
