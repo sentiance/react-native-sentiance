@@ -35,6 +35,14 @@ __without Cocoapods__
 6. Run your project (`Cmd+R`)<
 
 
+__Configuring capabilities__
+1. Go to the __Capabilities__ tab of your target settings
+1. Turn on __Background Modes__ and enable __Location updates__
+1. Turn off __Data protection__
+
+![iOS Background Modes](./assets/ios-background-modes.png)
+
+
 #### Android
 
 1. Open up `android/app/src/main/java/[...]/MainActivity.java`
