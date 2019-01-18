@@ -53,8 +53,6 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
         reject(@"", @"INVALID_CREDENTIALS", nil);
         return;
     }
-
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         @try {
             __weak typeof(self) weakSelf = self;
             MetaUserLinker metaUserlink = ^(NSString *installId, void (^linkSuccess)(void),
@@ -82,7 +80,6 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
         } @catch (NSException *e) {
             reject(e.name, e.reason, nil);
         }
-    });
 }
 
 RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
