@@ -102,12 +102,12 @@ RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
                 NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.");
                 dispatch_async(dispatch_get_main_queue(), ^{
                     resolve([weakSelf convertSdkStatusToDict:status]);
-                }):
+                });
             } else {
                 NSLog(@"SDK did not start.");
                 dispatch_async(dispatch_get_main_queue(), ^{
                     reject(@"", @"SDK did not start.", nil);
-                }):
+                });
             }
         }];
     } @catch (NSException *e) {
@@ -128,7 +128,7 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejec
     } @catch (NSException *e) {
         dispatch_async(dispatch_get_main_queue(), ^{
             reject(e.name, e.reason, nil);
-        }):
+        });
     }
 }
 
@@ -138,7 +138,7 @@ RCT_EXPORT_METHOD(isInitialized:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
         BOOL isInitialized = [[SENTSDK sharedInstance] isInitialised];
         dispatch_async(dispatch_get_main_queue(), ^{
             resolve(@(isInitialized));
-        }):
+        });
     } @catch (NSException *e) {
         dispatch_async(dispatch_get_main_queue(), ^{
             reject(e.name, e.reason, nil);
