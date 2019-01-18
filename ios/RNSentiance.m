@@ -73,12 +73,18 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
             }];
 
             [[SENTSDK sharedInstance] initWithConfig:config success:^{
-                resolve(nil);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    resolve(nil);
+                });
             } failure:^(SENTInitIssue issue) {
-                reject(@"", [weakSelf convertInitIssueToString: issue], nil);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    reject(@"", [weakSelf convertInitIssueToString: issue], nil);
+                });
             }];
         } @catch (NSException *e) {
-            reject(e.name, e.reason, nil);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                reject(e.name, e.reason, nil);
+            });
         }
 }
 
@@ -89,17 +95,25 @@ RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
         [[SENTSDK sharedInstance] start:^(SENTSDKStatus* status) {
             if ([status startStatus] == SENTStartStatusStarted) {
                 NSLog(@"SDK started properly.");
-                resolve([weakSelf convertSdkStatusToDict:status]);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    resolve([weakSelf convertSdkStatusToDict:status]);
+                });
             } else if ([status startStatus] == SENTStartStatusPending) {
                 NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.");
-                resolve([weakSelf convertSdkStatusToDict:status]);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    resolve([weakSelf convertSdkStatusToDict:status]);
+                });
             } else {
                 NSLog(@"SDK did not start.");
-                reject(@"", @"SDK did not start.", nil);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    reject(@"", @"SDK did not start.", nil);
+                });
             }
         }];
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -108,9 +122,13 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejec
     @try {
         SENTSDK* sdk = [SENTSDK sharedInstance];
         [sdk stop];
-        resolve(nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(nil);
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -118,9 +136,13 @@ RCT_EXPORT_METHOD(isInitialized:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
 {
     @try {
         BOOL isInitialized = [[SENTSDK sharedInstance] isInitialised];
-        resolve(@(isInitialized));
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(@(isInitialized));
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -128,9 +150,13 @@ RCT_EXPORT_METHOD(getSdkStatus:(RCTPromiseResolveBlock)resolve rejecter:(RCTProm
 {
     @try {
         NSMutableDictionary* dict = [self convertSdkStatusToDict:[[SENTSDK sharedInstance] getSdkStatus]];
-        resolve(dict);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(dict);
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -138,9 +164,13 @@ RCT_EXPORT_METHOD(getVersion:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromis
 {
     @try {
         NSString *version = [[SENTSDK sharedInstance] getVersion];
-        resolve(version);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(version);
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -148,9 +178,13 @@ RCT_EXPORT_METHOD(getUserId:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
 {
     @try {
         NSString *userId = [[SENTSDK sharedInstance] getUserId];
-        resolve(userId);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(userId);
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -165,12 +199,18 @@ RCT_EXPORT_METHOD(getUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(R
             }
             NSMutableDictionary* dict = [weakSelf convertTokenToDict:token];
             hasReceivedToken = YES;
-            resolve(dict);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                resolve(dict);
+            });
         } failure:^() {
-            reject(@"", @"Couldn't access token", nil);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                reject(@"", @"Couldn't access token", nil);
+            });
         }];
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -184,9 +224,13 @@ RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
         }
 
         [[SENTSDK sharedInstance] addUserMetadataField:label value:value];
-        resolve(nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(nil);
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -200,9 +244,13 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
         }
 
         [[SENTSDK sharedInstance] removeUserMetadataField:label];
-        resolve(nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(nil);
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -216,9 +264,13 @@ RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
         }
 
         [[SENTSDK sharedInstance] addUserMetadataFields:metadata];
-        resolve(nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(nil);
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -229,13 +281,17 @@ RCT_EXPORT_METHOD(startTrip:(NSDictionary *)metadata
     @try {
         SENTTransportMode mode = [hint intValue] == -1 ? SENTTransportModeUnknown : (SENTTransportMode)hint;
         [[SENTSDK sharedInstance] startTrip:metadata transportModeHint:mode success:^ {
-            resolve(nil);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                resolve(nil);
+            });
         }
                                     failure:^(SENTSDKStatus *status) {
                                         reject(@"", @"Couldn't start trip", nil);
                                     }];
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -243,12 +299,18 @@ RCT_EXPORT_METHOD(stopTrip:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseR
 {
     @try {
         [[SENTSDK sharedInstance] stopTrip:^{
-            resolve(nil);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                resolve(nil);
+            });
         } failure:^(SENTSDKStatus *status) {
-            reject(@"", @"Couldn't stop trip", nil);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                reject(@"", @"Couldn't stop trip", nil);
+            });
         }];
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -259,9 +321,13 @@ RCT_EXPORT_METHOD(isTripOngoing:(NSInteger)type
     @try {
         SENTTripType tripType = type;
         BOOL isTripOngoing = [[SENTSDK sharedInstance] isTripOngoing:tripType];
-        resolve(@(isTripOngoing));
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(@(isTripOngoing));
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -271,10 +337,14 @@ RCT_EXPORT_METHOD(submitDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCT
         [[SENTSDK sharedInstance] submitDetections:^ {
             resolve(nil);
         } failure: ^ {
-            reject(@"", @"Couldn't submit all detections", nil);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                reject(@"", @"Couldn't submit all detections", nil);
+            });
         }];
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -282,9 +352,13 @@ RCT_EXPORT_METHOD(getWiFiQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RC
 {
     @try {
         long long wifiQuotaLimit = [[SENTSDK sharedInstance] getWifiQuotaLimit];
-        resolve(@(wifiQuotaLimit));
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(@(wifiQuotaLimit));
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -292,9 +366,13 @@ RCT_EXPORT_METHOD(getWiFiQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 {
     @try {
         long long wifiQuotaUsage = [[SENTSDK sharedInstance] getWiFiQuotaUsage];
-        resolve(@(wifiQuotaUsage));
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(@(wifiQuotaUsage));
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -302,9 +380,13 @@ RCT_EXPORT_METHOD(getMobileQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(
 {
     @try {
         long long mobileQuotaLimit = [[SENTSDK sharedInstance] getMobileQuotaLimit];
-        resolve(@(mobileQuotaLimit));
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(@(mobileQuotaLimit));
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -312,9 +394,13 @@ RCT_EXPORT_METHOD(getMobileQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(
 {
     @try {
         long long mobileQuotaUsage = [[SENTSDK sharedInstance] getMobileQuotaUsage];
-        resolve(@(mobileQuotaUsage));
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(@(mobileQuotaUsage));
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
@@ -322,7 +408,9 @@ RCT_EXPORT_METHOD(getDiskQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RC
 {
     @try {
         long long diskQuotaLimit = [[SENTSDK sharedInstance] getDiskQuotaLimit];
-        resolve(@(diskQuotaLimit));
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(@(diskQuotaLimit));
+        });
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
@@ -332,9 +420,13 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 {
     @try {
         long long diskQuotaUsage = [[SENTSDK sharedInstance] getDiskQuotaUsage];
-        resolve(@(diskQuotaUsage));
+        dispatch_async(dispatch_get_main_queue(), ^{
+            resolve(@(diskQuotaUsage));
+        });
     } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            reject(e.name, e.reason, nil);
+        });
     }
 }
 
