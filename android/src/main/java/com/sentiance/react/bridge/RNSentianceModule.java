@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import android.util.Log;
+import java.lang.Throwable;
 
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
@@ -120,8 +121,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
 
       @Override
-      public void onInitFailure(InitIssue issue) {
-        sentianceConfig.initCallback.onInitFailure(issue);
+      public void onInitFailure(InitIssue issue, Throwable throwable) {
+        sentianceConfig.initCallback.onInitFailure(issue, throwable);
         if (promise != null) {
           promise.reject(E_SDK_INIT_ERROR, issue.toString());
         }

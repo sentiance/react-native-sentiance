@@ -2,6 +2,7 @@ package com.sentiance.react.bridge;
 
 import android.app.Notification;
 import com.sentiance.sdk.OnInitCallback;
+import java.lang.Throwable;
 
 public class RNSentianceConfig {
 
@@ -15,7 +16,7 @@ public class RNSentianceConfig {
     }
 
     @Override
-    public void onInitFailure(InitIssue issue) {
+    public void onInitFailure(InitIssue issue, Throwable throwable) {
     }
   };
 
