@@ -55,7 +55,18 @@ __Configuring capabilities__
   	```
 3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
   	```
-      compile project(':react-native-sentiance')
+    compile project(':react-native-sentiance')
+  	```
+4. Add following entry to `android/build.gradle` 
+  	```
+    allprojects {
+      repositories {
+        ...
+        maven {
+            url "http://repository.sentiance.com"
+        }
+      }
+    }
   	```
 
 
