@@ -301,9 +301,10 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
-  public void startTrip(ReadableMap metadata, int hintParam, final Promise promise) {
-    final TransportMode hint = TransportMode.values()[hintParam];
-    Sentiance.getInstance(this.reactContext).startTrip(metadata, hint, new StartTripCallback() {
+  public void startTrip(ReadableMap metadata, int hint, final Promise promise) {
+    final Map metadataMap = metadata.toHashMap();
+    final TransportMode transportModeHint = TransportMode.values()[hint];
+    Sentiance.getInstance(this.reactContext).startTrip(metadataMap, transportModeHint, new StartTripCallback() {
       @Override
       public void onSuccess() {
         promise.resolve(null);
