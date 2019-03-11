@@ -24,7 +24,7 @@ import com.sentiance.sdk.TokenResultCallback;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
-import com.sentiance.core.model.thrift.TransportMode;
+import com.sentiance.sdk.trip.TransportMode;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;
