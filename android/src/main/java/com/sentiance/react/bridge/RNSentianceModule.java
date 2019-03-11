@@ -24,7 +24,7 @@ import com.sentiance.sdk.TokenResultCallback;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
-import com.sentiance.core.model.thrift.TransportMode;
+import com.sentiance.sdk.trip.TransportMode;
 
 import android.app.Activity;
 import android.content.pm.PackageManager;
@@ -301,9 +301,10 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
-  public void startTrip(ReadableMap metadata, String hintParam, final Promise promise) {
-    final TransportMode hint = hintParam == null ? null : TransportMode.valueOf(hintParam);
-    Sentiance.getInstance(this.reactContext).startTrip(null, null, new StartTripCallback() {
+  public void startTrip(ReadableMap metadata, int hint, final Promise promise) {
+    final Map metadataMap = metadata.toHashMap();
+    final TransportMode transportModeHint = toTransportMode(hint);
+    Sentiance.getInstance(this.reactContext).startTrip(metadataMap, transportModeHint, new StartTripCallback() {
       @Override
       public void onSuccess() {
         promise.resolve(null);
@@ -315,6 +316,23 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
     });
   }
+
+  private TransportMode toTransportMode(int t) {
+    switch (t) {
+      case 2: return TransportMode.CAR;
+      case 3: return TransportMode.BICYCLE;
+      case 4: return TransportMode.ON_FOOT;
+      case 5: return TransportMode.TRAIN;
+      case 6: return TransportMode.TRAM;
+      case 7: return TransportMode.BUS;
+      case 8: return TransportMode.PLANE;
+      case 9: return TransportMode.BOAT;
+      case 10: return TransportMode.METRO;
+      case 11: return TransportMode.RUNNING;
+      default: return null;
+    }
+  }
+
 
   @ReactMethod
   public void stopTrip(final Promise promise) {
