@@ -10,6 +10,7 @@ public class RNSentianceConfig {
   public String appSecret;
   public Boolean autoStart = true;
   public Notification notification = null;
+  public String baseURL = null;
   public OnInitCallback initCallback = new OnInitCallback() {
     @Override
     public void onInitSuccess() {
@@ -36,5 +37,9 @@ public class RNSentianceConfig {
 
   public void setAutoStart(Boolean autoStart) {
     this.autoStart = autoStart;
+  }
+
+  public void setBaseURL(String url) {
+    this.baseURL = url;
   }
 }
