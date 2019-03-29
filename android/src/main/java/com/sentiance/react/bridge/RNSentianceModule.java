@@ -95,10 +95,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
     Notification sdkNotification = sentianceConfig.notification != null ? sentianceConfig.notification
             : createNotification();
-    SdkConfig config = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
+    SdkConfig.Builder configBuilder = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
             .setOnSdkStatusUpdateHandler(statusHandler)
-            .setMetaUserLinker(metaUserLinker)
-            .build();
+            .setMetaUserLinker(metaUserLinker);
+
+    if (sentianceConfig.baseURL != null) {
+      configBuilder.baseURL(sentianceConfig.baseURL);
+    }
+    SdkConfig config = configBuilder.build();
 
     OnInitCallback initCallback = new OnInitCallback() {
       @Override
