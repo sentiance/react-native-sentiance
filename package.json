@@ -1,6 +1,6 @@
 {
   "name": "react-native-sentiance",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "React Native library for the Sentiance SDK",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,12 @@
   "author": "",
   "license": "",
   "peerDependencies": {
-    "react-native": "^0.56.0"
+    "react-native": "^0.59.0"
+  },
+  "homepage": "https://github.com/sentiance/react-native-sentiance/blob/master/README.md",
+  "bugs": "https://github.com/sentiance/react-native-sentiance/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sentiance/react-native-sentiance.git"
   }
 }
