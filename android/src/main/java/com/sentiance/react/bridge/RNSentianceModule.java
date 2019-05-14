@@ -70,6 +70,17 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sentianceConfig = config;
   }
 
+  private static OnStartFinishedHandler startFinishedHandler(final Promise promise) {
+    OnStartFinishedHandler handler = new OnStartFinishedHandler() {
+      @Override
+      public void onStartFinished(SdkStatus sdkStatus) {
+        promise.resolve(convertSdkStatus(sdkStatus));
+      }
+    };
+
+    return handler;
+  }
+
   private void initializeSentianceSdk(final Promise promise) {
     // Create the config.
     OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
