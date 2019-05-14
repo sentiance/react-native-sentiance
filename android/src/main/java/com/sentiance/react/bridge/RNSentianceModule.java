@@ -196,7 +196,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
   }
 
-  private WritableMap convertSdkStatus(SdkStatus status) {
+  private static WritableMap convertSdkStatus(SdkStatus status) {
     WritableMap map = Arguments.createMap();
     try {
       map.putString("startStatus", status.startStatus.name());
