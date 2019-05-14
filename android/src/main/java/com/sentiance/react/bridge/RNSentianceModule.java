@@ -59,6 +59,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private final String E_SDK_DISABLE_BATTERY_OPTIMIZATION = "E_SDK_DISABLE_BATTERY_OPTIMIZATION";
   private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
   private Boolean metaUserLinkResult = false;
+  private OnStartFinishedHandler mHandler;
 
   public RNSentianceModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -292,18 +293,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
             convertInstallId(installId));
   }
 
-
   @ReactMethod
   public void start(final Promise promise) {
+    mHandler = startFinishedHandler(promise);
+
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
-        Sentiance.getInstance(getReactApplicationContext()).start(new OnStartFinishedHandler() {
-          @Override
-          public void onStartFinished(SdkStatus sdkStatus) {
-            promise.resolve(convertSdkStatus(sdkStatus));
-          }
-        });
+        Sentiance.getInstance(getReactApplicationContext()).start(mHandler);
       }
     });
   }
