@@ -8,7 +8,7 @@ public class RNSentianceConfig {
 
   public String appId;
   public String appSecret;
-  public Boolean autoStart = true;
+  public Boolean autoStart = false;
   public Notification notification = null;
   public String baseURL = null;
   public OnInitCallback initCallback = new OnInitCallback() {

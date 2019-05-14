@@ -26,7 +26,6 @@ import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
 import com.sentiance.sdk.trip.TransportMode;
 
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -60,6 +59,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private final String E_SDK_DISABLE_BATTERY_OPTIMIZATION = "E_SDK_DISABLE_BATTERY_OPTIMIZATION";
   private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
   private Boolean metaUserLinkResult = false;
+  private OnStartFinishedHandler mHandler;
 
   public RNSentianceModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -69,6 +69,17 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   public static void setConfig(RNSentianceConfig config) {
     sentianceConfig = config;
+  }
+
+  private static OnStartFinishedHandler startFinishedHandler(final Promise promise) {
+    OnStartFinishedHandler handler = new OnStartFinishedHandler() {
+      @Override
+      public void onStartFinished(SdkStatus sdkStatus) {
+        promise.resolve(convertSdkStatus(sdkStatus));
+      }
+    };
+
+    return handler;
   }
 
   private void initializeSentianceSdk(final Promise promise) {
@@ -185,7 +196,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
   }
 
-  private WritableMap convertSdkStatus(SdkStatus status) {
+  private static WritableMap convertSdkStatus(SdkStatus status) {
     WritableMap map = Arguments.createMap();
     try {
       map.putString("startStatus", status.startStatus.name());
@@ -282,18 +293,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
             convertInstallId(installId));
   }
 
-
   @ReactMethod
   public void start(final Promise promise) {
+    mHandler = startFinishedHandler(promise);
+
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
-        Sentiance.getInstance(getReactApplicationContext()).start(new OnStartFinishedHandler() {
-          @Override
-          public void onStartFinished(SdkStatus sdkStatus) {
-            promise.resolve(convertSdkStatus(sdkStatus));
-          }
-        });
+        Sentiance.getInstance(getReactApplicationContext()).start(mHandler);
       }
     });
   }
