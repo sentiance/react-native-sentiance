@@ -26,7 +26,6 @@ import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
 import com.sentiance.sdk.trip.TransportMode;
 
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
