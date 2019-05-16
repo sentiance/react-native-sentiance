@@ -46,8 +46,6 @@ public class RNSentiancePackage implements ReactPackage {
     @Override
     @NonNull
     public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
-
-
         List<NativeModule> modules = new ArrayList<>();
         RNSentianceModule rnSentianceModule = new RNSentianceModule(reactContext);
         modules.add(rnSentianceModule);

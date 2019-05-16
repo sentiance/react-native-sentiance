@@ -29,6 +29,7 @@ import com.sentiance.sdk.trip.TransportMode;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -65,6 +66,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
     private final ReactApplicationContext reactContext;
     private final Sentiance sdk;
+    private final Handler mHandler = createHandler();
     private Boolean metaUserLinkResult = false;
 
 
@@ -283,13 +285,36 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
 
     private void sendStatusUpdate(SdkStatus sdkStatus) {
-        this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(STATUS_UPDATE,
-                convertSdkStatus(sdkStatus));
+        sendEvent(STATUS_UPDATE, convertSdkStatus(sdkStatus));
     }
 
     private void sendMetaUserLink(String installId) {
-        this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(META_USER_LINK,
-                convertInstallId(installId));
+        sendEvent(META_USER_LINK, convertInstallId(installId));
+    }
+
+    private void sendEvent(final String key, final WritableMap map) {
+        if (reactContext.hasActiveCatalystInstance()) {
+            this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(key, map);
+        } else {
+            //add delay
+            final Counter retry = new Counter(3);
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (RNSentianceModule.this.reactContext.hasActiveCatalystInstance()) {
+                        RNSentianceModule.this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(key, map);
+                    } else if (retry.count-- > 0) {
+                        mHandler.postDelayed(this, 500);
+                    }
+                }
+            }, 500);
+        }
+    }
+
+    private Handler createHandler() {
+        HandlerThread mHandlerThread = new HandlerThread("HandlerThread");
+        mHandlerThread.start();
+        return new Handler(mHandlerThread.getLooper());
     }
 
 
@@ -535,6 +560,15 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
             Sentiance.getInstance(this.reactContext).disableBatteryOptimization();
         }
         promise.resolve(null);
+    }
+
+
+    private class Counter {
+        Counter(int count) {
+            this.count = count;
+        }
+
+        int count;
     }
 
 }
