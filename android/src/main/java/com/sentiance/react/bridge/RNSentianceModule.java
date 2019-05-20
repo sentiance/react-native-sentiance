@@ -12,6 +12,7 @@ import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.MetaUserLinker;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnSdkStatusUpdateHandler;
@@ -21,12 +22,16 @@ import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.Token;
 import com.sentiance.sdk.TokenResultCallback;
+import com.sentiance.sdk.detectionupdates.UserActivity;
+import com.sentiance.sdk.detectionupdates.UserActivityListener;
+import com.sentiance.sdk.detectionupdates.UserActivityType;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
 import com.sentiance.sdk.trip.TransportMode;
 
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
 import android.app.Notification;
@@ -52,10 +57,12 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private final Sentiance sdk;
   private final String STATUS_UPDATE = "SDKStatusUpdate";
   private final String META_USER_LINK = "SDKMetaUserLink";
+  private static final String USER_ACTIVITY_UPDATE = "SDKUserActivityUpdate";
   private final String E_SDK_INIT_ERROR = "E_SDK_INIT_ERROR";
   private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
   private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
   private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
+  private final String E_SDK_NOT_INITIALIZED = "E_SDK_NOT_INITIALIZED";
   private final String E_SDK_DISABLE_BATTERY_OPTIMIZATION = "E_SDK_DISABLE_BATTERY_OPTIMIZATION";
   private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
   private Boolean metaUserLinkResult = false;
@@ -196,6 +203,76 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
   }
 
+  private WritableMap convertUserActivity(UserActivity activity) {
+    WritableMap map = Arguments.createMap();
+    try {
+      map.putString("type", convertUserActivityType(activity.getActivityType()));
+
+      //Trip Info
+      if (activity.getTripInfo() != null) {
+        WritableMap tripInfoMap = Arguments.createMap();
+        String tripType = convertTripType(activity.getTripInfo().getTripType());
+        tripInfoMap.putString("type", tripType);
+        map.putMap("tripInfo", tripInfoMap);
+      }
+
+      //Stationary Info
+      if (activity.getStationaryInfo() != null) {
+        WritableMap stationaryInfoMap = Arguments.createMap();
+        if (activity.getStationaryInfo().getLocation() != null) {
+          WritableMap locationMap = convertLocation(activity.getStationaryInfo().getLocation());
+          stationaryInfoMap.putMap("location", locationMap);
+        }
+        map.putMap("stationaryInfo", stationaryInfoMap);
+      }
+
+    } catch (Exception ignored) {
+    }
+
+    return map;
+  }
+
+
+  private WritableMap convertLocation(Location location) {
+    WritableMap locationMap = Arguments.createMap();
+
+    locationMap.putString("latitude", String.valueOf(location.getLatitude()));
+    locationMap.putString("longitude", String.valueOf(location.getLongitude()));
+    locationMap.putString("accuracy", String.valueOf(location.getAccuracy()));
+    locationMap.putString("altitude", String.valueOf(location.getAltitude()));
+    locationMap.putString("provider", location.getProvider());
+
+    return locationMap;
+
+  }
+
+  private String convertTripType(TripType tripType) {
+    switch (tripType) {
+      case ANY:
+        return "ANY";
+      case EXTERNAL_TRIP:
+        return "TRIP_TYPE_EXTERNAL";
+      case SDK_TRIP:
+        return "TRIP_TYPE_SDK";
+      default:
+        return "TRIP_TYPE_SDK";
+    }
+  }
+
+  private String convertUserActivityType(UserActivityType activityType) {
+    switch (activityType) {
+      case TRIP:
+        return "USER_ACTIVITY_TYPE_TRIP";
+      case STATIONARY:
+        return "USER_ACTIVITY_TYPE_STATIONARY";
+      case UNKNOWN:
+        return "USER_ACTIVITY_TYPE_UNKNOWN";
+      default:
+        return "USER_ACTIVITY_TYPE_UNKNOWN";
+    }
+  }
+
+
   private static WritableMap convertSdkStatus(SdkStatus status) {
     WritableMap map = Arguments.createMap();
     try {
@@ -291,6 +368,11 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private void sendMetaUserLink(String installId) {
     this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(META_USER_LINK,
             convertInstallId(installId));
+  }
+
+  private void sendUserActivityUpdates(UserActivity activity) {
+    this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(USER_ACTIVITY_UPDATE,
+            convertUserActivity(activity));
   }
 
   @ReactMethod
@@ -476,6 +558,26 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       Sentiance.getInstance(this.reactContext).disableBatteryOptimization();
     }
     promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void listenUserActivityUpdates() {
+    Sentiance.getInstance(reactContext).setUserActivityListener(new UserActivityListener() {
+      @Override
+      public void onUserActivityChange(UserActivity activity) {
+        sendUserActivityUpdates(activity);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getUserActivity(final Promise promise) {
+    if(Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
+      UserActivity activity = Sentiance.getInstance(reactContext).getUserActivity();
+      promise.resolve(convertUserActivity(activity));
+    }else {
+      promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
+    }
   }
 
   @Override
