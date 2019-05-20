@@ -28,6 +28,7 @@ import com.sentiance.sdk.trip.TransportMode;
 
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -59,7 +60,29 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private final String E_SDK_DISABLE_BATTERY_OPTIMIZATION = "E_SDK_DISABLE_BATTERY_OPTIMIZATION";
   private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
   private Boolean metaUserLinkResult = false;
-  private OnStartFinishedHandler mHandler;
+  private final Handler mHandler = new Handler(Looper.getMainLooper());
+
+  // Create SDK status update handler which sends event to JS
+  private OnSdkStatusUpdateHandler sdkStatusUpdateHandler = new OnSdkStatusUpdateHandler() {
+    @Override
+    public void onSdkStatusUpdate(SdkStatus status) {
+      sendStatusUpdate(status);
+    }
+  };
+
+  // Create metaUserLinker which sends event to JS and waits for result via @ReactMethod metaUserLinkCallback
+  private MetaUserLinker metaUserLinker = new MetaUserLinker() {
+    @Override
+    public boolean link(String installId) {
+      sendMetaUserLink(installId);
+      try {
+        metaUserLinkLatch.await();
+        return metaUserLinkResult;
+      } catch (InterruptedException e) {
+        return false;
+      }
+    }
+  };
 
   public RNSentianceModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -71,43 +94,11 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sentianceConfig = config;
   }
 
-  private static OnStartFinishedHandler startFinishedHandler(final Promise promise) {
-    OnStartFinishedHandler handler = new OnStartFinishedHandler() {
-      @Override
-      public void onStartFinished(SdkStatus sdkStatus) {
-        promise.resolve(convertSdkStatus(sdkStatus));
-      }
-    };
-
-    return handler;
-  }
-
   private void initializeSentianceSdk(final Promise promise) {
-    // Create the config.
-    OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
-      @Override
-      public void onSdkStatusUpdate(SdkStatus status) {
-        sendStatusUpdate(status);
-      }
-    };
-    // Create metaUserLinker wich sends event to JS and waits for result via @ReactMethod metaUserLinkCallback
-    MetaUserLinker metaUserLinker = new MetaUserLinker() {
-      @Override
-      public boolean link(String installId) {
-        sendMetaUserLink(installId);
-        try {
-          metaUserLinkLatch.await();
-          return metaUserLinkResult;
-        } catch(InterruptedException e) {
-          return false;
-        }
-      }
-    };
-
     Notification sdkNotification = sentianceConfig.notification != null ? sentianceConfig.notification
             : createNotification();
     SdkConfig.Builder configBuilder = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
-            .setOnSdkStatusUpdateHandler(statusHandler)
+            .setOnSdkStatusUpdateHandler(sdkStatusUpdateHandler)
             .setMetaUserLinker(metaUserLinker);
 
     if (sentianceConfig.baseURL != null) {
@@ -284,23 +275,44 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   private void sendStatusUpdate(SdkStatus sdkStatus) {
-    this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(STATUS_UPDATE,
-            convertSdkStatus(sdkStatus));
+    sendEvent(STATUS_UPDATE, convertSdkStatus(sdkStatus));
   }
 
   private void sendMetaUserLink(String installId) {
-    this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(META_USER_LINK,
-            convertInstallId(installId));
+    sendEvent(META_USER_LINK, convertInstallId(installId));
+  }
+
+  private void sendEvent(final String key, final WritableMap map) {
+    if (reactContext.hasActiveCatalystInstance()) {
+      this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(key, map);
+    } else {
+      //add delay
+      final Counter retry = new Counter(3);
+      mHandler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          if (RNSentianceModule.this.reactContext.hasActiveCatalystInstance()) {
+            RNSentianceModule.this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(key, map);
+          } else if (retry.count-- > 0) {
+            mHandler.postDelayed(this, 500);
+          }
+        }
+      }, 500);
+    }
   }
 
   @ReactMethod
   public void start(final Promise promise) {
-    mHandler = startFinishedHandler(promise);
-
-    new Handler(Looper.getMainLooper()).post(new Runnable() {
+    mHandler.post(new Runnable() {
       @Override
       public void run() {
-        Sentiance.getInstance(getReactApplicationContext()).start(mHandler);
+        Sentiance.getInstance(getReactApplicationContext()).start(new OnStartFinishedHandler() {
+          @Override
+          public void onStartFinished(SdkStatus sdkStatus) {
+            sendStatusUpdate(sdkStatus);
+            promise.resolve(convertSdkStatus(sdkStatus));
+          }
+        });
       }
     });
   }
@@ -492,5 +504,21 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   public void onHostDestroy() {
     // Activity `onDestroy`
   }
+
+  OnSdkStatusUpdateHandler getSdkStatusUpdateHandler() {
+    return sdkStatusUpdateHandler;
+  }
+
+  MetaUserLinker getMetaUserLinker() {
+    return metaUserLinker;
+  }
+
+  private class Counter {
+    Counter(int count) {
+      this.count = count;
+    }
+    int count;
+  }
+
 
 }
