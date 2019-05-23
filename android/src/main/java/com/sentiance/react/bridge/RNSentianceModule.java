@@ -417,6 +417,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  public void addTripMetadata(ReadableMap inputMetadata, final Promise promise) {
+    final Map<String, String> metadata = convertReadableMapToMap(inputMetadata);
+    boolean result = Sentiance.getInstance(this.reactContext).addTripMetadata(metadata);
+    promise.resolve(result);
+  }
+
+  @ReactMethod
   public void addUserMetadataFields(ReadableMap inputMetadata, final Promise promise) {
     final Map<String, String> metadata = convertReadableMapToMap(inputMetadata);
     Sentiance.getInstance(this.reactContext).addUserMetadataFields(metadata);
