@@ -287,7 +287,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(key, map);
     } else {
       //add delay
-      final Counter retry = new Counter(3);
+      final Counter retry = new Counter(20);
       mHandler.postDelayed(new Runnable() {
         @Override
         public void run() {
