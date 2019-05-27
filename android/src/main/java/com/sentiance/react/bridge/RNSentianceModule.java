@@ -53,7 +53,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private static final boolean DEBUG = true;
   private static final String LOG_TAG = "RNSentiance";
   private final ReactApplicationContext reactContext;
-  private static RNSentianceConfig sentianceConfig = new RNSentianceConfig(null, null);
+  private static RNSentianceConfig sentianceConfig = null;
   private final Sentiance sdk;
   private final String STATUS_UPDATE = "SDKStatusUpdate";
   private final String META_USER_LINK = "SDKMetaUserLink";
@@ -111,8 +111,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
     };
 
+    String appName = reactContext.getApplicationInfo().loadLabel(reactContext.getPackageManager()).toString();
     Notification sdkNotification = sentianceConfig.notification != null ? sentianceConfig.notification
-            : createNotification();
+            : createNotification(appName + " is running", "Touch to open");
     SdkConfig.Builder configBuilder = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
             .setOnSdkStatusUpdateHandler(statusHandler)
             .setMetaUserLinker(metaUserLinker);
@@ -155,7 +156,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     this.sdk.init(config, initCallback);
   }
 
-  private Notification createNotification() {
+  private Notification createNotification(String title, String message) {
       Log.v(LOG_TAG, "Creating Notification through RNSentiance");
       // PendingIntent that will start your application's MainActivity
       String packageName = this.reactContext.getPackageName();
@@ -180,14 +181,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       } catch (PackageManager.NameNotFoundException e) {
           e.printStackTrace();
       }
-      int appNameId = res.getIdentifier("app_name", "string", packageName);
+
 
       return new NotificationCompat.Builder(this.reactContext, channelId)
-              .setContentTitle(res.getString(appNameId) + " is running")
-              .setContentText("Touch to open.")
+              .setContentTitle(title)
+              .setContentText(message)
               .setContentIntent(pendingIntent)
               .setShowWhen(false)
-              .setSmallIcon(res.getIdentifier("notification_icon", "mipmap", packageName))
+              .setSmallIcon(res.getIdentifier("ic_launcher", "mipmap", packageName))
               .setPriority(NotificationCompat.PRIORITY_MIN)
               .build();
   }
@@ -353,7 +354,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         if (Sentiance.getInstance(getReactApplicationContext()).isInitialized()) {
           promise.resolve(null);
         } else {
-          RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret));
+          if(sentianceConfig == null)
+            RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret));
           initializeSentianceSdk(promise);
         }
       }
@@ -575,6 +577,16 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     if(Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
       UserActivity activity = Sentiance.getInstance(reactContext).getUserActivity();
       promise.resolve(convertUserActivity(activity));
+    }else {
+      promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
+    }
+  }
+
+  @ReactMethod
+  public void updateSdkNotification(final String title , final String message, Promise promise) {
+    if(Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
+      Sentiance.getInstance(reactContext).updateSdkNotification(createNotification(title,message));
+      promise.resolve(null);
     }else {
       promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
     }
