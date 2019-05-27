@@ -26,6 +26,7 @@ import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
 import com.sentiance.sdk.trip.TransportMode;
 
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -36,6 +37,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.app.PendingIntent;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import java.util.HashMap;
 import java.util.Map;
@@ -104,8 +106,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
     };
 
-    Notification sdkNotification = sentianceConfig.notification != null ? sentianceConfig.notification
-            : createNotification();
+
+    Notification sdkNotification = createNotification(null,null);
+
     SdkConfig.Builder configBuilder = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
             .setOnSdkStatusUpdateHandler(statusHandler)
             .setMetaUserLinker(metaUserLinker);
@@ -148,7 +151,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     this.sdk.init(config, initCallback);
   }
 
-  private Notification createNotification() {
+  private Notification createNotification(@Nullable String title ,@Nullable String message) {
       Log.v(LOG_TAG, "Creating Notification through RNSentiance");
       // PendingIntent that will start your application's MainActivity
       String packageName = this.reactContext.getPackageName();
@@ -158,29 +161,46 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent, 0);
 
       // On Oreo and above, you must create a notification channel
-      String channelId = "journeys";
+      String appName = reactContext.getApplicationInfo().loadLabel(reactContext.getPackageManager()).toString();
+      String  channelName = "Journeys";
+      Integer icon = reactContext.getApplicationInfo().icon;
+      String channelId = "Journeys";
+      String defaultTitle = appName + " is running";
+      String defaultMessage = "Touch to open";
+
+    ApplicationInfo info;
+      try {
+        info = reactContext.getPackageManager().getApplicationInfo(
+                reactContext.getPackageName(), PackageManager.GET_META_DATA);
+        if(title==null)
+          title = getStringMetadataFromManifest(info, "com.sentiance.sdk.notification_title",defaultTitle);
+        if(message==null)
+          message = getStringMetadataFromManifest(info, "com.sentiance.sdk.notification_text",defaultMessage);
+        channelName = getStringMetadataFromManifest(info, "com.sentiance.sdk.notification_channel_name",channelName);
+        icon  = getIntMetadataFromManifest(info, "com.sentiance.sdk.notification_icon",icon);
+        channelId  = getStringMetadataFromManifest(info, "com.sentiance.sdk.channel_id",channelId);
+      }catch (PackageManager.NameNotFoundException e){
+        if(title==null)
+          title=defaultTitle;
+        if(message==null)
+          message=defaultMessage;
+        e.printStackTrace();
+      }
+
       if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
           NotificationChannel channel = new NotificationChannel(channelId,
-                  "Journeys", NotificationManager.IMPORTANCE_LOW);
+                  channelName, NotificationManager.IMPORTANCE_LOW);
           channel.setShowBadge(false);
           NotificationManager notificationManager = (NotificationManager) this.reactContext.getSystemService(Context.NOTIFICATION_SERVICE);
           notificationManager.createNotificationChannel(channel);
       }
 
-      Resources res = null;
-      try {
-          res = this.reactContext.getPackageManager().getResourcesForApplication(packageName);
-      } catch (PackageManager.NameNotFoundException e) {
-          e.printStackTrace();
-      }
-      int appNameId = res.getIdentifier("app_name", "string", packageName);
-
       return new NotificationCompat.Builder(this.reactContext, channelId)
-              .setContentTitle(res.getString(appNameId) + " is running")
-              .setContentText("Touch to open.")
+              .setContentTitle(title)
+              .setContentText(message)
               .setContentIntent(pendingIntent)
               .setShowWhen(false)
-              .setSmallIcon(res.getIdentifier("notification_icon", "mipmap", packageName))
+              .setSmallIcon(icon)
               .setPriority(NotificationCompat.PRIORITY_MIN)
               .build();
   }
@@ -498,6 +518,24 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @Override
   public void onHostDestroy() {
     // Activity `onDestroy`
+  }
+
+  private String getStringMetadataFromManifest(ApplicationInfo info, String name , String defaultValue) {
+    Object obj = info.metaData.get(name);
+    if (obj instanceof String) {
+      return (String)obj;
+    } else {
+      return defaultValue;
+    }
+  }
+
+  private int getIntMetadataFromManifest(ApplicationInfo info, String name , int defaultValue) {
+    Object obj = info.metaData.get(name);
+    if (obj instanceof Integer) {
+      return (Integer)obj;
+    } else {
+      return defaultValue;
+    }
   }
 
 }
