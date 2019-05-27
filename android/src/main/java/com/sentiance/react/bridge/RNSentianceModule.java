@@ -1,6 +1,5 @@
 package com.sentiance.react.bridge;
 
-import com.sentiance.react.bridge.RNSentianceConfig;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -28,7 +27,6 @@ import com.sentiance.sdk.trip.TransportMode;
 
 import android.content.pm.PackageManager;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -61,6 +59,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
   private Boolean metaUserLinkResult = false;
   private final Handler mHandler = new Handler(Looper.getMainLooper());
+  private boolean metaUserLinkingEnabled = false;
 
   // Create SDK status update handler which sends event to JS
   private OnSdkStatusUpdateHandler sdkStatusUpdateHandler = new OnSdkStatusUpdateHandler() {
@@ -98,8 +97,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     Notification sdkNotification = sentianceConfig.notification != null ? sentianceConfig.notification
             : createNotification();
     SdkConfig.Builder configBuilder = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
-            .setOnSdkStatusUpdateHandler(sdkStatusUpdateHandler)
-            .setMetaUserLinker(metaUserLinker);
+            .setOnSdkStatusUpdateHandler(sdkStatusUpdateHandler);
+    if(metaUserLinkingEnabled)
+      configBuilder.setMetaUserLinker(metaUserLinker);
 
     if (sentianceConfig.baseURL != null) {
       configBuilder.baseURL(sentianceConfig.baseURL);
@@ -261,6 +261,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   public void init(final String appId, final String appSecret, final Promise promise) {
     Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId + " and SECRET: " + appSecret);
+    init(appId,appSecret,false,promise);
+  }
+
+  @ReactMethod
+  public void init(final String appId, final String appSecret,boolean metaUserLinkingEnabled, final Promise promise) {
+    Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId + " and SECRET: " + appSecret);
+    this.metaUserLinkingEnabled = metaUserLinkingEnabled;
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
