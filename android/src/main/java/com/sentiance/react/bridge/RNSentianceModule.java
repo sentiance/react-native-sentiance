@@ -563,13 +563,18 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
-  public void listenUserActivityUpdates() {
-    Sentiance.getInstance(reactContext).setUserActivityListener(new UserActivityListener() {
-      @Override
-      public void onUserActivityChange(UserActivity activity) {
-        sendUserActivityUpdates(activity);
-      }
-    });
+  public void listenUserActivityUpdates(Promise promise) {
+    if(Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
+      Sentiance.getInstance(reactContext).setUserActivityListener(new UserActivityListener() {
+        @Override
+        public void onUserActivityChange(UserActivity activity) {
+          sendUserActivityUpdates(activity);
+        }
+      });
+      promise.resolve(null);
+    }else{
+      promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
+    }
   }
 
   @ReactMethod
