@@ -178,7 +178,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
           message = getStringMetadataFromManifest(info, "com.sentiance.sdk.notification_text",defaultMessage);
         channelName = getStringMetadataFromManifest(info, "com.sentiance.sdk.notification_channel_name",channelName);
         icon  = getIntMetadataFromManifest(info, "com.sentiance.sdk.notification_icon",icon);
-        channelId  = getStringMetadataFromManifest(info, "com.sentiance.sdk.channel_id",channelId);
+        channelId  = getStringMetadataFromManifest(info, "com.sentiance.sdk.notification_channel_id",channelId);
       }catch (PackageManager.NameNotFoundException e){
         if(title==null)
           title=defaultTitle;
