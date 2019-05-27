@@ -261,7 +261,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   public void init(final String appId, final String appSecret, final Promise promise) {
     Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId);
-    this.metaUserLinkingEnabled = metaUserLinkingEnabled;
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
