@@ -260,13 +260,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   public void init(final String appId, final String appSecret, final Promise promise) {
-    Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId + " and SECRET: " + appSecret);
-    init(appId,appSecret,false,promise);
-  }
-
-  @ReactMethod
-  public void init(final String appId, final String appSecret,boolean metaUserLinkingEnabled, final Promise promise) {
-    Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId + " and SECRET: " + appSecret);
+    Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId);
     this.metaUserLinkingEnabled = metaUserLinkingEnabled;
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
@@ -279,6 +273,12 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         }
       }
     });
+  }
+
+  @ReactMethod
+  public void initWithUserLinkingEnabled(final String appId, final String appSecret, final Promise promise) {
+    this.metaUserLinkingEnabled = true;
+    init(appId,appSecret,promise);
   }
 
   private void sendStatusUpdate(SdkStatus sdkStatus) {
