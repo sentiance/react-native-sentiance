@@ -279,3 +279,51 @@ All quota functions:
 * `getMobileQuotaUsage`
 * `getDiskQuotaLimit`
 * `getDiskQuotaUsage`
+
+#### User Activity
+Get user current activity
+```javascript
+const userActivity = await RNSentiance.getUserActivity();
+```
+
+The SDK can signal user activity updates to JavaScript without being invoked directly. You can subscribe to these user activity updates by creating a new NativeEventEmitter instance around your module, and adding a listener for `SDKUserActivityUpdate`.
+```javascript
+import { NativeEventEmitter } from 'react-native'
+
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
+const subscription = sentianceEmitter.addListener(
+	'SDKUserActivityUpdate',
+	userActivity => {
+		// Returns SDK status
+	}
+);
+
+// Don't forget to unsubscribe, typically in componentWillUnmount
+subscription.remove();
+```
+
+Handling user activity
+```javascript
+var { type, tripInfo, stationaryInfo } = userActivity;
+if (type === "USER_ACTIVITY_TYPE_STATIONARY") {
+  var { location } = stationaryInfo;
+  if (location) {
+    var { latitude, longitude } = location;
+  }
+  //..
+} else if (type === "USER_ACTIVITY_TYPE_TRIP") {
+  //..
+} else if (type === "USER_ACTIVITY_TYPE_UNKNOWN") {
+  //..
+}
+
+```
+
+#### Update SDK foreground notification (ANDROID ONLY)
+Updates the title and text of SDK notification. After calling this method, any notification shown by the SDK will be updated.
+
+Note that this change is valid only during the process's lifetime. After the app process retarts, the SDK will display the default notification.
+
+```javascript
+await RNSentiance.updateSdkNotification("RN SDK Sample", "SDK is running");
+```
