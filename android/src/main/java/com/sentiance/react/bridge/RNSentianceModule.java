@@ -164,7 +164,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       String appName = reactContext.getApplicationInfo().loadLabel(reactContext.getPackageManager()).toString();
       String  channelName = "Journeys";
       Integer icon = reactContext.getApplicationInfo().icon;
-      String channelId = "Journeys";
+      String channelId = "journeys";
       String defaultTitle = appName + " is running";
       String defaultMessage = "Touch to open";
 
@@ -524,7 +524,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     Object obj = info.metaData.get(name);
     if (obj instanceof String) {
       return (String)obj;
-    } else {
+    } else if (obj instanceof Integer) {
+      return reactContext.getString((Integer)obj);
+    }else {
       return defaultValue;
     }
   }
