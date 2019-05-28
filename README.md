@@ -322,7 +322,7 @@ if (type === "USER_ACTIVITY_TYPE_STATIONARY") {
 #### Update SDK foreground notification (ANDROID ONLY)
 Updates the title and text of SDK notification. After calling this method, any notification shown by the SDK will be updated.
 
-Note that this change is valid only during the process's lifetime. After the app process retarts, the SDK will display the default notification.
+Note that this change is valid only during the process's lifetime. After the app process restarts, the SDK will display the default notification.
 
 ```javascript
 await RNSentiance.updateSdkNotification("RN SDK Sample", "SDK is running");
