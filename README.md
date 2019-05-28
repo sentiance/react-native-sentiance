@@ -70,11 +70,11 @@ __Configuring capabilities__
   	```
 4. Configure foreground notification, Add the following lines to application's `AndroidManifest.xml` file inside `<application>` tag:
   	```xml
-    <meta-data android:name="com.sentiance.sdk.notification_title" android:resource="Notification Title"/>
-    <meta-data android:name="com.sentiance.sdk.notification_text" android:value="Notification Message"/>
-    <meta-data android:name="com.sentiance.sdk.notification_icon" android:resource="@mipmap/ic_launcher"/>
-    <meta-data android:name="com.sentiance.sdk.notification_channel_name" android:value="Notification Channel Name"/>
-    <meta-data android:name="com.sentiance.sdk.notification_channel_id" android:value="Sentiance"/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_title" android:resource="@string/app_name"/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_text" android:value="Touch to open."/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_icon" android:resource="@mipmap/ic_launcher"/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_channel_name" android:value="Sentiance"/>
+    <meta-data android:name="ccom.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
   	```
 
 
