@@ -128,13 +128,14 @@ In your `AppDelegate` add the following:
       }
     }
   	```
-
-
-__Android notification icon__
-
-The SDK may need to start a foreground service every now and again. `RNSentiance` will therefore pass a notification that can be used by the service.
-
-Creating a small icon with the name `notification_icon` located at `android/src/main/res/mipmap-[...]` is required in order for the notification to be successfully created. Android 5.0+ enforces your icon to only be white and transparent.
+4. Configure foreground notification, Add the following lines to application's `AndroidManifest.xml` file inside `<application>` tag:
+  	```xml
+    <meta-data android:name="com.sentiance.react.bridge.notification_title" android:resource="@string/app_name"/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_text" android:value="Touch to open."/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_icon" android:resource="@mipmap/ic_launcher"/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_channel_name" android:value="Sentiance"/>
+    <meta-data android:name="ccom.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
+  	```
 
 
 ## Usage

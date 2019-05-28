@@ -29,6 +29,7 @@ import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
 import com.sentiance.sdk.trip.TransportMode;
 
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Handler;
@@ -40,6 +41,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.app.PendingIntent;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import java.util.HashMap;
 import java.util.Map;
@@ -122,9 +124,15 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
     };
 
+<<<<<<< HEAD
     String appName = reactContext.getApplicationInfo().loadLabel(reactContext.getPackageManager()).toString();
     Notification sdkNotification = sentianceConfig.notification != null ? sentianceConfig.notification
             : createNotification(appName + " is running", "Touch to open");
+=======
+
+    Notification sdkNotification = createNotification(null,null);
+
+>>>>>>> origin/feature/android-notification-update-support
     SdkConfig.Builder configBuilder = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
             .setOnSdkStatusUpdateHandler(sdkStatusUpdateHandler);
     if(metaUserLinkingEnabled)
@@ -168,7 +176,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     this.sdk.init(config, initCallback);
   }
 
-  private Notification createNotification(String title, String message) {
+  private Notification createNotification(@Nullable String title ,@Nullable String message) {
       Log.v(LOG_TAG, "Creating Notification through RNSentiance");
       // PendingIntent that will start your application's MainActivity
       String packageName = this.reactContext.getPackageName();
@@ -178,29 +186,46 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       PendingIntent pendingIntent = PendingIntent.getActivity(this.reactContext, 0, intent, 0);
 
       // On Oreo and above, you must create a notification channel
+      String appName = reactContext.getApplicationInfo().loadLabel(reactContext.getPackageManager()).toString();
+      String  channelName = "Journeys";
+      Integer icon = reactContext.getApplicationInfo().icon;
       String channelId = "journeys";
+      String defaultTitle = appName + " is running";
+      String defaultMessage = "Touch to open";
+
+    ApplicationInfo info;
+      try {
+        info = reactContext.getPackageManager().getApplicationInfo(
+                reactContext.getPackageName(), PackageManager.GET_META_DATA);
+        if(title==null)
+          title = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_title",defaultTitle);
+        if(message==null)
+          message = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_text",defaultMessage);
+        channelName = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_channel_name",channelName);
+        icon  = getIntMetadataFromManifest(info, "com.sentiance.react.bridge.notification_icon",icon);
+        channelId  = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_channel_id",channelId);
+      }catch (PackageManager.NameNotFoundException e){
+        if(title==null)
+          title=defaultTitle;
+        if(message==null)
+          message=defaultMessage;
+        e.printStackTrace();
+      }
+
       if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
           NotificationChannel channel = new NotificationChannel(channelId,
-                  "Journeys", NotificationManager.IMPORTANCE_LOW);
+                  channelName, NotificationManager.IMPORTANCE_LOW);
           channel.setShowBadge(false);
           NotificationManager notificationManager = (NotificationManager) this.reactContext.getSystemService(Context.NOTIFICATION_SERVICE);
           notificationManager.createNotificationChannel(channel);
       }
-
-      Resources res = null;
-      try {
-          res = this.reactContext.getPackageManager().getResourcesForApplication(packageName);
-      } catch (PackageManager.NameNotFoundException e) {
-          e.printStackTrace();
-      }
-
 
       return new NotificationCompat.Builder(this.reactContext, channelId)
               .setContentTitle(title)
               .setContentText(message)
               .setContentIntent(pendingIntent)
               .setShowWhen(false)
-              .setSmallIcon(res.getIdentifier("ic_launcher", "mipmap", packageName))
+              .setSmallIcon(icon)
               .setPriority(NotificationCompat.PRIORITY_MIN)
               .build();
   }
@@ -658,6 +683,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     // Activity `onDestroy`
   }
 
+<<<<<<< HEAD
   OnSdkStatusUpdateHandler getSdkStatusUpdateHandler() {
     return sdkStatusUpdateHandler;
   }
@@ -674,4 +700,26 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
 
+=======
+  private String getStringMetadataFromManifest(ApplicationInfo info, String name , String defaultValue) {
+    Object obj = info.metaData.get(name);
+    if (obj instanceof String) {
+      return (String)obj;
+    } else if (obj instanceof Integer) {
+      return reactContext.getString((Integer)obj);
+    }else {
+      return defaultValue;
+    }
+  }
+
+  private int getIntMetadataFromManifest(ApplicationInfo info, String name , int defaultValue) {
+    Object obj = info.metaData.get(name);
+    if (obj instanceof Integer) {
+      return (Integer)obj;
+    } else {
+      return defaultValue;
+    }
+  }
+
+>>>>>>> origin/feature/android-notification-update-support
 }
