@@ -11,6 +11,7 @@ import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.MetaUserLinker;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnSdkStatusUpdateHandler;
@@ -20,12 +21,16 @@ import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.Token;
 import com.sentiance.sdk.TokenResultCallback;
+import com.sentiance.sdk.detectionupdates.UserActivity;
+import com.sentiance.sdk.detectionupdates.UserActivityListener;
+import com.sentiance.sdk.detectionupdates.UserActivityType;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
 import com.sentiance.sdk.trip.TransportMode;
 
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
 import android.app.Notification;
@@ -47,14 +52,16 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private static final boolean DEBUG = true;
   private static final String LOG_TAG = "RNSentiance";
   private final ReactApplicationContext reactContext;
-  private static RNSentianceConfig sentianceConfig = new RNSentianceConfig(null, null);
+  private static RNSentianceConfig sentianceConfig = null;
   private final Sentiance sdk;
   private final String STATUS_UPDATE = "SDKStatusUpdate";
   private final String META_USER_LINK = "SDKMetaUserLink";
+  private static final String USER_ACTIVITY_UPDATE = "SDKUserActivityUpdate";
   private final String E_SDK_INIT_ERROR = "E_SDK_INIT_ERROR";
   private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
   private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
   private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
+  private final String E_SDK_NOT_INITIALIZED = "E_SDK_NOT_INITIALIZED";
   private final String E_SDK_DISABLE_BATTERY_OPTIMIZATION = "E_SDK_DISABLE_BATTERY_OPTIMIZATION";
   private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
   private Boolean metaUserLinkResult = false;
@@ -94,8 +101,30 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   private void initializeSentianceSdk(final Promise promise) {
+    // Create the config.
+    OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
+      @Override
+      public void onSdkStatusUpdate(SdkStatus status) {
+        sendStatusUpdate(status);
+      }
+    };
+    // Create metaUserLinker wich sends event to JS and waits for result via @ReactMethod metaUserLinkCallback
+    MetaUserLinker metaUserLinker = new MetaUserLinker() {
+      @Override
+      public boolean link(String installId) {
+        sendMetaUserLink(installId);
+        try {
+          metaUserLinkLatch.await();
+          return metaUserLinkResult;
+        } catch(InterruptedException e) {
+          return false;
+        }
+      }
+    };
+
+    String appName = reactContext.getApplicationInfo().loadLabel(reactContext.getPackageManager()).toString();
     Notification sdkNotification = sentianceConfig.notification != null ? sentianceConfig.notification
-            : createNotification();
+            : createNotification(appName + " is running", "Touch to open");
     SdkConfig.Builder configBuilder = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
             .setOnSdkStatusUpdateHandler(sdkStatusUpdateHandler);
     if(metaUserLinkingEnabled)
@@ -139,7 +168,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     this.sdk.init(config, initCallback);
   }
 
-  private Notification createNotification() {
+  private Notification createNotification(String title, String message) {
       Log.v(LOG_TAG, "Creating Notification through RNSentiance");
       // PendingIntent that will start your application's MainActivity
       String packageName = this.reactContext.getPackageName();
@@ -164,14 +193,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       } catch (PackageManager.NameNotFoundException e) {
           e.printStackTrace();
       }
-      int appNameId = res.getIdentifier("app_name", "string", packageName);
+
 
       return new NotificationCompat.Builder(this.reactContext, channelId)
-              .setContentTitle(res.getString(appNameId) + " is running")
-              .setContentText("Touch to open.")
+              .setContentTitle(title)
+              .setContentText(message)
               .setContentIntent(pendingIntent)
               .setShowWhen(false)
-              .setSmallIcon(res.getIdentifier("notification_icon", "mipmap", packageName))
+              .setSmallIcon(res.getIdentifier("ic_launcher", "mipmap", packageName))
               .setPriority(NotificationCompat.PRIORITY_MIN)
               .build();
   }
@@ -186,6 +215,76 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       Log.e("SentianceSDK", String.format(msg, params));
     }
   }
+
+  private WritableMap convertUserActivity(UserActivity activity) {
+    WritableMap map = Arguments.createMap();
+    try {
+      map.putString("type", convertUserActivityType(activity.getActivityType()));
+
+      //Trip Info
+      if (activity.getTripInfo() != null) {
+        WritableMap tripInfoMap = Arguments.createMap();
+        String tripType = convertTripType(activity.getTripInfo().getTripType());
+        tripInfoMap.putString("type", tripType);
+        map.putMap("tripInfo", tripInfoMap);
+      }
+
+      //Stationary Info
+      if (activity.getStationaryInfo() != null) {
+        WritableMap stationaryInfoMap = Arguments.createMap();
+        if (activity.getStationaryInfo().getLocation() != null) {
+          WritableMap locationMap = convertLocation(activity.getStationaryInfo().getLocation());
+          stationaryInfoMap.putMap("location", locationMap);
+        }
+        map.putMap("stationaryInfo", stationaryInfoMap);
+      }
+
+    } catch (Exception ignored) {
+    }
+
+    return map;
+  }
+
+
+  private WritableMap convertLocation(Location location) {
+    WritableMap locationMap = Arguments.createMap();
+
+    locationMap.putString("latitude", String.valueOf(location.getLatitude()));
+    locationMap.putString("longitude", String.valueOf(location.getLongitude()));
+    locationMap.putString("accuracy", String.valueOf(location.getAccuracy()));
+    locationMap.putString("altitude", String.valueOf(location.getAltitude()));
+    locationMap.putString("provider", location.getProvider());
+
+    return locationMap;
+
+  }
+
+  private String convertTripType(TripType tripType) {
+    switch (tripType) {
+      case ANY:
+        return "ANY";
+      case EXTERNAL_TRIP:
+        return "TRIP_TYPE_EXTERNAL";
+      case SDK_TRIP:
+        return "TRIP_TYPE_SDK";
+      default:
+        return "TRIP_TYPE_SDK";
+    }
+  }
+
+  private String convertUserActivityType(UserActivityType activityType) {
+    switch (activityType) {
+      case TRIP:
+        return "USER_ACTIVITY_TYPE_TRIP";
+      case STATIONARY:
+        return "USER_ACTIVITY_TYPE_STATIONARY";
+      case UNKNOWN:
+        return "USER_ACTIVITY_TYPE_UNKNOWN";
+      default:
+        return "USER_ACTIVITY_TYPE_UNKNOWN";
+    }
+  }
+
 
   private static WritableMap convertSdkStatus(SdkStatus status) {
     WritableMap map = Arguments.createMap();
@@ -267,7 +366,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         if (Sentiance.getInstance(getReactApplicationContext()).isInitialized()) {
           promise.resolve(null);
         } else {
-          RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret));
+          if(sentianceConfig == null)
+            RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret));
           initializeSentianceSdk(promise);
         }
       }
@@ -305,6 +405,11 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         }
       }, 500);
     }
+  }
+
+  private void sendUserActivityUpdates(UserActivity activity) {
+    this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(USER_ACTIVITY_UPDATE,
+            convertUserActivity(activity));
   }
 
   @ReactMethod
@@ -501,6 +606,41 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       Sentiance.getInstance(this.reactContext).disableBatteryOptimization();
     }
     promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void listenUserActivityUpdates(Promise promise) {
+    if(Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
+      Sentiance.getInstance(reactContext).setUserActivityListener(new UserActivityListener() {
+        @Override
+        public void onUserActivityChange(UserActivity activity) {
+          sendUserActivityUpdates(activity);
+        }
+      });
+      promise.resolve(null);
+    }else{
+      promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
+    }
+  }
+
+  @ReactMethod
+  public void getUserActivity(final Promise promise) {
+    if(Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
+      UserActivity activity = Sentiance.getInstance(reactContext).getUserActivity();
+      promise.resolve(convertUserActivity(activity));
+    }else {
+      promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
+    }
+  }
+
+  @ReactMethod
+  public void updateSdkNotification(final String title , final String message, Promise promise) {
+    if(Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
+      Sentiance.getInstance(reactContext).updateSdkNotification(createNotification(title,message));
+      promise.resolve(null);
+    }else {
+      promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
+    }
   }
 
   @Override
