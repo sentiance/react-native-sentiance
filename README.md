@@ -42,6 +42,66 @@ __Configuring capabilities__
 
 ![iOS Background Modes](./assets/ios-background-modes.png)
 
+#### Native initialization
+
+In your `AppDelegate` add the following:
+
+  ```objective-c
+  #import <React/RCTBundleURLProvider.h>
+  #import <React/RCTRootView.h>
+  @import SENTSDK;
+  #import <RNSentiance.h>
+  ```
+
+```objective-c
+-(BOOL) application: (UIApplication * ) application didFinishLaunchingWithOptions: (NSDictionary * ) launchOptions {
+  NSURL * jsCodeLocation;
+
+  jsCodeLocation = [
+    [NSBundle mainBundle] URLForResource: @ "main"
+    withExtension: @ "jsbundle"
+  ];
+
+  RCTBridge * bridge = [
+    [RCTBridge alloc] initWithBundleURL: jsCodeLocation
+    moduleProvider: nil
+    launchOptions: launchOptions
+  ];
+
+  RNSentiance * sentiance = [bridge moduleForClass: RNSentiance.class];
+
+  NSString * APP_ID = @ "_YOUR_APP_ID_";
+  NSString * SECRET = @ "_YOUR_APP_ID_SECRET_";
+
+  SENTConfig * config = [
+    [SENTConfig alloc] initWithAppId: APP_ID secret: SECRET link: sentiance.getMetaUserLinker launchOptions: launchOptions
+  ];
+  
+  [config setDidReceiveSdkStatusUpdate: sentiance.getSdkStatusUpdateHandler];
+
+  [[SENTSDK sharedInstance] initWithConfig:config success :^{
+    [self startSentianceSdk];
+  } failure:^(SENTInitIssue issue) {
+    NSLog(@"Failure issue: %lu", (unsigned long)issue);
+  }];
+
+  return YES;
+}
+
+- (void)startSentianceSdk {
+  [[SENTSDK sharedInstance] start:^(SENTSDKStatus *status) {
+    if ([status startStatus] == SENTStartStatusStarted) {
+      NSLog(@"SDK started properly");
+    } else if ([status startStatus] == SENTStartStatusPending) {
+      NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically");
+    }
+    else {
+      NSLog(@"SDK did not start");
+    }
+  }];
+
+```
+
 
 #### Android
 
