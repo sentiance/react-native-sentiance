@@ -25,7 +25,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SDKStatusUpdate", @"TripTimeout", @"SDKMetaUserLink", @"UserActivity"];
+    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKMetaUserLink", @"SDKUserActivityUpdate"];
 }
 
 // Will be called when this module's first listener is added.
@@ -431,7 +431,7 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
     __weak typeof(self) weakSelf = self;
     [[SENTSDK sharedInstance] setTripTimeOutListener:^ {
         if (weakSelf.hasListeners) {
-            [weakSelf sendEventWithName:@"TripTimeout" body:nil];
+            [weakSelf sendEventWithName:@"SDKTripTimeout" body:nil];
         }
     }];
 }
@@ -441,7 +441,7 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
     [[SENTSDK sharedInstance] setUserActivityListerner:^(SENTUserActivity *userActivity) {
         NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
         if(weakSelf.hasListeners) {
-            [weakSelf sendEventWithName:@"UserActivity" body:userActivityDict];
+            [weakSelf sendEventWithName:@"SDKUserActivityUpdate" body:userActivityDict];
         }
     }];
 }
