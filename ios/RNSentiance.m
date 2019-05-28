@@ -7,6 +7,9 @@
 
 @property (nonatomic, strong) void (^metaUserLinkSuccess)(void);
 @property (nonatomic, strong) void (^metaUserLinkFailed)(void);
+@property (nonatomic, strong) MetaUserLinker metaUserLinker;
+@property (nonatomic, strong) SdkStatusHandler sdkStatusHandler;
+@property (assign) BOOL metaUserLinkingEnabled;
 @property (assign) BOOL hasListeners;
 
 @end
@@ -37,6 +40,52 @@ RCT_EXPORT_MODULE()
     // Remove upstream listeners, stop unnecessary background tasks
 }
 
+
+
+- (MetaUserLinker) getMetaUserLinker {
+    if(self.metaUserLinker != nil) return self.metaUserLinker;
+    
+    __weak typeof(self) weakSelf = self;
+    __block BOOL timeout = false;
+    
+    self.metaUserLinker = ^(NSString *installId, void (^linkSuccess)(void),
+                            void (^linkFailed)(void)) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            
+            //set timeout for listeners to set
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                timeout = YES;
+            });
+            
+            //wait for JS listener
+            while(!weakSelf.hasListeners && !timeout){}
+            
+            if(timeout){
+                linkFailed();
+            }else{
+                weakSelf.metaUserLinkSuccess = linkSuccess;
+                weakSelf.metaUserLinkFailed = linkFailed;
+                [weakSelf sendEventWithName:@"SDKMetaUserLink" body:[weakSelf convertInstallIdToDict:installId]];
+            }
+        });
+    };
+    
+    return self.metaUserLinker;
+}
+
+- (SdkStatusHandler) getSdkStatusUpdateHandler {
+    if(self.sdkStatusHandler != nil) return self.sdkStatusHandler;
+    
+    __weak typeof(self) weakSelf = self;
+    
+    [self setSdkStatusHandler:^(SENTSDKStatus *status) {
+        if (weakSelf.hasListeners) {
+            [weakSelf sendEventWithName:@"SDKStatusUpdate" body:[weakSelf convertSdkStatusToDict:status]];
+        }
+    }];
+    return self.sdkStatusHandler;
+}
+
 RCT_EXPORT_METHOD(metaUserLinkCallback:(BOOL)success) {
     if (success) {
         self.metaUserLinkSuccess();
@@ -55,22 +104,15 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
     }
     @try {
         __weak typeof(self) weakSelf = self;
-        MetaUserLinker metaUserlink = ^(NSString *installId, void (^linkSuccess)(void),
-                                        void (^linkFailed)(void)) {
-            if (weakSelf.hasListeners) {
-                weakSelf.metaUserLinkSuccess = linkSuccess;
-                weakSelf.metaUserLinkFailed = linkFailed;
-                [weakSelf sendEventWithName:@"SDKMetaUserLink" body:[self convertInstallIdToDict:installId]];
-            } else {
-                linkFailed();
-            }
-        };
-        SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:metaUserlink launchOptions:@{}];
-        [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
-            if (weakSelf.hasListeners) {
-                [weakSelf sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
-            }
-        }];
+        
+        SENTConfig *config;
+        if(weakSelf.metaUserLinkingEnabled){
+            config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:weakSelf.getMetaUserLinker launchOptions:@{}];
+        }else{
+            config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:nil launchOptions:@{}];
+        }
+        
+        [config setDidReceiveSdkStatusUpdate:weakSelf.getSdkStatusUpdateHandler];
         
         [[SENTSDK sharedInstance] initWithConfig:config success:^{
             resolve(nil);
@@ -80,6 +122,15 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
+}
+
+RCT_EXPORT_METHOD(initWithUserLinkingEnabled:(NSString *)appId
+                  secret:(NSString *)secret
+                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    self.metaUserLinkingEnabled = YES;
+    [self init:appId  secret:secret resolver:resolve rejecter:reject];
+    
 }
 
 RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
