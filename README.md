@@ -277,6 +277,7 @@ Example:
 ```javascript
 const metadata = { corrolation_id: '3a5276ec-b2b2-4636-b893-eb9a9f014938' }
 const transportModeHint = 1
+
 try {
 	await RNSentiance.startTrip(metadata, transportModeHint);
 	// Trip is started
@@ -342,7 +343,9 @@ All quota functions:
 * `getDiskQuotaUsage`
 
 #### User Activity
+
 Get user current activity
+
 ```javascript
 const userActivity = await RNSentiance.getUserActivity();
 ```
@@ -365,16 +368,18 @@ subscription.remove();
 
 Handling user activity
 ```javascript
-var { type, tripInfo, stationaryInfo } = userActivity;
-if (type === "USER_ACTIVITY_TYPE_STATIONARY") {
-  var { location } = stationaryInfo;
+const { type, tripInfo, stationaryInfo } = userActivity;
+
+if (type === 'USER_ACTIVITY_TYPE_STATIONARY') {
+  const { location } = stationaryInfo;
+
   if (location) {
-    var { latitude, longitude } = location;
+    const { latitude, longitude } = location;
   }
   //..
-} else if (type === "USER_ACTIVITY_TYPE_TRIP") {
+} else if (type === 'USER_ACTIVITY_TYPE_TRIP') {
   //..
-} else if (type === "USER_ACTIVITY_TYPE_UNKNOWN") {
+} else if (type === 'USER_ACTIVITY_TYPE_UNKNOWN') {
   //..
 }
 
@@ -386,5 +391,9 @@ Updates the title and text of SDK notification. After calling this method, any n
 Note that this change is valid only during the process's lifetime. After the app process restarts, the SDK will display the default notification.
 
 ```javascript
+/**
+ * {string} title
+ * {string} message
+ */
 await RNSentiance.updateSdkNotification("RN SDK Sample", "SDK is running");
 ```
