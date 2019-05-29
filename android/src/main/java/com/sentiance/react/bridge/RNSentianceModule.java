@@ -83,8 +83,10 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     @Override
     public boolean link(String installId) {
       sendMetaUserLink(installId);
+
       try {
         metaUserLinkLatch.await();
+
         return metaUserLinkResult;
       } catch (InterruptedException e) {
         return false;
@@ -124,23 +126,18 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
     };
 
-<<<<<<< HEAD
-    String appName = reactContext.getApplicationInfo().loadLabel(reactContext.getPackageManager()).toString();
-    Notification sdkNotification = sentianceConfig.notification != null ? sentianceConfig.notification
-            : createNotification(appName + " is running", "Touch to open");
-=======
-
     Notification sdkNotification = createNotification(null,null);
 
->>>>>>> origin/feature/android-notification-update-support
     SdkConfig.Builder configBuilder = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
             .setOnSdkStatusUpdateHandler(sdkStatusUpdateHandler);
-    if(metaUserLinkingEnabled)
+    if (metaUserLinkingEnabled) {
       configBuilder.setMetaUserLinker(metaUserLinker);
+    }
 
     if (sentianceConfig.baseURL != null) {
       configBuilder.baseURL(sentianceConfig.baseURL);
     }
+
     SdkConfig config = configBuilder.build();
 
     OnInitCallback initCallback = new OnInitCallback() {
@@ -187,34 +184,42 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
       // On Oreo and above, you must create a notification channel
       String appName = reactContext.getApplicationInfo().loadLabel(reactContext.getPackageManager()).toString();
-      String  channelName = "Journeys";
+      String channelName = "Journeys";
       Integer icon = reactContext.getApplicationInfo().icon;
       String channelId = "journeys";
       String defaultTitle = appName + " is running";
       String defaultMessage = "Touch to open";
+      ApplicationInfo info;
 
-    ApplicationInfo info;
       try {
-        info = reactContext.getPackageManager().getApplicationInfo(
-                reactContext.getPackageName(), PackageManager.GET_META_DATA);
-        if(title==null)
-          title = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_title",defaultTitle);
-        if(message==null)
-          message = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_text",defaultMessage);
-        channelName = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_channel_name",channelName);
-        icon  = getIntMetadataFromManifest(info, "com.sentiance.react.bridge.notification_icon",icon);
-        channelId  = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_channel_id",channelId);
-      }catch (PackageManager.NameNotFoundException e){
-        if(title==null)
-          title=defaultTitle;
-        if(message==null)
-          message=defaultMessage;
+        info = reactContext.getPackageManager().getApplicationInfo(reactContext.getPackageName(), PackageManager.GET_META_DATA);
+        
+        if (title == null) {
+          title = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_title", defaultTitle);
+        }
+        
+        if (message == null) {
+          message = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_text", defaultMessage);
+        }
+        
+        channelName = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_channel_name", channelName);
+        icon = getIntMetadataFromManifest(info, "com.sentiance.react.bridge.notification_icon", icon);
+        channelId = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_channel_id", channelId);
+
+      } catch (PackageManager.NameNotFoundException e) {
+        if (title == null) {
+          title = defaultTitle;
+        }
+
+        if (message == null) {
+          message = defaultMessage;
+        }
+
         e.printStackTrace();
       }
 
       if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-          NotificationChannel channel = new NotificationChannel(channelId,
-                  channelName, NotificationManager.IMPORTANCE_LOW);
+          NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW);
           channel.setShowBadge(false);
           NotificationManager notificationManager = (NotificationManager) this.reactContext.getSystemService(Context.NOTIFICATION_SERVICE);
           notificationManager.createNotificationChannel(channel);
@@ -391,8 +396,10 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         if (Sentiance.getInstance(getReactApplicationContext()).isInitialized()) {
           promise.resolve(null);
         } else {
-          if(sentianceConfig == null)
+          if (sentianceConfig == null) {
             RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret));
+          }
+
           initializeSentianceSdk(promise);
         }
       }
@@ -402,7 +409,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   public void initWithUserLinkingEnabled(final String appId, final String appSecret, final Promise promise) {
     this.metaUserLinkingEnabled = true;
-    init(appId,appSecret,promise);
+
+    init(appId, appSecret, promise);
   }
 
   private void sendStatusUpdate(SdkStatus sdkStatus) {
@@ -417,7 +425,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     if (reactContext.hasActiveCatalystInstance()) {
       this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(key, map);
     } else {
-      //add delay
+      // add delay
       final Counter retry = new Counter(20);
       mHandler.postDelayed(new Runnable() {
         @Override
@@ -433,8 +441,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   private void sendUserActivityUpdates(UserActivity activity) {
-    this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(USER_ACTIVITY_UPDATE,
-            convertUserActivity(activity));
+    this.reactContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+      .emit(USER_ACTIVITY_UPDATE, convertUserActivity(activity));
   }
 
   @ReactMethod
@@ -635,7 +644,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   public void listenUserActivityUpdates(Promise promise) {
-    if(Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
+    if (Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
       Sentiance.getInstance(reactContext).setUserActivityListener(new UserActivityListener() {
         @Override
         public void onUserActivityChange(UserActivity activity) {
@@ -643,27 +652,27 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         }
       });
       promise.resolve(null);
-    }else{
+    } else {
       promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
     }
   }
 
   @ReactMethod
   public void getUserActivity(final Promise promise) {
-    if(Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
+    if (Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
       UserActivity activity = Sentiance.getInstance(reactContext).getUserActivity();
       promise.resolve(convertUserActivity(activity));
-    }else {
+    } else {
       promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
     }
   }
 
   @ReactMethod
   public void updateSdkNotification(final String title , final String message, Promise promise) {
-    if(Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
+    if (Sentiance.getInstance(reactContext).getInitState() == InitState.INITIALIZED) {
       Sentiance.getInstance(reactContext).updateSdkNotification(createNotification(title,message));
       promise.resolve(null);
-    }else {
+    } else {
       promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
     }
   }
@@ -683,7 +692,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     // Activity `onDestroy`
   }
 
-<<<<<<< HEAD
   OnSdkStatusUpdateHandler getSdkStatusUpdateHandler() {
     return sdkStatusUpdateHandler;
   }
@@ -699,27 +707,25 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     int count;
   }
 
-
-=======
-  private String getStringMetadataFromManifest(ApplicationInfo info, String name , String defaultValue) {
+  private String getStringMetadataFromManifest(ApplicationInfo info, String name, String defaultValue) {
     Object obj = info.metaData.get(name);
+
     if (obj instanceof String) {
       return (String)obj;
     } else if (obj instanceof Integer) {
       return reactContext.getString((Integer)obj);
-    }else {
+    } else {
       return defaultValue;
     }
   }
 
-  private int getIntMetadataFromManifest(ApplicationInfo info, String name , int defaultValue) {
+  private int getIntMetadataFromManifest(ApplicationInfo info, String name, int defaultValue) {
     Object obj = info.metaData.get(name);
+
     if (obj instanceof Integer) {
       return (Integer)obj;
     } else {
       return defaultValue;
     }
   }
-
->>>>>>> origin/feature/android-notification-update-support
 }
