@@ -22,7 +22,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SDKStatusUpdate", @"TripTimeout", @"SDKMetaUserLink", @"UserActivity"];
+    return @[@"SDKStatusUpdate", @"TripTimeout", @"SDKMetaUserLink", @"SDKUserActivityUpdate"];
 }
 
 // Will be called when this module's first listener is added.
@@ -369,6 +369,17 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
     [self deleteAllKeysForSecClass:kSecClassIdentity];
 }
 
+RCT_EXPORT_METHOD(listenUserActivityUpdates)
+{
+    __weak typeof(self) weakSelf = self;
+    [[SENTSDK sharedInstance] setUserActivityListerner:^(SENTUserActivity *userActivity) {
+        NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
+        if(weakSelf.hasListeners) {
+            [weakSelf sendEventWithName:@"SDKUserActivityUpdate" body:userActivityDict];
+        }
+    }];
+}
+
 -(void)deleteAllKeysForSecClass:(CFTypeRef)secClass {
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
@@ -381,16 +392,6 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
     [[SENTSDK sharedInstance] setTripTimeOutListener:^ {
         if (weakSelf.hasListeners) {
             [weakSelf sendEventWithName:@"TripTimeout" body:nil];
-        }
-    }];
-}
-
-- (void)userActivityReceived {
-    __weak typeof(self) weakSelf = self;
-    [[SENTSDK sharedInstance] setUserActivityListerner:^(SENTUserActivity *userActivity) {
-        NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
-        if(weakSelf.hasListeners) {
-            [weakSelf sendEventWithName:@"UserActivity" body:userActivityDict];
         }
     }];
 }
