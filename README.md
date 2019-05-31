@@ -95,6 +95,72 @@ try {
 
 _NOTE: Ideally, initializing the SDK is done from `Application.onCreate` as this will guarantee that the SDK is running as often as possible. If your application uses a login flow, you will want to start the SDK only if the user is logged in, at that point you could start the SDK through JavaScript. Once the user is logged in, the SDK should always start before the end of `onCreate`. Please refer to https://developers.sentiance.com/docs/sdk/android/integration for documentation on the Android SDK integration._
 
+#### Native initialization
+1. Create `RNSentiancePackage`  instance
+```java
+RNSentiancePackage rnSentiancePackage = new RNSentiancePackage();
+```
+
+2. In `ReactNativeHost#getPackages()` return `rnSentiancePackage` instance instead of creating new one
+```java
+private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
+    @Override
+    protected List<ReactPackage> getPackages() {
+        return Arrays.<ReactPackage>asList(
+                new MainReactPackage(),
+                rnSentiancePackage
+        );
+    }
+    
+    //...
+};
+```
+
+3. Inside `Application#onCreate()` method, Initialize and start sentiance SDK
+```java
+  @Override
+  public void onCreate() {
+      super.onCreate();
+
+      //create react context in background so that SDK could be delivered to JS even if app is not running
+      if(!mReactNativeHost.getReactInstanceManager().hasStartedCreatingInitialContext())
+          mReactNativeHost.getReactInstanceManager().createReactContextInBackground();
+
+      //create notification
+      //https://docs.sentiance.com/sdk/getting-started/android-sdk/configuration/sample-notification
+      Notification notification = createNotification();
+
+      // Create the config.
+      SdkConfig config = new SdkConfig.Builder(SENTIANCE_APP_ID, SENTIANCE_SECRET, notification)
+              .setOnSdkStatusUpdateHandler(rnSentiancePackage.getOnSdkStatusUpdateHandler())
+              .build();
+
+      // Initialize  and start  Sentiance SDK.
+      Sentiance.getInstance(this).init(config, new OnInitCallback() {
+          @Override
+          public void onInitSuccess() {
+              //init success, start sentiance SDK
+              startSentianceSDK();
+          }
+
+          @Override
+          public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
+              //init fail
+          }
+      });
+  }
+  
+  private void startSentianceSDK() {
+    Sentiance.getInstance(getApplicationContext()).start(new OnStartFinishedHandler() {
+        @Override
+        public void onStartFinished(SdkStatus sdkStatus) {
+        
+        }
+    });
+  }
+
+```
+
 
 #### Starting the Sentiance SDK
 Starting is only allowed after successful initialization. Resolves with an SDK status object.
