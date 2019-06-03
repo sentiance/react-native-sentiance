@@ -380,6 +380,17 @@ RCT_EXPORT_METHOD(listenUserActivityUpdates)
     }];
 }
 
+RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    @try {
+        SENTUserActivity *userActivity = [[SENTSDK sharedInstance] getUserActivity];
+        NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
+        resolve(userActivityDict);
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
+}
+
 -(void)deleteAllKeysForSecClass:(CFTypeRef)secClass {
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
