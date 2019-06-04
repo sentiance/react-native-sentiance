@@ -12,6 +12,7 @@ import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.MetaUserLinker;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnSdkStatusUpdateHandler;
@@ -236,6 +237,20 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
     return map;
   }
+
+  private String convertInitState(InitState initState) {
+    switch (initState) {
+      case NOT_INITIALIZED:
+        return "NOT_INITIALIZED";
+      case INIT_IN_PROGRESS:
+        return "INIT_IN_PROGRESS";
+      case INITIALIZED:
+        return "INITIALIZED";
+      default: return "NOT_INITIALIZED";
+
+    }
+  }
+
 
   private Map<String, String> convertReadableMapToMap(ReadableMap inputMap) {
     Map<String, String> map = new HashMap<String, String>();
@@ -483,6 +498,12 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       Sentiance.getInstance(this.reactContext).disableBatteryOptimization();
     }
     promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void getInitState(final Promise promise) {
+    InitState initState = Sentiance.getInstance(reactContext).getInitState();
+    promise.resolve(convertInitState(initState));
   }
 
   @Override
