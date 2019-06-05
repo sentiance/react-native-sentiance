@@ -372,7 +372,7 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
 RCT_EXPORT_METHOD(listenUserActivityUpdates)
 {
     __weak typeof(self) weakSelf = self;
-    [[SENTSDK sharedInstance] setUserActivityListerner:^(SENTUserActivity *userActivity) {
+    [[SENTSDK sharedInstance] setUserActivityListener:^(SENTUserActivity *userActivity) {
         NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
         if(weakSelf.hasListeners) {
             [weakSelf sendEventWithName:@"SDKUserActivityUpdate" body:userActivityDict];
