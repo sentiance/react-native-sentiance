@@ -45,7 +45,7 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    worldApi('com.sentiance:sdk:4.9.0-R@aar') {transitive = true}
+    worldApi('com.sentiance:sdk:4.9.1-R@aar') {transitive = true}
     chinaApi('com.sentiance:sdk-cn:4.5.0-CN@aar') {
         exclude group: 'com.android.support'
         transitive = true
