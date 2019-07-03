@@ -37,18 +37,7 @@ RCT_EXPORT_MODULE()
     // Remove upstream listeners, stop unnecessary background tasks
 }
 
-RCT_EXPORT_METHOD(metaUserLinkCallback:(BOOL)success) {
-    if (success) {
-        self.metaUserLinkSuccess();
-    } else {
-        self.metaUserLinkFailed();
-    }
-}
-
-RCT_EXPORT_METHOD(init:(NSString *)appId
-                  secret:(NSString *)secret
-                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
+- (void)initializeSDK:(NSString *)appId secret:(NSString *)secret baseURL:(NSString *)baseURL resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject; {
     if (appId == nil || secret == nil) {
         reject(@"", @"INVALID_CREDENTIALS", nil);
         return;
@@ -66,6 +55,9 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
             }
         };
         SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:metaUserlink launchOptions:@{}];
+        if (baseURL.length != 0) {
+            config.baseURL = baseURL;
+        }
         [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
             if (weakSelf.hasListeners) {
                 [weakSelf sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
@@ -80,6 +72,31 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
+}
+
+RCT_EXPORT_METHOD(metaUserLinkCallback:(BOOL)success) {
+    if (success) {
+        self.metaUserLinkSuccess();
+    } else {
+        self.metaUserLinkFailed();
+    }
+}
+
+RCT_EXPORT_METHOD(initWithBaseUrl:(NSString *)appId
+                  secret:(NSString *)secret
+                  baseURL:(NSString *)baseURL
+                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    __weak typeof(self) weakSelf = self;
+    [weakSelf initializeSDK:appId secret:secret baseURL:baseURL resolver:resolve rejecter:reject];
+}
+
+RCT_EXPORT_METHOD(init:(NSString *)appId
+                  secret:(NSString *)secret
+                  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    __weak typeof(self) weakSelf = self;
+    [weakSelf initializeSDK:appId secret:secret baseURL:nil resolver:resolve rejecter:reject];
 }
 
 RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)

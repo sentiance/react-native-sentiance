@@ -284,6 +284,23 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     });
   }
 
+  @ReactMethod
+  public void initWithBaseUrl(final String appId, final String appSecret, final String baseURL, final Promise promise) {
+    Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId + " and SECRET: " + appSecret + " and BASE_URL: " + baseURL);
+    new Handler(Looper.getMainLooper()).post(new Runnable() {
+      @Override
+      public void run() {
+        if (Sentiance.getInstance(getReactApplicationContext()).isInitialized()) {
+          promise.resolve(null);
+        } else {
+          RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret, baseURL));
+          initializeSentianceSdk(promise);
+        }
+      }
+    });
+  }
+
+
   private void sendStatusUpdate(SdkStatus sdkStatus) {
     this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(STATUS_UPDATE,
             convertSdkStatus(sdkStatus));
