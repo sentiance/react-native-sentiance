@@ -71,7 +71,7 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
                 [weakSelf sendEventWithName:@"SDKStatusUpdate" body:[self convertSdkStatusToDict:status]];
             }
         }];
-        
+
         [[SENTSDK sharedInstance] initWithConfig:config success:^{
             resolve(nil);
         } failure:^(SENTInitIssue issue) {
@@ -195,7 +195,7 @@ RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
         if (label == nil || value == nil) {
             @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
         }
-        
+
         [[SENTSDK sharedInstance] addUserMetadataField:label value:value];
         resolve(nil);
     } @catch (NSException *e) {
@@ -211,7 +211,7 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
         if (label == nil) {
             @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
         }
-        
+
         [[SENTSDK sharedInstance] removeUserMetadataField:label];
         resolve(nil);
     } @catch (NSException *e) {
@@ -227,7 +227,7 @@ RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
         if (metadata == nil) {
             @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
         }
-        
+
         [[SENTSDK sharedInstance] addUserMetadataFields:metadata];
         resolve(nil);
     } @catch (NSException *e) {
@@ -387,7 +387,7 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
 
 - (void)userActivityReceived {
     __weak typeof(self) weakSelf = self;
-    [[SENTSDK sharedInstance] setUserActivityListerner:^(SENTUserActivity *userActivity) {
+    [[SENTSDK sharedInstance] setUserActivityListener:^(SENTUserActivity *userActivity) {
         NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
         if(weakSelf.hasListeners) {
             [weakSelf sendEventWithName:@"UserActivity" body:userActivityDict];
@@ -399,35 +399,35 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
     if(userActivity == nil) {
         return @{};
     }
-    
+
     //SENTUserActivity
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    
+
     //SENTUserActivityType
     NSString *userActivityType = [self convertUserActivityTypeToString:userActivity.type];
     if(userActivityType.length > 0) {
         [dict setObject:userActivityType forKey:@"type"];
     }
-    
-    
+
+
     //SENTTripInfo
     if(userActivity.tripInfo) {
         NSMutableDictionary *tripInfoDict = [[NSMutableDictionary alloc] init];
         NSString *tripInfo = [self convertTripTypeToString:userActivity.tripInfo.type];
-        
+
         if(tripInfo.length > 0) {
             [tripInfoDict setObject:tripInfo forKey:@"type"];
         }
-        
+
         if(tripInfoDict.allKeys.count > 0) {
             [dict setObject:tripInfoDict forKey:@"tripInfo"];
         }
     }
-    
+
     //SENTStationaryInfo
     if(userActivity.stationaryInfo) {
         NSMutableDictionary *stationaryInfoDict = [[NSMutableDictionary alloc] init];
-        
+
         if(userActivity.stationaryInfo.location) {
             NSDictionary *location = @{
                                        @"latitude": @(userActivity.stationaryInfo.location.coordinate.latitude),
@@ -435,22 +435,22 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
                                        };
             [stationaryInfoDict setObject:location forKey:@"location"];
         }
-        
+
         if(stationaryInfoDict.allKeys.count > 0) {
             [dict setObject:stationaryInfoDict forKey:@"stationaryInfo"];
         }
-        
+
     }
-    
+
     return [dict copy];
-    
+
 }
 
 - (NSDictionary*)convertSdkStatusToDict:(SENTSDKStatus*) status {
     if (status == nil) {
         return @{};
     }
-    
+
     NSDictionary *dict = @{
                            @"startStatus":[self convertStartStatusToString:status.startStatus],
                            @"canDetect":@(status.canDetect),
@@ -464,7 +464,7 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
                            @"mobileQuotaStatus":[self convertQuotaStatusToString:status.mobileQuotaStatus],
                            @"diskQuotaStatus":[self convertQuotaStatusToString:status.diskQuotaStatus]
                            };
-    
+
     return dict;
 }
 
@@ -513,6 +513,8 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
             return @"PENDING";
         case SENTStartStatusStarted:
             return @"STARTED";
+        case SENTStartStatusExpired:
+            return @"EXPIRED";
     }
 }
 
