@@ -55,7 +55,7 @@ RCT_EXPORT_MODULE()
             }
         };
         SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:metaUserlink launchOptions:@{}];
-        if (baseURL != nil) {
+        if (baseURL.length != 0) {
             config.baseURL = baseURL;
         }
         [config setDidReceiveSdkStatusUpdate:^(SENTSDKStatus *status) {
