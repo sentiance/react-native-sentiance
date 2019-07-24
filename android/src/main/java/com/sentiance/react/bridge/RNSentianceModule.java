@@ -357,6 +357,20 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     return map;
   }
 
+  private String convertInitState(InitState initState) {
+    switch (initState) {
+      case NOT_INITIALIZED:
+        return "NOT_INITIALIZED";
+      case INIT_IN_PROGRESS:
+        return "INIT_IN_PROGRESS";
+      case INITIALIZED:
+        return "INITIALIZED";
+      default: return "NOT_INITIALIZED";
+
+    }
+  }
+
+
   private Map<String, String> convertReadableMapToMap(ReadableMap inputMap) {
     Map<String, String> map = new HashMap<String, String>();
     ReadableMapKeySetIterator iterator = inputMap.keySetIterator();
@@ -675,6 +689,11 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     } else {
       promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
     }
+
+  @ReactMethod
+  public void getInitState(final Promise promise) {
+    InitState initState = Sentiance.getInstance(reactContext).getInitState();
+    promise.resolve(convertInitState(initState));
   }
 
   @Override
