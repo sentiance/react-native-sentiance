@@ -40,26 +40,91 @@ RCT_EXPORT_MODULE()
     // Remove upstream listeners, stop unnecessary background tasks
 }
 
+- (void) initSDK:(NSString *)appId
+         secret:(NSString *)secret
+         baseURL:(NSString *)baseURL
+         shouldStart:(BOOL)shouldStart
+         resolver:(RCTPromiseResolveBlock)resolve
+         rejecter:(RCTPromiseRejectBlock)reject
+{
+    @try {
+        __weak typeof(self) weakSelf = self;
+        SENTConfig *config;
+        if(weakSelf.metaUserLinkingEnabled){
+            config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:weakSelf.getMetaUserLinker launchOptions:@{}];
+        }else{
+            config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:nil launchOptions:@{}];
+        }
 
+        [config setDidReceiveSdkStatusUpdate:weakSelf.getSdkStatusUpdateHandler];
+
+        if (baseURL.length > 0) {
+            config.baseURL = baseURL;
+        }
+
+        [[SENTSDK sharedInstance] initWithConfig:config success:^{
+            if (shouldStart) {
+                [weakSelf startSDK:resolve rejecter:reject];
+            }
+            else if (resolve) {
+                resolve(nil);
+            }
+        } failure:^(SENTInitIssue issue) {
+            if (reject) {
+                reject(@"", [weakSelf convertInitIssueToString: issue], nil);
+            }
+        }];
+    } @catch (NSException *e) {
+        if (reject) {
+            reject(e.name, e.reason, nil);
+        }
+    }
+}
+
+- (void) startSDK:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
+    @try {
+        __weak typeof(self) weakSelf = self;
+        [[SENTSDK sharedInstance] start:^(SENTSDKStatus* status) {
+            if ([status startStatus] == SENTStartStatusStarted) {
+                NSLog(@"SDK started properly.");
+                if (resolve) {
+                    resolve([weakSelf convertSdkStatusToDict:status]);
+                }
+            } else if ([status startStatus] == SENTStartStatusPending) {
+                NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.");
+                if (resolve) {
+                    resolve([weakSelf convertSdkStatusToDict:status]);
+                }
+            } else {
+                NSLog(@"SDK did not start.");
+                if (reject) {
+                    reject(@"", @"SDK did not start.", nil);
+                }
+            }
+        }];
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
+}
 
 - (MetaUserLinker) getMetaUserLinker {
     if(self.metaUserLinker != nil) return self.metaUserLinker;
-    
+
     __weak typeof(self) weakSelf = self;
     __block BOOL timeout = false;
-    
+
     self.metaUserLinker = ^(NSString *installId, void (^linkSuccess)(void),
                             void (^linkFailed)(void)) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            
+
             //set timeout for listeners to set
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                 timeout = YES;
             });
-            
+
             //wait for JS listener
             while(!weakSelf.hasListeners && !timeout){}
-            
+
             if(timeout){
                 linkFailed();
             }else{
@@ -69,15 +134,15 @@ RCT_EXPORT_MODULE()
             }
         });
     };
-    
+
     return self.metaUserLinker;
 }
 
 - (SdkStatusHandler) getSdkStatusUpdateHandler {
     if(self.sdkStatusHandler != nil) return self.sdkStatusHandler;
-    
+
     __weak typeof(self) weakSelf = self;
-    
+
     [self setSdkStatusHandler:^(SENTSDKStatus *status) {
         if (weakSelf.hasListeners) {
             [weakSelf sendEventWithName:@"SDKStatusUpdate" body:[weakSelf convertSdkStatusToDict:status]];
@@ -96,62 +161,29 @@ RCT_EXPORT_METHOD(metaUserLinkCallback:(BOOL)success) {
 
 RCT_EXPORT_METHOD(init:(NSString *)appId
                   secret:(NSString *)secret
+                  baseURL:(NSString *)baseURL
                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     if (appId == nil || secret == nil) {
         reject(@"", @"INVALID_CREDENTIALS", nil);
         return;
     }
-    @try {
-        __weak typeof(self) weakSelf = self;
-        
-        SENTConfig *config;
-        if(weakSelf.metaUserLinkingEnabled){
-            config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:weakSelf.getMetaUserLinker launchOptions:@{}];
-        }else{
-            config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:nil launchOptions:@{}];
-        }
-        
-        [config setDidReceiveSdkStatusUpdate:weakSelf.getSdkStatusUpdateHandler];
-        
-        [[SENTSDK sharedInstance] initWithConfig:config success:^{
-            resolve(nil);
-        } failure:^(SENTInitIssue issue) {
-            reject(@"", [weakSelf convertInitIssueToString: issue], nil);
-        }];
-    } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
-    }
+    [self initSDK:appId secret:secret baseURL:baseURL shouldStart:NO resolver:resolve rejecter:reject];
 }
 
 RCT_EXPORT_METHOD(initWithUserLinkingEnabled:(NSString *)appId
                   secret:(NSString *)secret
+                  baseURL:(NSString *)baseURL
                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     self.metaUserLinkingEnabled = YES;
-    [self init:appId  secret:secret resolver:resolve rejecter:reject];
-    
+    [self init:appId secret:secret baseURL:baseURL resolver:resolve rejecter:reject];
+
 }
 
 RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    @try {
-        __weak typeof(self) weakSelf = self;
-        [[SENTSDK sharedInstance] start:^(SENTSDKStatus* status) {
-            if ([status startStatus] == SENTStartStatusStarted) {
-                NSLog(@"SDK started properly.");
-                resolve([weakSelf convertSdkStatusToDict:status]);
-            } else if ([status startStatus] == SENTStartStatusPending) {
-                NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.");
-                resolve([weakSelf convertSdkStatusToDict:status]);
-            } else {
-                NSLog(@"SDK did not start.");
-                reject(@"", @"SDK did not start.", nil);
-            }
-        }];
-    } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
-    }
+    [self startSDK:resolve rejecter:reject];
 }
 
 RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -160,18 +192,6 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejec
         SENTSDK* sdk = [SENTSDK sharedInstance];
         [sdk stop];
         resolve(nil);
-    } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
-    }
-}
-
-
-//Deprecated method use -(SENTSDKInitState)getInitState;
-RCT_EXPORT_METHOD(isInitialized:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    @try {
-        BOOL isInitialized = [[SENTSDK sharedInstance] isInitialised];
-        resolve(@(isInitialized));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
@@ -246,7 +266,7 @@ RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
         if (label == nil || value == nil) {
             @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
         }
-        
+
         [[SENTSDK sharedInstance] addUserMetadataField:label value:value];
         resolve(nil);
     } @catch (NSException *e) {
@@ -262,7 +282,7 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
         if (label == nil) {
             @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
         }
-        
+
         [[SENTSDK sharedInstance] removeUserMetadataField:label];
         resolve(nil);
     } @catch (NSException *e) {
@@ -278,7 +298,7 @@ RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
         if (metadata == nil) {
             @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
         }
-        
+
         [[SENTSDK sharedInstance] addUserMetadataFields:metadata];
         resolve(nil);
     } @catch (NSException *e) {
@@ -462,35 +482,35 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
     if(userActivity == nil) {
         return @{};
     }
-    
+
     //SENTUserActivity
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    
+
     //SENTUserActivityType
     NSString *userActivityType = [self convertUserActivityTypeToString:userActivity.type];
     if(userActivityType.length > 0) {
         [dict setObject:userActivityType forKey:@"type"];
     }
-    
-    
+
+
     //SENTTripInfo
     if(userActivity.tripInfo) {
         NSMutableDictionary *tripInfoDict = [[NSMutableDictionary alloc] init];
         NSString *tripInfo = [self convertTripTypeToString:userActivity.tripInfo.type];
-        
+
         if(tripInfo.length > 0) {
             [tripInfoDict setObject:tripInfo forKey:@"type"];
         }
-        
+
         if(tripInfoDict.allKeys.count > 0) {
             [dict setObject:tripInfoDict forKey:@"tripInfo"];
         }
     }
-    
+
     //SENTStationaryInfo
     if(userActivity.stationaryInfo) {
         NSMutableDictionary *stationaryInfoDict = [[NSMutableDictionary alloc] init];
-        
+
         if(userActivity.stationaryInfo.location) {
             NSDictionary *location = @{
                                        @"latitude": @(userActivity.stationaryInfo.location.coordinate.latitude),
@@ -498,22 +518,22 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
                                        };
             [stationaryInfoDict setObject:location forKey:@"location"];
         }
-        
+
         if(stationaryInfoDict.allKeys.count > 0) {
             [dict setObject:stationaryInfoDict forKey:@"stationaryInfo"];
         }
-        
+
     }
-    
+
     return [dict copy];
-    
+
 }
 
 - (NSDictionary*)convertSdkStatusToDict:(SENTSDKStatus*) status {
     if (status == nil) {
         return @{};
     }
-    
+
     NSDictionary *dict = @{
                            @"startStatus":[self convertStartStatusToString:status.startStatus],
                            @"canDetect":@(status.canDetect),
@@ -527,7 +547,7 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
                            @"mobileQuotaStatus":[self convertQuotaStatusToString:status.mobileQuotaStatus],
                            @"diskQuotaStatus":[self convertQuotaStatusToString:status.diskQuotaStatus]
                            };
-    
+
     return dict;
 }
 
@@ -576,6 +596,8 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
             return @"PENDING";
         case SENTStartStatusStarted:
             return @"STARTED";
+        case SENTStartStatusExpired:
+            return @"EXPIRED";
     }
 }
 

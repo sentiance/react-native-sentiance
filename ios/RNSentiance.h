@@ -7,4 +7,5 @@
 typedef void (^SdkStatusHandler)(SENTSDKStatus *status);
 - (MetaUserLinker) getMetaUserLinker;
 - (SdkStatusHandler) getSdkStatusUpdateHandler;
+- (void) initSDK:(NSString *)appId secret:(NSString *)secret baseURL:(NSString *)baseURL shouldStart:(BOOL)shouldStart resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 @end
