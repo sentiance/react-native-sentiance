@@ -105,27 +105,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   private void initializeSentianceSdk(final Promise promise) {
-    // Create the config.
-    OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
-      @Override
-      public void onSdkStatusUpdate(SdkStatus status) {
-        sendStatusUpdate(status);
-      }
-    };
-    // Create metaUserLinker wich sends event to JS and waits for result via @ReactMethod metaUserLinkCallback
-    MetaUserLinker metaUserLinker = new MetaUserLinker() {
-      @Override
-      public boolean link(String installId) {
-        sendMetaUserLink(installId);
-        try {
-          metaUserLinkLatch.await();
-          return metaUserLinkResult;
-        } catch(InterruptedException e) {
-          return false;
-        }
-      }
-    };
-
     Notification sdkNotification = createNotification(null,null);
 
     SdkConfig.Builder configBuilder = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
