@@ -7,13 +7,13 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.1'
+        classpath('com.android.tools.build:gradle:3.4.2')
     }
 }
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "27.0.3"
+    buildToolsVersion "28.0.3"
     defaultPublishConfig "worldRelease"
     defaultConfig {
         minSdkVersion 16
@@ -45,7 +45,7 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    worldApi('com.sentiance:sdk:4.9.1-R@aar') {transitive = true}
+    implementation ('com.sentiance:sdk:4.10.0@aar') { transitive = true }
     chinaApi('com.sentiance:sdk-cn:4.5.0-CN@aar') {
         exclude group: 'com.android.support'
         transitive = true

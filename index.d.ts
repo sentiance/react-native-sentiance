@@ -26,6 +26,7 @@ declare module "react-native-sentiance" {
     disableBatteryOptimization(): Promise<any>;
     getUserActivity(): Promise<any>;
     listenUserActivityUpdates(): void;
+    userLinkCallback(success: Boolean): void;
   }
 
   const RNSentiance: RNSentianceConstructor;

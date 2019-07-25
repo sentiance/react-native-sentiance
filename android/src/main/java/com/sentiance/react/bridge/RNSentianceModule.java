@@ -39,7 +39,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.app.PendingIntent;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
@@ -57,7 +56,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private static RNSentianceConfig sentianceConfig = null;
   private final Sentiance sdk;
   private final String STATUS_UPDATE = "SDKStatusUpdate";
-  private final String META_USER_LINK = "SDKMetaUserLink";
+  private final String USER_LINK = "SDKUserLink";
   private static final String USER_ACTIVITY_UPDATE = "SDKUserActivityUpdate";
   private final String E_SDK_INIT_ERROR = "E_SDK_INIT_ERROR";
   private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
@@ -65,10 +64,10 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
   private final String E_SDK_NOT_INITIALIZED = "E_SDK_NOT_INITIALIZED";
   private final String E_SDK_DISABLE_BATTERY_OPTIMIZATION = "E_SDK_DISABLE_BATTERY_OPTIMIZATION";
-  private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
-  private Boolean metaUserLinkResult = false;
+  private final CountDownLatch userLinkLatch = new CountDownLatch(1);
+  private Boolean userLinkResult = false;
   private final Handler mHandler = new Handler(Looper.getMainLooper());
-  private boolean metaUserLinkingEnabled = false;
+  private boolean userLinkingEnabled = false;
 
   // Create SDK status update handler which sends event to JS
   private OnSdkStatusUpdateHandler sdkStatusUpdateHandler = new OnSdkStatusUpdateHandler() {
@@ -78,16 +77,16 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
   };
 
-  // Create metaUserLinker which sends event to JS and waits for result via @ReactMethod metaUserLinkCallback
+  // Create metaUserLinker which sends event to JS and waits for result via @ReactMethod userLinkCallback
   private MetaUserLinker metaUserLinker = new MetaUserLinker() {
     @Override
     public boolean link(String installId) {
-      sendMetaUserLink(installId);
+      sendUserLink(installId);
 
       try {
-        metaUserLinkLatch.await();
+        userLinkLatch.await();
 
-        return metaUserLinkResult;
+        return userLinkResult;
       } catch (InterruptedException e) {
         return false;
       }
@@ -105,12 +104,33 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   private void initializeSentianceSdk(final Promise promise) {
+    // Create the config.
+    OnSdkStatusUpdateHandler statusHandler = new OnSdkStatusUpdateHandler() {
+      @Override
+      public void onSdkStatusUpdate(SdkStatus status) {
+        sendStatusUpdate(status);
+      }
+    };
+    // Create userLinker wich sends event to JS and waits for result via @ReactMethod metaUserLinkCallback
+    MetaUserLinker userLinker = new MetaUserLinker() {
+      @Override
+      public boolean link(String installId) {
+        sendUserLink(installId);
+        try {
+          userLinkLatch.await();
+          return userLinkResult;
+        } catch(InterruptedException e) {
+          return false;
+        }
+      }
+    };
+
     Notification sdkNotification = createNotification(null,null);
 
     SdkConfig.Builder configBuilder = new SdkConfig.Builder(sentianceConfig.appId, sentianceConfig.appSecret, sdkNotification)
             .setOnSdkStatusUpdateHandler(sdkStatusUpdateHandler);
-    if (metaUserLinkingEnabled) {
-      configBuilder.setMetaUserLinker(metaUserLinker);
+    if (userLinkingEnabled) {
+      configBuilder.setMetaUserLinker(userLinker);
     }
 
     if (sentianceConfig.baseURL != null) {
@@ -172,15 +192,15 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
       try {
         info = reactContext.getPackageManager().getApplicationInfo(reactContext.getPackageName(), PackageManager.GET_META_DATA);
-        
+
         if (title == null) {
           title = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_title", defaultTitle);
         }
-        
+
         if (message == null) {
           message = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_text", defaultMessage);
         }
-        
+
         channelName = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_channel_name", channelName);
         icon = getIntMetadataFromManifest(info, "com.sentiance.react.bridge.notification_icon", icon);
         channelId = getStringMetadataFromManifest(info, "com.sentiance.react.bridge.notification_channel_id", channelId);
@@ -336,20 +356,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     return map;
   }
 
-  private String convertInitState(InitState initState) {
-    switch (initState) {
-      case NOT_INITIALIZED:
-        return "NOT_INITIALIZED";
-      case INIT_IN_PROGRESS:
-        return "INIT_IN_PROGRESS";
-      case INITIALIZED:
-        return "INITIALIZED";
-      default: return "NOT_INITIALIZED";
-
-    }
-  }
-
-
   private Map<String, String> convertReadableMapToMap(ReadableMap inputMap) {
     Map<String, String> map = new HashMap<String, String>();
     ReadableMapKeySetIterator iterator = inputMap.keySetIterator();
@@ -375,13 +381,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
-  public void metaUserLinkCallback(final Boolean linkResult) {
-    metaUserLinkResult = linkResult;
-    metaUserLinkLatch.countDown();
+  public void userLinkCallback(final Boolean linkResult) {
+    userLinkResult = linkResult;
+    userLinkLatch.countDown();
   }
 
   @ReactMethod
-  public void init(final String appId, final String appSecret, final Promise promise) {
+  public void init(final String appId, final String appSecret,final String baseURL, final Promise promise) {
     Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId);
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
@@ -390,7 +396,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
           promise.resolve(null);
         } else {
           if (sentianceConfig == null) {
-            RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret));
+            RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret, baseURL));
           }
 
           initializeSentianceSdk(promise);
@@ -400,18 +406,17 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
-  public void initWithUserLinkingEnabled(final String appId, final String appSecret, final Promise promise) {
-    this.metaUserLinkingEnabled = true;
-
-    init(appId, appSecret, promise);
+  public void initWithUserLinkingEnabled(final String appId, final String appSecret, final String baseURL, final Promise promise) {
+    this.userLinkingEnabled = true;
+    init(appId, appSecret, baseURL, promise);
   }
 
   private void sendStatusUpdate(SdkStatus sdkStatus) {
     sendEvent(STATUS_UPDATE, convertSdkStatus(sdkStatus));
   }
 
-  private void sendMetaUserLink(String installId) {
-    sendEvent(META_USER_LINK, convertInstallId(installId));
+  private void sendUserLink(String installId) {
+    sendEvent(USER_LINK, convertInstallId(installId));
   }
 
   private void sendEvent(final String key, final WritableMap map) {
@@ -668,11 +673,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     } else {
       promise.reject(E_SDK_NOT_INITIALIZED, "SDK not initialized");
     }
-
-  @ReactMethod
-  public void getInitState(final Promise promise) {
-    InitState initState = Sentiance.getInstance(reactContext).getInitState();
-    promise.resolve(convertInitState(initState));
   }
 
   @Override
@@ -694,7 +694,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     return sdkStatusUpdateHandler;
   }
 
-  MetaUserLinker getMetaUserLinker() {
+  MetaUserLinker getUserLinker() {
     return metaUserLinker;
   }
 

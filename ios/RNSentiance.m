@@ -5,11 +5,11 @@
 
 @interface RNSentiance()
 
-@property (nonatomic, strong) void (^metaUserLinkSuccess)(void);
-@property (nonatomic, strong) void (^metaUserLinkFailed)(void);
-@property (nonatomic, strong) MetaUserLinker metaUserLinker;
+@property (nonatomic, strong) void (^userLinkSuccess)(void);
+@property (nonatomic, strong) void (^userLinkFailed)(void);
+@property (nonatomic, strong) MetaUserLinker userLinker;
 @property (nonatomic, strong) SdkStatusHandler sdkStatusHandler;
-@property (assign) BOOL metaUserLinkingEnabled;
+@property (assign) BOOL userLinkingEnabled;
 @property (assign) BOOL hasListeners;
 
 @end
@@ -25,7 +25,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKMetaUserLink", @"SDKUserActivityUpdate"];
+    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate"];
 }
 
 // Will be called when this module's first listener is added.
@@ -50,8 +50,8 @@ RCT_EXPORT_MODULE()
     @try {
         __weak typeof(self) weakSelf = self;
         SENTConfig *config;
-        if(weakSelf.metaUserLinkingEnabled){
-            config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:weakSelf.getMetaUserLinker launchOptions:@{}];
+        if(weakSelf.userLinkingEnabled){
+            config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:weakSelf.getUserLinker launchOptions:@{}];
         }else{
             config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:nil launchOptions:@{}];
         }
@@ -107,13 +107,13 @@ RCT_EXPORT_MODULE()
     }
 }
 
-- (MetaUserLinker) getMetaUserLinker {
-    if(self.metaUserLinker != nil) return self.metaUserLinker;
+- (MetaUserLinker) getUserLinker {
+    if(self.userLinker != nil) return self.userLinker;
 
     __weak typeof(self) weakSelf = self;
     __block BOOL timeout = false;
 
-    self.metaUserLinker = ^(NSString *installId, void (^linkSuccess)(void),
+    self.userLinker = ^(NSString *installId, void (^linkSuccess)(void),
                             void (^linkFailed)(void)) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 
@@ -128,14 +128,14 @@ RCT_EXPORT_MODULE()
             if(timeout){
                 linkFailed();
             }else{
-                weakSelf.metaUserLinkSuccess = linkSuccess;
-                weakSelf.metaUserLinkFailed = linkFailed;
-                [weakSelf sendEventWithName:@"SDKMetaUserLink" body:[weakSelf convertInstallIdToDict:installId]];
+                weakSelf.userLinkSuccess = linkSuccess;
+                weakSelf.userLinkFailed = linkFailed;
+                [weakSelf sendEventWithName:@"SDKUserLink" body:[weakSelf convertInstallIdToDict:installId]];
             }
         });
     };
 
-    return self.metaUserLinker;
+    return self.userLinker;
 }
 
 - (SdkStatusHandler) getSdkStatusUpdateHandler {
@@ -151,11 +151,11 @@ RCT_EXPORT_MODULE()
     return self.sdkStatusHandler;
 }
 
-RCT_EXPORT_METHOD(metaUserLinkCallback:(BOOL)success) {
+RCT_EXPORT_METHOD(userLinkCallback:(BOOL)success) {
     if (success) {
-        self.metaUserLinkSuccess();
+        self.userLinkSuccess();
     } else {
-        self.metaUserLinkFailed();
+        self.userLinkFailed();
     }
 }
 
@@ -176,7 +176,7 @@ RCT_EXPORT_METHOD(initWithUserLinkingEnabled:(NSString *)appId
                   baseURL:(NSString *)baseURL
                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    self.metaUserLinkingEnabled = YES;
+    self.userLinkingEnabled = YES;
     [self init:appId secret:secret baseURL:baseURL resolver:resolve rejecter:reject];
 
 }

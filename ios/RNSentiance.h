@@ -5,7 +5,7 @@
 
 @interface RNSentiance : RCTEventEmitter <RCTBridgeModule>
 typedef void (^SdkStatusHandler)(SENTSDKStatus *status);
-- (MetaUserLinker) getMetaUserLinker;
+- (MetaUserLinker) getUserLinker;
 - (SdkStatusHandler) getSdkStatusUpdateHandler;
-- (void) initSDK:(NSString *)appId secret:(NSString *)secret baseURL:(NSString *)baseURL shouldStart:(BOOL)shouldStart resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
+- (void) initSDK:(NSString *)appId secret:(NSString *)secret baseURL:(NSString *)baseURL shouldStart:(BOOL)shouldStart resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject;
 @end

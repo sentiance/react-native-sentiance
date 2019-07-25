@@ -21,10 +21,16 @@ public class RNSentianceConfig {
     }
   };
 
-  // name is still mandatory
   public RNSentianceConfig(String appId, String appSecret) {
+    this(appId, appSecret, null);
+  }
+
+  public RNSentianceConfig(String appId, String appSecret, String baseURL) {
     this.appId = appId;
     this.appSecret = appSecret;
+    if (baseURL != null) {
+      this.baseURL = baseURL;
+    }
   }
 
   public void setInitCallback(OnInitCallback initCallback) {
