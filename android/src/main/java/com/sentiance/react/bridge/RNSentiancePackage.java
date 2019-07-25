@@ -47,7 +47,7 @@ public class RNSentiancePackage implements ReactPackage {
 		RNSentianceModule rnSentianceModule = new RNSentianceModule(reactContext);
 		modules.add(rnSentianceModule);
 		sentianceModuleOnSdkStatusUpdateHandler = rnSentianceModule.getSdkStatusUpdateHandler();
-		sentianceModuleMetaUserLinker = rnSentianceModule.getMetaUserLinker();
+		sentianceModuleMetaUserLinker = rnSentianceModule.getUserLinker();
 		metaUserLinkLatch.countDown();
 		return modules;
 	}
