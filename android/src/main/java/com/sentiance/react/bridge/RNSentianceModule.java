@@ -44,6 +44,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import android.util.Log;
 import java.lang.Throwable;
@@ -469,6 +470,18 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
             promise.resolve(convertSdkStatus(sdkStatus));
           }
         });
+      }
+    });
+  }
+
+  @ReactMethod
+  public void start(final long stopDateEpoch, final Promise promise) {
+    mHandler = startFinishedHandler(promise);
+
+    new Handler(Looper.getMainLooper()).post(new Runnable() {
+      @Override
+      public void run() {
+        Sentiance.getInstance(getReactApplicationContext()).start(new Date(stopDateEpoch), mHandler);
       }
     });
   }
