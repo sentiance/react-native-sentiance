@@ -474,6 +474,22 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  public void start(final long stopDateEpoch, final Promise promise) {
+    mHandler.post(new Runnable() {
+      @Override
+      public void run() {
+        Sentiance.getInstance(getReactApplicationContext()).start(new Date(stopDateEpoch),new OnStartFinishedHandler() {
+          @Override
+          public void onStartFinished(SdkStatus sdkStatus) {
+            sendStatusUpdate(sdkStatus);
+            promise.resolve(convertSdkStatus(sdkStatus));
+          }
+        });
+      }
+    });
+  }
+
+  @ReactMethod
   public void stop(final Promise promise) {
     Sentiance.getInstance(this.reactContext).stop();
     promise.resolve("OK");
