@@ -494,7 +494,7 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 
 
     //SENTTripInfo
-    if(userActivity.tripInfo) {
+    if(userActivity.type == SENTUserActivityTypeTRIP ) {
         NSMutableDictionary *tripInfoDict = [[NSMutableDictionary alloc] init];
         NSString *tripInfo = [self convertTripTypeToString:userActivity.tripInfo.type];
 
@@ -508,7 +508,7 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
     }
 
     //SENTStationaryInfo
-    if(userActivity.stationaryInfo) {
+    if(userActivity.type == SENTUserActivityTypeSTATIONARY) {
         NSMutableDictionary *stationaryInfoDict = [[NSMutableDictionary alloc] init];
 
         if(userActivity.stationaryInfo.location) {
