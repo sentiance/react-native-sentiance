@@ -15,7 +15,6 @@ import com.sentiance.sdk.OnSdkStatusUpdateHandler;
 import com.sentiance.sdk.SdkStatus;
 
 public class RNSentiancePackage implements ReactPackage {
-
 	private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
 	private MetaUserLinker sentianceModuleMetaUserLinker = null;
 	private OnSdkStatusUpdateHandler sentianceModuleOnSdkStatusUpdateHandler = null;
@@ -62,12 +61,12 @@ public class RNSentiancePackage implements ReactPackage {
 		return Collections.emptyList();
 	}
 
-	public OnSdkStatusUpdateHandler getOnSdkStatusUpdateHandler() {
+	OnSdkStatusUpdateHandler getOnSdkStatusUpdateHandler() {
 		return onSdkStatusUpdateHandler;
 	}
 
-
-	public MetaUserLinker getMetaUserLinker() {
+	MetaUserLinker getMetaUserLinker() {
 		return metaUserLinker;
 	}
+
 }
