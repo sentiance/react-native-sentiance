@@ -406,15 +406,12 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
-        if (Sentiance.getInstance(getReactApplicationContext()).isInitialized()) {
-          promise.resolve(null);
-        } else {
-          if (sentianceConfig == null) {
-            RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret, baseURL));
-          }
 
-          initializeSentianceSdk(promise);
+        if (sentianceConfig == null) {
+          RNSentianceModule.setConfig(new RNSentianceConfig(appId, appSecret, baseURL));
         }
+
+        initializeSentianceSdk(promise);
       }
     });
   }
@@ -561,12 +558,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   public void getVersion(final Promise promise) {
     String version = Sentiance.getInstance(this.reactContext).getVersion();
     promise.resolve(version);
-  }
-
-  @ReactMethod
-  public void isInitialized(final Promise promise) {
-    Boolean isInitialized = Sentiance.getInstance(this.reactContext).isInitialized();
-    promise.resolve(isInitialized);
   }
 
   @ReactMethod
