@@ -61,12 +61,11 @@ public class RNSentiancePackage implements ReactPackage {
 		return Collections.emptyList();
 	}
 
-	OnSdkStatusUpdateHandler getOnSdkStatusUpdateHandler() {
+	public OnSdkStatusUpdateHandler getOnSdkStatusUpdateHandler() {
 		return onSdkStatusUpdateHandler;
 	}
 
-	MetaUserLinker getMetaUserLinker() {
+	public MetaUserLinker getMetaUserLinker() {
 		return metaUserLinker;
 	}
-
 }
