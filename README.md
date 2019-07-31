@@ -158,7 +158,7 @@ _NOTE: Ideally, initializing the SDK is done from `Application.onCreate` as this
 
 
 #### Native initialization
-1. Create `RNSentiancePackage`  instance
+1. In you application class create `RNSentiancePackage`  instance
 ```java
 RNSentiancePackage rnSentiancePackage = new RNSentiancePackage();
 ```
@@ -181,37 +181,31 @@ private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
   @Override
   public void onCreate() {
       super.onCreate();
-       //create react context in background so that SDK could be delivered to JS even if app is not running
-      if(!mReactNativeHost.getReactInstanceManager().hasStartedCreatingInitialContext())
-          mReactNativeHost.getReactInstanceManager().createReactContextInBackground();
-       //create notification
-      //https://docs.sentiance.com/sdk/getting-started/android-sdk/configuration/sample-notification
-      Notification notification = createNotification();
-       // Create the config.
-      SdkConfig config = new SdkConfig.Builder(SENTIANCE_APP_ID, SENTIANCE_SECRET, notification)
-              .setOnSdkStatusUpdateHandler(rnSentiancePackage.getOnSdkStatusUpdateHandler())
-              .build();
-       // Initialize  and start  Sentiance SDK.
-      Sentiance.getInstance(this).init(config, new OnInitCallback() {
-          @Override
-          public void onInitSuccess() {
-              //init success, start sentiance SDK
-              startSentianceSDK();
-          }
-           @Override
-          public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
-              //init fail
-          }
-      });
+      initializeAndStartSentianceSDK();
   }
   
-  private void startSentianceSDK() {
-    Sentiance.getInstance(getApplicationContext()).start(new OnStartFinishedHandler() {
-        @Override
-        public void onStartFinished(SdkStatus sdkStatus) {
-        
-        }
-    });
+  private void initializeAndStartSentianceSDK() {
+     RNSentianceHelper rnSentianceHelper = new RNSentianceHelper(getApplicationContext(), rnSentiancePackage, new RNSentianceHelper.SentinaceInitAndStartCallback() {
+          @Override
+          public void onInitSuccess() { Log.i(TAG,"onInitSuccess"); }
+
+          @Override
+          public void onInitIssue(OnInitCallback.InitIssue initIssue, @Nullable Throwable throwable) { Log.i(TAG,"onInitIssue: "+initIssue.name()); }
+
+          @Override
+          public void onStartFinish(SdkStatus startStatus) { Log.i(TAG,"onStartFinish: "+startStatus.toString()); }
+      });
+
+      Intent intent = new Intent(this, MainActivity.class);
+      PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+      Notification notification = rnSentianceHelper.createNotificationFromManifestData(pendingIntent);
+      
+      rnSentianceHelper.initializeSentianceSDK(
+              mReactNativeHost,
+              SENTIANCE_APP_ID,SENTIANCE_SECRET, // app id and secret
+              notification, // notification for foreground service
+              true // start sdk after initialization
+      );
   }
  ```
 
