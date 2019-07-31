@@ -54,7 +54,7 @@ public class RNSentianceHelper {
   }
 
 
-  public void initializeAndStartSentianceSDK(ReactNativeHost reactNativeHost, String appId, String appSecret, Notification notification , final boolean autoStart, @Nullable String baseUrl, boolean userLinkingEnabled){
+  private void initializeAndStartSentianceSDK(ReactNativeHost reactNativeHost, String appId, String appSecret, Notification notification , final boolean autoStart, @Nullable String baseUrl, boolean userLinkingEnabled){
     //create react context in background so that SDK could be delivered to JS even if app is not running
     if (!reactNativeHost.getReactInstanceManager().hasStartedCreatingInitialContext())
       reactNativeHost.getReactInstanceManager().createReactContextInBackground();
@@ -101,7 +101,7 @@ public class RNSentianceHelper {
     });
   }
 
-  public Notification createNotificationFrom(PendingIntent pendingIntent, String title, String message, String channelName, String channelId, Integer icon) {
+  public Notification createNotification(PendingIntent pendingIntent, String title, String message, String channelName, String channelId, Integer icon) {
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
       NotificationChannel channel = new NotificationChannel(channelId,
         channelName, NotificationManager.IMPORTANCE_LOW);
@@ -143,7 +143,7 @@ public class RNSentianceHelper {
       e.printStackTrace();
     }
 
-    return createNotificationFrom(pendingIntent,title,message,channelName,channelId,icon);
+    return createNotification(pendingIntent,title,message,channelName,channelId,icon);
   }
 
 
