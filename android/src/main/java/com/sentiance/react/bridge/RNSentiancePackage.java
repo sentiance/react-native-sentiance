@@ -16,16 +16,22 @@ import com.sentiance.sdk.SdkStatus;
 
 public class RNSentiancePackage implements ReactPackage {
 
-    @Override
-    public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        List<NativeModule> modules = new ArrayList<>();
-        RNSentianceModule rnSentianceModule = new RNSentianceModule(reactContext);
-        modules.add(rnSentianceModule);
-        return modules;
-    }
 
-    @Override
-    public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-        return Collections.emptyList();
-    }
+	@Override
+	public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
+		List<NativeModule> modules = new ArrayList<>();
+		RNSentianceModule rnSentianceModule = new RNSentianceModule(reactContext);
+		modules.add(rnSentianceModule);
+		return modules;
+	}
+
+	// Deprecated from RN 0.47
+	public List<Class<? extends JavaScriptModule>> createJSModules() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
+		return Collections.emptyList();
+	}
 }
