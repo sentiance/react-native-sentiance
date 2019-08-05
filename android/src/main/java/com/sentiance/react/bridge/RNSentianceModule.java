@@ -34,7 +34,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private static final boolean DEBUG = true;
   private static final String LOG_TAG = "RNSentiance";
   private final ReactApplicationContext reactContext;
-  private static RNSentianceConfig sentianceConfig = null;
   private final Sentiance sdk;
   private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
   private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
