@@ -106,7 +106,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       public void run() {
         rnSentianceHelper.initializeSentianceSDK(
                 appId, appSecret,
-                rnSentianceHelper.createNotificationFromManifestData(),
                 autoStart,
                 baseURL,
                 initCallback,
@@ -148,7 +147,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       public void run() {
         rnSentianceHelper.initializeSentianceSDKWithUserLinking(
                 appId, appSecret,
-                rnSentianceHelper.createNotificationFromManifestData(),
                 autoStart,
                 baseURL,
                 initCallback,
