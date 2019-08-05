@@ -8,6 +8,7 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.LifecycleEventListener;
 
 import com.sentiance.sdk.InitState;
+import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnStartFinishedHandler;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
@@ -23,8 +24,9 @@ import com.sentiance.sdk.trip.TransportMode;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
-import java.util.Date;
 import java.util.Map;
+
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
@@ -64,6 +66,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void userLinkCallback(final Boolean linkResult) {
     mHandler.post(new Runnable() {
       @Override
@@ -74,17 +77,41 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void init(final String appId, final String appSecret,final String baseURL,final boolean autoStart, final Promise promise) {
     Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId);
+
+    final OnStartFinishedHandler startFinishedHandler = new OnStartFinishedHandler() {
+      @Override
+      public void onStartFinished(SdkStatus sdkStatus) {
+        promise.resolve(RNSentianceConverter.convertSdkStatus(sdkStatus));
+        emitter.sendStatusUpdateEvent(sdkStatus);
+      }
+    };
+
+    final OnInitCallback initCallback = new OnInitCallback() {
+      @Override
+      public void onInitSuccess() {
+        if(!autoStart)
+          promise.resolve(null);
+      }
+
+      @Override
+      public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
+        promise.reject(issue.name(),throwable);
+      }
+    };
 
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
         rnSentianceHelper.initializeSentianceSDK(
-          appId, appSecret,
-          rnSentianceHelper.createNotificationFromManifestData(),
-          autoStart,
-          baseURL
+                appId, appSecret,
+                rnSentianceHelper.createNotificationFromManifestData(),
+                autoStart,
+                baseURL,
+                initCallback,
+                startFinishedHandler
         );
       }
     });
@@ -92,34 +119,60 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void initWithUserLinkingEnabled(final String appId, final String appSecret, final String baseURL,final boolean autoStart, final Promise promise) {
     Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId);
+
+    final OnStartFinishedHandler startFinishedHandler = new OnStartFinishedHandler() {
+      @Override
+      public void onStartFinished(SdkStatus sdkStatus) {
+        promise.resolve(RNSentianceConverter.convertSdkStatus(sdkStatus));
+        emitter.sendStatusUpdateEvent(sdkStatus);
+      }
+    };
+
+    final OnInitCallback initCallback = new OnInitCallback() {
+      @Override
+      public void onInitSuccess() {
+        if(!autoStart)
+          promise.resolve(null);
+      }
+
+      @Override
+      public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
+        promise.reject(issue.name(),throwable);
+      }
+    };
 
     new Handler(Looper.getMainLooper()).post(new Runnable() {
       @Override
       public void run() {
         rnSentianceHelper.initializeSentianceSDKWithUserLinking(
-          appId, appSecret,
-          rnSentianceHelper.createNotificationFromManifestData(),
-          autoStart,
-          baseURL
+                appId, appSecret,
+                rnSentianceHelper.createNotificationFromManifestData(),
+                autoStart,
+                baseURL,
+                initCallback,
+                startFinishedHandler
         );
       }
     });
+
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void start(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
     mHandler.post(new Runnable() {
       @Override
       public void run() {
-        sdk.start(new OnStartFinishedHandler() {
+        rnSentianceHelper.startSentianceSDK(new OnStartFinishedHandler() {
           @Override
           public void onStartFinished(SdkStatus sdkStatus) {
-            emitter.sendStatusUpdateEvent(sdkStatus);
             promise.resolve(RNSentianceConverter.convertSdkStatus(sdkStatus));
+            emitter.sendStatusUpdateEvent(sdkStatus);
           }
         });
       }
@@ -127,17 +180,18 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
-  public void start(final long stopDateEpoch, final Promise promise) {
+  @SuppressWarnings("unused")
+  public void startWithStopDate(final long stopDateEpoch, final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
     mHandler.post(new Runnable() {
       @Override
       public void run() {
-        sdk.start(new Date(stopDateEpoch),new OnStartFinishedHandler() {
+        rnSentianceHelper.startSentianceSDK(stopDateEpoch,new OnStartFinishedHandler() {
           @Override
           public void onStartFinished(SdkStatus sdkStatus) {
-            emitter.sendStatusUpdateEvent(sdkStatus);
             promise.resolve(RNSentianceConverter.convertSdkStatus(sdkStatus));
+            emitter.sendStatusUpdateEvent(sdkStatus);
           }
         });
       }
@@ -145,20 +199,23 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void stop(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
     sdk.stop();
-    promise.resolve("OK");
+    promise.resolve(null);
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getInitState(final Promise promise) {
     InitState initState = sdk.getInitState();
     promise.resolve(RNSentianceConverter.convertInitState(initState));
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void startTrip(ReadableMap metadata, int hint, final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -178,6 +235,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void stopTrip(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -195,6 +253,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getSdkStatus(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -203,6 +262,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getVersion(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -211,6 +271,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void isTripOngoing(String typeParam, final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -223,6 +284,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getUserAccessToken(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -240,6 +302,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getUserId(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -248,6 +311,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void addUserMetadataField(final String label, final String value, final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -256,6 +320,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void addTripMetadata(ReadableMap inputMetadata, final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -265,6 +330,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void addUserMetadataFields(ReadableMap inputMetadata, final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -274,6 +340,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void removeUserMetadataField(final String label, final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -282,6 +349,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void submitDetections(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -289,6 +357,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getWiFiQuotaLimit(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -297,6 +366,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getWiFiQuotaUsage(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -305,6 +375,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getMobileQuotaLimit(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -313,6 +384,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getMobileQuotaUsage(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -321,6 +393,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getDiskQuotaLimit(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -329,6 +402,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getDiskQuotaUsage(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -338,6 +412,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @SuppressLint("MissingPermission")
   @ReactMethod
+  @SuppressWarnings("unused")
   public void disableBatteryOptimization(final Promise promise) {
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
       sdk.disableBatteryOptimization();
@@ -346,12 +421,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void listenUserActivityUpdates(Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
       Sentiance.getInstance(reactContext).setUserActivityListener(new UserActivityListener() {
         @Override
         public void onUserActivityChange(UserActivity activity) {
+          Log.d(LOG_TAG, activity.toString());
           emitter.sendUserActivityUpdate(activity);
         }
       });
@@ -359,6 +436,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void getUserActivity(final Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -367,12 +445,28 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
+  @SuppressWarnings("unused")
   public void updateSdkNotification(final String title , final String message, Promise promise) {
     if(!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
     Sentiance.getInstance(reactContext).updateSdkNotification(rnSentianceHelper.createNotificationFromManifestData(title,message));
     promise.resolve(null);
   }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void setValueForKey(String key , String value, Promise promise){
+    rnSentianceHelper.setValueForKey(key,value);
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void getValueForKey(String key , String defaultValue, Promise promise){
+    String value = rnSentianceHelper.getValueForKey(key,defaultValue);
+    promise.resolve(value);
+  }
+
 
   private boolean isSdkInitialized(){
     return sdk.getInitState() == InitState.INITIALIZED;
