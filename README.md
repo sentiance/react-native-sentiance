@@ -46,66 +46,34 @@ __Configuring capabilities__
 
 In your `AppDelegate` add the following:
 
-  ```objective-c
+```objective-c
   #import <React/RCTBundleURLProvider.h>
   #import <React/RCTRootView.h>
   @import SENTSDK;
   #import <RNSentiance.h>
-  ```
-
-```objective-c
--(BOOL) application: (UIApplication * ) application didFinishLaunchingWithOptions: (NSDictionary * ) launchOptions {
-  NSURL * jsCodeLocation;
-
-  jsCodeLocation = [
-    [NSBundle mainBundle] URLForResource: @ "main"
-    withExtension: @ "jsbundle"
-  ];
-
-  RCTBridge * bridge = [
-    [RCTBridge alloc] initWithBundleURL: jsCodeLocation
-    moduleProvider: nil
-    launchOptions: launchOptions
-  ];
-
-  RNSentiance * sentiance = [bridge moduleForClass: RNSentiance.class];
-
-  NSString * APP_ID = @ "_YOUR_APP_ID_";
-  NSString * SECRET = @ "_YOUR_APP_ID_SECRET_";
-
-  SENTConfig * config = [
-    [SENTConfig alloc] initWithAppId: APP_ID secret: SECRET link: sentiance.getMetaUserLinker launchOptions: launchOptions
-  ];
   
-  [config setDidReceiveSdkStatusUpdate: sentiance.getSdkStatusUpdateHandler];
-
-  [[SENTSDK sharedInstance] initWithConfig:config success :^{
-    [self startSentianceSdk];
-  } failure:^(SENTInitIssue issue) {
-    NSLog(@"Failure issue: %lu", (unsigned long)issue);
-  }];
-
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+  RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+  RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
+                                                   moduleName:@"RNSentiance"
+                                            initialProperties:nil];
+  
+  // Read SENTIANCE_APP_ID and SENTIANCE_APP_SECRET from any safe source
+  NSString * SENTIANCE_APP_ID = @"";
+  NSString * SENTIANCE_APP_SECRET = @"";
+  
+  [[bridge moduleForName:@"RNSentiance"] initSDK:SENTIANCE_APP_ID secret:SENTIANCE_APP_SECRET baseURL:nil shouldStart:YES resolver:nil rejecter:nil];
+  
+  .....
+  
   return YES;
 }
-
-- (void)startSentianceSdk {
-  [[SENTSDK sharedInstance] start:^(SENTSDKStatus *status) {
-    if ([status startStatus] == SENTStartStatusStarted) {
-      NSLog(@"SDK started properly");
-    } else if ([status startStatus] == SENTStartStatusPending) {
-      NSLog(@"Something prevented the SDK to start properly. Once fixed, the SDK will start automatically");
-    }
-    else {
-      NSLog(@"SDK did not start");
-    }
-  }];
-
 ```
-
 
 #### Android
 
-1. Open up `android/app/src/main/java/[...]/MainActivity.java`
+1. Open up youd application class`android/app/src/main/java/[...]/{your-app-class}.java`
   - Add `import com.reactlibrary.RNSentiancePackage;` to the imports at the top of the file
   - Add `new RNSentiancePackage()` to the list returned by the `getPackages()` method
 2. Append the following lines to `android/settings.gradle`:
@@ -137,81 +105,52 @@ In your `AppDelegate` add the following:
     <meta-data android:name="ccom.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
   	```
 
+#### Native initialization
 
+Inside `Application#onCreate()` method, initialize and start sentiance SDK
+```java
+@Override
+public void onCreate() {
+  super.onCreate();
+  SoLoader.init(this, /* native exopackage */ false);
+  RNSentianceHelper rnSentianceHelper = RNSentianceHelper.getInstance(getApplicationContext());
+      rnSentianceHelper.initializeSentianceSDK(
+              SENTIANCE_APP_ID,SENTIANCE_SECRET, // app id and secret
+              true, //auto start
+              null, // init callback
+              null // start callback
+      );
+      ...
+}
+ ```
+ 
+ 
+  _NOTE: Ideally, initializing the SDK is done from `AppDelegate's didFinishLaunchingWithOptions` or `Application's onCreate` method as this will guarantee that the SDK is running as often as possible. If your application uses a login flow, you will want to start the SDK only if the user is logged in, at that point you could start the SDK through JavaScript. Once the user is logged in, the SDK should always start before the end of `onCreate or didFinishLaunchingWithOptions`. Please refer to https://docs.sentiance.com/ for documentation on the SDK integration._
+  
+ 
 ## Usage
 ```javascript
 import RNSentiance from 'react-native-sentiance';
 ```
 
-#### Initializing the Sentiance SDK
-Initialization is a very important step; before initialization, almost none of the methods on the Sentiance SDK interface are allowed to be called (with the exception of `init`, `isInitialized` and `getVersion`).
+#### Initialize and start the Sentiance SDK
+Initialize and start sentiance SDK.
 ```javascript
 try {
-	const initResponse = await RNSentiance.init('APPID', 'SECRET');
-	// SDK init has successfully initialized
+  const startResponse = await RNSentiance.init(
+      APP_ID,APP_SECRET, // app id and secret
+      null, // override base url
+      true, // auto start
+  );
 } catch (err) {
-	// SDK init has failed initializing
+	// SDK did not start.
 }
 ```
 
-_NOTE: Ideally, initializing the SDK is done from `Application.onCreate` as this will guarantee that the SDK is running as often as possible. If your application uses a login flow, you will want to start the SDK only if the user is logged in, at that point you could start the SDK through JavaScript. Once the user is logged in, the SDK should always start before the end of `onCreate`. Please refer to https://developers.sentiance.com/docs/sdk/android/integration for documentation on the Android SDK integration._
-
-
-#### Native initialization
-1. In you application class create `RNSentiancePackage`  instance
-```java
-RNSentiancePackage rnSentiancePackage = new RNSentiancePackage();
-```
- 2. In `ReactNativeHost#getPackages()` return `rnSentiancePackage` instance instead of creating new one
-```java
-private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
-    @Override
-    protected List<ReactPackage> getPackages() {
-        return Arrays.<ReactPackage>asList(
-                new MainReactPackage(),
-                rnSentiancePackage
-        );
-    }
-    
-    //...
-};
-```
- 3. Inside `Application#onCreate()` method, Initialize and start sentiance SDK
-```java
-  @Override
-  public void onCreate() {
-      super.onCreate();
-      initializeAndStartSentianceSDK();
-  }
-  
-  private void initializeAndStartSentianceSDK() {
-     RNSentianceHelper rnSentianceHelper = new RNSentianceHelper(getApplicationContext(), rnSentiancePackage, new RNSentianceHelper.SentinaceInitAndStartCallback() {
-          @Override
-          public void onInitSuccess() { Log.i(TAG,"onInitSuccess"); }
-
-          @Override
-          public void onInitIssue(OnInitCallback.InitIssue initIssue, @Nullable Throwable throwable) { Log.i(TAG,"onInitIssue: "+initIssue.name()); }
-
-          @Override
-          public void onStartFinish(SdkStatus startStatus) { Log.i(TAG,"onStartFinish: "+startStatus.toString()); }
-      });
-
-      Intent intent = new Intent(this, MainActivity.class);
-      PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-      Notification notification = rnSentianceHelper.createNotificationFromManifestData(pendingIntent);
-      
-      rnSentianceHelper.initializeSentianceSDK(
-              mReactNativeHost,
-              SENTIANCE_APP_ID,SENTIANCE_SECRET, // app id and secret
-              notification, // notification for foreground service
-              true // start sdk after initialization
-      );
-  }
- ```
-
 
 #### Starting the Sentiance SDK
-Starting is only allowed after successful initialization. Resolves with an SDK status object.
+If SDK is not started automatically i.e `autoStart = false` during init, it can be started manually.
+
 ```javascript
 try {
 	const startResponse = await RNSentiance.start();
@@ -240,7 +179,8 @@ try {
 #### Init status
 Checking if SDK is initialized
 ```javascript
-const isInitialized = await RNSentiance.isInitialized();
+const initState = await RNSentiance.getinitstate();
+const isInitialized = initState == "INITIALIZED";
 ```
 
 #### SDK status
@@ -450,3 +390,25 @@ Note that this change is valid only during the process's lifetime. After the app
  */
 await RNSentiance.updateSdkNotification("RN SDK Sample", "SDK is running");
 ```
+
+#### User linking
+During initialization if user linking is enabled SDK will send `SDKUserLink` event along with `instalId`. This install id should be linked to third party id and after successful linking call `RNSentiance.userLinkCallback(true)` to notify the SDK.
+
+_Please refer to https://docs.sentiance.com/guide/user-linking for documentation on the user linking._
+
+```javascript
+import { NativeEventEmitter } from 'react-native'
+
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
+sentianceEmitter = rnSentianceEmitter.addListener(
+  "SDKUserLink",
+  id => {
+    const { installId } = id;
+    
+    //send this installid to you server for linking
+    linkUser(installId);
+    
+    //once linking is done notify sdk
+    RNSentiance.userLinkCallback(true)
+  }
+);
