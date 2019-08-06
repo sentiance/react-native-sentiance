@@ -27,6 +27,8 @@ declare module "react-native-sentiance" {
     getUserActivity(): Promise<any>;
     listenUserActivityUpdates(): void;
     userLinkCallback(success: Boolean): void;
+    getValueForKey(key: string, defaultValue: string): Promise<any>;
+    setValueForKey(key: string, value: string): Promise<any>;
   }
 
   const RNSentiance: RNSentianceConstructor;
