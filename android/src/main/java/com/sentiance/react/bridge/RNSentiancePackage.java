@@ -16,39 +16,12 @@ import com.sentiance.sdk.SdkStatus;
 
 public class RNSentiancePackage implements ReactPackage {
 
-	private final CountDownLatch metaUserLinkLatch = new CountDownLatch(1);
-	private MetaUserLinker sentianceModuleMetaUserLinker = null;
-	private OnSdkStatusUpdateHandler sentianceModuleOnSdkStatusUpdateHandler = null;
-
-	private OnSdkStatusUpdateHandler onSdkStatusUpdateHandler = new OnSdkStatusUpdateHandler() {
-		@Override
-		public void onSdkStatusUpdate(SdkStatus status) {
-			if (sentianceModuleOnSdkStatusUpdateHandler != null)
-				sentianceModuleOnSdkStatusUpdateHandler.onSdkStatusUpdate(status);
-		}
-	};
-
-	private MetaUserLinker metaUserLinker = new MetaUserLinker() {
-		@Override
-		public boolean link(String installId) {
-			try {
-				metaUserLinkLatch.await();
-				return sentianceModuleMetaUserLinker.link(installId);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
-	};
 
 	@Override
 	public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
 		List<NativeModule> modules = new ArrayList<>();
 		RNSentianceModule rnSentianceModule = new RNSentianceModule(reactContext);
 		modules.add(rnSentianceModule);
-		sentianceModuleOnSdkStatusUpdateHandler = rnSentianceModule.getSdkStatusUpdateHandler();
-		sentianceModuleMetaUserLinker = rnSentianceModule.getUserLinker();
-		metaUserLinkLatch.countDown();
 		return modules;
 	}
 
@@ -60,14 +33,5 @@ public class RNSentiancePackage implements ReactPackage {
 	@Override
 	public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
 		return Collections.emptyList();
-	}
-
-	public OnSdkStatusUpdateHandler getOnSdkStatusUpdateHandler() {
-		return onSdkStatusUpdateHandler;
-	}
-
-
-	public MetaUserLinker getMetaUserLinker() {
-		return metaUserLinker;
 	}
 }
