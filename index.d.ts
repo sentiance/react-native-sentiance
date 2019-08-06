@@ -6,7 +6,8 @@ declare module "react-native-sentiance" {
     initWithUserLinkingEnabled(
       appId: string,
       secret: string,
-      baseURL: string
+      baseURL: string,
+      shouldStart: boolean
     ): Promise<any>;
     start(): Promise<any>;
     stop(): Promise<any>;
