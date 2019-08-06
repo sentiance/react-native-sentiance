@@ -55,13 +55,13 @@ RCT_EXPORT_MODULE()
         }else{
             config = [[SENTConfig alloc] initWithAppId:appId secret:secret link:nil launchOptions:@{}];
         }
-        
+
         [config setDidReceiveSdkStatusUpdate:weakSelf.getSdkStatusUpdateHandler];
-        
+
         if (baseURL.length > 0) {
             config.baseURL = baseURL;
         }
-        
+
         [[SENTSDK sharedInstance] initWithConfig:config success:^{
             if (shouldStart) {
                 [weakSelf startSDK:resolve rejecter:reject];
@@ -83,7 +83,7 @@ RCT_EXPORT_MODULE()
 
 - (void) startSDK:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
     __block BOOL resolved = NO;
-    
+
     @try {
         __weak typeof(self) weakSelf = self;
         [[SENTSDK sharedInstance] start:^(SENTSDKStatus* status) {
@@ -106,22 +106,22 @@ RCT_EXPORT_MODULE()
 
 - (MetaUserLinker) getUserLinker {
     if(self.userLinker != nil) return self.userLinker;
-    
+
     __weak typeof(self) weakSelf = self;
     __block BOOL timeout = false;
-    
+
     self.userLinker = ^(NSString *installId, void (^linkSuccess)(void),
                         void (^linkFailed)(void)) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            
+
             //set timeout for listeners to set
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
                 timeout = YES;
             });
-            
+
             //wait for JS listener
             while(!weakSelf.hasListeners && !timeout){}
-            
+
             if(timeout){
                 linkFailed();
             }else{
@@ -131,15 +131,15 @@ RCT_EXPORT_MODULE()
             }
         });
     };
-    
+
     return self.userLinker;
 }
 
 - (SdkStatusHandler) getSdkStatusUpdateHandler {
     if(self.sdkStatusHandler != nil) return self.sdkStatusHandler;
-    
+
     __weak typeof(self) weakSelf = self;
-    
+
     [self setSdkStatusHandler:^(SENTSDKStatus *status) {
         if (weakSelf.hasListeners) {
             [weakSelf sendEventWithName:@"SDKStatusUpdate" body:[weakSelf convertSdkStatusToDict:status]];
@@ -156,24 +156,29 @@ RCT_EXPORT_METHOD(userLinkCallback:(BOOL)success) {
     }
 }
 
-RCT_EXPORT_METHOD(setValueForKey:(NSString *)key
-                  value:(NSString *)value) {
+- (NSString *) getValueForKey:(NSString *)key value:(NSString *)defaultValue {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    [prefs setObject:value forKey:key];
+    NSString *value = [prefs stringForKey:key];
+    return value;
 }
 
 RCT_EXPORT_METHOD(getValueForKey:(NSString *)key
                   value:(NSString *)defaultValue
                   resolver:(RCTPromiseResolveBlock)resolve){
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSString *value = [prefs stringForKey:key];
+
+    NSString *value = [self getValueForKey:key value:defaultValue];
     if (value == nil) {
         resolve(defaultValue);
+    } else {
+        resolve(value);
     }
-    resolve(defaultValue);
 }
 
-
+RCT_EXPORT_METHOD(setValueForKey:(NSString *)key
+                  value:(NSString *)value) {
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    [prefs setObject:value forKey:key];
+}
 
 RCT_EXPORT_METHOD(init:(NSString *)appId
                   secret:(NSString *)secret
@@ -196,7 +201,7 @@ RCT_EXPORT_METHOD(initWithUserLinkingEnabled:(NSString *)appId
 {
     self.userLinkingEnabled = YES;
     [self init:appId secret:secret baseURL:baseURL shouldStart:shouldStart resolver:resolve rejecter:reject];
-    
+
 }
 
 RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -284,7 +289,7 @@ RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
         if (label == nil || value == nil) {
             @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
         }
-        
+
         [[SENTSDK sharedInstance] addUserMetadataField:label value:value];
         resolve(nil);
     } @catch (NSException *e) {
@@ -300,7 +305,7 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
         if (label == nil) {
             @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
         }
-        
+
         [[SENTSDK sharedInstance] removeUserMetadataField:label];
         resolve(nil);
     } @catch (NSException *e) {
@@ -316,7 +321,7 @@ RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
         if (metadata == nil) {
             @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
         }
-        
+
         [[SENTSDK sharedInstance] addUserMetadataFields:metadata];
         resolve(nil);
     } @catch (NSException *e) {
@@ -500,35 +505,35 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
     if(userActivity == nil) {
         return @{};
     }
-    
+
     //SENTUserActivity
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    
+
     //SENTUserActivityType
     NSString *userActivityType = [self convertUserActivityTypeToString:userActivity.type];
     if(userActivityType.length > 0) {
         [dict setObject:userActivityType forKey:@"type"];
     }
-    
-    
+
+
     //SENTTripInfo
     if(userActivity.type == SENTUserActivityTypeTRIP ) {
         NSMutableDictionary *tripInfoDict = [[NSMutableDictionary alloc] init];
         NSString *tripInfo = [self convertTripTypeToString:userActivity.tripInfo.type];
-        
+
         if(tripInfo.length > 0) {
             [tripInfoDict setObject:tripInfo forKey:@"type"];
         }
-        
+
         if(tripInfoDict.allKeys.count > 0) {
             [dict setObject:tripInfoDict forKey:@"tripInfo"];
         }
     }
-    
+
     //SENTStationaryInfo
     if(userActivity.type == SENTUserActivityTypeSTATIONARY) {
         NSMutableDictionary *stationaryInfoDict = [[NSMutableDictionary alloc] init];
-        
+
         if(userActivity.stationaryInfo.location) {
             NSDictionary *location = @{
                                        @"latitude": @(userActivity.stationaryInfo.location.coordinate.latitude),
@@ -536,22 +541,22 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
                                        };
             [stationaryInfoDict setObject:location forKey:@"location"];
         }
-        
+
         if(stationaryInfoDict.allKeys.count > 0) {
             [dict setObject:stationaryInfoDict forKey:@"stationaryInfo"];
         }
-        
+
     }
-    
+
     return [dict copy];
-    
+
 }
 
 - (NSDictionary*)convertSdkStatusToDict:(SENTSDKStatus*) status {
     if (status == nil) {
         return @{};
     }
-    
+
     NSDictionary *dict = @{
                            @"startStatus":[self convertStartStatusToString:status.startStatus],
                            @"canDetect":@(status.canDetect),
@@ -565,7 +570,7 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
                            @"mobileQuotaStatus":[self convertQuotaStatusToString:status.mobileQuotaStatus],
                            @"diskQuotaStatus":[self convertQuotaStatusToString:status.diskQuotaStatus]
                            };
-    
+
     return dict;
 }
 
