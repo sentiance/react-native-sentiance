@@ -59,8 +59,8 @@ public class RNSentianceHelper {
     }
   };
 
-  public static RNSentianceHelper getInstance(Context context){
-    if(rnSentianceHelper == null) {
+  public static RNSentianceHelper getInstance(Context context) {
+    if (rnSentianceHelper == null) {
       synchronized (RNSentianceHelper.class) {
         rnSentianceHelper = new RNSentianceHelper(context);
       }
@@ -79,60 +79,60 @@ public class RNSentianceHelper {
     userLinkLatch.countDown();
   }
 
-  @SuppressWarnings({"unused","WeakerAccess"})
-  public void initializeSentianceSDK( String appId, String appSecret, boolean autoStart,
-                                      @Nullable OnInitCallback initCallback,@Nullable OnStartFinishedHandler startFinishedHandler){
-    initializeAndStartSentianceSDK(appId,appSecret,autoStart,null,false,initCallback,startFinishedHandler);
-  }
-
-  @SuppressWarnings({"unused","WeakerAccess"})
+  @SuppressWarnings({"unused", "WeakerAccess"})
   public void initializeSentianceSDK(String appId, String appSecret, boolean autoStart,
-                                     String baseUrl,@Nullable OnInitCallback initCallback,@Nullable OnStartFinishedHandler startFinishedHandler ){
-    initializeAndStartSentianceSDK(appId,appSecret,autoStart,baseUrl,false,initCallback,startFinishedHandler);
+                                     @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
+    initializeAndStartSentianceSDK(appId, appSecret, autoStart, null, false, initCallback, startFinishedHandler);
   }
 
-  @SuppressWarnings({"unused","WeakerAccess"})
+  @SuppressWarnings({"unused", "WeakerAccess"})
+  public void initializeSentianceSDK(String appId, String appSecret, boolean autoStart,
+                                     String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
+    initializeAndStartSentianceSDK(appId, appSecret, autoStart, baseUrl, false, initCallback, startFinishedHandler);
+  }
+
+  @SuppressWarnings({"unused", "WeakerAccess"})
   public void initializeSentianceSDKWithUserLinking(String appId, String appSecret, boolean autoStart,
-                                                    @Nullable OnInitCallback initCallback,@Nullable OnStartFinishedHandler startFinishedHandler){
-    initializeAndStartSentianceSDK(appId,appSecret,autoStart,null,true,initCallback,startFinishedHandler);
+                                                    @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
+    initializeAndStartSentianceSDK(appId, appSecret, autoStart, null, true, initCallback, startFinishedHandler);
   }
 
-  @SuppressWarnings({"unused","WeakerAccess"})
+  @SuppressWarnings({"unused", "WeakerAccess"})
   public void initializeSentianceSDKWithUserLinking(String appId, String appSecret, boolean autoStart,
-                                                    String baseUrl,@Nullable OnInitCallback initCallback,@Nullable OnStartFinishedHandler startFinishedHandler){
-    initializeAndStartSentianceSDK(appId,appSecret,autoStart,baseUrl,true,initCallback,startFinishedHandler);
+                                                    String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
+    initializeAndStartSentianceSDK(appId, appSecret, autoStart, baseUrl, true, initCallback, startFinishedHandler);
   }
 
-  @SuppressWarnings({"unused","WeakerAccess"})
-  public void setValueForKey(String key , String value){
+  @SuppressWarnings({"unused", "WeakerAccess"})
+  public void setValueForKey(String key, String value) {
     Context context = weakContext.get();
-    if(context==null) return;
+    if (context == null) return;
     SharedPreferences prefs = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE);
-    prefs.edit().putString(key,value).apply();
+    prefs.edit().putString(key, value).apply();
   }
 
-  @SuppressWarnings({"unused","WeakerAccess"})
-  public String getValueForKey(String key , String defaultValue){
+  @SuppressWarnings({"unused", "WeakerAccess"})
+  public String getValueForKey(String key, String defaultValue) {
     Context context = weakContext.get();
-    if(context==null) return defaultValue;
+    if (context == null) return defaultValue;
     SharedPreferences prefs = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE);
-    return prefs.getString(key,defaultValue);
+    return prefs.getString(key, defaultValue);
   }
 
   private void initializeAndStartSentianceSDK(String appId, String appSecret,
                                               final boolean autoStart, @Nullable String baseUrl, boolean userLinkingEnabled,
-                                              final @Nullable OnInitCallback initCallback,final @Nullable OnStartFinishedHandler startFinishedHandler){
+                                              final @Nullable OnInitCallback initCallback, final @Nullable OnStartFinishedHandler startFinishedHandler) {
     Context context = weakContext.get();
-    if(context==null) return;
+    if (context == null) return;
 
     Notification notification = createNotificationFromManifestData();
 
     // Create the config.
     SdkConfig.Builder builder = new SdkConfig.Builder(appId, appSecret, notification)
       .setOnSdkStatusUpdateHandler(onSdkStatusUpdateHandler);
-    if(userLinkingEnabled)
+    if (userLinkingEnabled)
       builder.setMetaUserLinker(userLinker);
-    if(baseUrl!=null)
+    if (baseUrl != null)
       builder.baseURL(baseUrl);
 
     SdkConfig config = builder.build();
@@ -142,43 +142,44 @@ public class RNSentianceHelper {
       @Override
       public void onInitSuccess() {
         Log.i(TAG, "onInitSuccess");
-        if(initCallback !=null)
+        if (initCallback != null)
           initCallback.onInitSuccess();
-        if(autoStart)
+        if (autoStart)
           startSentianceSDK(startFinishedHandler);
       }
 
       @Override
       public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
-        if(initCallback !=null)
-          initCallback.onInitFailure(issue,throwable);
+        if (initCallback != null)
+          initCallback.onInitFailure(issue, throwable);
         Log.e(TAG, issue.toString());
       }
     });
   }
 
-  @SuppressWarnings({"unused","WeakerAccess"})
+  @SuppressWarnings({"unused", "WeakerAccess"})
   public void startSentianceSDK(@Nullable final OnStartFinishedHandler callback) {
     Context context = weakContext.get();
-    if(context==null) return;
+    if (context == null) return;
     Sentiance.getInstance(context).start(new OnStartFinishedHandler() {
       @Override
       public void onStartFinished(SdkStatus sdkStatus) {
-        if(callback !=null)
+        if (callback != null)
           callback.onStartFinished(sdkStatus);
         emitter.sendStatusUpdateEvent(sdkStatus);
         Log.i(TAG, sdkStatus.toString());
       }
     });
   }
-  @SuppressWarnings({"unused","WeakerAccess"})
+
+  @SuppressWarnings({"unused", "WeakerAccess"})
   public void startSentianceSDK(final long stopDateEpoch, @Nullable final OnStartFinishedHandler callback) {
     Context context = weakContext.get();
-    if(context==null) return;
-    Sentiance.getInstance(context).start(new Date(stopDateEpoch),new OnStartFinishedHandler() {
+    if (context == null) return;
+    Sentiance.getInstance(context).start(new Date(stopDateEpoch), new OnStartFinishedHandler() {
       @Override
       public void onStartFinished(SdkStatus sdkStatus) {
-        if(callback !=null)
+        if (callback != null)
           callback.onStartFinished(sdkStatus);
         emitter.sendStatusUpdateEvent(sdkStatus);
         Log.i(TAG, sdkStatus.toString());
@@ -188,14 +189,14 @@ public class RNSentianceHelper {
 
   private Notification createNotification(PendingIntent pendingIntent, String title, String message, String channelName, String channelId, Integer icon) {
     Context context = weakContext.get();
-    if(context==null) return null;
+    if (context == null) return null;
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
       NotificationChannel channel = new NotificationChannel(channelId,
         channelName, NotificationManager.IMPORTANCE_LOW);
       channel.setShowBadge(false);
       NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-      if(notificationManager!=null)
-          notificationManager.createNotificationChannel(channel);
+      if (notificationManager != null)
+        notificationManager.createNotificationChannel(channel);
     }
 
     return new NotificationCompat.Builder(context, channelId)
@@ -208,9 +209,9 @@ public class RNSentianceHelper {
       .build();
   }
 
-  Notification createNotificationFromManifestData(String title , String message) {
+  Notification createNotificationFromManifestData(String title, String message) {
     Context context = weakContext.get();
-    if(context==null) return null;
+    if (context == null) return null;
     String packageName = context.getPackageName();
     Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
     String className = launchIntent.getComponent().getClassName();
@@ -233,13 +234,13 @@ public class RNSentianceHelper {
       e.printStackTrace();
     }
 
-    return createNotification(pendingIntent,title,message,channelName,channelId,icon);
+    return createNotification(pendingIntent, title, message, channelName, channelId, icon);
   }
 
-  @SuppressWarnings({"unused","WeakerAccess"})
+  @SuppressWarnings({"unused", "WeakerAccess"})
   Notification createNotificationFromManifestData() {
     Context context = weakContext.get();
-    if(context==null) return null;
+    if (context == null) return null;
     String packageName = context.getPackageName();
     Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
     String className = launchIntent.getComponent().getClassName();
@@ -266,13 +267,13 @@ public class RNSentianceHelper {
       e.printStackTrace();
     }
 
-    return createNotification(pendingIntent,title,message,channelName,channelId,icon);
+    return createNotification(pendingIntent, title, message, channelName, channelId, icon);
   }
 
 
   private String getStringMetadataFromManifest(ApplicationInfo info, String name, String defaultValue) {
     Context context = weakContext.get();
-    if(context==null) return null;
+    if (context == null) return null;
     Object obj = info.metaData.get(name);
     if (obj instanceof String) {
       return (String) obj;
