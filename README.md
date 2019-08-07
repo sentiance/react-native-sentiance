@@ -415,3 +415,4 @@ sentianceEmitter = rnSentianceEmitter.addListener(
     RNSentiance.userLinkCallback(true)
   }
 );
+```
