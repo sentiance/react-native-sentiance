@@ -4,6 +4,9 @@
 ## Status
 *`react-native-sentiance` is still in an early development stage and not ready for production use just yet. Please try it out, give feedback, and help fix bugs.
 
+## Demo Application
+https://github.com/sentiance/react-native-sentiance-example
+
 
 ## Getting started
 
@@ -42,10 +45,38 @@ __Configuring capabilities__
 
 ![iOS Background Modes](./assets/ios-background-modes.png)
 
+#### Native initialization
+
+In your `AppDelegate` add the following:
+
+```objective-c
+  #import <React/RCTBundleURLProvider.h>
+  #import <React/RCTRootView.h>
+  @import SENTSDK;
+  #import <RNSentiance.h>
+  
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+  RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+  RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
+                                                   moduleName:@"RNSentiance"
+                                            initialProperties:nil];
+  
+  // Read SENTIANCE_APP_ID and SENTIANCE_APP_SECRET from any safe source
+  NSString * SENTIANCE_APP_ID = @"";
+  NSString * SENTIANCE_APP_SECRET = @"";
+  
+  [[bridge moduleForName:@"RNSentiance"] initSDK:SENTIANCE_APP_ID secret:SENTIANCE_APP_SECRET baseURL:nil shouldStart:YES resolver:nil rejecter:nil];
+  
+  .....
+  
+  return YES;
+}
+```
 
 #### Android
 
-1. Open up `android/app/src/main/java/[...]/MainActivity.java`
+1. Open up youd application class`android/app/src/main/java/[...]/{your-app-class}.java`
   - Add `import com.reactlibrary.RNSentiancePackage;` to the imports at the top of the file
   - Add `new RNSentiancePackage()` to the list returned by the `getPackages()` method
 2. Append the following lines to `android/settings.gradle`:
@@ -68,36 +99,61 @@ __Configuring capabilities__
       }
     }
   	```
+4. Configure foreground notification, Add the following lines to application's `AndroidManifest.xml` file inside `<application>` tag:
+  	```xml
+    <meta-data android:name="com.sentiance.react.bridge.notification_title" android:resource="@string/app_name"/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_text" android:value="Touch to open."/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_icon" android:resource="@mipmap/ic_launcher"/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_channel_name" android:value="Sentiance"/>
+    <meta-data android:name="ccom.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
+  	```
 
+#### Native initialization
 
-__Android notification icon__
-
-The SDK may need to start a foreground service every now and again. `RNSentiance` will therefore pass a notification that can be used by the service.
-
-Creating a small icon with the name `notification_icon` located at `android/src/main/res/mipmap-[...]` is required in order for the notification to be successfully created. Android 5.0+ enforces your icon to only be white and transparent.
-
-
+Inside `Application#onCreate()` method, initialize and start sentiance SDK
+```java
+@Override
+public void onCreate() {
+  super.onCreate();
+  SoLoader.init(this, /* native exopackage */ false);
+  RNSentianceHelper rnSentianceHelper = RNSentianceHelper.getInstance(getApplicationContext());
+      rnSentianceHelper.initializeSentianceSDK(
+              SENTIANCE_APP_ID,SENTIANCE_SECRET, // app id and secret
+              true, //auto start
+              null, // init callback
+              null // start callback
+      );
+      ...
+}
+ ```
+ 
+ 
+  _NOTE: Ideally, initializing the SDK is done from `AppDelegate's didFinishLaunchingWithOptions` or `Application's onCreate` method as this will guarantee that the SDK is running as often as possible. If your application uses a login flow, you will want to start the SDK only if the user is logged in, at that point you could start the SDK through JavaScript. Once the user is logged in, the SDK should always start before the end of `onCreate or didFinishLaunchingWithOptions`. Please refer to https://docs.sentiance.com/ for documentation on the SDK integration._
+  
+ 
 ## Usage
 ```javascript
 import RNSentiance from 'react-native-sentiance';
 ```
 
-#### Initializing the Sentiance SDK
-Initialization is a very important step; before initialization, almost none of the methods on the Sentiance SDK interface are allowed to be called (with the exception of `init`, `isInitialized` and `getVersion`).
+#### Initialize and start the Sentiance SDK
+Initialize and start sentiance SDK.
 ```javascript
 try {
-	const initResponse = await RNSentiance.init('APPID', 'SECRET');
-	// SDK init has successfully initialized
+  const startResponse = await RNSentiance.init(
+      APP_ID,APP_SECRET, // app id and secret
+      null, // override base url
+      true, // auto start
+  );
 } catch (err) {
-	// SDK init has failed initializing
+	// SDK did not start.
 }
 ```
 
-_NOTE: Ideally, initializing the SDK is done from `Application.onCreate` as this will guarantee that the SDK is running as often as possible. If your application uses a login flow, you will want to start the SDK only if the user is logged in, at that point you could start the SDK through JavaScript. Once the user is logged in, the SDK should always start before the end of `onCreate`. Please refer to https://developers.sentiance.com/docs/sdk/android/integration for documentation on the Android SDK integration._
-
 
 #### Starting the Sentiance SDK
-Starting is only allowed after successful initialization. Resolves with an SDK status object.
+If SDK is not started automatically i.e `autoStart = false` during init, it can be started manually.
+
 ```javascript
 try {
 	const startResponse = await RNSentiance.start();
@@ -126,7 +182,8 @@ try {
 #### Init status
 Checking if SDK is initialized
 ```javascript
-const isInitialized = await RNSentiance.isInitialized();
+const initState = await RNSentiance.getinitstate();
+const isInitialized = initState == "INITIALIZED";
 ```
 
 #### SDK status
@@ -216,6 +273,7 @@ Example:
 ```javascript
 const metadata = { corrolation_id: '3a5276ec-b2b2-4636-b893-eb9a9f014938' }
 const transportModeHint = 1
+
 try {
 	await RNSentiance.startTrip(metadata, transportModeHint);
 	// Trip is started
@@ -279,3 +337,82 @@ All quota functions:
 * `getMobileQuotaUsage`
 * `getDiskQuotaLimit`
 * `getDiskQuotaUsage`
+
+#### User Activity
+
+Get user current activity
+
+```javascript
+const userActivity = await RNSentiance.getUserActivity();
+```
+
+The SDK can signal user activity updates to JavaScript without being invoked directly. You can subscribe to these user activity updates by creating a new NativeEventEmitter instance around your module, and adding a listener for `SDKUserActivityUpdate`.
+```javascript
+import { NativeEventEmitter } from 'react-native'
+
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
+const subscription = sentianceEmitter.addListener(
+	'SDKUserActivityUpdate',
+	userActivity => {
+		// Returns SDK status
+	}
+);
+
+// Don't forget to unsubscribe, typically in componentWillUnmount
+subscription.remove();
+```
+
+Handling user activity
+```javascript
+const { type, tripInfo, stationaryInfo } = userActivity;
+
+if (type === 'USER_ACTIVITY_TYPE_STATIONARY') {
+  const { location } = stationaryInfo;
+
+  if (location) {
+    const { latitude, longitude } = location;
+  }
+  //..
+} else if (type === 'USER_ACTIVITY_TYPE_TRIP') {
+  //..
+} else if (type === 'USER_ACTIVITY_TYPE_UNKNOWN') {
+  //..
+}
+
+```
+
+#### Update SDK foreground notification (ANDROID ONLY)
+Updates the title and text of SDK notification. After calling this method, any notification shown by the SDK will be updated.
+
+Note that this change is valid only during the process's lifetime. After the app process restarts, the SDK will display the default notification.
+
+```javascript
+/**
+ * {string} title
+ * {string} message
+ */
+await RNSentiance.updateSdkNotification("RN SDK Sample", "SDK is running");
+```
+
+#### User linking
+During initialization if user linking is enabled SDK will send `SDKUserLink` event along with `instalId`. This install id should be linked to third party id and after successful linking call `RNSentiance.userLinkCallback(true)` to notify the SDK.
+
+_Please refer to https://docs.sentiance.com/guide/user-linking for documentation on the user linking._
+
+```javascript
+import { NativeEventEmitter } from 'react-native'
+
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
+sentianceEmitter = rnSentianceEmitter.addListener(
+  "SDKUserLink",
+  id => {
+    const { installId } = id;
+    
+    //send this installid to you server for linking
+    linkUser(installId);
+    
+    //once linking is done notify sdk
+    RNSentiance.userLinkCallback(true)
+  }
+);
+```
