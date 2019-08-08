@@ -262,8 +262,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   @SuppressWarnings("unused")
   public void getVersion(final Promise promise) {
-    if (!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
-
     String version = sdk.getVersion();
     promise.resolve(version);
   }
