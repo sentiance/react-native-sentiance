@@ -18,8 +18,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 20
-        versionName "4.0"
+        versionCode 21
+        versionName "4.0.1"
     }
     lintOptions {
         abortOnError false
@@ -45,7 +45,7 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    worldApi ('com.sentiance:sdk:4.10.0@aar') { transitive = true }
+    worldApi ('com.sentiance:sdk:4.10.1@aar') { transitive = true }
     chinaApi('com.sentiance:sdk-cn:4.7.0-CN@aar') {
         exclude group: 'com.android.support'
         transitive = true
