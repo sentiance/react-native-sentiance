@@ -1,0 +1,36 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8.9.1
+    steps:
+      - add_ssh_keys
+      - checkout
+      - run:
+          name: Git config
+          command: |
+            git config user.email "dev@sentiance.com"
+            git config user.name "CircleCI"
+      - run:
+          name: Version bump
+          command: |
+            PATCH_LEVEL=`echo $CIRCLE_TAG | cut -d"_" -f2`
+            git checkout develop
+            npm version $PATCH_LEVEL
+            git push origin develop
+      - run:
+          name: Publish package and trigger Journeys
+          command: |
+            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+            npm publish
+      
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^prerelease_(prepatch|preminor|premajor)_(android|ios)_.*/
+            branches:
+              ignore: /.*/
