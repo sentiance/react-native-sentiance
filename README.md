@@ -150,6 +150,19 @@ try {
 }
 ```
 
+Initialize and start sentiance SDK with user linking enabled.
+```javascript
+try {
+  const startResponse = await RNSentiance.initWithUserLinkingEnabled(
+      APP_ID,APP_SECRET, // app id and secret
+      null, // override base url
+      true, // auto start
+  );
+} catch (err) {
+	// SDK did not start.
+}
+```
+
 
 #### Starting the Sentiance SDK
 If SDK is not started automatically i.e `autoStart = false` during init, it can be started manually.
