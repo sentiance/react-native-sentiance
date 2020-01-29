@@ -150,19 +150,6 @@ try {
 }
 ```
 
-Initialize and start sentiance SDK with user linking enabled.
-```javascript
-try {
-  const startResponse = await RNSentiance.initWithUserLinkingEnabled(
-      APP_ID,APP_SECRET, // app id and secret
-      null, // override base url
-      true, // auto start
-  );
-} catch (err) {
-	// SDK did not start.
-}
-```
-
 
 #### Starting the Sentiance SDK
 If SDK is not started automatically i.e `autoStart = false` during init, it can be started manually.
@@ -408,7 +395,7 @@ await RNSentiance.updateSdkNotification("RN SDK Sample", "SDK is running");
 ```
 
 #### User linking
-During initialization if user linking is enabled SDK will send `SDKUserLink` event along with `instalId`. This install id should be linked to third party id and after successful linking call `RNSentiance.userLinkCallback(true)` to notify the SDK.
+To make use of this feature, you must initialize the SDK by calling `RNSentiance.initWithUserLinkingEnabled` instead of `RNSentiance.init`. During initialization, the SDK will send a `SDKUserLink` event along with an `installId`. This install ID should be linked to your third party ID. After successful linking, you must call `RNSentiance.userLinkCallback(true)` to notify the SDK. If linking fails, you must instead call `RNSentiance.userLinkCallback(false)`.
 
 _Please refer to https://docs.sentiance.com/guide/user-linking for documentation on the user linking._
 
