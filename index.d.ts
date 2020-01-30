@@ -2,7 +2,7 @@ import { EventSubscriptionVendor } from "react-native";
 
 declare module "react-native-sentiance" {
   interface RNSentianceConstructor extends EventSubscriptionVendor {
-    init(appId: string, secret: string, baseURL: string): Promise<any>;
+    init(appId: string, secret: string, baseURL: string, autoStart: boolean): Promise<any>;
     initWithUserLinkingEnabled(
       appId: string,
       secret: string,
