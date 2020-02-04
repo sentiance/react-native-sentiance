@@ -78,7 +78,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void init(final String appId, final String appSecret, final String baseURL, final boolean autoStart, final Promise promise) {
+  public void init(final String appId, final String appSecret, final String baseURL, final boolean shouldStart, final Promise promise) {
     Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId);
 
     final OnStartFinishedHandler startFinishedHandler = new OnStartFinishedHandler() {
@@ -92,7 +92,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     final OnInitCallback initCallback = new OnInitCallback() {
       @Override
       public void onInitSuccess() {
-        if (!autoStart)
+        if (!shouldStart)
           promise.resolve(null);
       }
 
@@ -107,7 +107,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       public void run() {
         rnSentianceHelper.initializeSentianceSDK(
           appId, appSecret,
-          autoStart,
+          shouldStart,
           baseURL,
           initCallback,
           startFinishedHandler
@@ -119,7 +119,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void initWithUserLinkingEnabled(final String appId, final String appSecret, final String baseURL, final boolean autoStart, final Promise promise) {
+  public void initWithUserLinkingEnabled(final String appId, final String appSecret, final String baseURL, final boolean shouldStart, final Promise promise) {
     Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId);
 
     final OnStartFinishedHandler startFinishedHandler = new OnStartFinishedHandler() {
@@ -133,7 +133,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     final OnInitCallback initCallback = new OnInitCallback() {
       @Override
       public void onInitSuccess() {
-        if (!autoStart)
+        if (!shouldStart)
           promise.resolve(null);
       }
 
@@ -148,7 +148,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       public void run() {
         rnSentianceHelper.initializeSentianceSDKWithUserLinking(
           appId, appSecret,
-          autoStart,
+          shouldStart,
           baseURL,
           initCallback,
           startFinishedHandler
