@@ -78,6 +78,8 @@ public class RNSentianceConverter {
         return "INIT_IN_PROGRESS";
       case INITIALIZED:
         return "INITIALIZED";
+      case RESETTING:
+        return "RESETTING";
       default:
         return "NOT_INITIALIZED";
     }

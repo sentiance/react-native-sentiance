@@ -10,6 +10,7 @@ import com.facebook.react.bridge.LifecycleEventListener;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnStartFinishedHandler;
+import com.sentiance.sdk.ResetCallback;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.SubmitDetectionsCallback;
@@ -158,6 +159,22 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
     });
 
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void reset(final Promise promise) {
+    sdk.reset(new ResetCallback() {
+      @Override
+      public void onResetSuccess() {
+        promise.resolve(null);
+      }
+
+      @Override
+      public void onResetFailure(ResetFailureReason reason) {
+        promise.reject(reason.name(), "Resetting the SDK failed");
+      }
+    });
   }
 
   @ReactMethod
