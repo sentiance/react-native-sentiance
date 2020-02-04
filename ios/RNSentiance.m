@@ -632,6 +632,8 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
             return @"INIT_IN_PROGRESS";
         case SENTInitialized:
             return @"INITIALIZED";
+        case SENTResetting:
+            return @"RESETTING";
     }
 }
 
