@@ -485,6 +485,22 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
     }
 }
 
+RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [[SENTSDK sharedInstance] reset:^{ resolve() } failure:^(SENTResetFailureReason reason) {
+        switch(reason) {
+            case SENTResetFailureReasonInitInProgress:
+                reject(@"InitInProgress")
+                break;
+            case SENTResetFailureReasonResetting:
+                reject(@"Resetting")
+                break;
+            default:
+                reject(@"Unknown")
+        }
+    }];
+}
+
 -(void)deleteAllKeysForSecClass:(CFTypeRef)secClass {
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
@@ -632,6 +648,8 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
             return @"INIT_IN_PROGRESS";
         case SENTInitialized:
             return @"INITIALIZED";
+        case SENTResetting:
+            return @"RESETTING";
     }
 }
 
