@@ -487,7 +487,18 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 
 RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [self reset:resolve rejecter:reject];
+    [[SENTSDK sharedInstance] reset:^{ resolve() } failure:^(SENTResetFailureReason reason) {
+        switch(reason) {
+            case SENTResetFailureReasonInitInProgress:
+                reject(@"InitInProgress")
+                break;
+            case SENTResetFailureReasonResetting:
+                reject(@"Resetting")
+                break;
+            default:
+                reject(@"Unknown")
+        }
+    }];
 }
 
 -(void)deleteAllKeysForSecClass:(CFTypeRef)secClass {
