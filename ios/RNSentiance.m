@@ -487,16 +487,16 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 
 RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [[SENTSDK sharedInstance] reset:^{ resolve() } failure:^(SENTResetFailureReason reason) {
+    [[SENTSDK sharedInstance] reset:^{ resolve(nil); } failure:^(SENTResetFailureReason reason) {
         switch(reason) {
             case SENTResetFailureReasonInitInProgress:
-                reject(@"InitInProgress")
+                reject(@"", @"InitInProgress", nil);
                 break;
             case SENTResetFailureReasonResetting:
-                reject(@"Resetting")
+                reject(@"", @"Resetting", nil);
                 break;
             default:
-                reject(@"Unknown")
+                reject(@"", @"Unknown", nil);
         }
     }];
 }
