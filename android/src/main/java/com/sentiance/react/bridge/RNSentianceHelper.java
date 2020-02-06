@@ -82,27 +82,27 @@ public class RNSentianceHelper {
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public void initializeSentianceSDK(String appId, String appSecret, boolean autoStart,
+    public void initializeSentianceSDK(String appId, String appSecret, boolean shouldStart,
                                        @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
-        initializeAndStartSentianceSDK(appId, appSecret, autoStart, null, false, initCallback, startFinishedHandler);
+        initializeAndStartSentianceSDK(appId, appSecret, shouldStart, null, false, initCallback, startFinishedHandler);
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public void initializeSentianceSDK(String appId, String appSecret, boolean autoStart,
+    public void initializeSentianceSDK(String appId, String appSecret, boolean shouldStart,
                                        String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
-        initializeAndStartSentianceSDK(appId, appSecret, autoStart, baseUrl, false, initCallback, startFinishedHandler);
+        initializeAndStartSentianceSDK(appId, appSecret, shouldStart, baseUrl, false, initCallback, startFinishedHandler);
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public void initializeSentianceSDKWithUserLinking(String appId, String appSecret, boolean autoStart,
+    public void initializeSentianceSDKWithUserLinking(String appId, String appSecret, boolean shouldStart,
                                                       @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
-        initializeAndStartSentianceSDK(appId, appSecret, autoStart, null, true, initCallback, startFinishedHandler);
+        initializeAndStartSentianceSDK(appId, appSecret, shouldStart, null, true, initCallback, startFinishedHandler);
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public void initializeSentianceSDKWithUserLinking(String appId, String appSecret, boolean autoStart,
+    public void initializeSentianceSDKWithUserLinking(String appId, String appSecret, boolean shouldStart,
                                                       String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
-        initializeAndStartSentianceSDK(appId, appSecret, autoStart, baseUrl, true, initCallback, startFinishedHandler);
+        initializeAndStartSentianceSDK(appId, appSecret, shouldStart, baseUrl, true, initCallback, startFinishedHandler);
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
@@ -122,7 +122,7 @@ public class RNSentianceHelper {
     }
 
     private void initializeAndStartSentianceSDK(String appId, String appSecret,
-                                                final boolean autoStart, @Nullable String baseUrl, boolean userLinkingEnabled,
+                                                final boolean shouldStart, @Nullable String baseUrl, boolean userLinkingEnabled,
                                                 final @Nullable OnInitCallback initCallback, final @Nullable OnStartFinishedHandler startFinishedHandler) {
         Context context = weakContext.get();
         if (context == null) return;
@@ -146,7 +146,7 @@ public class RNSentianceHelper {
                 Log.i(TAG, "onInitSuccess");
                 if (initCallback != null)
                     initCallback.onInitSuccess();
-                if (autoStart)
+                if (shouldStart)
                     startSentianceSDK(startFinishedHandler);
             }
 
