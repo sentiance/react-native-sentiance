@@ -424,7 +424,9 @@ await RNSentiance.updateSdkNotification("RN SDK Sample", "SDK is running");
 
 #### User linking
 
-To make use of this feature, you must initialize the SDK by calling `RNSentiance.initWithUserLinkingEnabled` instead of `RNSentiance.init`. During initialization, the SDK will send a `SDKUserLink` event along with an `installId`. This install ID should be linked to your third party ID. After successful linking, you must call `RNSentiance.userLinkCallback(true)` to notify the SDK. If linking fails, you must instead call `RNSentiance.userLinkCallback(false)`.
+To make use of this feature, you must initialize the SDK by calling `RNSentiance.initWithUserLinkingEnabled` instead of `RNSentiance.init`.
+
+During initialization, the SDK will send a `SDKUserLink` event along with an `installId`. This install ID should be linked to your third party ID. After successful linking, you must call `RNSentiance.userLinkCallback(true)` to notify the SDK. If linking fails, you must instead call `RNSentiance.userLinkCallback(false)`.
 
 _Please refer to https://docs.sentiance.com/guide/user-linking for documentation on the user linking._
 
@@ -441,4 +443,18 @@ sentianceEmitter = rnSentianceEmitter.addListener("SDKUserLink", id => {
   //once linking is done notify sdk
   RNSentiance.userLinkCallback(true);
 });
+```
+
+#### Resetting the SDK
+
+To delete the Sentiance user and its data from the device, you can reset the SDK by calling `RNSentiance.reset`. This allows you to create a new Sentiance user by reinitializing the SDK, and link it to a new third party ID.
+
+```javascript
+try {
+  await RNSentiance.reset();
+  // The SDK was succesfully reset
+} catch (err) {
+  // Resetting the SDK failed
+  // err.name has three values: SDK_INIT_IN_PROGRESS, SDK_RESET_IN_PROGRESS, SDK_RESET_UNKNOWN_ERROR
+}
 ```

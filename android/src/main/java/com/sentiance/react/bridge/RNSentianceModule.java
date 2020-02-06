@@ -10,8 +10,10 @@ import com.facebook.react.bridge.LifecycleEventListener;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnStartFinishedHandler;
+import com.sentiance.sdk.ResetCallback;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
+import com.sentiance.sdk.SubmitDetectionsCallback;
 import com.sentiance.sdk.Token;
 import com.sentiance.sdk.TokenResultCallback;
 import com.sentiance.sdk.detectionupdates.UserActivity;
@@ -40,6 +42,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
   private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
   private final String E_SDK_NOT_INITIALIZED = "E_SDK_NOT_INITIALIZED";
+  private final String E_SDK_SUBMIT_DETECTIONS_ERROR = "E_SDK_SUBMIT_DETECTIONS_ERROR";
   private final Handler mHandler = new Handler(Looper.getMainLooper());
   private RNSentianceHelper rnSentianceHelper;
   private final RNSentianceEmitter emitter;
@@ -156,6 +159,22 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
     });
 
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void reset(final Promise promise) {
+    sdk.reset(new ResetCallback() {
+      @Override
+      public void onResetSuccess() {
+        promise.resolve(null);
+      }
+
+      @Override
+      public void onResetFailure(ResetFailureReason reason) {
+        promise.reject(reason.name(), "Resetting the SDK failed");
+      }
+    });
   }
 
   @ReactMethod
@@ -349,7 +368,17 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   public void submitDetections(final Promise promise) {
     if (!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
-    promise.resolve(null);
+    sdk.submitDetections(new SubmitDetectionsCallback() {
+      @Override
+      public void onSuccess() {
+        promise.resolve(null);
+      }
+
+      @Override
+      public void onFailure() {
+        promise.reject(E_SDK_SUBMIT_DETECTIONS_ERROR, "Submission failed");
+      }
+    });
   }
 
   @ReactMethod
