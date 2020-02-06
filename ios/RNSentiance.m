@@ -488,15 +488,16 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     [[SENTSDK sharedInstance] reset:^{ resolve(nil); } failure:^(SENTResetFailureReason reason) {
+        NSString *message = @"Resetting the SDK failed";
         switch(reason) {
             case SENTResetFailureReasonInitInProgress:
-                reject(@"", @"InitInProgress", nil);
+                reject(@"SDK_INIT_IN_PROGRESS", message, nil);
                 break;
             case SENTResetFailureReasonResetting:
-                reject(@"", @"Resetting", nil);
+                reject(@"SDK_RESET_IN_PROGRESS", message, nil);
                 break;
             default:
-                reject(@"", @"Unknown", nil);
+                reject(@"SDK_RESET_UNKNOWN_ERROR", message, nil);
         }
     }];
 }
