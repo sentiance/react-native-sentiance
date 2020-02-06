@@ -455,5 +455,6 @@ try {
   // The SDK was succesfully reset
 } catch (err) {
   // Resetting the SDK failed
+  // err.name has three values: SDK_INIT_IN_PROGRESS, SDK_RESET_IN_PROGRESS, SDK_RESET_UNKNOWN_ERROR
 }
 ```
