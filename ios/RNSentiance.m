@@ -625,6 +625,8 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
             return @"WARNING";
         case SENTQuotaStatusExceeded:
             return @"EXCEEDED";
+        default:
+            return @"UNRECOGNIZED_STATUS";
     }
 }
 
@@ -638,6 +640,8 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
             return @"STARTED";
         case SENTStartStatusExpired:
             return @"EXPIRED";
+        default:
+            return @"UNRECOGNIZED_STATUS";
     }
 }
 
@@ -651,6 +655,8 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
             return @"INITIALIZED";
         case SENTResetting:
             return @"RESETTING";
+        default:
+            return @"UNRECOGNIZED_STATE";
     }
 }
 
@@ -662,6 +668,8 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
             return @"USER_ACTIVITY_TYPE_STATIONARY";
         case SENTUserActivityTypeUNKNOWN:
             return @"USER_ACTIVITY_TYPE_UNKNOWN";
+        default:
+            return @"USER_ACTIVITY_TYPE_UNRECOGNIZED";
     }
 }
 
@@ -671,6 +679,8 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
             return @"TRIP_TYPE_SDK";
         case SENTTripTypeExternal:
             return @"TRIP_TYPE_EXTERNAL";
+        default:
+            return @"TRIP_TYPE_UNRECOGNIZED";
     }
 }
 @end
