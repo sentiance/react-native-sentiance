@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.0.7] - 2019-11-20
 - Upgrade iOS SDK to [5.5.5](https://docs.sentiance.com/sdk/changelog/ios#5-5-5-13-nov-2019)
 - Support the auto-start option when initializing the Sentiance SDK
-- Send `SendUserLink` event during initialization if user linking is enabled (Android Only)
+- Send `SDKUserLink` event during initialization if user linking is enabled
 - Support subscriptions for user activity updates
 - Added the ability to update SDK foreground notification
 
