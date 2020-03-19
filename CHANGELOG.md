@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.0.7] - 2019-11-20
 ### Added
-- The ability to update SDK foreground notification
+- The ability to update SDK foreground notification. This is only applicable to Android.
 - Send `SDKUserLink` event during initialization if user linking is enabled
 - Support subscriptions for user activity updates
 - Support the auto-start option when initializing the Sentiance SDK
