@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.2] - 2020-03-24
+### Changed
+- Upgrade iOS SDK to [5.6.1](https://docs.sentiance.com/sdk/changelog/ios#5-6-1-21-feb-2020)
+
+## [3.1.1] - 2020-03-24
+### Added
+- `reset` typing for typescript
+
 ## [3.1.0] - 2020-02-06
 ### Added
 - `reset` method to reset the Sentiance SDK
