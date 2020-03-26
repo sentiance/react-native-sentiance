@@ -5,13 +5,13 @@ declare module "react-native-sentiance" {
     init(
       appId: string,
       secret: string,
-      baseURL: string,
+      baseURL: string | null,
       shouldStart: boolean
     ): Promise<any>;
     initWithUserLinkingEnabled(
       appId: string,
       secret: string,
-      baseURL: string,
+      baseURL: string | null,
       shouldStart: boolean
     ): Promise<any>;
     start(): Promise<any>;
