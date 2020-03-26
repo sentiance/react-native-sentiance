@@ -110,6 +110,16 @@ In your `AppDelegate` add the following:
    <meta-data android:name="ccom.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
    ```
 
+#### Manifest permissions
+
+If you're targeting API level 29 and above, you must add the following permissions to your application's `AndroidManifest.xml` file, inside the `<manifest>` tag:
+
+```xml
+  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+  <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+```
+For more information about why these permissions are required, please refer to our [Android Permissions](https://docs.sentiance.com/sdk/getting-started/android-sdk/permissions) page.
+
 #### Native initialization
 
 Inside `Application#onCreate()` method, initialize and start sentiance SDK
