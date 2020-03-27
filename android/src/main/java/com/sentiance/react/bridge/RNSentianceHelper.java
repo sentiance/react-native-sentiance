@@ -89,7 +89,7 @@ public class RNSentianceHelper {
 
     @SuppressWarnings({"unused", "WeakerAccess"})
     public void initializeSentianceSDK(String appId, String appSecret, boolean shouldStart,
-                                       String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
+                                       @Nullable String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
         initializeAndStartSentianceSDK(appId, appSecret, shouldStart, baseUrl, false, initCallback, startFinishedHandler);
     }
 
@@ -101,7 +101,7 @@ public class RNSentianceHelper {
 
     @SuppressWarnings({"unused", "WeakerAccess"})
     public void initializeSentianceSDKWithUserLinking(String appId, String appSecret, boolean shouldStart,
-                                                      String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
+                                                      @Nullable String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
         initializeAndStartSentianceSDK(appId, appSecret, shouldStart, baseUrl, true, initCallback, startFinishedHandler);
     }
 
