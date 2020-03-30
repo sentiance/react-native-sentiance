@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.3] - 2020-03-30
+### Changed
+- Allow `baseUrl` to be nullable when initializing the Sentiance SDK
+
 ## [3.1.2] - 2020-03-24
 ### Changed
 - Upgrade iOS SDK to [5.6.1](https://docs.sentiance.com/sdk/changelog/ios#5-6-1-21-feb-2020)
