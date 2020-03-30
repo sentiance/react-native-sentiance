@@ -42,7 +42,7 @@ RCT_EXPORT_MODULE()
 
 - (void) initSDK:(NSString *)appId
           secret:(NSString *)secret
-         baseURL:(NSString *)baseURL
+         baseURL:(nullable NSString *)baseURL
      shouldStart:(BOOL)shouldStart
         resolver:(RCTPromiseResolveBlock)resolve
         rejecter:(RCTPromiseRejectBlock)reject
@@ -58,7 +58,7 @@ RCT_EXPORT_MODULE()
 
         [config setDidReceiveSdkStatusUpdate:weakSelf.getSdkStatusUpdateHandler];
 
-        if (baseURL.length > 0) {
+        if (baseURL && baseURL.length > 0) {
             config.baseURL = baseURL;
         }
 
@@ -182,7 +182,7 @@ RCT_EXPORT_METHOD(setValueForKey:(NSString *)key
 
 RCT_EXPORT_METHOD(init:(NSString *)appId
                   secret:(NSString *)secret
-                  baseURL:(NSString *)baseURL
+                  baseURL:(nullable NSString *)baseURL
                   shouldStart:(BOOL)shouldStart
                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -195,7 +195,7 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
 
 RCT_EXPORT_METHOD(initWithUserLinkingEnabled:(NSString *)appId
                   secret:(NSString *)secret
-                  baseURL:(NSString *)baseURL
+                  baseURL:(nullable NSString *)baseURL
                   shouldStart:(BOOL)shouldStart
                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {

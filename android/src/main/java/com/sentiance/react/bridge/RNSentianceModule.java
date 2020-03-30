@@ -81,7 +81,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void init(final String appId, final String appSecret, final String baseURL, final boolean shouldStart, final Promise promise) {
+  public void init(final String appId, final String appSecret, @Nullable final String baseURL, final boolean shouldStart, final Promise promise) {
     Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId);
 
     final OnStartFinishedHandler startFinishedHandler = new OnStartFinishedHandler() {
@@ -122,7 +122,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void initWithUserLinkingEnabled(final String appId, final String appSecret, final String baseURL, final boolean shouldStart, final Promise promise) {
+  public void initWithUserLinkingEnabled(final String appId, final String appSecret, @Nullable final String baseURL, final boolean shouldStart, final Promise promise) {
     Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId);
 
     final OnStartFinishedHandler startFinishedHandler = new OnStartFinishedHandler() {
