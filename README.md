@@ -107,7 +107,7 @@ In your `AppDelegate` add the following:
    <meta-data android:name="com.sentiance.react.bridge.notification_text" android:value="Touch to open."/>
    <meta-data android:name="com.sentiance.react.bridge.notification_icon" android:resource="@mipmap/ic_launcher"/>
    <meta-data android:name="com.sentiance.react.bridge.notification_channel_name" android:value="Sentiance"/>
-   <meta-data android:name="ccom.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
+   <meta-data android:name="com.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
    ```
 
 #### Manifest permissions
