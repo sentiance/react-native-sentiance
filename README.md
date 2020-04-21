@@ -1,9 +1,5 @@
 # react-native-sentiance
 
-## Status
-
-\*`react-native-sentiance` is still in an early development stage and not ready for production use just yet. Please try it out, give feedback, and help fix bugs.
-
 ## Demo Application
 
 https://github.com/sentiance/react-native-sentiance-example
@@ -107,7 +103,7 @@ In your `AppDelegate` add the following:
    <meta-data android:name="com.sentiance.react.bridge.notification_text" android:value="Touch to open."/>
    <meta-data android:name="com.sentiance.react.bridge.notification_icon" android:resource="@mipmap/ic_launcher"/>
    <meta-data android:name="com.sentiance.react.bridge.notification_channel_name" android:value="Sentiance"/>
-   <meta-data android:name="ccom.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
+   <meta-data android:name="com.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
    ```
 
 #### Manifest permissions
