@@ -33,6 +33,7 @@ declare module "react-native-sentiance" {
     disableBatteryOptimization(): Promise<any>;
     getUserActivity(): Promise<any>;
     listenUserActivityUpdates(): void;
+    onCrashEvent(): Promise<any>;
     userLinkCallback(success: Boolean): void;
     getValueForKey(key: string, defaultValue: string): Promise<any>;
     setValueForKey(key: string, value: string): Promise<any>;

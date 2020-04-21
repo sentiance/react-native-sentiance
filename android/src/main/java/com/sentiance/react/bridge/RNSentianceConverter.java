@@ -1,6 +1,7 @@
 package com.sentiance.react.bridge;
 
 import android.location.Location;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
@@ -155,7 +156,6 @@ public class RNSentianceConverter {
     return map;
   }
 
-
   public static WritableMap convertLocation(Location location) {
     WritableMap locationMap = Arguments.createMap();
 
@@ -167,6 +167,19 @@ public class RNSentianceConverter {
 
     return locationMap;
 
+  }
+
+  public static WritableMap convertCrashEvent(long time, @Nullable Location lastKnownLocation) {
+    WritableMap map = Arguments.createMap();
+
+    map.putDouble("time", (double) time);
+
+    if (lastKnownLocation != null) {
+      WritableMap locationMap = convertLocation(lastKnownLocation);
+      map.putMap("lastKnownLocation", locationMap);
+    }
+
+    return map;
   }
 
   public static String convertTripType(TripType tripType) {
