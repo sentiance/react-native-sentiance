@@ -502,6 +502,14 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
     }];
 }
 
+RCT_EXPORT_METHOD(onCrashEvent:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [[SENTSDK sharedInstance] setCrashListener:^(NSDate *date, CLLocation *lastKnownLocation){
+        NSDictionary *crashEventDict = [self convertCrashEventToDict:date lastKnownLocation:lastKnownLocation];
+        resolve(crashEventDict);
+    }];
+}
+
 -(void)deleteAllKeysForSecClass:(CFTypeRef)secClass {
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
@@ -682,5 +690,20 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
         default:
             return @"TRIP_TYPE_UNRECOGNIZED";
     }
+}
+
+- (NSDictionary*)convertCrashEventToDict:(NSDate*)date lastKnownLocation:(CLLocation*)lastKnownLocation {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    double time = [date timeIntervalSince1970] * 1000;
+    dict[@"time"] = @(time);
+
+    if(lastKnownLocation) {
+        NSDictionary *location = @{
+                                   @"latitude": @(lastKnownLocation.coordinate.latitude),
+                                   @"longitude": @(lastKnownLocation.coordinate.longitude)
+                                   };
+        [dict setObject:location forKey:@"lastKnownLocation"];
+    }
+    return [dict copy];
 }
 @end
