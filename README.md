@@ -464,3 +464,22 @@ try {
   // err.name has three values: SDK_INIT_IN_PROGRESS, SDK_RESET_IN_PROGRESS, SDK_RESET_UNKNOWN_ERROR
 }
 ```
+
+#### Crash Event Detection
+
+Set vehicle crash detection promise.
+
+```javascript
+RNSentiance.onCrashEvent()
+  .then(({ time, lastKnownLocation }) => {
+    // crash event detected during a trip.
+    // parameter time is in milliseconds
+    // parameter lastKnownLocation is nullable
+    if (lastKnownLocation) {
+      const { latitude, longitude } = lastKnownLocation;
+    }
+  })
+  .catch(err => {
+    // unable to setup the crash event listener
+  });
+```
