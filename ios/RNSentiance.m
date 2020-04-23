@@ -697,12 +697,13 @@ RCT_EXPORT_METHOD(onCrashEvent:(RCTPromiseResolveBlock)resolve rejecter:(RCTProm
     double time = [date timeIntervalSince1970] * 1000;
     dict[@"time"] = @(time);
 
-    if(lastKnownLocation) {
+
+    if(lastKnownLocation != nil) {
         NSDictionary *location = @{
                                    @"latitude": @(lastKnownLocation.coordinate.latitude),
                                    @"longitude": @(lastKnownLocation.coordinate.longitude)
                                    };
-        [dict setObject:location forKey:@"lastKnownLocation"];
+        dict[@"lastKnownLocation"] = location;
     }
     return [dict copy];
 }
