@@ -25,7 +25,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate"];
+    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent"];
 }
 
 // Will be called when this module's first listener is added.
@@ -502,11 +502,15 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
     }];
 }
 
-RCT_EXPORT_METHOD(onCrashEvent:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(listenCrashEvents)
 {
+    __weak typeof(self) weakSelf = self;
+
     [[SENTSDK sharedInstance] setCrashListener:^(NSDate *date, CLLocation *lastKnownLocation){
-        NSDictionary *crashEventDict = [self convertCrashEventToDict:date lastKnownLocation:lastKnownLocation];
-        resolve(crashEventDict);
+        if(weakSelf.hasListeners) {
+            NSDictionary *crashEventDict = [self convertCrashEventToDict:date lastKnownLocation:lastKnownLocation];
+            [weakSelf sendEventWithName:@"SDKCrashEvent" body:crashEventDict];
+        }
     }];
 }
 
@@ -708,3 +712,4 @@ RCT_EXPORT_METHOD(onCrashEvent:(RCTPromiseResolveBlock)resolve rejecter:(RCTProm
     return [dict copy];
 }
 @end
+

@@ -463,15 +463,16 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void onCrashEvent(final Promise promise) {
+  public void listenCrashEvents(final Promise promise) {
     if (!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
     sdk.setCrashCallback(new CrashCallback() {
       @Override
       public void onCrash(long time, @Nullable Location lastKnownLocation) {
-        promise.resolve(RNSentianceConverter.convertCrashEvent(time, lastKnownLocation));
+        emitter.sendCrashEvent(time, lastKnownLocation);
       }
     });
+    promise.resolve(null);
   }
 
   @ReactMethod
@@ -527,3 +528,4 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
 }
+

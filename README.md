@@ -467,19 +467,25 @@ try {
 
 #### Crash Event Detection
 
-Set vehicle crash detection promise.
+Subscribe to vehicle crash events.
 
 ```javascript
-RNSentiance.onCrashEvent()
-  .then(({ time, lastKnownLocation }) => {
-    // crash event detected during a trip.
+import { NativeEventEmitter } from "react-native";
+
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
+const sdkCrashEventSubscription = sentianceEmitter.addListener(
+  "SDKCrashEvent",
+  ({ time, lastKnownLocation }) => {
     // parameter time is in milliseconds
     // parameter lastKnownLocation is nullable
     if (lastKnownLocation) {
       const { latitude, longitude } = lastKnownLocation;
     }
-  })
-  .catch(err => {
-    // unable to setup the crash event listener
-  });
+  }
+);
+
+RNSentiance.listenCrashEvents();
+
+// To unsubscribe
+sdkCrashEventSubscription.remove();
 ```
