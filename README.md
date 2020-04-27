@@ -464,3 +464,28 @@ try {
   // err.name has three values: SDK_INIT_IN_PROGRESS, SDK_RESET_IN_PROGRESS, SDK_RESET_UNKNOWN_ERROR
 }
 ```
+
+#### Crash Event Detection
+
+Subscribe to vehicle crash events.
+
+```javascript
+import { NativeEventEmitter } from "react-native";
+
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
+const sdkCrashEventSubscription = sentianceEmitter.addListener(
+  "SDKCrashEvent",
+  ({ time, lastKnownLocation }) => {
+    // parameter time is in milliseconds
+    // parameter lastKnownLocation is nullable
+    if (lastKnownLocation) {
+      const { latitude, longitude } = lastKnownLocation;
+    }
+  }
+);
+
+RNSentiance.listenCrashEvents();
+
+// To unsubscribe
+sdkCrashEventSubscription.remove();
+```
