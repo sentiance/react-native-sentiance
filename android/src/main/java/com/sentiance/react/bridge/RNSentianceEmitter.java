@@ -3,6 +3,8 @@ package com.sentiance.react.bridge;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.location.Location;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
@@ -18,6 +20,7 @@ class RNSentianceEmitter {
   private static final String USER_LINK = "SDKUserLink";
   private static final String STATUS_UPDATE = "SDKStatusUpdate";
   private static final String USER_ACTIVITY_UPDATE = "SDKUserActivityUpdate";
+  private static final String CRASH_EVENT = "SDKCrashEvent";
   private final Handler mHandler = new Handler(Looper.getMainLooper());
 
   private ReactContext reactContext;
@@ -45,6 +48,10 @@ class RNSentianceEmitter {
 
   void sendUserActivityUpdate(UserActivity userActivity) {
     sendEvent(USER_ACTIVITY_UPDATE, convertUserActivity(userActivity));
+  }
+
+  void sendCrashEvent(long time, @Nullable Location lastKnownLocation) {
+    sendEvent(CRASH_EVENT, convertCrashEvent(time, lastKnownLocation));
   }
 
   private void sendEvent(final String key, final WritableMap map) {
@@ -78,3 +85,4 @@ class RNSentianceEmitter {
   }
 
 }
+

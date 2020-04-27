@@ -25,7 +25,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate"];
+    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent"];
 }
 
 // Will be called when this module's first listener is added.
@@ -502,6 +502,18 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
     }];
 }
 
+RCT_EXPORT_METHOD(listenCrashEvents)
+{
+    __weak typeof(self) weakSelf = self;
+
+    [[SENTSDK sharedInstance] setCrashListener:^(NSDate *date, CLLocation *lastKnownLocation){
+        if(weakSelf.hasListeners) {
+            NSDictionary *crashEventDict = [self convertCrashEventToDict:date lastKnownLocation:lastKnownLocation];
+            [weakSelf sendEventWithName:@"SDKCrashEvent" body:crashEventDict];
+        }
+    }];
+}
+
 -(void)deleteAllKeysForSecClass:(CFTypeRef)secClass {
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
@@ -683,4 +695,21 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
             return @"TRIP_TYPE_UNRECOGNIZED";
     }
 }
+
+- (NSDictionary*)convertCrashEventToDict:(NSDate*)date lastKnownLocation:(CLLocation*)lastKnownLocation {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    double time = [date timeIntervalSince1970] * 1000;
+    dict[@"time"] = @(time);
+
+
+    if(lastKnownLocation != nil) {
+        NSDictionary *location = @{
+                                   @"latitude": @(lastKnownLocation.coordinate.latitude),
+                                   @"longitude": @(lastKnownLocation.coordinate.longitude)
+                                   };
+        dict[@"lastKnownLocation"] = location;
+    }
+    return [dict copy];
+}
 @end
+

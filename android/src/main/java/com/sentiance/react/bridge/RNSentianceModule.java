@@ -11,6 +11,7 @@ import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnStartFinishedHandler;
 import com.sentiance.sdk.ResetCallback;
+import com.sentiance.sdk.crashdetection.CrashCallback;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.SubmitDetectionsCallback;
@@ -26,11 +27,11 @@ import com.sentiance.sdk.trip.TransportMode;
 import android.annotation.SuppressLint;
 import android.os.Handler;
 import android.os.Looper;
+import android.location.Location;
+import android.util.Log;
+import androidx.annotation.Nullable;
 
 import java.util.Map;
-
-import androidx.annotation.Nullable;
-import android.util.Log;
 
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
@@ -462,6 +463,20 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
+  public void listenCrashEvents(final Promise promise) {
+    if (!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
+
+    sdk.setCrashCallback(new CrashCallback() {
+      @Override
+      public void onCrash(long time, @Nullable Location lastKnownLocation) {
+        emitter.sendCrashEvent(time, lastKnownLocation);
+      }
+    });
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
   public void getUserActivity(final Promise promise) {
     if (!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
 
@@ -513,3 +528,4 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
 }
+
