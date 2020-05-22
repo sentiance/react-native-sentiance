@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.0] - 2020-05-22
+### Removed
+- Sentiance china sdk code
+
 ## [3.2.0] - 2020-04-27
 ### Added
 - The ability to listen to crash detection events
