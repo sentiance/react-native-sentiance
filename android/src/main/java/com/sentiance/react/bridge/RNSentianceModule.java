@@ -31,6 +31,9 @@ import android.location.Location;
 import android.util.Log;
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
@@ -47,6 +50,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private final Handler mHandler = new Handler(Looper.getMainLooper());
   private RNSentianceHelper rnSentianceHelper;
   private final RNSentianceEmitter emitter;
+  private final List<OnStartFinishedHandler> onStartFinishedHandlers;
 
 
   public RNSentianceModule(ReactApplicationContext reactContext) {
@@ -56,6 +60,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk = Sentiance.getInstance(reactContext);
     rnSentianceHelper = RNSentianceHelper.getInstance(reactContext);
     emitter = new RNSentianceEmitter(reactContext);
+    onStartFinishedHandlers = new ArrayList<>();
   }
 
   @Override
@@ -90,8 +95,11 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       public void onStartFinished(SdkStatus sdkStatus) {
         promise.resolve(RNSentianceConverter.convertSdkStatus(sdkStatus));
         emitter.sendStatusUpdateEvent(sdkStatus);
+        removeStartFinishHandler(this);
       }
     };
+    // hold strong reference
+    addStartFinishHandler(startFinishedHandler);
 
     final OnInitCallback initCallback = new OnInitCallback() {
       @Override
@@ -131,8 +139,11 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       public void onStartFinished(SdkStatus sdkStatus) {
         promise.resolve(RNSentianceConverter.convertSdkStatus(sdkStatus));
         emitter.sendStatusUpdateEvent(sdkStatus);
+        removeStartFinishHandler(this);
       }
     };
+    // hold strong reference
+    addStartFinishHandler(startFinishedHandler);
 
     final OnInitCallback initCallback = new OnInitCallback() {
       @Override
@@ -181,37 +192,33 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   @SuppressWarnings("unused")
   public void start(final Promise promise) {
-    if (!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
-
-    mHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        rnSentianceHelper.startSentianceSDK(new OnStartFinishedHandler() {
-          @Override
-          public void onStartFinished(SdkStatus sdkStatus) {
-            promise.resolve(RNSentianceConverter.convertSdkStatus(sdkStatus));
-            emitter.sendStatusUpdateEvent(sdkStatus);
-          }
-        });
-      }
-    });
+    startWithStopDate(null, promise);
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void startWithStopDate(final long stopDateEpoch, final Promise promise) {
-    if (!isSdkInitialized()) promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
+  public void startWithStopDate(@Nullable final Date stopDate, final Promise promise) {
+
+    if (!isSdkInitialized()) {
+      promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
+      return;
+    }
+
+    final OnStartFinishedHandler startFinishedHandler = new OnStartFinishedHandler() {
+      @Override
+      public void onStartFinished(SdkStatus sdkStatus) {
+        promise.resolve(RNSentianceConverter.convertSdkStatus(sdkStatus));
+        emitter.sendStatusUpdateEvent(sdkStatus);
+        removeStartFinishHandler(this);
+      }
+    };
+    // hold strong reference
+    addStartFinishHandler(startFinishedHandler);
 
     mHandler.post(new Runnable() {
       @Override
       public void run() {
-        rnSentianceHelper.startSentianceSDK(stopDateEpoch, new OnStartFinishedHandler() {
-          @Override
-          public void onStartFinished(SdkStatus sdkStatus) {
-            promise.resolve(RNSentianceConverter.convertSdkStatus(sdkStatus));
-            emitter.sendStatusUpdateEvent(sdkStatus);
-          }
-        });
+        rnSentianceHelper.startSentianceSDK(stopDate, startFinishedHandler);
       }
     });
   }
@@ -507,6 +514,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     promise.resolve(value);
   }
 
+  private synchronized void addStartFinishHandler(OnStartFinishedHandler handler) {
+    onStartFinishedHandlers.add(handler);
+  }
+
+  private synchronized void removeStartFinishHandler(OnStartFinishedHandler handler) {
+    onStartFinishedHandlers.remove(handler);
+  }
 
   private boolean isSdkInitialized() {
     return sdk.getInitState() == InitState.INITIALIZED;
