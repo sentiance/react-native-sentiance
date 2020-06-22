@@ -42,6 +42,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private static final String LOG_TAG = "RNSentiance";
   private final ReactApplicationContext reactContext;
   private final Sentiance sdk;
+  private final String E_SDK_MISSING_PARAMS = "E_SDK_MISSING_PARAMS";
   private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
   private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
   private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
@@ -532,6 +533,10 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   @SuppressWarnings("unused")
   public void updateTripProfileConfig(ReadableMap config, final Promise promise) {
+    if (!config.hasKey("enableFullProfiling")) {
+      promise.reject(E_SDK_MISSING_PARAMS, "enableFullProfiling is not provided");
+      return;
+    }
     boolean enableFullProfiling = config.getBoolean("enableFullProfiling");
     Double speedLimit;
     if (config.hasKey("speedLimit")) {
