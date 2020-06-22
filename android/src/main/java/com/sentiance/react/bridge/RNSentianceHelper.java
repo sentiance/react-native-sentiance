@@ -161,32 +161,15 @@ public class RNSentianceHelper {
 
     @SuppressWarnings({"unused", "WeakerAccess"})
     public void startSentianceSDK(@Nullable final OnStartFinishedHandler callback) {
-        Context context = weakContext.get();
-        if (context == null) return;
-        Sentiance.getInstance(context).start(new OnStartFinishedHandler() {
-            @Override
-            public void onStartFinished(SdkStatus sdkStatus) {
-                if (callback != null)
-                    callback.onStartFinished(sdkStatus);
-                emitter.sendStatusUpdateEvent(sdkStatus);
-                Log.i(TAG, sdkStatus.toString());
-            }
-        });
+      startSentianceSDK(null, callback);
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public void startSentianceSDK(final long stopDateEpoch, @Nullable final OnStartFinishedHandler callback) {
-        Context context = weakContext.get();
-        if (context == null) return;
-        Sentiance.getInstance(context).start(new Date(stopDateEpoch), new OnStartFinishedHandler() {
-            @Override
-            public void onStartFinished(SdkStatus sdkStatus) {
-                if (callback != null)
-                    callback.onStartFinished(sdkStatus);
-                emitter.sendStatusUpdateEvent(sdkStatus);
-                Log.i(TAG, sdkStatus.toString());
-            }
-        });
+    public void startSentianceSDK(@Nullable final Date stopDate, @Nullable final OnStartFinishedHandler callback) {
+      Context context = weakContext.get();
+      if (context == null) return;
+
+      Sentiance.getInstance(context).start(stopDate, callback);
     }
 
     private Notification createNotification(PendingIntent pendingIntent, String title, String message, String channelName, String channelId, Integer icon) {
