@@ -6,16 +6,22 @@ import androidx.annotation.Nullable;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Token;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityType;
+import com.sentiance.sdk.ondevice.TripProfile;
+import com.sentiance.sdk.ondevice.transportclassifier.HardEvent;
+import com.sentiance.sdk.ondevice.transportclassifier.TransportSegment;
+import com.sentiance.sdk.ondevice.transportclassifier.VehicleMode;
 import com.sentiance.sdk.trip.TransportMode;
 import com.sentiance.sdk.trip.TripType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class RNSentianceConverter {
@@ -206,6 +212,62 @@ public class RNSentianceConverter {
       default:
         return "USER_ACTIVITY_TYPE_UNKNOWN";
     }
+  }
+
+  public static WritableMap convertTripProfile(TripProfile tripProfile) {
+    WritableMap map = Arguments.createMap();
+
+    try {
+      map.putString("tripId", tripProfile.getTripId());
+      List<TransportSegment> transportSegments = tripProfile.getTransportSegments();
+      WritableArray transportSegmentsArray = Arguments.createArray();
+      if (!transportSegments.isEmpty()) {
+        for (TransportSegment transportSegment : transportSegments) {
+          WritableMap transportSegmentMap = Arguments.createMap();
+          transportSegmentMap.putDouble("startTime", (double) transportSegment.getStartTime());
+          transportSegmentMap.putDouble("endTime", (double) transportSegment.getEndTime());
+          transportSegmentMap.putDouble("distance", transportSegment.getDistance());
+          transportSegmentMap.putDouble("averageSpeed", transportSegment.getAverageSpeed());
+          transportSegmentMap.putDouble("topSpeed", transportSegment.getTopSpeed());
+          transportSegmentMap.putInt("percentOfTimeSpeeding", transportSegment.getPercentOfTimeSpeeding());
+          VehicleMode vehicleMode = transportSegment.getVehicleMode();
+          String mode;
+          switch(vehicleMode) {
+            case IDLE:
+              mode = "IDLE";
+              break;
+            case VEHICLE:
+              mode = "VEHICLE";
+              break;
+            case NOT_VEHICLE:
+              mode = "NOT_VEHICLE";
+              break;
+            default:
+              mode = "UNKNOWN";
+          }
+          transportSegmentMap.putString("vehicleMode", mode);
+
+          List<HardEvent> hardEvents = transportSegment.getHardEvents();
+          WritableArray hardEventsArray = Arguments.createArray();
+          if (!hardEvents.isEmpty()) {
+            for (HardEvent hardEvent : hardEvents) {
+              WritableMap hardEventMap = Arguments.createMap();
+              hardEventMap.putDouble("magnitude", hardEvent.getMagnitude());
+              hardEventMap.putDouble("timestamp", (double) hardEvent.getTimestamp());
+              hardEventsArray.pushMap(hardEventMap);
+            }
+          }
+          transportSegmentMap.putArray("hardEvents", hardEventsArray);
+
+          transportSegmentsArray.pushMap(transportSegmentMap);
+        }
+      }
+      map.putArray("transportSegments", transportSegmentsArray);
+    } catch (Exception ignored) {
+
+    }
+
+    return map;
   }
 
 }

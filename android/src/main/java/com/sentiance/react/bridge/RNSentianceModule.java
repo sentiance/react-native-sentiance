@@ -10,6 +10,7 @@ import com.facebook.react.bridge.LifecycleEventListener;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.ResetCallback;
+import com.sentiance.sdk.TripProfileConfig;
 import com.sentiance.sdk.crashdetection.CrashCallback;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
@@ -18,6 +19,8 @@ import com.sentiance.sdk.Token;
 import com.sentiance.sdk.TokenResultCallback;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityListener;
+import com.sentiance.sdk.TripProfileListener;
+import com.sentiance.sdk.ondevice.TripProfile;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
@@ -505,6 +508,44 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         emitter.sendCrashEvent(time, lastKnownLocation);
       }
     });
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void listenTripProfiles(final Promise promise) {
+    if (!isSdkInitialized()) {
+      promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
+      return;
+    }
+
+    Sentiance.getInstance(reactContext).setTripProfileListener(new TripProfileListener() {
+      @Override
+      public void onTripProfiled(TripProfile tripProfile) {
+        Log.d(LOG_TAG, tripProfile.toString());
+        emitter.sendTripProfile(tripProfile);
+      }
+    });
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void updateTripProfileConfig(ReadableMap config, final Promise promise) {
+    boolean enableFullProfiling = config.getBoolean("enableFullProfiling");
+    Double speedLimit;
+    if (config.hasKey("speedLimit")) {
+      speedLimit = config.getDouble("speedLimit");
+    } else {
+      speedLimit = null;
+    }
+    Sentiance.getInstance(reactContext)
+      .updateTripProfileConfig(
+        new TripProfileConfig.Builder()
+          .setSpeedLimit(speedLimit)
+          .enableFullProfiling(enableFullProfiling)
+          .build()
+      );
     promise.resolve(null);
   }
 
