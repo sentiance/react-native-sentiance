@@ -783,9 +783,11 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
                     hardEventDict[@"magnitude"] = @(hardEvent.magnitude);
                     double timestamp = [hardEvent.date timeIntervalSince1970] * 1000;
                     hardEventDict[@"timestamp"] = @(timestamp);
+                    [hardEventsArray addObject:hardEventDict];
                 }
             }
             [transportSegmentDict setValue:hardEventsArray forKey:@"hardEvents"];
+            [transportSegmentsArray addObject:transportSegmentDict];
         }
     }
 
