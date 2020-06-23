@@ -25,7 +25,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent"];
+    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent", @"SDKTripProfile"];
 }
 
 // Will be called when this module's first listener is added.
@@ -514,6 +514,38 @@ RCT_EXPORT_METHOD(listenCrashEvents)
     }];
 }
 
+RCT_EXPORT_METHOD(listenTripProfiles)
+{
+    __weak typeof(self) weakSelf = self;
+    [[SENTSDK sharedInstance] setTripProfileHandler:^(SENTTripProcessingTripProfile *tripProfile) {
+        NSDictionary *tripProfileDict = [self convertTripProfileToDict:tripProfile];
+        if(weakSelf.hasListeners) {
+            [weakSelf sendEventWithName:@"SDKTripProfile" body:tripProfileDict];
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    @try {
+        if (config == nil || config[@"enableFullProfiling"] == nil) {
+            @throw([NSException exceptionWithName:@"NilException" reason:@"enableFullProfiling is not provided" userInfo:nil]);
+        }
+
+        [[SENTSDK sharedInstance] setFullTripProfilingEnabled: [config[@"enableFullProfiling"] boolValue]];
+        
+        if (config[@"speedLimit"] != nil) {
+            [[SENTSDK sharedInstance] setSpeedLimit: [config[@"speedLimit"] doubleValue]];
+        }
+        
+        resolve(nil);
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
+}
+
 -(void)deleteAllKeysForSecClass:(CFTypeRef)secClass {
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
@@ -711,5 +743,56 @@ RCT_EXPORT_METHOD(listenCrashEvents)
     }
     return [dict copy];
 }
+
+- (NSDictionary*)convertTripProfileToDict:(SENTTripProcessingTripProfile*) tripProfile {
+
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    dict[@"tripId"] = tripProfile.tripId;
+
+    NSMutableArray *transportSegmentsArray = [[NSMutableArray alloc] init];
+
+    if (tripProfile.transportSegments.count > 0) {
+        for (SENTTripProcessingTransportSegment *transportSegment in tripProfile.transportSegments) {
+            NSMutableDictionary *transportSegmentDict = [[NSMutableDictionary alloc] init];
+            double startTime = [transportSegment.startDate timeIntervalSince1970] * 1000;
+            transportSegmentDict[@"startTime"] = @(startTime);
+            double endTime = [transportSegment.endDate timeIntervalSince1970] * 1000;
+            transportSegmentDict[@"endTime"] = @(endTime);
+            transportSegmentDict[@"distance"] = @(transportSegment.distance);
+            transportSegmentDict[@"averageSpeed"] = @(transportSegment.averageSpeed);
+            transportSegmentDict[@"topSpeed"] = @(transportSegment.topSpeed);
+            transportSegmentDict[@"percentOfTimeSpeeding"] = @(transportSegment.speedingPercentage);
+            SENTTripProcessingVehicleMode vehicleMode = transportSegment.vehicleMode;
+            switch (vehicleMode) {
+                case SENTTripProcessingVehicleModeIdle:
+                    transportSegmentDict[@"vehicleMode"] = @"IDLE";
+                    break;
+                case SENTTripProcessingVehicleModeVehicle:
+                    transportSegmentDict[@"vehicleMode"] = @"VEHICLE";
+                    break;
+                case SENTTripProcessingVehicleModeNoVehicle:
+                    transportSegmentDict[@"vehicleMode"] = @"NOT_VEHICLE";
+                    break;
+                default:
+                    transportSegmentDict[@"vehicleMode"] = @"UNKNOWN";
+            }
+            NSMutableArray *hardEventsArray = [[NSMutableArray alloc] init];
+            if (transportSegment.hardEvents.count > 0) {
+                for (SENTTripProcessingHardEvent *hardEvent in transportSegment.hardEvents) {
+                    NSMutableDictionary *hardEventDict = [[NSMutableDictionary alloc] init];
+                    hardEventDict[@"magnitude"] = @(hardEvent.magnitude);
+                    double timestamp = [hardEvent.date timeIntervalSince1970] * 1000;
+                    hardEventDict[@"timestamp"] = @(timestamp);
+                }
+            }
+            [transportSegmentDict setValue:hardEventsArray forKey:@"hardEvents"];
+        }
+    }
+
+    [dict setValue:transportSegmentsArray forKey:@"transportSegments"];
+
+    return [dict copy];
+}
+
 @end
 
