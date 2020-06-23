@@ -531,7 +531,8 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
 {
     @try {
         if (config == nil || config[@"enableFullProfiling"] == nil) {
-            @throw([NSException exceptionWithName:@"NilException" reason:@"enableFullProfiling is not provided" userInfo:nil]);
+            reject(@"NilException", @"enableFullProfiling is not provided", nil);
+            return;
         }
 
         [[SENTSDK sharedInstance] setFullTripProfilingEnabled: [config[@"enableFullProfiling"] boolValue]];
