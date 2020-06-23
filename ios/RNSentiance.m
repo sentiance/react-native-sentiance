@@ -744,6 +744,19 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
     return [dict copy];
 }
 
+- (NSString*)convertVehicleModeToString:(SENTTripProcessingVehicleMode) vehicleMode {
+    switch (vehicleMode) {
+        case SENTTripProcessingVehicleModeIdle:
+            return @"IDLE";
+        case SENTTripProcessingVehicleModeVehicle:
+            return @"VEHICLE";
+        case SENTTripProcessingVehicleModeNoVehicle:
+            return @"NOT_VEHICLE";
+        default:
+            return @"UNKNOWN";
+    }
+}
+
 - (NSDictionary*)convertTripProfileToDict:(SENTTripProcessingTripProfile*) tripProfile {
 
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
@@ -762,20 +775,8 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
             transportSegmentDict[@"averageSpeed"] = @(transportSegment.averageSpeed);
             transportSegmentDict[@"topSpeed"] = @(transportSegment.topSpeed);
             transportSegmentDict[@"percentOfTimeSpeeding"] = @(transportSegment.speedingPercentage);
-            SENTTripProcessingVehicleMode vehicleMode = transportSegment.vehicleMode;
-            switch (vehicleMode) {
-                case SENTTripProcessingVehicleModeIdle:
-                    transportSegmentDict[@"vehicleMode"] = @"IDLE";
-                    break;
-                case SENTTripProcessingVehicleModeVehicle:
-                    transportSegmentDict[@"vehicleMode"] = @"VEHICLE";
-                    break;
-                case SENTTripProcessingVehicleModeNoVehicle:
-                    transportSegmentDict[@"vehicleMode"] = @"NOT_VEHICLE";
-                    break;
-                default:
-                    transportSegmentDict[@"vehicleMode"] = @"UNKNOWN";
-            }
+            transportSegmentDict[@"vehicleMode"] = [self convertVehicleModeToString:transportSegment.vehicleMode];
+
             NSMutableArray *hardEventsArray = [[NSMutableArray alloc] init];
             if (transportSegment.hardEvents.count > 0) {
                 for (SENTTripProcessingHardEvent *hardEvent in transportSegment.hardEvents) {

@@ -506,14 +506,14 @@ const sdkTripProfilesSubscription = sentianceEmitter.addListener(
    *   tripId: String
    *   transportSegments: Array[
    *     TransportSegment{
-   *       startTime: milliseconds since 1970-01-01
-   *       endTime: milliseconds since 1970-01-01
-   *       distance: double type, in meters
-   *       averageSpeed: double type, the average speed travelled in m/s
-   *       topSpeed: double type, the top speed travelled in m/s
-   *       percentOfTimeSpeeding: number, the percent of time the user was speeding
+   *       startTime: number // milliseconds since 1970-01-01
+   *       endTime: number // milliseconds since 1970-01-01
    *       vehicleMode: string, VEHICLE | NOT_VEHICLE | IDLE | UNKNOWN
-   *       hardEvents: Array[
+   *       distance?: number // in meters
+   *       averageSpeed?: number // the average speed travelled in m/s
+   *       topSpeed?: number // the top speed travelled in m/s
+   *       percentOfTimeSpeeding?: number // the percent of time the user was speeding
+   *       hardEvents?: Array[
    *         HardEvent{
    *           magnitude: number, the magnitude of this hard event in m/s2
    *           timestamp: milliseconds since 1970-01-01
@@ -538,12 +538,12 @@ sdkTripProfilesSubscription.remove();
 /**
  * enableFullProfiling:
  *   If set to true, full trip profiling will be enabled allowing the Sentiance platform to profile
- *     the trip and the results made available via the API. In addition, the app will no longer receive trip profiles via
- *     the "SDKTripProfile" listener.
+ *   the trip and the results made available via the API. In addition, the app will no longer receive trip profiles via
+ *   the "SDKTripProfile" listener.
  *   If set to false, on-device trip profiling will be enabled.
  * speedLimit:
  *   Sets the speed limit in km/h, which is used to determine the percent of time the user was speeding.
- *     If null, the SDK will use an internal default value.
+ *   If null, the SDK will use an internal default value.
  */
 try {
   await RNSentiance.updateTripProfileConfig({ enableFullProfiling: false, speedLimit: 80 })

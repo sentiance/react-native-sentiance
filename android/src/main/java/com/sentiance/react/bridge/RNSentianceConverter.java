@@ -214,53 +214,61 @@ public class RNSentianceConverter {
     }
   }
 
-  public static WritableMap convertTripProfile(TripProfile tripProfile) {
+  private static String convertVehicleMode(VehicleMode mode) {
+    switch(mode) {
+      case IDLE:
+        return "IDLE";
+      case VEHICLE:
+        return "VEHICLE";
+      case NOT_VEHICLE:
+        return "NOT_VEHICLE";
+      default:
+        return "UNKNOWN";
+    }
+  }
+
+    public static WritableMap convertTripProfile(TripProfile tripProfile) {
     WritableMap map = Arguments.createMap();
 
     try {
       map.putString("tripId", tripProfile.getTripId());
       List<TransportSegment> transportSegments = tripProfile.getTransportSegments();
       WritableArray transportSegmentsArray = Arguments.createArray();
-      if (!transportSegments.isEmpty()) {
-        for (TransportSegment transportSegment : transportSegments) {
-          WritableMap transportSegmentMap = Arguments.createMap();
-          transportSegmentMap.putDouble("startTime", (double) transportSegment.getStartTime());
-          transportSegmentMap.putDouble("endTime", (double) transportSegment.getEndTime());
-          transportSegmentMap.putDouble("distance", transportSegment.getDistance());
-          transportSegmentMap.putDouble("averageSpeed", transportSegment.getAverageSpeed());
-          transportSegmentMap.putDouble("topSpeed", transportSegment.getTopSpeed());
-          transportSegmentMap.putInt("percentOfTimeSpeeding", transportSegment.getPercentOfTimeSpeeding());
-          VehicleMode vehicleMode = transportSegment.getVehicleMode();
-          String mode;
-          switch(vehicleMode) {
-            case IDLE:
-              mode = "IDLE";
-              break;
-            case VEHICLE:
-              mode = "VEHICLE";
-              break;
-            case NOT_VEHICLE:
-              mode = "NOT_VEHICLE";
-              break;
-            default:
-              mode = "UNKNOWN";
-          }
-          transportSegmentMap.putString("vehicleMode", mode);
-
-          List<HardEvent> hardEvents = transportSegment.getHardEvents();
-          WritableArray hardEventsArray = Arguments.createArray();
-          if (!hardEvents.isEmpty()) {
-            for (HardEvent hardEvent : hardEvents) {
-              WritableMap hardEventMap = Arguments.createMap();
-              hardEventMap.putDouble("magnitude", hardEvent.getMagnitude());
-              hardEventMap.putDouble("timestamp", (double) hardEvent.getTimestamp());
-              hardEventsArray.pushMap(hardEventMap);
-            }
-          }
-          transportSegmentMap.putArray("hardEvents", hardEventsArray);
-
-          transportSegmentsArray.pushMap(transportSegmentMap);
+      for (TransportSegment transportSegment : transportSegments) {
+        WritableMap transportSegmentMap = Arguments.createMap();
+        transportSegmentMap.putDouble("startTime", (double) transportSegment.getStartTime());
+        transportSegmentMap.putDouble("endTime", (double) transportSegment.getEndTime());
+        Double distance = transportSegment.getDistance();
+        if (distance != null) {
+          transportSegmentMap.putDouble("distance", distance);
         }
+        Double avgSpeed = transportSegment.getAverageSpeed();
+        if (avgSpeed != null) {
+          transportSegmentMap.putDouble("averageSpeed", avgSpeed);
+        }
+        Double topSpeed = transportSegment.getTopSpeed();
+        if (topSpeed != null) {
+          transportSegmentMap.putDouble("topSpeed", topSpeed);
+        }
+        Integer percentOfTimeSpeeding = transportSegment.getPercentOfTimeSpeeding();
+        if (percentOfTimeSpeeding != null) {
+          transportSegmentMap.putInt("percentOfTimeSpeeding", percentOfTimeSpeeding);
+        }
+        transportSegmentMap.putString("vehicleMode", convertVehicleMode(transportSegment.getVehicleMode()));
+
+        List<HardEvent> hardEvents = transportSegment.getHardEvents();
+        WritableArray hardEventsArray = Arguments.createArray();
+        if (hardEvents != null) {
+          for (HardEvent hardEvent : hardEvents) {
+            WritableMap hardEventMap = Arguments.createMap();
+            hardEventMap.putDouble("magnitude", hardEvent.getMagnitude());
+            hardEventMap.putDouble("timestamp", (double) hardEvent.getTimestamp());
+            hardEventsArray.pushMap(hardEventMap);
+          }
+        }
+        transportSegmentMap.putArray("hardEvents", hardEventsArray);
+
+        transportSegmentsArray.pushMap(transportSegmentMap);
       }
       map.putArray("transportSegments", transportSegmentsArray);
     } catch (Exception ignored) {
