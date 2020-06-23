@@ -113,11 +113,17 @@ public class RNSentianceConverter {
       map.putBoolean("canDetect", status.canDetect);
       map.putBoolean("isRemoteEnabled", status.isRemoteEnabled);
       map.putBoolean("isLocationPermGranted", status.isLocationPermGranted);
+      map.putBoolean("isActivityRecognitionPermGranted", status.isActivityRecognitionPermGranted);
       map.putString("locationSetting", status.locationSetting.name());
+      map.putBoolean("isAirplaneModeEnabled", status.isAirplaneModeEnabled);
+      map.putBoolean("isLocationAvailable", status.isLocationAvailable);
       map.putBoolean("isAccelPresent", status.isAccelPresent);
       map.putBoolean("isGyroPresent", status.isGyroPresent);
       map.putBoolean("isGpsPresent", status.isGpsPresent);
       map.putBoolean("isGooglePlayServicesMissing", status.isGooglePlayServicesMissing);
+      map.putBoolean("isBatteryOptimizationEnabled", status.isBatteryOptimizationEnabled);
+      map.putBoolean("isBatterySavingEnabled", status.isBatterySavingEnabled);
+      map.putBoolean("isBackgroundProcessingRestricted", status.isBackgroundProcessingRestricted);
       map.putString("wifiQuotaStatus", status.wifiQuotaStatus.toString());
       map.putString("mobileQuotaStatus", status.mobileQuotaStatus.toString());
       map.putString("diskQuotaStatus", status.diskQuotaStatus.toString());
