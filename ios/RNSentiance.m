@@ -531,16 +531,16 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
 {
     @try {
         if (config == nil || config[@"enableFullProfiling"] == nil) {
-            reject(@"NilException", @"enableFullProfiling is not provided", nil);
+            reject(@"E_SDK_MISSING_PARAMS", @"enableFullProfiling is not provided", nil);
             return;
         }
 
         [[SENTSDK sharedInstance] setFullTripProfilingEnabled: [config[@"enableFullProfiling"] boolValue]];
-        
+
         if (config[@"speedLimit"] != nil) {
             [[SENTSDK sharedInstance] setSpeedLimit: [config[@"speedLimit"] doubleValue]];
         }
-        
+
         resolve(nil);
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
