@@ -111,16 +111,9 @@ RCT_EXPORT_MODULE()
     
     self.userLinker = ^(NSString *installId, void (^linkSuccess)(void),
                         void (^linkFailed)(void)) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-
-            //wait for JS listener
-            while(!weakSelf.hasListeners){}
-            
-            weakSelf.userLinkSuccess = linkSuccess;
-            weakSelf.userLinkFailed = linkFailed;
-            [weakSelf sendEventWithName:@"SDKUserLink" body:[weakSelf convertInstallIdToDict:installId]];
-            
-        });
+        weakSelf.userLinkSuccess = linkSuccess;
+        weakSelf.userLinkFailed = linkFailed;
+        [weakSelf sendEventWithName:@"SDKUserLink" body:[weakSelf convertInstallIdToDict:installId]];
     };
     
     return self.userLinker;
