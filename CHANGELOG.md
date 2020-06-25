@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.4.0] - 2020-06-25
+### Changed
+- Upgrade Android SDK to [4.16.1](https://docs.sentiance.com/sdk/changelog/android#4-16-1-19-jun-2020)
+- Upgrade iOS SDK to [5.7.1](https://docs.sentiance.com/sdk/changelog/ios#5-7-1-4-jun-2020)
+
+### Added
+- Support for on-device trip profiling and hard event detection. This feature is not enabled by default.
+- Missing android SDK status fields.
+
+### Fixed
+- User linking after SDK rest.
+- `init` / `start` promise never resolved (Android Only).
+ 
 ## [3.3.0] - 2020-05-22
 ### Removed
 - Sentiance china sdk code
