@@ -451,6 +451,8 @@ sentianceEmitter = rnSentianceEmitter.addListener("SDKUserLink", id => {
 });
 ```
 
+_NOTE: `SDKUserLink` listener must be set before calling `RNSentiance.initWithUserLinkingEnabled`._
+
 #### Resetting the SDK
 
 To delete the Sentiance user and its data from the device, you can reset the SDK by calling `RNSentiance.reset`. This allows you to create a new Sentiance user by reinitializing the SDK, and link it to a new third party ID.

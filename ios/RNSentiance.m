@@ -108,30 +108,14 @@ RCT_EXPORT_MODULE()
     if(self.userLinker != nil) return self.userLinker;
 
     __weak typeof(self) weakSelf = self;
-    __block BOOL timeout = false;
-
+    
     self.userLinker = ^(NSString *installId, void (^linkSuccess)(void),
                         void (^linkFailed)(void)) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-
-            //set timeout for listeners to set
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-                timeout = YES;
-            });
-
-            //wait for JS listener
-            while(!weakSelf.hasListeners && !timeout){}
-
-            if(timeout){
-                linkFailed();
-            }else{
-                weakSelf.userLinkSuccess = linkSuccess;
-                weakSelf.userLinkFailed = linkFailed;
-                [weakSelf sendEventWithName:@"SDKUserLink" body:[weakSelf convertInstallIdToDict:installId]];
-            }
-        });
+        weakSelf.userLinkSuccess = linkSuccess;
+        weakSelf.userLinkFailed = linkFailed;
+        [weakSelf sendEventWithName:@"SDKUserLink" body:[weakSelf convertInstallIdToDict:installId]];
     };
-
+    
     return self.userLinker;
 }
 
