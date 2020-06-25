@@ -33,10 +33,11 @@ public class RNSentianceHelper {
     private static final String TAG = "RNSentianceHelper";
     private static RNSentianceHelper rnSentianceHelper;
 
-    private final CountDownLatch userLinkLatch = new CountDownLatch(1);
     private final RNSentianceEmitter emitter;
     private final WeakReference<Context> weakContext;
+  
     private Boolean userLinkResult = false;
+    private volatile CountDownLatch userLinkLatch;
 
     private OnSdkStatusUpdateHandler onSdkStatusUpdateHandler = new OnSdkStatusUpdateHandler() {
         @Override
@@ -50,6 +51,7 @@ public class RNSentianceHelper {
         @Override
         public boolean link(String installId) {
             Log.d(TAG, "User Link");
+            userLinkLatch = new CountDownLatch(1);
             emitter.sendUserLinkEvent(installId);
             try {
                 userLinkLatch.await();
@@ -78,7 +80,11 @@ public class RNSentianceHelper {
 
     void userLinkCallback(final Boolean linkResult) {
         userLinkResult = linkResult;
-        userLinkLatch.countDown();
+        
+        CountDownLatch latch = userLinkLatch;
+        if (latch != null) {
+            latch.countDown();
+        }
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
@@ -161,32 +167,15 @@ public class RNSentianceHelper {
 
     @SuppressWarnings({"unused", "WeakerAccess"})
     public void startSentianceSDK(@Nullable final OnStartFinishedHandler callback) {
-        Context context = weakContext.get();
-        if (context == null) return;
-        Sentiance.getInstance(context).start(new OnStartFinishedHandler() {
-            @Override
-            public void onStartFinished(SdkStatus sdkStatus) {
-                if (callback != null)
-                    callback.onStartFinished(sdkStatus);
-                emitter.sendStatusUpdateEvent(sdkStatus);
-                Log.i(TAG, sdkStatus.toString());
-            }
-        });
+      startSentianceSDK(null, callback);
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public void startSentianceSDK(final long stopDateEpoch, @Nullable final OnStartFinishedHandler callback) {
-        Context context = weakContext.get();
-        if (context == null) return;
-        Sentiance.getInstance(context).start(new Date(stopDateEpoch), new OnStartFinishedHandler() {
-            @Override
-            public void onStartFinished(SdkStatus sdkStatus) {
-                if (callback != null)
-                    callback.onStartFinished(sdkStatus);
-                emitter.sendStatusUpdateEvent(sdkStatus);
-                Log.i(TAG, sdkStatus.toString());
-            }
-        });
+    public void startSentianceSDK(@Nullable final Date stopDate, @Nullable final OnStartFinishedHandler callback) {
+      Context context = weakContext.get();
+      if (context == null) return;
+
+      Sentiance.getInstance(context).start(stopDate, callback);
     }
 
     private Notification createNotification(PendingIntent pendingIntent, String title, String message, String channelName, String channelId, Integer icon) {

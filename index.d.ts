@@ -34,6 +34,11 @@ declare module "react-native-sentiance" {
     getUserActivity(): Promise<any>;
     listenUserActivityUpdates(): void;
     listenCrashEvents(): Promise<any>;
+    listenTripProfiles(): void;
+    updateTripProfileConfig(config: {
+      enableFullProfiling: boolean,
+      speedLimit?: number
+    }): Promise<any>;
     userLinkCallback(success: Boolean): void;
     getValueForKey(key: string, defaultValue: string): Promise<any>;
     setValueForKey(key: string, value: string): Promise<any>;

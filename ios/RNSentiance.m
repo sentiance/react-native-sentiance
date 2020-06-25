@@ -25,7 +25,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent"];
+    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent", @"SDKTripProfile"];
 }
 
 // Will be called when this module's first listener is added.
@@ -108,30 +108,14 @@ RCT_EXPORT_MODULE()
     if(self.userLinker != nil) return self.userLinker;
 
     __weak typeof(self) weakSelf = self;
-    __block BOOL timeout = false;
-
+    
     self.userLinker = ^(NSString *installId, void (^linkSuccess)(void),
                         void (^linkFailed)(void)) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-
-            //set timeout for listeners to set
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 10.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-                timeout = YES;
-            });
-
-            //wait for JS listener
-            while(!weakSelf.hasListeners && !timeout){}
-
-            if(timeout){
-                linkFailed();
-            }else{
-                weakSelf.userLinkSuccess = linkSuccess;
-                weakSelf.userLinkFailed = linkFailed;
-                [weakSelf sendEventWithName:@"SDKUserLink" body:[weakSelf convertInstallIdToDict:installId]];
-            }
-        });
+        weakSelf.userLinkSuccess = linkSuccess;
+        weakSelf.userLinkFailed = linkFailed;
+        [weakSelf sendEventWithName:@"SDKUserLink" body:[weakSelf convertInstallIdToDict:installId]];
     };
-
+    
     return self.userLinker;
 }
 
@@ -514,6 +498,39 @@ RCT_EXPORT_METHOD(listenCrashEvents)
     }];
 }
 
+RCT_EXPORT_METHOD(listenTripProfiles)
+{
+    __weak typeof(self) weakSelf = self;
+    [[SENTSDK sharedInstance] setTripProfileHandler:^(SENTTripProcessingTripProfile *tripProfile) {
+        NSDictionary *tripProfileDict = [self convertTripProfileToDict:tripProfile];
+        if(weakSelf.hasListeners) {
+            [weakSelf sendEventWithName:@"SDKTripProfile" body:tripProfileDict];
+        }
+    }];
+}
+
+RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    @try {
+        if (config == nil || config[@"enableFullProfiling"] == nil) {
+            reject(@"E_SDK_MISSING_PARAMS", @"enableFullProfiling is not provided", nil);
+            return;
+        }
+
+        [[SENTSDK sharedInstance] setFullTripProfilingEnabled: [config[@"enableFullProfiling"] boolValue]];
+
+        if (config[@"speedLimit"] != nil) {
+            [[SENTSDK sharedInstance] setSpeedLimit: [config[@"speedLimit"] doubleValue]];
+        }
+
+        resolve(nil);
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
+}
+
 -(void)deleteAllKeysForSecClass:(CFTypeRef)secClass {
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
@@ -711,5 +728,59 @@ RCT_EXPORT_METHOD(listenCrashEvents)
     }
     return [dict copy];
 }
+
+- (NSString*)convertVehicleModeToString:(SENTTripProcessingVehicleMode) vehicleMode {
+    switch (vehicleMode) {
+        case SENTTripProcessingVehicleModeIdle:
+            return @"IDLE";
+        case SENTTripProcessingVehicleModeVehicle:
+            return @"VEHICLE";
+        case SENTTripProcessingVehicleModeNoVehicle:
+            return @"NOT_VEHICLE";
+        default:
+            return @"UNKNOWN";
+    }
+}
+
+- (NSDictionary*)convertTripProfileToDict:(SENTTripProcessingTripProfile*) tripProfile {
+
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    dict[@"tripId"] = tripProfile.tripId;
+
+    NSMutableArray *transportSegmentsArray = [[NSMutableArray alloc] init];
+
+    if (tripProfile.transportSegments.count > 0) {
+        for (SENTTripProcessingTransportSegment *transportSegment in tripProfile.transportSegments) {
+            NSMutableDictionary *transportSegmentDict = [[NSMutableDictionary alloc] init];
+            double startTime = [transportSegment.startDate timeIntervalSince1970] * 1000;
+            transportSegmentDict[@"startTime"] = @(startTime);
+            double endTime = [transportSegment.endDate timeIntervalSince1970] * 1000;
+            transportSegmentDict[@"endTime"] = @(endTime);
+            transportSegmentDict[@"distance"] = @(transportSegment.distance);
+            transportSegmentDict[@"averageSpeed"] = @(transportSegment.averageSpeed);
+            transportSegmentDict[@"topSpeed"] = @(transportSegment.topSpeed);
+            transportSegmentDict[@"percentOfTimeSpeeding"] = @(transportSegment.speedingPercentage);
+            transportSegmentDict[@"vehicleMode"] = [self convertVehicleModeToString:transportSegment.vehicleMode];
+
+            NSMutableArray *hardEventsArray = [[NSMutableArray alloc] init];
+            if (transportSegment.hardEvents.count > 0) {
+                for (SENTTripProcessingHardEvent *hardEvent in transportSegment.hardEvents) {
+                    NSMutableDictionary *hardEventDict = [[NSMutableDictionary alloc] init];
+                    hardEventDict[@"magnitude"] = @(hardEvent.magnitude);
+                    double timestamp = [hardEvent.date timeIntervalSince1970] * 1000;
+                    hardEventDict[@"timestamp"] = @(timestamp);
+                    [hardEventsArray addObject:hardEventDict];
+                }
+            }
+            [transportSegmentDict setValue:hardEventsArray forKey:@"hardEvents"];
+            [transportSegmentsArray addObject:transportSegmentDict];
+        }
+    }
+
+    [dict setValue:transportSegmentsArray forKey:@"transportSegments"];
+
+    return [dict copy];
+}
+
 @end
 

@@ -451,6 +451,8 @@ sentianceEmitter = rnSentianceEmitter.addListener("SDKUserLink", id => {
 });
 ```
 
+_NOTE: `SDKUserLink` listener must be set before calling `RNSentiance.initWithUserLinkingEnabled`._
+
 #### Resetting the SDK
 
 To delete the Sentiance user and its data from the device, you can reset the SDK by calling `RNSentiance.reset`. This allows you to create a new Sentiance user by reinitializing the SDK, and link it to a new third party ID.
@@ -488,4 +490,66 @@ RNSentiance.listenCrashEvents();
 
 // To unsubscribe
 sdkCrashEventSubscription.remove();
+```
+
+#### Trip Profiling
+
+##### Handle on-device trip profiling
+
+```javascript
+import { NativeEventEmitter } from "react-native";
+
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
+
+const sdkTripProfilesSubscription = sentianceEmitter.addListener(
+  "SDKTripProfile",
+  /**
+   * tripProfile: {
+   *   tripId: String
+   *   transportSegments: Array[
+   *     TransportSegment{
+   *       startTime: number // milliseconds since 1970-01-01
+   *       endTime: number // milliseconds since 1970-01-01
+   *       vehicleMode: string, VEHICLE | NOT_VEHICLE | IDLE | UNKNOWN
+   *       distance?: number // in meters
+   *       averageSpeed?: number // the average speed travelled in m/s
+   *       topSpeed?: number // the top speed travelled in m/s
+   *       percentOfTimeSpeeding?: number // the percent of time the user was speeding
+   *       hardEvents?: Array[
+   *         HardEvent{
+   *           magnitude: number, the magnitude of this hard event in m/s2
+   *           timestamp: milliseconds since 1970-01-01
+   *         }
+   *       ]
+   *     }
+   *   ]
+   * }
+   */
+  (tripProfile) => {
+  }
+);
+RNSentiance.listenTripProfiles();
+
+// To unsubscribe
+sdkTripProfilesSubscription.remove();
+```
+
+##### Update Trip profiling config
+
+```javascript
+/**
+ * enableFullProfiling:
+ *   If set to true, full trip profiling will be enabled allowing the Sentiance platform to profile
+ *   the trip and the results made available via the API. In addition, the app will no longer receive trip profiles via
+ *   the "SDKTripProfile" listener.
+ *   If set to false, on-device trip profiling will be enabled.
+ * speedLimit:
+ *   Sets the speed limit in km/h, which is used to determine the percent of time the user was speeding.
+ *   If null, the SDK will use an internal default value.
+ */
+try {
+  await RNSentiance.updateTripProfileConfig({ enableFullProfiling: false, speedLimit: 80 })
+} catch (err) {
+  console.error(err)
+}
 ```
