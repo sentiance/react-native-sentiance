@@ -29,13 +29,13 @@ declare module "react-native-sentiance" {
       secret: string,
       baseURL: string | null,
       shouldStart: boolean
-    ): Promise<boolean|SdkStatus>;
+    ): Promise<boolean | SdkStatus>;
     initWithUserLinkingEnabled(
       appId: string,
       secret: string,
       baseURL: string | null,
       shouldStart: boolean
-    ): Promise<any>;
+    ): Promise<boolean | SdkStatus>;
     start(): Promise<any>;
     stop(): Promise<any>;
     reset(): Promise<any>;

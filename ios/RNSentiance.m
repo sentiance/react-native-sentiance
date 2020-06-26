@@ -171,7 +171,7 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     if (appId == nil || secret == nil) {
-        reject(@"", @"INVALID_CREDENTIALS", nil);
+        reject(@"INVALID_CREDENTIALS", @"", nil);
         return;
     }
     [self initSDK:appId secret:secret baseURL:baseURL shouldStart:shouldStart resolver:resolve rejecter:reject];
