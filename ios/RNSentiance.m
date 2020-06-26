@@ -801,4 +801,3 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
 }
 
 @end
-
