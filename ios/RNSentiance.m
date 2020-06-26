@@ -258,7 +258,7 @@ RCT_EXPORT_METHOD(getUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(R
             hasReceivedToken = YES;
             resolve(dict);
         } failure:^() {
-            reject(@"", @"Couldn't access token", nil);
+            reject(@"E_SDK_GET_TOKEN_ERROR", @"Something went wrong while obtaining a user token.", nil);
         }];
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);

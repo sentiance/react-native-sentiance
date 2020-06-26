@@ -22,6 +22,11 @@ interface SdkStatus {
   isBackgroundProcessingRestricted?: boolean // Android only
 }
 
+interface UserAccessToken {
+  tokenId: string
+  expiryDate?: string // Android only
+}
+
 type SdkInitState = "NOT_INITIALIZED" | "INIT_IN_PROGRESS" | "INITIALIZED" | "RESETTING" | "UNRECOGNIZED_STATE"
 
 declare module "react-native-sentiance" {
@@ -42,10 +47,10 @@ declare module "react-native-sentiance" {
     stop(): Promise<boolean>;
     reset(): Promise<boolean>;
     getInitState(): Promise<SdkInitState>;
-    getSdkStatus(): Promise<any>;
-    getVersion(): Promise<any>;
-    getUserId(): Promise<any>;
-    getUserAccessToken(): Promise<any>;
+    getSdkStatus(): Promise<SdkStatus>;
+    getVersion(): Promise<string>;
+    getUserId(): Promise<string>;
+    getUserAccessToken(): Promise<UserAccessToken>;
     addUserMetadataField(label: string, value: string): Promise<any>;
     removeUserMetadataField(label: string): Promise<any>;
     getWiFiQuotaLimit(): Promise<any>;
