@@ -55,6 +55,11 @@ interface UserActivity {
   stationaryInfo?: StationaryInfo
 }
 
+interface TripProfileConfig {
+  enableFullProfiling: boolean,
+  speedLimit?: number
+}
+
 declare module "react-native-sentiance" {
   interface RNSentianceConstructor extends EventSubscriptionVendor {
     init(
@@ -90,14 +95,11 @@ declare module "react-native-sentiance" {
     getUserActivity(): Promise<UserActivity>;
     listenUserActivityUpdates(): Promise<boolean>;
     listenCrashEvents(): Promise<boolean>;
-    listenTripProfiles(): void;
-    updateTripProfileConfig(config: {
-      enableFullProfiling: boolean,
-      speedLimit?: number
-    }): Promise<any>;
-    userLinkCallback(success: Boolean): void;
-    getValueForKey(key: string, defaultValue: string): Promise<any>;
-    setValueForKey(key: string, value: string): Promise<any>;
+    listenTripProfiles(): Promise<boolean>;
+    updateTripProfileConfig(config: TripProfileConfig): Promise<boolean>;
+    userLinkCallback(success: boolean): void;
+    getValueForKey(key: string, defaultValue: string): Promise<string>;
+    setValueForKey(key: string, value: string): void;
   }
 
   const RNSentiance: RNSentianceConstructor;

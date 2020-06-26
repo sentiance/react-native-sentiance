@@ -550,7 +550,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         emitter.sendTripProfile(tripProfile);
       }
     });
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -574,7 +574,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
           .enableFullProfiling(enableFullProfiling)
           .build()
       );
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -603,9 +603,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void setValueForKey(String key, String value, Promise promise) {
+  public void setValueForKey(String key, String value) {
     rnSentianceHelper.setValueForKey(key, value);
-    promise.resolve(null);
   }
 
   @ReactMethod

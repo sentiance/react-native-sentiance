@@ -511,15 +511,20 @@ RCT_EXPORT_METHOD(listenCrashEvents:(RCTPromiseResolveBlock)resolve rejecter:(RC
     }
 }
 
-RCT_EXPORT_METHOD(listenTripProfiles)
+RCT_EXPORT_METHOD(listenTripProfiles:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    __weak typeof(self) weakSelf = self;
-    [[SENTSDK sharedInstance] setTripProfileHandler:^(SENTTripProcessingTripProfile *tripProfile) {
-        NSDictionary *tripProfileDict = [self convertTripProfileToDict:tripProfile];
-        if(weakSelf.hasListeners) {
-            [weakSelf sendEventWithName:@"SDKTripProfile" body:tripProfileDict];
-        }
-    }];
+    @try {
+        __weak typeof(self) weakSelf = self;
+        [[SENTSDK sharedInstance] setTripProfileHandler:^(SENTTripProcessingTripProfile *tripProfile) {
+            NSDictionary *tripProfileDict = [self convertTripProfileToDict:tripProfile];
+            if(weakSelf.hasListeners) {
+                [weakSelf sendEventWithName:@"SDKTripProfile" body:tripProfileDict];
+            }
+        }];
+        resolve(@(YES));
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
 }
 
 RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
@@ -538,7 +543,7 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
             [[SENTSDK sharedInstance] setSpeedLimit: [config[@"speedLimit"] doubleValue]];
         }
 
-        resolve(nil);
+        resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
