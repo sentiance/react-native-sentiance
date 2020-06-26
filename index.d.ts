@@ -1,107 +1,107 @@
-import { EventSubscriptionVendor } from "react-native";
-
-interface SdkStatus {
-  startStatus: string;
-  canDetect: boolean;
-  isRemoteEnabled: boolean;
-  isLocationPermGranted: boolean;
-  isAccelPresent: boolean;
-  isGyroPresent: boolean;
-  isGpsPresent: boolean;
-  wifiQuotaStatus: string;
-  mobileQuotaStatus: string;
-  diskQuotaStatus: string;
-  isBgAccessPermGranted?: boolean; // iOS only
-  isActivityRecognitionPermGranted?: boolean; // Android only
-  locationSetting?: string; // Android only
-  isAirplaneModeEnabled?: boolean; // Android only
-  isLocationAvailable?: boolean; // Android only
-  isGooglePlayServicesMissing?: boolean; // Android only
-  isBatteryOptimizationEnabled?: boolean; // Android only
-  isBatterySavingEnabled?: boolean; // Android only
-  isBackgroundProcessingRestricted?: boolean; // Android only
-}
-
-interface UserAccessToken {
-  tokenId: string;
-  expiryDate?: string; // Android only
-}
-
-interface MetadataObject {
-  [key: string]: string;
-}
-
-type SdkInitState = "NOT_INITIALIZED" | "INIT_IN_PROGRESS" | "INITIALIZED" | "RESETTING" | "UNRECOGNIZED_STATE";
-
-interface TripInfo {
-  type: "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL" | "TRIP_TYPE_UNRECOGNIZED" | "ANY";
-}
-
-interface Location {
-  latitude: string;
-  longitude: string;
-  accuracy: string; // Android only
-  altitude: string; // Android only
-  provider?: string; // Android only
-}
-
-interface StationaryInfo {
-  location?: Location;
-}
-
-interface UserActivity {
-  type?: "USER_ACTIVITY_TYPE_TRIP" | "USER_ACTIVITY_TYPE_STATIONARY" | "USER_ACTIVITY_TYPE_UNKNOWN" | "USER_ACTIVITY_TYPE_UNRECOGNIZED";
-  tripInfo?: TripInfo;
-  stationaryInfo?: StationaryInfo;
-}
-
-interface TripProfileConfig {
-  enableFullProfiling: boolean;
-  speedLimit?: number;
-}
-
-interface CrashEvent {
-  time: number;
-  lastKnownLocation?: Location;
-}
-
-type VehicleMode = "IDLE" | "VEHICLE" | "NOT_VEHICLE" | "UNKNOWN";
-
-interface HardEvent {
-  magnitude: number;
-  timestamp: number;
-}
-
-interface TransportSegments {
-  startTime: number;
-  endTime: number;
-  distance?: number;
-  averageSpeed?: number;
-  topSpeed?: number;
-  percentOfTimeSpeeding?: number;
-  vehicleMode: VehicleMode;
-  hardEvents: HardEvent[];
-}
-
-interface TripProfile {
-  tripId: string;
-  transportSegments: TransportSegments[];
-}
-
-type SdkEvent = "SDKStatusUpdate" | "SDKUserLink" | "SDKUserActivityUpdate" | "SDKCrashEvent" | "SDKTripProfile" | "SDKTripTimeout";
-
-type SDKStatusUpdateListener = (sdkStatus: SdkStatus) => void;
-
-type SDKUserLinkListener = (param: { installId?: string }) => void;
-
-type SDKUserActivityUpdateListener = (userActivity: UserActivity) => void;
-
-type SDKCrashEventListener = (crashEvent: CrashEvent) => void;
-
-type SDKTripProfileListener = (tripProfile: TripProfile) => void;
-
 declare module "react-native-sentiance" {
-  interface RNSentianceConstructor extends EventSubscriptionVendor {
+  import { EventSubscriptionVendor } from "react-native";
+
+  export interface SdkStatus {
+    startStatus: string;
+    canDetect: boolean;
+    isRemoteEnabled: boolean;
+    isLocationPermGranted: boolean;
+    isAccelPresent: boolean;
+    isGyroPresent: boolean;
+    isGpsPresent: boolean;
+    wifiQuotaStatus: string;
+    mobileQuotaStatus: string;
+    diskQuotaStatus: string;
+    isBgAccessPermGranted?: boolean; // iOS only
+    isActivityRecognitionPermGranted?: boolean; // Android only
+    locationSetting?: string; // Android only
+    isAirplaneModeEnabled?: boolean; // Android only
+    isLocationAvailable?: boolean; // Android only
+    isGooglePlayServicesMissing?: boolean; // Android only
+    isBatteryOptimizationEnabled?: boolean; // Android only
+    isBatterySavingEnabled?: boolean; // Android only
+    isBackgroundProcessingRestricted?: boolean; // Android only
+  }
+
+  export interface UserAccessToken {
+    tokenId: string;
+    expiryDate?: string; // Android only
+  }
+
+  export interface MetadataObject {
+    [key: string]: string;
+  }
+
+  export type SdkInitState = "NOT_INITIALIZED" | "INIT_IN_PROGRESS" | "INITIALIZED" | "RESETTING" | "UNRECOGNIZED_STATE";
+
+  export interface TripInfo {
+    type: "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL" | "TRIP_TYPE_UNRECOGNIZED" | "ANY";
+  }
+
+  export interface Location {
+    latitude: string;
+    longitude: string;
+    accuracy: string; // Android only
+    altitude: string; // Android only
+    provider?: string; // Android only
+  }
+
+  export interface StationaryInfo {
+    location?: Location;
+  }
+
+  export interface UserActivity {
+    type?: "USER_ACTIVITY_TYPE_TRIP" | "USER_ACTIVITY_TYPE_STATIONARY" | "USER_ACTIVITY_TYPE_UNKNOWN" | "USER_ACTIVITY_TYPE_UNRECOGNIZED";
+    tripInfo?: TripInfo;
+    stationaryInfo?: StationaryInfo;
+  }
+
+  export interface TripProfileConfig {
+    enableFullProfiling: boolean;
+    speedLimit?: number;
+  }
+
+  export interface CrashEvent {
+    time: number;
+    lastKnownLocation?: Location;
+  }
+
+  export type VehicleMode = "IDLE" | "VEHICLE" | "NOT_VEHICLE" | "UNKNOWN";
+
+  export interface HardEvent {
+    magnitude: number;
+    timestamp: number;
+  }
+
+  export interface TransportSegments {
+    startTime: number;
+    endTime: number;
+    distance?: number;
+    averageSpeed?: number;
+    topSpeed?: number;
+    percentOfTimeSpeeding?: number;
+    vehicleMode: VehicleMode;
+    hardEvents: HardEvent[];
+  }
+
+  export interface TripProfile {
+    tripId: string;
+    transportSegments: TransportSegments[];
+  }
+
+  export type SdkEvent = "SDKStatusUpdate" | "SDKUserLink" | "SDKUserActivityUpdate" | "SDKCrashEvent" | "SDKTripProfile" | "SDKTripTimeout";
+
+  export type SDKStatusUpdateListener = (sdkStatus: SdkStatus) => void;
+
+  export type SDKUserLinkListener = (param: { installId?: string }) => void;
+
+  export type SDKUserActivityUpdateListener = (userActivity: UserActivity) => void;
+
+  export type SDKCrashEventListener = (crashEvent: CrashEvent) => void;
+
+  export type SDKTripProfileListener = (tripProfile: TripProfile) => void;
+
+  export interface RNSentianceConstructor extends EventSubscriptionVendor {
     init(
       appId: string,
       secret: string,
