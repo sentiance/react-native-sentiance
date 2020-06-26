@@ -89,7 +89,7 @@ declare module "react-native-sentiance" {
     disableBatteryOptimization(): Promise<boolean>;
     getUserActivity(): Promise<UserActivity>;
     listenUserActivityUpdates(): Promise<boolean>;
-    listenCrashEvents(): Promise<any>;
+    listenCrashEvents(): Promise<boolean>;
     listenTripProfiles(): void;
     updateTripProfileConfig(config: {
       enableFullProfiling: boolean,

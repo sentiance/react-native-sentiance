@@ -494,16 +494,21 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
     }];
 }
 
-RCT_EXPORT_METHOD(listenCrashEvents)
+RCT_EXPORT_METHOD(listenCrashEvents:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    __weak typeof(self) weakSelf = self;
+    @try {
+        __weak typeof(self) weakSelf = self;
 
-    [[SENTSDK sharedInstance] setCrashListener:^(NSDate *date, CLLocation *lastKnownLocation){
-        if(weakSelf.hasListeners) {
-            NSDictionary *crashEventDict = [self convertCrashEventToDict:date lastKnownLocation:lastKnownLocation];
-            [weakSelf sendEventWithName:@"SDKCrashEvent" body:crashEventDict];
-        }
-    }];
+        [[SENTSDK sharedInstance] setCrashListener:^(NSDate *date, CLLocation *lastKnownLocation){
+            if(weakSelf.hasListeners) {
+                NSDictionary *crashEventDict = [self convertCrashEventToDict:date lastKnownLocation:lastKnownLocation];
+                [weakSelf sendEventWithName:@"SDKCrashEvent" body:crashEventDict];
+            }
+        }];
+        resolve(@(YES));
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
 }
 
 RCT_EXPORT_METHOD(listenTripProfiles)

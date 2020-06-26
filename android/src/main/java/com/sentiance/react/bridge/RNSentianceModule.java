@@ -532,7 +532,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         emitter.sendCrashEvent(time, lastKnownLocation);
       }
     });
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
