@@ -340,8 +340,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       return;
     }
 
+    if (label == null || value == null) {
+      promise.reject(E_SDK_MISSING_PARAMS, "label and value are required");
+      return;
+    }
+
     sdk.addUserMetadataField(label, value);
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -378,8 +383,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       return;
     }
 
+    if (label == null) {
+      promise.reject(E_SDK_MISSING_PARAMS, "label is required");
+      return;
+    }
+
     sdk.removeUserMetadataField(label);
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod

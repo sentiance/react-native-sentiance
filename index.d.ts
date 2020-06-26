@@ -51,7 +51,7 @@ declare module "react-native-sentiance" {
     getVersion(): Promise<string>;
     getUserId(): Promise<string>;
     getUserAccessToken(): Promise<UserAccessToken>;
-    addUserMetadataField(label: string, value: string): Promise<any>;
+    addUserMetadataField(label: string, value: string): Promise<boolean>;
     removeUserMetadataField(label: string): Promise<any>;
     getWiFiQuotaLimit(): Promise<any>;
     getWiFiQuotaUsage(): Promise<any>;
