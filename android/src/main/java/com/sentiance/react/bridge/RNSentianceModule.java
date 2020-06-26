@@ -95,12 +95,16 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       @Override
       public void onInitSuccess() {
         if (!shouldStart)
-          promise.resolve(null);
+          promise.resolve(true);
       }
 
       @Override
       public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
-        promise.reject(issue.name(), throwable);
+        if (throwable != null) {
+          promise.reject(issue.name(), throwable);
+        } else {
+          promise.reject(issue.name(), "");
+        }
       }
     };
 

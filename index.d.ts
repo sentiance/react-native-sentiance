@@ -1,5 +1,27 @@
 import { EventSubscriptionVendor } from "react-native";
 
+interface SdkStatus {
+  startStatus: string
+  canDetect: boolean
+  isRemoteEnabled: boolean
+  isLocationPermGranted: boolean
+  isAccelPresent: boolean
+  isGyroPresent: boolean
+  isGpsPresent: boolean
+  wifiQuotaStatus: string
+  mobileQuotaStatus: string
+  diskQuotaStatus: string
+  isBgAccessPermGranted?: boolean // iOS only
+  isActivityRecognitionPermGranted?: boolean // Android only
+  locationSetting?: string // Android only
+  isAirplaneModeEnabled?: boolean // Android only
+  isLocationAvailable?: boolean // Android only
+  isGooglePlayServicesMissing?: boolean // Android only
+  isBatteryOptimizationEnabled?: boolean // Android only
+  isBatterySavingEnabled?: boolean // Android only
+  isBackgroundProcessingRestricted?: boolean // Android only
+}
+
 declare module "react-native-sentiance" {
   interface RNSentianceConstructor extends EventSubscriptionVendor {
     init(
@@ -7,7 +29,7 @@ declare module "react-native-sentiance" {
       secret: string,
       baseURL: string | null,
       shouldStart: boolean
-    ): Promise<any>;
+    ): Promise<boolean|SdkStatus>;
     initWithUserLinkingEnabled(
       appId: string,
       secret: string,

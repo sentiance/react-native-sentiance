@@ -67,11 +67,11 @@ RCT_EXPORT_MODULE()
                 [weakSelf startSDK:resolve rejecter:reject];
             }
             else if (resolve) {
-                resolve(nil);
+                resolve(@(YES));
             }
         } failure:^(SENTInitIssue issue) {
             if (reject) {
-                reject(@"", [weakSelf convertInitIssueToString: issue], nil);
+                reject([weakSelf convertInitIssueToString: issue], @"", nil);
             }
         }];
     } @catch (NSException *e) {
