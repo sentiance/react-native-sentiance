@@ -370,9 +370,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       return;
     }
 
+    if (inputMetadata == null) {
+      promise.reject(E_SDK_MISSING_PARAMS, "metadata object is required");
+      return;
+    }
+
     final Map<String, String> metadata = RNSentianceConverter.convertReadableMapToMap(inputMetadata);
     sdk.addUserMetadataFields(metadata);
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod

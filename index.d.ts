@@ -27,6 +27,10 @@ interface UserAccessToken {
   expiryDate?: string // Android only
 }
 
+export interface MetadataObject {
+  [key: string]: string
+}
+
 type SdkInitState = "NOT_INITIALIZED" | "INIT_IN_PROGRESS" | "INITIALIZED" | "RESETTING" | "UNRECOGNIZED_STATE"
 
 declare module "react-native-sentiance" {
@@ -52,7 +56,8 @@ declare module "react-native-sentiance" {
     getUserId(): Promise<string>;
     getUserAccessToken(): Promise<UserAccessToken>;
     addUserMetadataField(label: string, value: string): Promise<boolean>;
-    removeUserMetadataField(label: string): Promise<any>;
+    addUserMetadataFields(metadata: MetadataObject): Promise<boolean>;
+    removeUserMetadataField(label: string): Promise<boolean>;
     getWiFiQuotaLimit(): Promise<any>;
     getWiFiQuotaUsage(): Promise<any>;
     getMobileQuotaLimit(): Promise<any>;

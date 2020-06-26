@@ -293,7 +293,7 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
         }
 
         [[SENTSDK sharedInstance] removeUserMetadataField:label];
-        resolve(true);
+        resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
@@ -305,11 +305,12 @@ RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
 {
     @try {
         if (metadata == nil) {
-            @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
+            reject(@"E_SDK_MISSING_PARAMS", @"metadata object is required", nil);
+            return;
         }
 
         [[SENTSDK sharedInstance] addUserMetadataFields:metadata];
-        resolve(nil);
+        resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
