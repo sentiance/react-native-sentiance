@@ -497,7 +497,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
       sdk.disableBatteryOptimization();
     }
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod

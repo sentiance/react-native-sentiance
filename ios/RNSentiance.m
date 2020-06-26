@@ -435,7 +435,7 @@ RCT_EXPORT_METHOD(disableBatteryOptimization:(RCTPromiseResolveBlock)resolve rej
 {
     @try {
         NSLog(@"This is an Android only method.");
-        resolve(nil);
+        resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
