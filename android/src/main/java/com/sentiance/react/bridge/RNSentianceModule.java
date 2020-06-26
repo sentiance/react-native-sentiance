@@ -210,7 +210,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
 
     sdk.stop();
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod

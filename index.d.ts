@@ -36,8 +36,8 @@ declare module "react-native-sentiance" {
       baseURL: string | null,
       shouldStart: boolean
     ): Promise<boolean | SdkStatus>;
-    start(): Promise<any>;
-    stop(): Promise<any>;
+    start(): Promise<SdkStatus>;
+    stop(): Promise<boolean>;
     reset(): Promise<any>;
     getInitState(): Promise<any>;
     getSdkStatus(): Promise<any>;

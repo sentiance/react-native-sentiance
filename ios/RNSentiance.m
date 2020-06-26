@@ -198,7 +198,7 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejec
     @try {
         SENTSDK* sdk = [SENTSDK sharedInstance];
         [sdk stop];
-        resolve(nil);
+        resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
