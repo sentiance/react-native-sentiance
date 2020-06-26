@@ -471,7 +471,7 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 
 RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [[SENTSDK sharedInstance] reset:^{ resolve(nil); } failure:^(SENTResetFailureReason reason) {
+    [[SENTSDK sharedInstance] reset:^{ resolve(@(YES)); } failure:^(SENTResetFailureReason reason) {
         NSString *message = @"Resetting the SDK failed";
         switch(reason) {
             case SENTResetFailureReasonInitInProgress:

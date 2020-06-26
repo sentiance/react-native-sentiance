@@ -38,7 +38,7 @@ declare module "react-native-sentiance" {
     ): Promise<boolean | SdkStatus>;
     start(): Promise<SdkStatus>;
     stop(): Promise<boolean>;
-    reset(): Promise<any>;
+    reset(): Promise<boolean>;
     getInitState(): Promise<any>;
     getSdkStatus(): Promise<any>;
     getVersion(): Promise<any>;

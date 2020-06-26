@@ -166,7 +166,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk.reset(new ResetCallback() {
       @Override
       public void onResetSuccess() {
-        promise.resolve(null);
+        promise.resolve(true);
       }
 
       @Override
