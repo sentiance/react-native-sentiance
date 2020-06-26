@@ -22,6 +22,8 @@ interface SdkStatus {
   isBackgroundProcessingRestricted?: boolean // Android only
 }
 
+type SdkInitState = "NOT_INITIALIZED" | "INIT_IN_PROGRESS" | "INITIALIZED" | "RESETTING" | "UNRECOGNIZED_STATE"
+
 declare module "react-native-sentiance" {
   interface RNSentianceConstructor extends EventSubscriptionVendor {
     init(
@@ -39,7 +41,7 @@ declare module "react-native-sentiance" {
     start(): Promise<SdkStatus>;
     stop(): Promise<boolean>;
     reset(): Promise<boolean>;
-    getInitState(): Promise<any>;
+    getInitState(): Promise<SdkInitState>;
     getSdkStatus(): Promise<any>;
     getVersion(): Promise<any>;
     getUserId(): Promise<any>;

@@ -88,7 +88,7 @@ public class RNSentianceConverter {
       case RESETTING:
         return "RESETTING";
       default:
-        return "NOT_INITIALIZED";
+        return "UNRECOGNIZED_STATE";
     }
   }
 
