@@ -450,15 +450,20 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
     [self deleteAllKeysForSecClass:kSecClassIdentity];
 }
 
-RCT_EXPORT_METHOD(listenUserActivityUpdates)
+RCT_EXPORT_METHOD(listenUserActivityUpdates:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    __weak typeof(self) weakSelf = self;
-    [[SENTSDK sharedInstance] setUserActivityListener:^(SENTUserActivity *userActivity) {
-        NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
-        if(weakSelf.hasListeners) {
-            [weakSelf sendEventWithName:@"SDKUserActivityUpdate" body:userActivityDict];
-        }
-    }];
+    @try {
+        __weak typeof(self) weakSelf = self;
+        [[SENTSDK sharedInstance] setUserActivityListener:^(SENTUserActivity *userActivity) {
+            NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
+            if(weakSelf.hasListeners) {
+                [weakSelf sendEventWithName:@"SDKUserActivityUpdate" body:userActivityDict];
+            }
+        }];
+        resolve(@(YES));
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
 }
 
 RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)

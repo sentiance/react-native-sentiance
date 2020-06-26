@@ -27,11 +27,33 @@ interface UserAccessToken {
   expiryDate?: string // Android only
 }
 
-export interface MetadataObject {
+interface MetadataObject {
   [key: string]: string
 }
 
 type SdkInitState = "NOT_INITIALIZED" | "INIT_IN_PROGRESS" | "INITIALIZED" | "RESETTING" | "UNRECOGNIZED_STATE"
+
+interface TripInfo {
+  type: "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL" | "TRIP_TYPE_UNRECOGNIZED" | "ANY"
+}
+
+interface Location {
+  latitude: string
+  longitude: string
+  accuracy: string // Android only
+  altitude: string // Android only
+  provider?: string // Android only
+}
+
+interface StationaryInfo {
+  location?: Location
+}
+
+interface UserActivity {
+  type?: "USER_ACTIVITY_TYPE_TRIP" | "USER_ACTIVITY_TYPE_STATIONARY" | "USER_ACTIVITY_TYPE_UNKNOWN" | "USER_ACTIVITY_TYPE_UNRECOGNIZED"
+  tripInfo?: TripInfo
+  stationaryInfo?: StationaryInfo
+}
 
 declare module "react-native-sentiance" {
   interface RNSentianceConstructor extends EventSubscriptionVendor {
@@ -65,8 +87,8 @@ declare module "react-native-sentiance" {
     getDiskQuotaLimit(): Promise<string>;
     getDiskQuotaUsage(): Promise<string>;
     disableBatteryOptimization(): Promise<boolean>;
-    getUserActivity(): Promise<any>;
-    listenUserActivityUpdates(): void;
+    getUserActivity(): Promise<UserActivity>;
+    listenUserActivityUpdates(): Promise<boolean>;
     listenCrashEvents(): Promise<any>;
     listenTripProfiles(): void;
     updateTripProfileConfig(config: {

@@ -515,7 +515,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         emitter.sendUserActivityUpdate(activity);
       }
     });
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod

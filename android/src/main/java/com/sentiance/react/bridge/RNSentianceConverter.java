@@ -203,7 +203,7 @@ public class RNSentianceConverter {
       case SDK_TRIP:
         return "TRIP_TYPE_SDK";
       default:
-        return "TRIP_TYPE_SDK";
+        return "TRIP_TYPE_UNRECOGNIZED";
     }
   }
 
@@ -216,7 +216,7 @@ public class RNSentianceConverter {
       case UNKNOWN:
         return "USER_ACTIVITY_TYPE_UNKNOWN";
       default:
-        return "USER_ACTIVITY_TYPE_UNKNOWN";
+        return "USER_ACTIVITY_TYPE_UNRECOGNIZED";
     }
   }
 
