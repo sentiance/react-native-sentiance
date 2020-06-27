@@ -1,5 +1,5 @@
 declare module "react-native-sentiance" {
-  import { EventSubscriptionVendor } from "react-native";
+  import { EventSubscriptionVendor, NativeEventEmitter, EmitterSubscription } from "react-native";
 
   export interface SdkStatus {
     startStatus: string;
@@ -101,6 +101,13 @@ declare module "react-native-sentiance" {
 
   export type SDKTripProfileListener = (tripProfile: TripProfile) => void;
 
+  export type SdkEventListener =
+    SDKStatusUpdateListener |
+    SDKUserLinkListener |
+    SDKUserActivityUpdateListener |
+    SDKCrashEventListener |
+    SDKTripProfileListener;
+
   export interface RNSentianceConstructor extends EventSubscriptionVendor {
     init(
       appId: string,
@@ -140,6 +147,10 @@ declare module "react-native-sentiance" {
     userLinkCallback(success: boolean): void;
     getValueForKey(key: string, defaultValue: string): Promise<string>;
     setValueForKey(key: string, value: string): void;
+  }
+
+  export interface RNSentianceEventEmitter extends NativeEventEmitter {
+    addListener(eventType: SdkEvent, listener: SdkEventListener, context?: any): EmitterSubscription;
   }
 
   const RNSentiance: RNSentianceConstructor;
