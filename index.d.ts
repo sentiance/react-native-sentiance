@@ -153,6 +153,14 @@ declare module "react-native-sentiance" {
     addListener(eventType: SdkEvent, listener: SdkEventListener, context?: any): EmitterSubscription;
   }
 
+  export interface RNSentianceEventSubscriptions {
+    sdkStatusSubscription?: EmitterSubscription;
+    sdkUserLinkSubscription?: EmitterSubscription;
+    sdkUserActivityUpdateSubscription?: EmitterSubscription;
+    sdkCrashEventSubscription?: EmitterSubscription;
+    sdkTripProfileListener?: EmitterSubscription;
+  }
+
   const RNSentiance: RNSentianceConstructor;
   export default RNSentiance;
 }
