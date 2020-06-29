@@ -598,7 +598,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
 
     Sentiance.getInstance(reactContext).updateSdkNotification(rnSentianceHelper.createNotificationFromManifestData(title, message));
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod

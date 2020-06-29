@@ -151,6 +151,8 @@ declare module "react-native-sentiance" {
     stopTrip(): Promise<boolean>;
     isTripOngoing(type: number): Promise<boolean>;
     submitDetections(): Promise<boolean>;
+    updateSdkNotification(title: string, message: string): Promise<boolean>;
+    addTripMetadata(metadata: MetadataObject): Promise<boolean>;
   }
 
   export interface RNSentianceEventEmitter extends NativeEventEmitter {

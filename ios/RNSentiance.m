@@ -433,12 +433,25 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 
 RCT_EXPORT_METHOD(disableBatteryOptimization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    @try {
-        NSLog(@"This is an Android only method.");
-        resolve(@(YES));
-    } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
-    }
+    NSLog(@"This is an Android only method.");
+    resolve(@(YES));
+}
+
+RCT_EXPORT_METHOD(updateSdkNotification:(NSString *)title
+                  message:(NSString *)message
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSLog(@"This is an Android only method.");
+    resolve(@(YES));
+}
+
+RCT_EXPORT_METHOD(addTripMetadata:(NSDictionary *)metadata
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSLog(@"This is an Android only method.");
+    resolve(@(YES));
 }
 
 RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
