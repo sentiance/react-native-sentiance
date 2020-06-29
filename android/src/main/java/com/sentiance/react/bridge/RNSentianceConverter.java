@@ -40,10 +40,10 @@ public class RNSentianceConverter {
     return map;
   }
 
-  public static TripType toTripType(final String type) {
-    if (type.equals("sdk")) {
+  public static TripType toTripType(final int type) {
+    if (type == 1) {
       return TripType.SDK_TRIP;
-    } else if (type.equals("external")) {
+    } else if (type == 2) {
       return TripType.EXTERNAL_TRIP;
     } else {
       return TripType.ANY;

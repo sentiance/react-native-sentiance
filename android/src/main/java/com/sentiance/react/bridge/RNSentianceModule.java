@@ -233,7 +233,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk.startTrip(metadataMap, transportModeHint, new StartTripCallback() {
       @Override
       public void onSuccess() {
-        promise.resolve(null);
+        promise.resolve(true);
       }
 
       @Override
@@ -254,7 +254,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk.stopTrip(new StopTripCallback() {
       @Override
       public void onSuccess() {
-        promise.resolve(null);
+        promise.resolve(true);
       }
 
       @Override
@@ -285,14 +285,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void isTripOngoing(String typeParam, final Promise promise) {
+  public void isTripOngoing(Integer typeParam, final Promise promise) {
     if (!isSdkInitialized()) {
       promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
       return;
     }
 
     if (typeParam == null) {
-      typeParam = "sdk";
+      typeParam = 1;
     }
     final TripType type = RNSentianceConverter.toTripType(typeParam);
     Boolean isTripOngoing = sdk.isTripOngoing(type);
@@ -408,7 +408,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk.submitDetections(new SubmitDetectionsCallback() {
       @Override
       public void onSuccess() {
-        promise.resolve(null);
+        promise.resolve(true);
       }
 
       @Override

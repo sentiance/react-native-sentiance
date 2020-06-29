@@ -147,6 +147,10 @@ declare module "react-native-sentiance" {
     userLinkCallback(success: boolean): void;
     getValueForKey(key: string, defaultValue: string): Promise<string>;
     setValueForKey(key: string, value: string): void;
+    startTrip(metadata: MetadataObject, hint: number): Promise<boolean>;
+    stopTrip(): Promise<boolean>;
+    isTripOngoing(type: number): Promise<boolean>;
+    submitDetections(): Promise<boolean>;
   }
 
   export interface RNSentianceEventEmitter extends NativeEventEmitter {

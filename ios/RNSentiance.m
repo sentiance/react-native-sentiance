@@ -323,9 +323,9 @@ RCT_EXPORT_METHOD(startTrip:(NSDictionary *)metadata
     @try {
         SENTTransportMode mode = [hint intValue] == -1 ? SENTTransportModeUnknown : (SENTTransportMode)hint;
         [[SENTSDK sharedInstance] startTrip:metadata transportModeHint:mode success:^ {
-            resolve(nil);
+            resolve(@(YES));
         } failure:^(SENTSDKStatus *status) {
-            reject(@"", @"Couldn't start trip", nil);
+            reject(@"E_SDK_START_TRIP_ERROR", @"", nil);
         }];
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -336,9 +336,9 @@ RCT_EXPORT_METHOD(stopTrip:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseR
 {
     @try {
         [[SENTSDK sharedInstance] stopTrip:^{
-            resolve(nil);
+            resolve(@(YES));
         } failure:^(SENTSDKStatus *status) {
-            reject(@"", @"Couldn't stop trip", nil);
+            reject(@"E_SDK_STOP_TRIP_ERROR", @"", nil);
         }];
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -362,9 +362,9 @@ RCT_EXPORT_METHOD(submitDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCT
 {
     @try {
         [[SENTSDK sharedInstance] submitDetections:^ {
-            resolve(nil);
+            resolve(@(YES));
         } failure: ^ {
-            reject(@"", @"Couldn't submit all detections", nil);
+            reject(@"E_SDK_SUBMIT_DETECTIONS_ERROR", @"Submission failed", nil);
         }];
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
