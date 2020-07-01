@@ -1,6 +1,14 @@
 declare module "react-native-sentiance" {
   import { EventSubscriptionVendor, NativeEventEmitter, EmitterSubscription } from "react-native";
 
+  export type SdkInitState = "NOT_INITIALIZED" | "INIT_IN_PROGRESS" | "INITIALIZED" | "RESETTING" | "UNRECOGNIZED_STATE";
+
+  export type SdkResetFailureReason = "SDK_INIT_IN_PROGRESS" | "SDK_RESET_IN_PROGRESS" | "SDK_RESET_UNKNOWN_ERROR";
+
+  export type InitIssue = "INVALID_CREDENTIALS" | "CHANGED_CREDENTIALS" | "SERVICE_UNREACHABLE" | "LINK_FAILED" | "SDK_RESET_IN_PROGRESS" | "INITIALIZATION_ERROR";
+
+  export type VehicleMode = "IDLE" | "VEHICLE" | "NOT_VEHICLE" | "UNKNOWN";
+
   export interface SdkStatus {
     startStatus: string;
     canDetect: boolean;
@@ -31,8 +39,6 @@ declare module "react-native-sentiance" {
   export interface MetadataObject {
     [key: string]: string;
   }
-
-  export type SdkInitState = "NOT_INITIALIZED" | "INIT_IN_PROGRESS" | "INITIALIZED" | "RESETTING" | "UNRECOGNIZED_STATE";
 
   export interface TripInfo {
     type: "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL" | "TRIP_TYPE_UNRECOGNIZED" | "ANY";
@@ -65,10 +71,6 @@ declare module "react-native-sentiance" {
     time: number;
     lastKnownLocation?: Location;
   }
-
-  export type InitIssue = "INVALID_CREDENTIALS" | "CHANGED_CREDENTIALS" | "SERVICE_UNREACHABLE" | "LINK_FAILED" | "SDK_RESET_IN_PROGRESS" | "INITIALIZATION_ERROR"
-
-  export type VehicleMode = "IDLE" | "VEHICLE" | "NOT_VEHICLE" | "UNKNOWN";
 
   export interface HardEvent {
     magnitude: number;
