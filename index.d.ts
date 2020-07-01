@@ -66,6 +66,8 @@ declare module "react-native-sentiance" {
     lastKnownLocation?: Location;
   }
 
+  export type InitIssue = "INVALID_CREDENTIALS" | "CHANGED_CREDENTIALS" | "SERVICE_UNREACHABLE" | "LINK_FAILED" | "SDK_RESET_IN_PROGRESS" | "INITIALIZATION_ERROR"
+
   export type VehicleMode = "IDLE" | "VEHICLE" | "NOT_VEHICLE" | "UNKNOWN";
 
   export interface HardEvent {

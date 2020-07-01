@@ -108,14 +108,14 @@ RCT_EXPORT_MODULE()
     if(self.userLinker != nil) return self.userLinker;
 
     __weak typeof(self) weakSelf = self;
-    
+
     self.userLinker = ^(NSString *installId, void (^linkSuccess)(void),
                         void (^linkFailed)(void)) {
         weakSelf.userLinkSuccess = linkSuccess;
         weakSelf.userLinkFailed = linkFailed;
         [weakSelf sendEventWithName:@"SDKUserLink" body:[weakSelf convertInstallIdToDict:installId]];
     };
-    
+
     return self.userLinker;
 }
 
@@ -673,8 +673,12 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
         return @"CHANGED_CREDENTIALS";
     } else if (issue == SENTInitIssueServiceUnreachable) {
         return @"SERVICE_UNREACHABLE";
+    } else if (issue == SENTInitIssueLinkFailed) {
+        return @"LINK_FAILED";
+    } else if (issue == SENTInitIssueResetInProgress) {
+        return @"SDK_RESET_IN_PROGRESS"
     } else
-        return @"";
+        return @"INITIALIZATION_ERROR";
 }
 
 - (NSString*)convertQuotaStatusToString:(SENTQuotaStatus) status {
