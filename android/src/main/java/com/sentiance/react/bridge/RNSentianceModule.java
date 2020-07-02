@@ -259,7 +259,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
       @Override
       public void onFailure(SdkStatus sdkStatus) {
-        promise.reject(E_SDK_STOP_TRIP_ERROR, sdkStatus.toString());
+        promise.reject(E_SDK_STOP_TRIP_ERROR, "");
       }
     });
   }
