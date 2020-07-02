@@ -674,7 +674,7 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
     } else if (issue == SENTInitIssueLinkFailed) {
         return @"LINK_FAILED";
     } else if (issue == SENTInitIssueResetInProgress) {
-        return @"SDK_RESET_IN_PROGRESS"
+        return @"SDK_RESET_IN_PROGRESS";
     } else
         return @"INITIALIZATION_ERROR";
 }

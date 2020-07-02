@@ -222,13 +222,16 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void startTrip(ReadableMap metadata, int hint, final Promise promise) {
+  public void startTrip(@Nullable ReadableMap metadata, int hint, final Promise promise) {
     if (!isSdkInitialized()) {
       promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
       return;
     }
 
-    final Map metadataMap = metadata.toHashMap();
+    Map metadataMap = null;
+    if (metadata != null) {
+      metadataMap = metadata.toHashMap();
+    }
     final TransportMode transportModeHint = RNSentianceConverter.toTransportMode(hint);
     sdk.startTrip(metadataMap, transportModeHint, new StartTripCallback() {
       @Override
