@@ -588,9 +588,7 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
 
     //SENTUserActivityType
     NSString *userActivityType = [self convertUserActivityTypeToString:userActivity.type];
-    if(userActivityType.length > 0) {
-        [dict setObject:userActivityType forKey:@"type"];
-    }
+    [dict setObject:userActivityType forKey:@"type"];
 
 
     //SENTTripInfo

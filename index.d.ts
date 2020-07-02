@@ -57,7 +57,7 @@ declare module "react-native-sentiance" {
   }
 
   export interface UserActivity {
-    type?: "USER_ACTIVITY_TYPE_TRIP" | "USER_ACTIVITY_TYPE_STATIONARY" | "USER_ACTIVITY_TYPE_UNKNOWN" | "USER_ACTIVITY_TYPE_UNRECOGNIZED";
+    type: "USER_ACTIVITY_TYPE_TRIP" | "USER_ACTIVITY_TYPE_STATIONARY" | "USER_ACTIVITY_TYPE_UNKNOWN" | "USER_ACTIVITY_TYPE_UNRECOGNIZED";
     tripInfo?: TripInfo;
     stationaryInfo?: StationaryInfo;
   }
