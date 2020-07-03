@@ -9,6 +9,8 @@ declare module "react-native-sentiance" {
 
   export type VehicleMode = "IDLE" | "VEHICLE" | "NOT_VEHICLE" | "UNKNOWN";
 
+  export type TripType = "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL";
+
   export interface SdkStatus {
     startStatus: string;
     canDetect: boolean;
@@ -153,7 +155,7 @@ declare module "react-native-sentiance" {
     setValueForKey(key: string, value: string): void;
     startTrip(metadata: MetadataObject|null, hint: number): Promise<boolean>;
     stopTrip(): Promise<boolean>;
-    isTripOngoing(type: number): Promise<boolean>;
+    isTripOngoing(type: TripType): Promise<boolean>;
     submitDetections(): Promise<boolean>;
     updateSdkNotification(title: string, message: string): Promise<boolean>;
     addTripMetadata(metadata: MetadataObject): Promise<boolean>;

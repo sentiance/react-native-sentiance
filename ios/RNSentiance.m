@@ -345,12 +345,18 @@ RCT_EXPORT_METHOD(stopTrip:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseR
     }
 }
 
-RCT_EXPORT_METHOD(isTripOngoing:(NSInteger)type
+RCT_EXPORT_METHOD(isTripOngoing:(NSString *)type
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        SENTTripType tripType = type;
+        SENTTripType tripType;
+        if ([type isEqualToString:@"TRIP_TYPE_SDK"]) {
+            tripType = SENTTripTypeSDK;
+        } else if ([type isEqualToString:@"TRIP_TYPE_EXTERNAL"]) {
+            tripType = SENTTripTypeExternal;
+        }
+
         BOOL isTripOngoing = [[SENTSDK sharedInstance] isTripOngoing:tripType];
         resolve(@(isTripOngoing));
     } @catch (NSException *e) {

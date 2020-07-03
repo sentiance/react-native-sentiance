@@ -288,14 +288,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void isTripOngoing(Integer typeParam, final Promise promise) {
+  public void isTripOngoing(String typeParam, final Promise promise) {
     if (!isSdkInitialized()) {
       promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
       return;
     }
 
     if (typeParam == null) {
-      typeParam = 1;
+      typeParam = "TRIP_TYPE_SDK";
     }
     final TripType type = RNSentianceConverter.toTripType(typeParam);
     Boolean isTripOngoing = sdk.isTripOngoing(type);
