@@ -11,6 +11,20 @@ declare module "react-native-sentiance" {
 
   export type TripType = "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL";
 
+  export enum TransportMode {
+    UNKNOWN = 1,
+    CAR,
+    BICYCLE,
+    ON_FOOT,
+    TRAIN,
+    TRAM,
+    BUS,
+    PLANE,
+    BOAT,
+    METRO,
+    RUNNING,
+  }
+
   export interface SdkStatus {
     startStatus: string;
     canDetect: boolean;
@@ -153,7 +167,7 @@ declare module "react-native-sentiance" {
     userLinkCallback(success: boolean): void;
     getValueForKey(key: string, defaultValue: string): Promise<string>;
     setValueForKey(key: string, value: string): void;
-    startTrip(metadata: MetadataObject|null, hint: number): Promise<boolean>;
+    startTrip(metadata: MetadataObject|null, hint: TransportMode): Promise<boolean>;
     stopTrip(): Promise<boolean>;
     isTripOngoing(type: TripType): Promise<boolean>;
     submitDetections(): Promise<boolean>;
