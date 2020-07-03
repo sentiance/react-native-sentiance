@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- The type of the parameter for `isTripOngoing` in the iOS bridge is changed to `String`, which is aligned with the Android bridge.
+- Error codes and error messages are standardized on every method in iOS and Android bridges.
+- Bridge methods resolve promises with truthy values instead of `null`s.
+
+### Added
+- Comprehensive type definitions for all SDK objects, events and methods.
 
 ## [3.4.0] - 2020-06-25
 ### Changed
