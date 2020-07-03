@@ -295,7 +295,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
 
     if (typeParam == null) {
-      typeParam = "TRIP_TYPE_SDK";
+      promise.reject(E_SDK_MISSING_PARAMS, "TripType is required");
+      return;
     }
     final TripType type = RNSentianceConverter.toTripType(typeParam);
     Boolean isTripOngoing = sdk.isTripOngoing(type);
