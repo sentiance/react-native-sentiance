@@ -113,7 +113,7 @@ declare module "react-native-sentiance" {
 
   export type SDKStatusUpdateListener = (sdkStatus: SdkStatus) => void;
 
-  export type SDKUserLinkListener = (param: { installId?: string }) => void;
+  export type SDKUserLinkListener = (param: { installId: string }) => void;
 
   export type SDKUserActivityUpdateListener = (userActivity: UserActivity) => void;
 

@@ -656,9 +656,6 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
 }
 
 - (NSDictionary*)convertInstallIdToDict:(NSString*) installId {
-    if (installId.length == 0) {
-        return @{};
-    }
     return @{ @"installId":installId };
 }
 
