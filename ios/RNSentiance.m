@@ -67,11 +67,11 @@ RCT_EXPORT_MODULE()
                 [weakSelf startSDK:resolve rejecter:reject];
             }
             else if (resolve) {
-                resolve(nil);
+                resolve(@(YES));
             }
         } failure:^(SENTInitIssue issue) {
             if (reject) {
-                reject(@"", [weakSelf convertInitIssueToString: issue], nil);
+                reject([weakSelf convertInitIssueToString: issue], @"", nil);
             }
         }];
     } @catch (NSException *e) {
@@ -108,14 +108,14 @@ RCT_EXPORT_MODULE()
     if(self.userLinker != nil) return self.userLinker;
 
     __weak typeof(self) weakSelf = self;
-    
+
     self.userLinker = ^(NSString *installId, void (^linkSuccess)(void),
                         void (^linkFailed)(void)) {
         weakSelf.userLinkSuccess = linkSuccess;
         weakSelf.userLinkFailed = linkFailed;
         [weakSelf sendEventWithName:@"SDKUserLink" body:[weakSelf convertInstallIdToDict:installId]];
     };
-    
+
     return self.userLinker;
 }
 
@@ -171,7 +171,7 @@ RCT_EXPORT_METHOD(init:(NSString *)appId
                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     if (appId == nil || secret == nil) {
-        reject(@"", @"INVALID_CREDENTIALS", nil);
+        reject(@"INVALID_CREDENTIALS", @"", nil);
         return;
     }
     [self initSDK:appId secret:secret baseURL:baseURL shouldStart:shouldStart resolver:resolve rejecter:reject];
@@ -198,7 +198,7 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejec
     @try {
         SENTSDK* sdk = [SENTSDK sharedInstance];
         [sdk stop];
-        resolve(nil);
+        resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
@@ -258,7 +258,7 @@ RCT_EXPORT_METHOD(getUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(R
             hasReceivedToken = YES;
             resolve(dict);
         } failure:^() {
-            reject(@"", @"Couldn't access token", nil);
+            reject(@"E_SDK_GET_TOKEN_ERROR", @"Something went wrong while obtaining a user token.", nil);
         }];
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -271,11 +271,12 @@ RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
 {
     @try {
         if (label == nil || value == nil) {
-            @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
+            reject(@"E_SDK_MISSING_PARAMS", @"label and value are required", nil);
+            return;
         }
 
         [[SENTSDK sharedInstance] addUserMetadataField:label value:value];
-        resolve(nil);
+        resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
@@ -287,11 +288,12 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
 {
     @try {
         if (label == nil) {
-            @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
+            reject(@"E_SDK_MISSING_PARAMS", @"label is required", nil);
+            return;
         }
 
         [[SENTSDK sharedInstance] removeUserMetadataField:label];
-        resolve(nil);
+        resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
@@ -303,11 +305,12 @@ RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
 {
     @try {
         if (metadata == nil) {
-            @throw([NSException exceptionWithName:@"NilException" reason:@"Atempt to insert nil object" userInfo:nil]);
+            reject(@"E_SDK_MISSING_PARAMS", @"metadata object is required", nil);
+            return;
         }
 
         [[SENTSDK sharedInstance] addUserMetadataFields:metadata];
-        resolve(nil);
+        resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
@@ -320,9 +323,9 @@ RCT_EXPORT_METHOD(startTrip:(NSDictionary *)metadata
     @try {
         SENTTransportMode mode = [hint intValue] == -1 ? SENTTransportModeUnknown : (SENTTransportMode)hint;
         [[SENTSDK sharedInstance] startTrip:metadata transportModeHint:mode success:^ {
-            resolve(nil);
+            resolve(@(YES));
         } failure:^(SENTSDKStatus *status) {
-            reject(@"", @"Couldn't start trip", nil);
+            reject(@"E_SDK_START_TRIP_ERROR", @"", nil);
         }];
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -333,21 +336,27 @@ RCT_EXPORT_METHOD(stopTrip:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseR
 {
     @try {
         [[SENTSDK sharedInstance] stopTrip:^{
-            resolve(nil);
+            resolve(@(YES));
         } failure:^(SENTSDKStatus *status) {
-            reject(@"", @"Couldn't stop trip", nil);
+            reject(@"E_SDK_STOP_TRIP_ERROR", @"", nil);
         }];
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
 }
 
-RCT_EXPORT_METHOD(isTripOngoing:(NSInteger)type
+RCT_EXPORT_METHOD(isTripOngoing:(NSString *)type
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        SENTTripType tripType = type;
+        SENTTripType tripType;
+        if ([type isEqualToString:@"TRIP_TYPE_SDK"]) {
+            tripType = SENTTripTypeSDK;
+        } else if ([type isEqualToString:@"TRIP_TYPE_EXTERNAL"]) {
+            tripType = SENTTripTypeExternal;
+        }
+
         BOOL isTripOngoing = [[SENTSDK sharedInstance] isTripOngoing:tripType];
         resolve(@(isTripOngoing));
     } @catch (NSException *e) {
@@ -359,9 +368,9 @@ RCT_EXPORT_METHOD(submitDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCT
 {
     @try {
         [[SENTSDK sharedInstance] submitDetections:^ {
-            resolve(nil);
+            resolve(@(YES));
         } failure: ^ {
-            reject(@"", @"Couldn't submit all detections", nil);
+            reject(@"E_SDK_SUBMIT_DETECTIONS_ERROR", @"Submission failed", nil);
         }];
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -430,12 +439,25 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 
 RCT_EXPORT_METHOD(disableBatteryOptimization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    @try {
-        NSLog(@"This is an Android only method.");
-        resolve(nil);
-    } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
-    }
+    NSLog(@"This is an Android only method.");
+    resolve(@(YES));
+}
+
+RCT_EXPORT_METHOD(updateSdkNotification:(NSString *)title
+                  message:(NSString *)message
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSLog(@"This is an Android only method.");
+    resolve(@(YES));
+}
+
+RCT_EXPORT_METHOD(addTripMetadata:(NSDictionary *)metadata
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSLog(@"This is an Android only method.");
+    resolve(@(YES));
 }
 
 RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -447,15 +469,20 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
     [self deleteAllKeysForSecClass:kSecClassIdentity];
 }
 
-RCT_EXPORT_METHOD(listenUserActivityUpdates)
+RCT_EXPORT_METHOD(listenUserActivityUpdates:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    __weak typeof(self) weakSelf = self;
-    [[SENTSDK sharedInstance] setUserActivityListener:^(SENTUserActivity *userActivity) {
-        NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
-        if(weakSelf.hasListeners) {
-            [weakSelf sendEventWithName:@"SDKUserActivityUpdate" body:userActivityDict];
-        }
-    }];
+    @try {
+        __weak typeof(self) weakSelf = self;
+        [[SENTSDK sharedInstance] setUserActivityListener:^(SENTUserActivity *userActivity) {
+            NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
+            if(weakSelf.hasListeners) {
+                [weakSelf sendEventWithName:@"SDKUserActivityUpdate" body:userActivityDict];
+            }
+        }];
+        resolve(@(YES));
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
 }
 
 RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -471,7 +498,7 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 
 RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [[SENTSDK sharedInstance] reset:^{ resolve(nil); } failure:^(SENTResetFailureReason reason) {
+    [[SENTSDK sharedInstance] reset:^{ resolve(@(YES)); } failure:^(SENTResetFailureReason reason) {
         NSString *message = @"Resetting the SDK failed";
         switch(reason) {
             case SENTResetFailureReasonInitInProgress:
@@ -486,27 +513,37 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
     }];
 }
 
-RCT_EXPORT_METHOD(listenCrashEvents)
+RCT_EXPORT_METHOD(listenCrashEvents:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    __weak typeof(self) weakSelf = self;
+    @try {
+        __weak typeof(self) weakSelf = self;
 
-    [[SENTSDK sharedInstance] setCrashListener:^(NSDate *date, CLLocation *lastKnownLocation){
-        if(weakSelf.hasListeners) {
-            NSDictionary *crashEventDict = [self convertCrashEventToDict:date lastKnownLocation:lastKnownLocation];
-            [weakSelf sendEventWithName:@"SDKCrashEvent" body:crashEventDict];
-        }
-    }];
+        [[SENTSDK sharedInstance] setCrashListener:^(NSDate *date, CLLocation *lastKnownLocation){
+            if(weakSelf.hasListeners) {
+                NSDictionary *crashEventDict = [self convertCrashEventToDict:date lastKnownLocation:lastKnownLocation];
+                [weakSelf sendEventWithName:@"SDKCrashEvent" body:crashEventDict];
+            }
+        }];
+        resolve(@(YES));
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
 }
 
-RCT_EXPORT_METHOD(listenTripProfiles)
+RCT_EXPORT_METHOD(listenTripProfiles:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    __weak typeof(self) weakSelf = self;
-    [[SENTSDK sharedInstance] setTripProfileHandler:^(SENTTripProcessingTripProfile *tripProfile) {
-        NSDictionary *tripProfileDict = [self convertTripProfileToDict:tripProfile];
-        if(weakSelf.hasListeners) {
-            [weakSelf sendEventWithName:@"SDKTripProfile" body:tripProfileDict];
-        }
-    }];
+    @try {
+        __weak typeof(self) weakSelf = self;
+        [[SENTSDK sharedInstance] setTripProfileHandler:^(SENTTripProcessingTripProfile *tripProfile) {
+            NSDictionary *tripProfileDict = [self convertTripProfileToDict:tripProfile];
+            if(weakSelf.hasListeners) {
+                [weakSelf sendEventWithName:@"SDKTripProfile" body:tripProfileDict];
+            }
+        }];
+        resolve(@(YES));
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
 }
 
 RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
@@ -525,7 +562,7 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
             [[SENTSDK sharedInstance] setSpeedLimit: [config[@"speedLimit"] doubleValue]];
         }
 
-        resolve(nil);
+        resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
@@ -557,9 +594,7 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
 
     //SENTUserActivityType
     NSString *userActivityType = [self convertUserActivityTypeToString:userActivity.type];
-    if(userActivityType.length > 0) {
-        [dict setObject:userActivityType forKey:@"type"];
-    }
+    [dict setObject:userActivityType forKey:@"type"];
 
 
     //SENTTripInfo
@@ -621,9 +656,6 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
 }
 
 - (NSDictionary*)convertInstallIdToDict:(NSString*) installId {
-    if (installId.length == 0) {
-        return @{};
-    }
     return @{ @"installId":installId };
 }
 
@@ -642,8 +674,12 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
         return @"CHANGED_CREDENTIALS";
     } else if (issue == SENTInitIssueServiceUnreachable) {
         return @"SERVICE_UNREACHABLE";
+    } else if (issue == SENTInitIssueLinkFailed) {
+        return @"LINK_FAILED";
+    } else if (issue == SENTInitIssueResetInProgress) {
+        return @"SDK_RESET_IN_PROGRESS";
     } else
-        return @"";
+        return @"INITIALIZATION_ERROR";
 }
 
 - (NSString*)convertQuotaStatusToString:(SENTQuotaStatus) status {
@@ -783,4 +819,3 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
 }
 
 @end
-

@@ -41,9 +41,9 @@ public class RNSentianceConverter {
   }
 
   public static TripType toTripType(final String type) {
-    if (type.equals("sdk")) {
+    if (type.equals("sdk") || type.equals("TRIP_TYPE_SDK")) {
       return TripType.SDK_TRIP;
-    } else if (type.equals("external")) {
+    } else if (type.equals("external") || type.equals("TRIP_TYPE_EXTERNAL")){
       return TripType.EXTERNAL_TRIP;
     } else {
       return TripType.ANY;
@@ -88,7 +88,7 @@ public class RNSentianceConverter {
       case RESETTING:
         return "RESETTING";
       default:
-        return "NOT_INITIALIZED";
+        return "UNRECOGNIZED_STATE";
     }
   }
 
@@ -203,7 +203,7 @@ public class RNSentianceConverter {
       case SDK_TRIP:
         return "TRIP_TYPE_SDK";
       default:
-        return "TRIP_TYPE_SDK";
+        return "TRIP_TYPE_UNRECOGNIZED";
     }
   }
 
@@ -216,7 +216,7 @@ public class RNSentianceConverter {
       case UNKNOWN:
         return "USER_ACTIVITY_TYPE_UNKNOWN";
       default:
-        return "USER_ACTIVITY_TYPE_UNKNOWN";
+        return "USER_ACTIVITY_TYPE_UNRECOGNIZED";
     }
   }
 
