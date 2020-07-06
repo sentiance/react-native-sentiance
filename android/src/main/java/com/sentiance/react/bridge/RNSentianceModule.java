@@ -95,12 +95,16 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       @Override
       public void onInitSuccess() {
         if (!shouldStart)
-          promise.resolve(null);
+          promise.resolve(true);
       }
 
       @Override
       public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
-        promise.reject(issue.name(), throwable);
+        if (throwable != null) {
+          promise.reject(issue.name(), throwable);
+        } else {
+          promise.reject(issue.name(), "");
+        }
       }
     };
 
@@ -128,12 +132,16 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       @Override
       public void onInitSuccess() {
         if (!shouldStart)
-          promise.resolve(null);
+          promise.resolve(true);
       }
 
       @Override
       public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
-        promise.reject(issue.name(), throwable);
+        if (throwable != null) {
+          promise.reject(issue.name(), throwable);
+        } else {
+          promise.reject(issue.name(), "");
+        }
       }
     };
 
@@ -158,7 +166,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk.reset(new ResetCallback() {
       @Override
       public void onResetSuccess() {
-        promise.resolve(null);
+        promise.resolve(true);
       }
 
       @Override
@@ -202,7 +210,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
 
     sdk.stop();
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -214,18 +222,21 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void startTrip(ReadableMap metadata, int hint, final Promise promise) {
+  public void startTrip(@Nullable ReadableMap metadata, int hint, final Promise promise) {
     if (!isSdkInitialized()) {
       promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
       return;
     }
 
-    final Map metadataMap = metadata.toHashMap();
+    Map metadataMap = null;
+    if (metadata != null) {
+      metadataMap = metadata.toHashMap();
+    }
     final TransportMode transportModeHint = RNSentianceConverter.toTransportMode(hint);
     sdk.startTrip(metadataMap, transportModeHint, new StartTripCallback() {
       @Override
       public void onSuccess() {
-        promise.resolve(null);
+        promise.resolve(true);
       }
 
       @Override
@@ -246,12 +257,12 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk.stopTrip(new StopTripCallback() {
       @Override
       public void onSuccess() {
-        promise.resolve(null);
+        promise.resolve(true);
       }
 
       @Override
       public void onFailure(SdkStatus sdkStatus) {
-        promise.reject(E_SDK_STOP_TRIP_ERROR, sdkStatus.toString());
+        promise.reject(E_SDK_STOP_TRIP_ERROR, "");
       }
     });
   }
@@ -284,7 +295,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
 
     if (typeParam == null) {
-      typeParam = "sdk";
+      promise.reject(E_SDK_MISSING_PARAMS, "TripType is required");
+      return;
     }
     final TripType type = RNSentianceConverter.toTripType(typeParam);
     Boolean isTripOngoing = sdk.isTripOngoing(type);
@@ -332,8 +344,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       return;
     }
 
+    if (label == null || value == null) {
+      promise.reject(E_SDK_MISSING_PARAMS, "label and value are required");
+      return;
+    }
+
     sdk.addUserMetadataField(label, value);
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -357,9 +374,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       return;
     }
 
+    if (inputMetadata == null) {
+      promise.reject(E_SDK_MISSING_PARAMS, "metadata object is required");
+      return;
+    }
+
     final Map<String, String> metadata = RNSentianceConverter.convertReadableMapToMap(inputMetadata);
     sdk.addUserMetadataFields(metadata);
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -370,8 +392,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       return;
     }
 
+    if (label == null) {
+      promise.reject(E_SDK_MISSING_PARAMS, "label is required");
+      return;
+    }
+
     sdk.removeUserMetadataField(label);
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -385,7 +412,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk.submitDetections(new SubmitDetectionsCallback() {
       @Override
       public void onSuccess() {
-        promise.resolve(null);
+        promise.resolve(true);
       }
 
       @Override
@@ -474,7 +501,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
       sdk.disableBatteryOptimization();
     }
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -492,7 +519,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         emitter.sendUserActivityUpdate(activity);
       }
     });
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -509,7 +536,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         emitter.sendCrashEvent(time, lastKnownLocation);
       }
     });
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -527,7 +554,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         emitter.sendTripProfile(tripProfile);
       }
     });
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -551,7 +578,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
           .enableFullProfiling(enableFullProfiling)
           .build()
       );
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
@@ -575,14 +602,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
 
     Sentiance.getInstance(reactContext).updateSdkNotification(rnSentianceHelper.createNotificationFromManifestData(title, message));
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void setValueForKey(String key, String value, Promise promise) {
+  public void setValueForKey(String key, String value) {
     rnSentianceHelper.setValueForKey(key, value);
-    promise.resolve(null);
   }
 
   @ReactMethod
