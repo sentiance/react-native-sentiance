@@ -35,7 +35,7 @@ public class RNSentianceHelper {
 
     private final RNSentianceEmitter emitter;
     private final WeakReference<Context> weakContext;
-  
+
     private Boolean userLinkResult = false;
     private volatile CountDownLatch userLinkLatch;
 
@@ -80,7 +80,7 @@ public class RNSentianceHelper {
 
     void userLinkCallback(final Boolean linkResult) {
         userLinkResult = linkResult;
-        
+
         CountDownLatch latch = userLinkLatch;
         if (latch != null) {
             latch.countDown();
@@ -203,11 +203,6 @@ public class RNSentianceHelper {
     Notification createNotificationFromManifestData(String title, String message) {
         Context context = weakContext.get();
         if (context == null) return null;
-        String packageName = context.getPackageName();
-        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-        String className = launchIntent.getComponent().getClassName();
-        Intent intent = new Intent(className);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
         String channelName = "Sentiance";
         int icon = context.getApplicationInfo().icon;
@@ -225,18 +220,13 @@ public class RNSentianceHelper {
             e.printStackTrace();
         }
 
-        return createNotification(pendingIntent, title, message, channelName, channelId, icon);
+        return createNotification(getLaunchActivityPendingIntent(context), title, message, channelName, channelId, icon);
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
     Notification createNotificationFromManifestData() {
         Context context = weakContext.get();
         if (context == null) return null;
-        String packageName = context.getPackageName();
-        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-        String className = launchIntent.getComponent().getClassName();
-        Intent intent = new Intent(className);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
 
         String appName = context.getApplicationInfo().loadLabel(context.getPackageManager()).toString();
         String channelName = "Sentiance";
@@ -258,9 +248,17 @@ public class RNSentianceHelper {
             e.printStackTrace();
         }
 
-        return createNotification(pendingIntent, title, message, channelName, channelId, icon);
+        return createNotification(getLaunchActivityPendingIntent(context), title, message, channelName, channelId, icon);
     }
 
+    private PendingIntent getLaunchActivityPendingIntent(Context context) {
+        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
+        if (launchIntent == null) {
+            launchIntent = new Intent();
+        }
+        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        return PendingIntent.getActivity(context, 0, launchIntent, 0);
+    }
 
     private String getStringMetadataFromManifest(ApplicationInfo info, String name, String defaultValue) {
         Context context = weakContext.get();
