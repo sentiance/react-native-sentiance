@@ -92,9 +92,6 @@ RCT_EXPORT_MODULE()
                 resolve([weakSelf convertSdkStatusToDict:status]);
                 resolved = YES;
             }
-            if (weakSelf.hasListeners) {
-                [weakSelf sendEventWithName:@"SDKStatusUpdate" body:[weakSelf convertSdkStatusToDict:status]];
-            }
         }];
     } @catch (NSException *e) {
         if (reject && !resolved) {
