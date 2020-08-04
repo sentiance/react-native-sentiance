@@ -256,7 +256,7 @@ public class RNSentianceHelper {
         if (launchIntent == null) {
             launchIntent = new Intent();
         }
-        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        launchIntent.setPackage(null);
         return PendingIntent.getActivity(context, 0, launchIntent, 0);
     }
 
