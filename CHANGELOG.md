@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.2] - 2020-08-04
+### Changed
+- Upgrade iOS SDK to [5.7.4](https://docs.sentiance.com/sdk/changelog/ios#5-7-4-15-jul-2020)
+- Omit the SDKStatusEvent from startSDK calls
+- Restore the top most activitiy when clicking the notification on Android
+
 ## [4.0.1] - 2020-07-30
 ### Changed
 - Fix a notification issue on the Android side. A notification will pop up once the SDK starts. Clicking the notification will bring up the launch intent.
