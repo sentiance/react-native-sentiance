@@ -22,7 +22,6 @@ public class StartFinishedHandlerCreator {
       @Override
       public void onStartFinished(SdkStatus sdkStatus) {
         promise.resolve(RNSentianceConverter.convertSdkStatus(sdkStatus));
-        emitter.sendStatusUpdateEvent(sdkStatus);
         removeStartFinishHandler(this);
       }
     };
