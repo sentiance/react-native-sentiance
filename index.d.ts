@@ -142,6 +142,7 @@ declare module "react-native-sentiance" {
       shouldStart: boolean
     ): Promise<boolean | SdkStatus>;
     start(): Promise<SdkStatus>;
+    startWithStopDate(stopEpochTime: number): Promise<SdkStatus>;
     stop(): Promise<boolean>;
     reset(): Promise<boolean>;
     getInitState(): Promise<SdkInitState>;
