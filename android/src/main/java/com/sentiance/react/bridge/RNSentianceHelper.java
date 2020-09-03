@@ -171,11 +171,15 @@ public class RNSentianceHelper {
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public void startSentianceSDK(@Nullable final Date stopDate, @Nullable final OnStartFinishedHandler callback) {
+    public void startSentianceSDK(@Nullable final Long stopEpochTime, @Nullable final OnStartFinishedHandler callback) {
       Context context = weakContext.get();
       if (context == null) return;
 
-      Sentiance.getInstance(context).start(stopDate, callback);
+      if (stopEpochTime != null) {
+        Sentiance.getInstance(context).start(new Date(stopEpochTime), callback);
+      } else {
+        Sentiance.getInstance(context).start(callback);
+      }
     }
 
     private Notification createNotification(PendingIntent pendingIntent, String title, String message, String channelName, String channelId, Integer icon) {
