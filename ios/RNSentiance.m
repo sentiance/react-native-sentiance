@@ -82,17 +82,34 @@ RCT_EXPORT_MODULE()
 }
 
 - (void) startSDK:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
+    [self startSDK:nil resolver:resolve rejecter:reject];
+}
+
+- (void) startSDK:(nullable NSNumber*) epochStopTime resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
     __block BOOL resolved = NO;
 
     @try {
         __weak typeof(self) weakSelf = self;
-        [[SENTSDK sharedInstance] start:^(SENTSDKStatus* status) {
-            NSLog(@"SDK started properly.");
-            if (resolve && !resolved) {
-                resolve([weakSelf convertSdkStatusToDict:status]);
-                resolved = YES;
-            }
-        }];
+        if (epochStopTime == nil) {
+            [[SENTSDK sharedInstance] start:^(SENTSDKStatus* status) {
+                NSLog(@"SDK started properly.");
+                if (resolve && !resolved) {
+                    resolve([weakSelf convertSdkStatusToDict:status]);
+                    resolved = YES;
+                }
+            }];
+        }
+        else {
+            NSTimeInterval interval = epochStopTime.longValue / 1000;
+            NSDate* date = [NSDate dateWithTimeIntervalSince1970:interval];
+            [[SENTSDK sharedInstance] startWithStopDate:date completion:^(SENTSDKStatus *status) {
+                NSLog(@"SDK started properly.");
+                    if (resolve && !resolved) {
+                        resolve([weakSelf convertSdkStatusToDict:status]);
+                        resolved = YES;
+                    }
+                }];
+        }
     } @catch (NSException *e) {
         if (reject && !resolved) {
             reject(e.name, e.reason, nil);
@@ -187,7 +204,14 @@ RCT_EXPORT_METHOD(initWithUserLinkingEnabled:(NSString *)appId
 
 RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [self startSDK:resolve rejecter:reject];
+    [self startSDK:nil resolver:resolve rejecter:reject];
+}
+
+RCT_EXPORT_METHOD(startWithStopDate:(nonnull NSNumber *)stopEpochTime
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [self startSDK:stopEpochTime resolver:resolve rejecter:reject];
 }
 
 RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
