@@ -387,9 +387,11 @@ const sentianceEmitter = new NativeEventEmitter(RNSentiance);
 const subscription = sentianceEmitter.addListener(
   "SDKUserActivityUpdate",
   userActivity => {
-    // Returns SDK status
+    // Handle user activity
   }
 );
+
+RNSentiance.listenUserActivityUpdates();
 
 // Don't forget to unsubscribe, typically in componentWillUnmount
 subscription.remove();
