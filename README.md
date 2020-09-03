@@ -179,6 +179,16 @@ try {
 }
 ```
 
+Start SDK with stop date.
+
+```javascript
+try {
+  const startResponse = await RNSentiance.startWithStopDate(stopEpochTime);
+} catch (err) {
+  // SDK did not start.
+}
+```
+
 #### Stopping the Sentiance SDK
 
 Stopping is only allowed after successful initialization. While it's possible to "pause" the detections modules of the Sentiance SDK's, it's not recommended.
