@@ -171,12 +171,12 @@ public class RNSentianceHelper {
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public void startSentianceSDK(@Nullable final Long stopEpochTime, @Nullable final OnStartFinishedHandler callback) {
+    public void startSentianceSDK(@Nullable final Long stopEpochTimeMs, @Nullable final OnStartFinishedHandler callback) {
       Context context = weakContext.get();
       if (context == null) return;
 
-      if (stopEpochTime != null) {
-        Sentiance.getInstance(context).start(new Date(stopEpochTime), callback);
+      if (stopEpochTimeMs != null) {
+        Sentiance.getInstance(context).start(new Date(stopEpochTimeMs), callback);
       } else {
         Sentiance.getInstance(context).start(callback);
       }

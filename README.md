@@ -183,7 +183,7 @@ Start SDK with stop date.
 
 ```javascript
 try {
-  const startResponse = await RNSentiance.startWithStopDate(stopEpochTime);
+  const startResponse = await RNSentiance.startWithStopDate(stopEpochTimeMs);
 } catch (err) {
   // SDK did not start.
 }

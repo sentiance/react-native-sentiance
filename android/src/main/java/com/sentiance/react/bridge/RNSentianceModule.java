@@ -184,7 +184,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void startWithStopDate(@Nullable final Double stopEpochTime, final Promise promise) {
+  public void startWithStopDate(@Nullable final Double stopEpochTimeMs, final Promise promise) {
 
     if (!isSdkInitialized()) {
       promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
@@ -194,7 +194,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     mHandler.post(new Runnable() {
       @Override
       public void run() {
-        Long stopTime = stopEpochTime == null ? null : stopEpochTime.longValue();
+        Long stopTime = stopEpochTimeMs == null ? null : stopEpochTimeMs.longValue();
         rnSentianceHelper.startSentianceSDK(stopTime,
           startFinishedHandlerCreator.createNewStartFinishedHandler(promise)
         );
