@@ -82,10 +82,10 @@ RCT_EXPORT_MODULE()
 }
 
 - (void) startSDK:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
-    [self startSDK:nil resolver:resolve rejecter:reject];
+    [self startSDKWithStopEpochTimeMs:nil resolver:resolve rejecter:reject];
 }
 
-- (void) startSDK:(nullable NSNumber*) stopEpochTimeMs resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
+- (void) startSDKWithStopEpochTimeMs:(nullable NSNumber*) stopEpochTimeMs resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
     __block BOOL resolved = NO;
 
     @try {
@@ -201,14 +201,14 @@ RCT_EXPORT_METHOD(initWithUserLinkingEnabled:(NSString *)appId
 
 RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [self startSDK:nil resolver:resolve rejecter:reject];
+    [self startSDK:resolve rejecter:reject];
 }
 
 RCT_EXPORT_METHOD(startWithStopDate:(nonnull NSNumber *)stopEpochTimeMs
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [self startSDK:stopEpochTimeMs resolver:resolve rejecter:reject];
+    [self startSDKWithStopEpochTimeMs:stopEpochTimeMs resolver:resolve rejecter:reject];
 }
 
 RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
