@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.0] - 2020-09-07
+### Fixed
+- Broken startWithStopDate on android.
+
+### Added
+- startWithStopDate on iOS.
+
 ## [4.0.2] - 2020-08-04
 ### Changed
 - Upgrade iOS SDK to [5.7.4](https://docs.sentiance.com/sdk/changelog/ios#5-7-4-15-jul-2020)
