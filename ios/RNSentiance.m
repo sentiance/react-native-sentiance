@@ -82,17 +82,31 @@ RCT_EXPORT_MODULE()
 }
 
 - (void) startSDK:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
+    [self startSDKWithStopEpochTimeMs:nil resolver:resolve rejecter:reject];
+}
+
+- (void) startSDKWithStopEpochTimeMs:(nullable NSNumber*) stopEpochTimeMs resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
     __block BOOL resolved = NO;
 
     @try {
         __weak typeof(self) weakSelf = self;
-        [[SENTSDK sharedInstance] start:^(SENTSDKStatus* status) {
+        
+        SdkStatusHandler sdkStatusHandler =  ^(SENTSDKStatus* status) {
             NSLog(@"SDK started properly.");
             if (resolve && !resolved) {
                 resolve([weakSelf convertSdkStatusToDict:status]);
                 resolved = YES;
             }
-        }];
+        };
+        
+        if (stopEpochTimeMs == nil) {
+            [[SENTSDK sharedInstance] start:sdkStatusHandler];
+        }
+        else {
+            NSTimeInterval interval = stopEpochTimeMs.longValue / 1000;
+            NSDate* date = [NSDate dateWithTimeIntervalSince1970:interval];
+            [[SENTSDK sharedInstance] startWithStopDate:date completion:sdkStatusHandler];
+        }
     } @catch (NSException *e) {
         if (reject && !resolved) {
             reject(e.name, e.reason, nil);
@@ -188,6 +202,13 @@ RCT_EXPORT_METHOD(initWithUserLinkingEnabled:(NSString *)appId
 RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     [self startSDK:resolve rejecter:reject];
+}
+
+RCT_EXPORT_METHOD(startWithStopDate:(nonnull NSNumber *)stopEpochTimeMs
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [self startSDKWithStopEpochTimeMs:stopEpochTimeMs resolver:resolve rejecter:reject];
 }
 
 RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)

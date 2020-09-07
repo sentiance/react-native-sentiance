@@ -10,4 +10,6 @@ typedef void (^SdkStatusHandler)(SENTSDKStatus *status);
 - (void) initSDK:(NSString *)appId secret:(NSString *)secret baseURL:(NSString *)baseURL shouldStart:(BOOL)shouldStart resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject;
 - (NSString *) getValueForKey:(NSString *)key value:(NSString *)defaultValue;
 - (void) setValueForKey:(NSString *)key value:(NSString *)value;
+- (void) startSDKWithStopEpochTimeMs:(nullable NSNumber*) stopEpochTimeMs resolver:(RCTPromiseResolveBlock _Nullable )resolve  rejecter:(RCTPromiseRejectBlock _Nullable )reject;
+- (void) startSDK:(RCTPromiseResolveBlock _Nullable )resolve rejecter:(RCTPromiseRejectBlock _Nullable )reject;
 @end
