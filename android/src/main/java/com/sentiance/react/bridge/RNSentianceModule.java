@@ -619,6 +619,20 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     promise.resolve(value);
   }
 
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void invokeDummyCrash() {
+    sdk.invokeDummyCrash();
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void isCrashDetectionSupported(String tripType, Promise promise) {
+    final TripType type = RNSentianceConverter.toTripType(tripType);
+    Boolean isCrashDetectionSupported = sdk.isCrashDetectionSupported(type);
+    promise.resolve(isCrashDetectionSupported);
+  }
+
   private boolean isSdkInitialized() {
     return sdk.getInitState() == InitState.INITIALIZED;
   }
