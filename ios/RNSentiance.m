@@ -586,6 +586,20 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
     }
 }
 
+RCT_EXPORT_METHOD(invokeDummyCrash:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSLog(@"Not implemented in iOS.");
+    resolve(@(YES));
+}
+
+RCT_EXPORT_METHOD(isCrashDetectionSupported:(NSString *)type
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSLog(@"Not implemented in iOS.");
+    resolve(@(YES));
+}
+
 -(void)deleteAllKeysForSecClass:(CFTypeRef)secClass {
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
