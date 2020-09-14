@@ -621,8 +621,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void invokeDummyCrash() {
+  public void invokeDummyCrash(Promise promise) {
     sdk.invokeDummyCrash();
+    promise.resolve(null);
   }
 
   @ReactMethod

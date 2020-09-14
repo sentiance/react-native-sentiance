@@ -589,7 +589,7 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
 RCT_EXPORT_METHOD(invokeDummyCrash:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     NSLog(@"Not implemented in iOS.");
-    resolve(@(YES));
+    resolve(@[[NSNull null]);
 }
 
 RCT_EXPORT_METHOD(isCrashDetectionSupported:(NSString *)type
