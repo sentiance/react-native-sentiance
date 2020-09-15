@@ -565,3 +565,18 @@ try {
   console.error(err)
 }
 ```
+
+##### Invoke a dummy crash event
+
+```javascript
+await RNSentiance.invokeDummyCrash()
+```
+
+##### Check if crash detection is supported
+
+```javascript
+const crashDetectionSupported = await RNSentiance.isCrashDetectionSupported('TRIP_TYPE_SDK')
+if (crashDetectionSupported) {
+  // setup crash event listener
+}
+```

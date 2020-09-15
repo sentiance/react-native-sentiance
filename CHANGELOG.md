@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Upgrade iOS SDK to [5.8.0]()
+- Upgrade Android SDK to [4.17.0]()
+
+### Added
+- `invokeDummyCrash()` invoke a dummy crash event for development purpose
+- `isCrashDetectionSupported`
+
 ## [4.1.0] - 2020-09-07
 ### Fixed
 - Broken startWithStopDate on android.
