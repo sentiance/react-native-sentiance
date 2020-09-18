@@ -586,6 +586,120 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
     }
 }
 
+RCT_EXPORT_METHOD(isNativeInitializationEnabled:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (UIApplication.sharedApplication.protectedDataAvailable) {
+            NSString *flagServiceName = [self getNativeInitializationFlagServiceName];
+            NSString *flagKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG";
+            NSString *flag = [self getKeychainItem:flagServiceName key:flagKey];
+
+            if ([flag isEqualToString:@"YES"]) {
+                resolve(@(YES));
+            } else {
+                resolve(@(NO));
+            }
+        } else {
+            reject(@"protected_data_unavailable", @"Protected data not available yet. Retry operation", nil);
+        }
+    });
+}
+
+RCT_EXPORT_METHOD(enableNativeInitialization:(nullable NSString *)name resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [self setNativeInitializationEnabledFlag:name enable:@"YES" resolver:resolve rejecter:reject];
+}
+
+RCT_EXPORT_METHOD(disableNativeInitialization:(nullable NSString *)name resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [self setNativeInitializationEnabledFlag:name enable:@"NO" resolver:resolve rejecter:reject];
+}
+
+- (void)setNativeInitializationEnabledFlag:(nullable NSString *)name enable:(NSString *)enable resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (UIApplication.sharedApplication.protectedDataAvailable) {
+            NSString *flagServiceName = [self getNativeInitializationFlagServiceName];
+            
+            if (name != nil && ![name isEqualToString:flagServiceName]) {
+                NSString *defaultKeychainServiceName = [[NSBundle bundleForClass: [self class]] infoDictionary][@"CFBundleIdentifier"];
+                NSString *flagServiceNameKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG_KEYCHAIN_SERVICE_NAME";
+                NSString *flagKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG";
+                [self setKeychainItem:defaultKeychainServiceName key:flagServiceNameKey value:name];
+                [self setKeychainItem:name key:flagKey value:enable];
+            } else {
+                [self setKeychainItem:existFlagServiceName key:flagKey value:enable];
+            }
+        } else {
+            reject(@"protected_data_unavailable", @"Protected data not available yet. Retry operation", nil);
+        }
+    });
+}
+
+- (void)setKeychainItem:serviceName key:(NSString *)key value:(NSString *)value {
+    NSNumber *sync = (__bridge id)kSecAttrSynchronizableAny;
+    NSData* valueData = [value dataUsingEncoding:NSUTF8StringEncoding];
+    NSMutableDictionary* search = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                      (__bridge id)(kSecClassGenericPassword), kSecClass,
+                                      serviceName, kSecAttrService,
+                                      sync, kSecAttrSynchronizable,
+                                      key, kSecAttrAccount, nil];
+    NSMutableDictionary *query = [search mutableCopy];
+    [query setValue: valueData forKey: kSecValueData];
+
+    OSStatus osStatus;
+
+    osStatus = SecItemAdd((__bridge CFDictionaryRef) query, NULL);
+    if (osStatus == errSecSuccess) {
+        return;
+    }
+    if (osStatus == errSecDuplicateItem) {
+        NSDictionary *update = @{(__bridge id)kSecValueData:valueData};
+        osStatus = SecItemUpdate((__bridge CFDictionaryRef)search,
+                                 (__bridge CFDictionaryRef)update);
+    }
+    if (osStatus != noErr) {
+        NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:osStatus userInfo:nil];
+        return;
+    }
+}
+
+- (NSString *) getNativeInitializationFlagServiceName {
+    NSString *defaultKeychainServiceName = [[NSBundle bundleForClass: [self class]] infoDictionary][@"CFBundleIdentifier"];
+    NSString *flagServiceNameKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG_KEYCHAIN_SERVICE_NAME";
+    NSString *flagServiceName = [self getKeychainItem:defaultKeychainServiceName key:flagServiceNameKey];
+    if (!flagServiceName) {
+        return defaultKeychainServiceName;
+    }
+    return flagServiceName;
+}
+
+- (NSString *) getKeychainItem:serviceName key:(NSString *)key {
+    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithObjectsAndKeys:(__bridge id)(kSecClassGenericPassword), kSecClass,
+                                  serviceName, kSecAttrService,
+                                  key, kSecAttrAccount,
+                                  kSecAttrSynchronizableAny, kSecAttrSynchronizable,
+                                  kCFBooleanTrue, kSecReturnAttributes,
+                                  kCFBooleanTrue, kSecReturnData,
+                                  nil];
+    
+    NSDictionary* found = nil;
+    CFTypeRef foundTypeRef = NULL;
+    OSStatus osStatus = SecItemCopyMatching((__bridge CFDictionaryRef) query, (CFTypeRef*)&foundTypeRef);
+
+    if (osStatus != noErr && osStatus != errSecItemNotFound) {
+        NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:osStatus userInfo:nil];
+        return nil;
+    }
+    
+    found = (__bridge NSDictionary*)(foundTypeRef);
+    if (!found) {
+        return nil;
+    } else {
+        NSString* value = [[NSString alloc] initWithData:[found objectForKey:(__bridge id)(kSecValueData)] encoding:NSUTF8StringEncoding];
+        return value;
+    }
+}
+
 -(void)deleteAllKeysForSecClass:(CFTypeRef)secClass {
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
