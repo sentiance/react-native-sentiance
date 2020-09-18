@@ -516,7 +516,9 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 
 RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [[SENTSDK sharedInstance] reset:^{ resolve(@(YES)); } failure:^(SENTResetFailureReason reason) {
+    [[SENTSDK sharedInstance] reset:^{
+        [self setNativeInitializationEnabledFlag:nil enable:@"NO" resolver:resolve rejecter:reject];
+    } failure:^(SENTResetFailureReason reason) {
         NSString *message = @"Resetting the SDK failed";
         switch(reason) {
             case SENTResetFailureReasonInitInProgress:
@@ -629,6 +631,7 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(nullable NSString *)name resolver
             } else {
                 [self setKeychainItem:existFlagServiceName key:flagKey value:enable];
             }
+            resolve(@(YES));
         } else {
             reject(@"protected_data_unavailable", @"Protected data not available yet. Retry operation", nil);
         }
