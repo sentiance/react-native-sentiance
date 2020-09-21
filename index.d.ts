@@ -174,7 +174,7 @@ declare module "react-native-sentiance" {
     submitDetections(): Promise<boolean>;
     updateSdkNotification(title: string, message: string): Promise<boolean>;
     addTripMetadata(metadata: MetadataObject): Promise<boolean>;
-    invokeDummyCrash(): Promise<void>;
+    invokeDummyCrash(): Promise<boolean>;
     isCrashDetectionSupported(type: TripType): Promise<boolean>;
   }
 

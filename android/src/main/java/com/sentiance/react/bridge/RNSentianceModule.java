@@ -623,7 +623,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @SuppressWarnings("unused")
   public void invokeDummyCrash(Promise promise) {
     sdk.invokeDummyCrash();
-    promise.resolve(null);
+    promise.resolve(true);
   }
 
   @ReactMethod
