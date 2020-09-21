@@ -12,4 +12,5 @@ typedef void (^SdkStatusHandler)(SENTSDKStatus *status);
 - (void) setValueForKey:(NSString *)key value:(NSString *)value;
 - (void) startSDKWithStopEpochTimeMs:(nullable NSNumber*) stopEpochTimeMs resolver:(RCTPromiseResolveBlock _Nullable )resolve  rejecter:(RCTPromiseRejectBlock _Nullable )reject;
 - (void) startSDK:(RCTPromiseResolveBlock _Nullable )resolve rejecter:(RCTPromiseRejectBlock _Nullable )reject;
+- (BOOL) isNativeInitializationEnabled;
 @end

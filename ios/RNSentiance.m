@@ -592,15 +592,8 @@ RCT_EXPORT_METHOD(isNativeInitializationEnabled:(RCTPromiseResolveBlock)resolve 
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (UIApplication.sharedApplication.protectedDataAvailable) {
-            NSString *flagServiceName = [self getNativeInitializationFlagServiceName];
-            NSString *flagKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG";
-            NSString *flag = [self getKeychainItem:flagServiceName key:flagKey];
-
-            if ([flag isEqualToString:@"YES"]) {
-                resolve(@(YES));
-            } else {
-                resolve(@(NO));
-            }
+            BOOL isEnabled = [self isNativeInitializationEnabled];
+            resolve(@(isEnabled));
         } else {
             reject(@"protected_data_unavailable", @"Protected data not available yet. Retry operation", nil);
         }
@@ -617,19 +610,32 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(nullable NSString *)name resolver
     [self setNativeInitializationEnabledFlag:name enable:@"NO" resolver:resolve rejecter:reject];
 }
 
+- (BOOL)isNativeInitializationEnabled {
+    NSString *flagServiceName = [self getNativeInitializationFlagServiceName];
+    NSString *flagKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG";
+    NSString *flag = [self getKeychainItem:flagServiceName key:flagKey];
+
+    if ([flag isEqualToString:@"YES"]) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
 - (void)setNativeInitializationEnabledFlag:(nullable NSString *)name enable:(NSString *)enable resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (UIApplication.sharedApplication.protectedDataAvailable) {
             NSString *flagServiceName = [self getNativeInitializationFlagServiceName];
+            NSString *flagKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG";
             
             if (name != nil && ![name isEqualToString:flagServiceName]) {
                 NSString *defaultKeychainServiceName = [[NSBundle bundleForClass: [self class]] infoDictionary][@"CFBundleIdentifier"];
                 NSString *flagServiceNameKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG_KEYCHAIN_SERVICE_NAME";
-                NSString *flagKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG";
+
                 [self setKeychainItem:defaultKeychainServiceName key:flagServiceNameKey value:name];
                 [self setKeychainItem:name key:flagKey value:enable];
             } else {
-                [self setKeychainItem:existFlagServiceName key:flagKey value:enable];
+                [self setKeychainItem:flagServiceName key:flagKey value:enable];
             }
             resolve(@(YES));
         } else {
