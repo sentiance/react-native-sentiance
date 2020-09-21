@@ -29,8 +29,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class RNSentianceHelper {
 
-    private static final String SDK_NATIVE_INITIALIZATION_FLAG = "SENTSDK_NATIVE_INITIALIZATION_FLAG";
-    private static final String SDK_NATIVE_INITIALIZATION_FLAG_PREFS_NAME = "SENTSDK_NATIVE_INITIALIZATION_FLAG_PREFS_NAME";
+    public static final String SDK_NATIVE_INIT_FLAG = "SDK_NATIVE_INIT_FLAG";
     private static final String MY_PREFS_NAME = "RNSentianceHelper";
     private static final String TAG = "RNSentianceHelper";
     private static RNSentianceHelper rnSentianceHelper;
@@ -129,31 +128,9 @@ public class RNSentianceHelper {
         return prefs.getString(key, defaultValue);
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public void setFlagForNativeInitializationWithName(@Nullable String name, Boolean value) {
-      Context context = weakContext.get();
-      if (context == null) return;
-
-      String prefsName = getValueForKey(SDK_NATIVE_INITIALIZATION_FLAG_PREFS_NAME, MY_PREFS_NAME);
-
-      if (name != null && !prefsName.equals(name)) {
-        setValueForKey(SDK_NATIVE_INITIALIZATION_FLAG_PREFS_NAME, name);
-        prefsName = name;
-      }
-
-      SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
-      prefs.edit().putBoolean(SDK_NATIVE_INITIALIZATION_FLAG, value).apply();
-    }
-
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public Boolean getFlagForNativeInitialization() {
-      Context context = weakContext.get();
-      if (context == null) return false;
-
-      String prefsName = getValueForKey(SDK_NATIVE_INITIALIZATION_FLAG_PREFS_NAME, MY_PREFS_NAME);
-      SharedPreferences prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE);
-
-      return prefs.getBoolean(SDK_NATIVE_INITIALIZATION_FLAG, false);
+    public Boolean isNativeInitializationEnabled() {
+      String nativeInitFlag = rnSentianceHelper.getValueForKey(SDK_NATIVE_INIT_FLAG, "");
+      return nativeInitFlag.equals("enabled");
     }
 
     private void initializeAndStartSentianceSDK(String appId, String appSecret,

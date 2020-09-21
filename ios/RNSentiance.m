@@ -517,7 +517,7 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     [[SENTSDK sharedInstance] reset:^{
-        [self setNativeInitializationEnabledFlag:nil enable:@"NO" resolver:resolve rejecter:reject];
+        [self disableSDKNativeInitialization:resolve rejecter:reject];
     } failure:^(SENTResetFailureReason reason) {
         NSString *message = @"Resetting the SDK failed";
         switch(reason) {
@@ -590,122 +590,81 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
 
 RCT_EXPORT_METHOD(isNativeInitializationEnabled:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (UIApplication.sharedApplication.protectedDataAvailable) {
-            BOOL isEnabled = [self isNativeInitializationEnabled];
-            resolve(@(isEnabled));
-        } else {
-            reject(@"protected_data_unavailable", @"Protected data not available yet. Retry operation", nil);
-        }
-    });
+    BOOL isEnabled = [self isNativeInitializationEnabled];
+    resolve(@(isEnabled));
 }
 
-RCT_EXPORT_METHOD(enableNativeInitialization:(nullable NSString *)name resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(enableNativeInitialization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [self setNativeInitializationEnabledFlag:name enable:@"YES" resolver:resolve rejecter:reject];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *docDir = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject].path;
+    NSString *sentianceDir = [docDir stringByAppendingPathComponent:@"sentiance"];
+    NSString* path = [self getNativeInitializationFilePath:fileManager];
+    if([fileManager fileExistsAtPath:path]) {
+        resolve(@(YES));
+        return;
+    }
+
+    NSError *error;
+    [fileManager createDirectoryAtPath:sentianceDir withIntermediateDirectories:YES
+                            attributes:@{NSFileProtectionKey:NSFileProtectionNone}
+                                 error:&error];
+
+    if (error != nil) {
+        reject(@"ERROR_CREATING_DIR", error.description, nil);
+        return;
+    }
+
+    NSMutableDictionary *restoredValues = [[NSMutableDictionary alloc] initWithContentsOfFile:path];
+    if(restoredValues == nil) {
+        restoredValues = @{@"SENTSDK_NATIVE_INIT_ENABLE":@YES};
+    } else {
+        [restoredValues setObject:@YES forKey:@"SENTSDK_NATIVE_INIT_ENABLE"];
+    }
+    NSData *dataToWrite = [NSPropertyListSerialization
+                           dataWithPropertyList:restoredValues
+                           format:NSPropertyListXMLFormat_v1_0
+                           options:0
+                           error:nil];
+    [fileManager createFileAtPath:path contents:dataToWrite attributes:@{NSFileProtectionKey:NSFileProtectionNone}];
+    resolve(@(YES));
 }
 
-RCT_EXPORT_METHOD(disableNativeInitialization:(nullable NSString *)name resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [self setNativeInitializationEnabledFlag:name enable:@"NO" resolver:resolve rejecter:reject];
+    [self disableSDKNativeInitialization:resolve rejecter:reject];
+}
+
+- (NSString *) getNativeInitializationFilePath:(NSFileManager *)fileManager {
+    NSString *docDir = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject].path;
+    NSString *sentianceDir = [docDir stringByAppendingPathComponent:@"sentiance"];
+    NSString* path = [sentianceDir stringByAppendingPathComponent:@"SENTNativeInitialization.plist"];
+    return path;
 }
 
 - (BOOL)isNativeInitializationEnabled {
-    NSString *flagServiceName = [self getNativeInitializationFlagServiceName];
-    NSString *flagKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG";
-    NSString *flag = [self getKeychainItem:flagServiceName key:flagKey];
-
-    if ([flag isEqualToString:@"YES"]) {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString* path = [self getNativeInitializationFilePath:fileManager];
+    if([fileManager fileExistsAtPath:path]) {
         return YES;
     } else {
         return NO;
     }
 }
 
-- (void)setNativeInitializationEnabledFlag:(nullable NSString *)name enable:(NSString *)enable resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (UIApplication.sharedApplication.protectedDataAvailable) {
-            NSString *flagServiceName = [self getNativeInitializationFlagServiceName];
-            NSString *flagKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG";
-            
-            if (name != nil && ![name isEqualToString:flagServiceName]) {
-                NSString *defaultKeychainServiceName = [[NSBundle bundleForClass: [self class]] infoDictionary][@"CFBundleIdentifier"];
-                NSString *flagServiceNameKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG_KEYCHAIN_SERVICE_NAME";
-
-                [self setKeychainItem:defaultKeychainServiceName key:flagServiceNameKey value:name];
-                [self setKeychainItem:name key:flagKey value:enable];
-            } else {
-                [self setKeychainItem:flagServiceName key:flagKey value:enable];
-            }
-            resolve(@(YES));
+- (void)disableSDKNativeInitialization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString* path = [self getNativeInitializationFilePath:fileManager];
+    if([fileManager fileExistsAtPath:path]) {
+        NSError *error;
+        [fileManager removeItemAtPath:path error:&error];
+        if (error != nil) {
+            reject(@"ERROR_REMOVE_FILE", error.description, nil);
         } else {
-            reject(@"protected_data_unavailable", @"Protected data not available yet. Retry operation", nil);
+            resolve(@(YES));
         }
-    });
-}
-
-- (void)setKeychainItem:serviceName key:(NSString *)key value:(NSString *)value {
-    NSNumber *sync = (__bridge id)kSecAttrSynchronizableAny;
-    NSData* valueData = [value dataUsingEncoding:NSUTF8StringEncoding];
-    NSMutableDictionary* search = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                      (__bridge id)(kSecClassGenericPassword), kSecClass,
-                                      serviceName, kSecAttrService,
-                                      sync, kSecAttrSynchronizable,
-                                      key, kSecAttrAccount, nil];
-    NSMutableDictionary *query = [search mutableCopy];
-    [query setValue: valueData forKey: kSecValueData];
-
-    OSStatus osStatus;
-
-    osStatus = SecItemAdd((__bridge CFDictionaryRef) query, NULL);
-    if (osStatus == errSecSuccess) {
-        return;
-    }
-    if (osStatus == errSecDuplicateItem) {
-        NSDictionary *update = @{(__bridge id)kSecValueData:valueData};
-        osStatus = SecItemUpdate((__bridge CFDictionaryRef)search,
-                                 (__bridge CFDictionaryRef)update);
-    }
-    if (osStatus != noErr) {
-        NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:osStatus userInfo:nil];
-        return;
-    }
-}
-
-- (NSString *) getNativeInitializationFlagServiceName {
-    NSString *defaultKeychainServiceName = [[NSBundle bundleForClass: [self class]] infoDictionary][@"CFBundleIdentifier"];
-    NSString *flagServiceNameKey = @"SENTSDK_NATIVE_INITIALIZATION_FLAG_KEYCHAIN_SERVICE_NAME";
-    NSString *flagServiceName = [self getKeychainItem:defaultKeychainServiceName key:flagServiceNameKey];
-    if (!flagServiceName) {
-        return defaultKeychainServiceName;
-    }
-    return flagServiceName;
-}
-
-- (NSString *) getKeychainItem:serviceName key:(NSString *)key {
-    NSMutableDictionary* query = [NSMutableDictionary dictionaryWithObjectsAndKeys:(__bridge id)(kSecClassGenericPassword), kSecClass,
-                                  serviceName, kSecAttrService,
-                                  key, kSecAttrAccount,
-                                  kSecAttrSynchronizableAny, kSecAttrSynchronizable,
-                                  kCFBooleanTrue, kSecReturnAttributes,
-                                  kCFBooleanTrue, kSecReturnData,
-                                  nil];
-    
-    NSDictionary* found = nil;
-    CFTypeRef foundTypeRef = NULL;
-    OSStatus osStatus = SecItemCopyMatching((__bridge CFDictionaryRef) query, (CFTypeRef*)&foundTypeRef);
-
-    if (osStatus != noErr && osStatus != errSecItemNotFound) {
-        NSError *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:osStatus userInfo:nil];
-        return nil;
-    }
-    
-    found = (__bridge NSDictionary*)(foundTypeRef);
-    if (!found) {
-        return nil;
     } else {
-        NSString* value = [[NSString alloc] initWithData:[found objectForKey:(__bridge id)(kSecValueData)] encoding:NSUTF8StringEncoding];
-        return value;
+        resolve(@(YES));
     }
 }
 

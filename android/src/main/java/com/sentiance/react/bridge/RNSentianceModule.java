@@ -165,7 +165,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk.reset(new ResetCallback() {
       @Override
       public void onResetSuccess() {
-        rnSentianceHelper.setFlagForNativeInitializationWithName(null, false);
+        rnSentianceHelper.setValueForKey(RNSentianceHelper.SDK_NATIVE_INIT_FLAG, "");
         promise.resolve(true);
       }
 
@@ -622,21 +622,20 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   @SuppressWarnings("unused")
   public void isNativeInitializationEnabled(Promise promise) {
-    Boolean value = rnSentianceHelper.getFlagForNativeInitialization();
-    promise.resolve(value);
+    promise.resolve(rnSentianceHelper.isNativeInitializationEnabled());
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void enableNativeInitialization(@Nullable String name, Promise promise) {
-    rnSentianceHelper.setFlagForNativeInitializationWithName(name, true);
+  public void enableNativeInitialization(Promise promise) {
+    rnSentianceHelper.setValueForKey(RNSentianceHelper.SDK_NATIVE_INIT_FLAG, "enabled");
     promise.resolve(true);
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void disableNativeInitialization(@Nullable String name, Promise promise) {
-    rnSentianceHelper.setFlagForNativeInitializationWithName(name, false);
+  public void disableNativeInitialization(Promise promise) {
+    rnSentianceHelper.setValueForKey(RNSentianceHelper.SDK_NATIVE_INIT_FLAG, "");
     promise.resolve(true);
   }
 

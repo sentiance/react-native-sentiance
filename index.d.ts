@@ -175,8 +175,8 @@ declare module "react-native-sentiance" {
     updateSdkNotification(title: string, message: string): Promise<boolean>;
     addTripMetadata(metadata: MetadataObject): Promise<boolean>;
     isNativeInitializationEnabled(): Promise<boolean>;
-    enableNativeInitialization(name: string|null): Promise<boolean>;
-    disableNativeInitialization(name: string|null): Promise<boolean>;
+    enableNativeInitialization(): Promise<boolean>;
+    disableNativeInitialization(): Promise<boolean>;
   }
 
   export interface RNSentianceEventEmitter extends NativeEventEmitter {
