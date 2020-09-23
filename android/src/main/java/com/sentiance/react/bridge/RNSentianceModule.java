@@ -165,7 +165,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk.reset(new ResetCallback() {
       @Override
       public void onResetSuccess() {
-        rnSentianceHelper.setValueForKey(RNSentianceHelper.SDK_NATIVE_INIT_FLAG, "");
+        rnSentianceHelper.disableNativeInitialization();
         promise.resolve(true);
       }
 
@@ -628,14 +628,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   @SuppressWarnings("unused")
   public void enableNativeInitialization(Promise promise) {
-    rnSentianceHelper.setValueForKey(RNSentianceHelper.SDK_NATIVE_INIT_FLAG, "enabled");
+    rnSentianceHelper.enableNativeInitialization();
     promise.resolve(true);
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
   public void disableNativeInitialization(Promise promise) {
-    rnSentianceHelper.setValueForKey(RNSentianceHelper.SDK_NATIVE_INIT_FLAG, "");
+    rnSentianceHelper.disableNativeInitialization();
     promise.resolve(true);
   }
 
