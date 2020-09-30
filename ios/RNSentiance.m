@@ -606,9 +606,13 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve re
 
 - (NSString *) getNativeInitializationFilePath:(NSFileManager *)fileManager {
     NSString *docDir = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject].path;
-    NSString *sentianceDir = [docDir stringByAppendingPathComponent:@"RNSentiance"];
+    NSString *sentianceDir = [self getRNSentianceDirectoryPath:docDir];
     NSString* path = [sentianceDir stringByAppendingPathComponent:@"rnsentiance_initialize_natively"];
     return path;
+}
+
+- (NSString *) getRNSentianceDirectoryPath:(NSString *) docDir {
+    return [docDir stringByAppendingPathComponent:@"RNSentiance"];
 }
 
 - (BOOL)isNativeInitializationEnabled {
@@ -624,7 +628,7 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve re
 - (void)enableSDKNativeInitialization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSString *docDir = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject].path;
-    NSString *sentianceDir = [docDir stringByAppendingPathComponent:@"RNSentiance"];
+    NSString *sentianceDir = [self getRNSentianceDirectoryPath:docDir];
     NSString* path = [self getNativeInitializationFilePath:fileManager];
     if([fileManager fileExistsAtPath:path]) {
         if (resolve) {
@@ -657,8 +661,10 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve re
     if([fileManager fileExistsAtPath:path]) {
         NSError *error;
         [fileManager removeItemAtPath:path error:&error];
-        if (error != nil && reject) {
-            reject(@"ERROR_REMOVE_FILE", error.description, nil);
+        if (error != nil) {
+            if (reject) {
+                reject(@"ERROR_REMOVE_FILE", error.description, nil);
+            }
         } else if (resolve) {
             resolve(@(YES));
         }
