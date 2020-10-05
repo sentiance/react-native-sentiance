@@ -2,6 +2,7 @@
 #import <SENTSDK/SENTSDK.h>
 #import <SENTSDK/SENTSDKStatus.h>
 #import <SENTSDK/SENTPublicDefinitions.h>
+#import <RNSentianceNativeInitialization.h>
 
 @interface RNSentiance()
 
@@ -604,33 +605,12 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve re
     [self disableSDKNativeInitialization:resolve rejecter:reject];
 }
 
-- (NSString *) getNativeInitializationFilePath:(NSFileManager *)fileManager {
-    NSString *docDir = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject].path;
-    NSString *sentianceDir = [self getRNSentianceDirectoryPath:docDir];
-    NSString* path = [sentianceDir stringByAppendingPathComponent:@"rnsentiance_initialize_natively"];
-    return path;
-}
-
-- (NSString *) getRNSentianceDirectoryPath:(NSString *) docDir {
-    return [docDir stringByAppendingPathComponent:@"RNSentiance"];
-}
-
 - (BOOL)isNativeInitializationEnabled {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString* path = [self getNativeInitializationFilePath:fileManager];
-    if([fileManager fileExistsAtPath:path]) {
-        return YES;
-    } else {
-        return NO;
-    }
+    return [[RNSentianceNativeInitialization sharedObject] isFlagFileExists];
 }
 
 - (void)enableSDKNativeInitialization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *docDir = [[fileManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject].path;
-    NSString *sentianceDir = [self getRNSentianceDirectoryPath:docDir];
-    NSString* path = [self getNativeInitializationFilePath:fileManager];
-    if([fileManager fileExistsAtPath:path]) {
+    if([[RNSentianceNativeInitialization sharedObject] isFlagFileExists]) {
         if (resolve) {
             resolve(@(YES));
         }
@@ -638,29 +618,21 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve re
     }
 
     NSError *error;
-    [fileManager createDirectoryAtPath:sentianceDir withIntermediateDirectories:YES
-                            attributes:@{NSFileProtectionKey:NSFileProtectionNone}
-                                 error:&error];
+    [[RNSentianceNativeInitialization sharedObject] createFlagFile:&error];
 
     if (error != nil) {
         if (reject) {
             reject(@"ERROR_CREATING_DIR", error.description, nil);
         }
-        return;
-    }
-
-    [fileManager createFileAtPath:path contents:nil attributes:@{NSFileProtectionKey:NSFileProtectionNone}];
-    if (resolve) {
+    } else if (resolve) {
         resolve(@(YES));
     }
 }
 
 - (void)disableSDKNativeInitialization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString* path = [self getNativeInitializationFilePath:fileManager];
-    if([fileManager fileExistsAtPath:path]) {
+    if([[RNSentianceNativeInitialization sharedObject] isFlagFileExists]) {
         NSError *error;
-        [fileManager removeItemAtPath:path error:&error];
+        [[RNSentianceNativeInitialization sharedObject] removeFlagFile:&error];
         if (error != nil) {
             if (reject) {
                 reject(@"ERROR_REMOVE_FILE", error.description, nil);
