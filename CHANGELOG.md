@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- enableNativeInitialization
+- disableNativeInitialization
+- isNativeInitializationEnabled
+
 ## [4.1.0] - 2020-09-07
 ### Fixed
 - Broken startWithStopDate on android.

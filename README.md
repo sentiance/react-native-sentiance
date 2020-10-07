@@ -565,3 +565,14 @@ try {
   console.error(err)
 }
 ```
+
+###### Determine if the app should initialize Sentiance SDK natively
+
+To make user linking possible, the first SDK initialization should be executed in JS. After it completes successfully,
+```await RNSentiance.enableNativeInitialization()``` should be invoked.
+
+In AppDelegate (iOS) and MainApplication (Android), ```isNativeInitializationEnabled``` can be used to determine if the SDK should be initialized natively.
+
+To disable native initialization, invoke ```await RNSentiance.disableNativeInitialization()```.
+
+Please refer to our [example app](https://github.com/sentiance/react-native-sentiance-example) for a complete usage.

@@ -29,6 +29,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class RNSentianceHelper {
 
+    private static final String SDK_NATIVE_INIT_FLAG = "SDK_NATIVE_INIT_FLAG";
     private static final String MY_PREFS_NAME = "RNSentianceHelper";
     private static final String TAG = "RNSentianceHelper";
     private static RNSentianceHelper rnSentianceHelper;
@@ -125,6 +126,22 @@ public class RNSentianceHelper {
         if (context == null) return defaultValue;
         SharedPreferences prefs = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE);
         return prefs.getString(key, defaultValue);
+    }
+
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    public Boolean isNativeInitializationEnabled() {
+        String nativeInitFlag = rnSentianceHelper.getValueForKey(SDK_NATIVE_INIT_FLAG, "");
+        return nativeInitFlag.equals("enabled");
+    }
+
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    public void enableNativeInitialization() {
+        setValueForKey(SDK_NATIVE_INIT_FLAG, "enabled");
+    }
+
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    public void disableNativeInitialization() {
+        setValueForKey(SDK_NATIVE_INIT_FLAG, "");
     }
 
     private void initializeAndStartSentianceSDK(String appId, String appSecret,

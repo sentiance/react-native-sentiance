@@ -33,7 +33,6 @@ import android.location.Location;
 import android.util.Log;
 import androidx.annotation.Nullable;
 
-import java.util.Date;
 import java.util.Map;
 
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
@@ -166,6 +165,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk.reset(new ResetCallback() {
       @Override
       public void onResetSuccess() {
+        rnSentianceHelper.disableNativeInitialization();
         promise.resolve(true);
       }
 
@@ -617,6 +617,26 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   public void getValueForKey(String key, String defaultValue, Promise promise) {
     String value = rnSentianceHelper.getValueForKey(key, defaultValue);
     promise.resolve(value);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void isNativeInitializationEnabled(Promise promise) {
+    promise.resolve(rnSentianceHelper.isNativeInitializationEnabled());
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void enableNativeInitialization(Promise promise) {
+    rnSentianceHelper.enableNativeInitialization();
+    promise.resolve(true);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void disableNativeInitialization(Promise promise) {
+    rnSentianceHelper.disableNativeInitialization();
+    promise.resolve(true);
   }
 
   private boolean isSdkInitialized() {
