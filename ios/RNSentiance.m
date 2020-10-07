@@ -2,6 +2,7 @@
 #import <SENTSDK/SENTSDK.h>
 #import <SENTSDK/SENTSDKStatus.h>
 #import <SENTSDK/SENTPublicDefinitions.h>
+#import <RNSentianceNativeInitialization.h>
 
 @interface RNSentiance()
 
@@ -516,7 +517,9 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 
 RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [[SENTSDK sharedInstance] reset:^{ resolve(@(YES)); } failure:^(SENTResetFailureReason reason) {
+    [[SENTSDK sharedInstance] reset:^{
+        [self disableSDKNativeInitialization:resolve rejecter:reject];
+    } failure:^(SENTResetFailureReason reason) {
         NSString *message = @"Resetting the SDK failed";
         switch(reason) {
             case SENTResetFailureReasonInitInProgress:
@@ -583,6 +586,62 @@ RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
         resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
+    }
+}
+
+RCT_EXPORT_METHOD(isNativeInitializationEnabled:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    BOOL isEnabled = [self isNativeInitializationEnabled];
+    resolve(@(isEnabled));
+}
+
+RCT_EXPORT_METHOD(enableNativeInitialization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [self enableSDKNativeInitialization:resolve rejecter:reject];
+}
+
+RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [self disableSDKNativeInitialization:resolve rejecter:reject];
+}
+
+- (BOOL)isNativeInitializationEnabled {
+    return [[RNSentianceNativeInitialization sharedObject] isFlagFileExists];
+}
+
+- (void)enableSDKNativeInitialization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
+    if([[RNSentianceNativeInitialization sharedObject] isFlagFileExists]) {
+        if (resolve) {
+            resolve(@(YES));
+        }
+        return;
+    }
+
+    NSError *error;
+    [[RNSentianceNativeInitialization sharedObject] createFlagFile:&error];
+
+    if (error != nil) {
+        if (reject) {
+            reject(@"ERROR_CREATING_DIR", error.description, nil);
+        }
+    } else if (resolve) {
+        resolve(@(YES));
+    }
+}
+
+- (void)disableSDKNativeInitialization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
+    if([[RNSentianceNativeInitialization sharedObject] isFlagFileExists]) {
+        NSError *error;
+        [[RNSentianceNativeInitialization sharedObject] removeFlagFile:&error];
+        if (error != nil) {
+            if (reject) {
+                reject(@"ERROR_REMOVE_FILE", error.description, nil);
+            }
+        } else if (resolve) {
+            resolve(@(YES));
+        }
+    } else if (resolve) {
+        resolve(@(YES));
     }
 }
 
