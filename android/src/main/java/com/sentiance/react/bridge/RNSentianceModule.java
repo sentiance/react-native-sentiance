@@ -543,7 +543,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
-  @SuppressWarnings("deprecated")
+  @SuppressWarnings("unused")
   public void listenVehicleCrashEvents(final Promise promise) {
     if (!isSdkInitialized()) {
       promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
