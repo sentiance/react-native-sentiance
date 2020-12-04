@@ -605,6 +605,43 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve re
     [self disableSDKNativeInitialization:resolve rejecter:reject];
 }
 
+RCT_EXPORT_METHOD(listenVehicleCrashEvents:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    @try {
+        __weak typeof(self) weakSelf = self;
+
+        [[SENTSDK sharedInstance] setVehicleCrashHandler:^(SENTVehicleCrashEvent *crashEvent) {
+            if(weakSelf.hasListeners) {
+                NSDictionary *crashEventDict = [self convertVehicleCrashEventToDict:crashEvent];
+                [weakSelf sendEventWithName:@"VehicleCrashEvent" body:crashEventDict];
+            }
+        }];
+        resolve(@(YES));
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
+}
+
+RCT_EXPORT_METHOD(invokeDummyVehicleCrash:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSLog(@"Not implemented in iOS.");
+    resolve(@(YES));
+}
+
+RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(NSString *)type
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    NSLog(@"Not implemented in iOS.");
+    SENTTripType tripType;
+    if ([type isEqualToString:@"TRIP_TYPE_SDK"]) {
+        tripType = SENTTripTypeSDK;
+    } else if ([type isEqualToString:@"TRIP_TYPE_EXTERNAL"]) {
+        tripType = SENTTripTypeExternal;
+    }
+    resolve(@(YES));
+}
+
 - (BOOL)isNativeInitializationEnabled {
     return [[RNSentianceNativeInitialization sharedObject] isFlagFileExists];
 }
@@ -892,6 +929,27 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve re
 
     [dict setValue:transportSegmentsArray forKey:@"transportSegments"];
 
+    return [dict copy];
+}
+
+- (NSDictionary*)convertVehicleCrashEventToDict:(SENTVehicleCrashEvent*) crashEvent {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    double time = [crashEvent.date timeIntervalSince1970] * 1000;
+    dict[@"time"] = @(time);
+
+
+    if(crashEvent.location != nil) {
+        NSDictionary *location = @{
+                                   @"latitude": @(lastKnownLocation.coordinate.latitude),
+                                   @"longitude": @(lastKnownLocation.coordinate.longitude)
+                                   };
+        dict[@"location"] = location;
+    }
+    
+    dict[@"magnitude"] = @(crashEvent.magnitude);
+    dict[@"speedAtImpact"] = @(crashEvent.speedAtImpact);
+    dict[@"deltaV"] = @(crashEvent.deltaV);
+    dict[@"confidence"] = @(crashEvent.confidence);
     return [dict copy];
 }
 

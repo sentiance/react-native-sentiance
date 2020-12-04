@@ -14,6 +14,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.ondevice.TripProfile;
+import com.sentiance.sdk.ondevicefull.crashdetection.VehicleCrashEvent;
 
 import static com.sentiance.react.bridge.RNSentianceConverter.*;
 
@@ -23,6 +24,7 @@ class RNSentianceEmitter {
   private static final String USER_ACTIVITY_UPDATE = "SDKUserActivityUpdate";
   private static final String CRASH_EVENT = "SDKCrashEvent";
   private static final String TRIP_PROFILE = "SDKTripProfile";
+  private static final String VEHICLE_CRASH_EVENT = "VehicleCrashEvent";
   private final Handler mHandler = new Handler(Looper.getMainLooper());
 
   private ReactContext reactContext;
@@ -58,6 +60,10 @@ class RNSentianceEmitter {
 
   void sendTripProfile(TripProfile tripProfile) {
     sendEvent(TRIP_PROFILE, convertTripProfile(tripProfile));
+  }
+
+  void sendVehicleCrashEvent(VehicleCrashEvent crashEvent) {
+    sendEvent(VEHICLE_CRASH_EVENT, convertVehicleCrashEvent(crashEvent));
   }
 
   private void sendEvent(final String key, final WritableMap map) {

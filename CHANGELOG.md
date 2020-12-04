@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Upgrade iOS SDK to [5.8.0]()
+- Upgrade Android SDK to [4.17.0]()
+
+### Added
+- `invokeDummyVehicleCrash` invoke a dummy vehicle crash event for development purpose
+- `isVehicleCrashDetectionSupported` 
+- `setVehicleCrashListener`
 
 ## [4.2.0] - 2020-10-07
 ### Added
