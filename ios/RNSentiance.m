@@ -940,12 +940,12 @@ RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(NSString *)type
 
     if(crashEvent.location != nil) {
         NSDictionary *location = @{
-                                   @"latitude": @(lastKnownLocation.coordinate.latitude),
-                                   @"longitude": @(lastKnownLocation.coordinate.longitude)
+                                   @"latitude": @(crashEvent.location.coordinate.latitude),
+                                   @"longitude": @(crashEvent.location.coordinate.longitude)
                                    };
         dict[@"location"] = location;
     }
-    
+
     dict[@"magnitude"] = @(crashEvent.magnitude);
     dict[@"speedAtImpact"] = @(crashEvent.speedAtImpact);
     dict[@"deltaV"] = @(crashEvent.deltaV);
