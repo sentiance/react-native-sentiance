@@ -6,12 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Upgrade iOS SDK to [5.8.0]()
-- Upgrade Android SDK to [4.17.0]()
+- Upgrade iOS SDK to [5.9.0]()
+- Upgrade Android SDK to [4.18.0]()
 
 ### Added
 - `invokeDummyVehicleCrash` invoke a dummy vehicle crash event for development purpose
-- `isVehicleCrashDetectionSupported` 
+- `isVehicleCrashDetectionSupported`
 - `setVehicleCrashListener`
 
 ## [4.2.0] - 2020-10-07
