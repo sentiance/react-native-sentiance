@@ -2,7 +2,7 @@
 #import <SENTSDK/SENTSDK.h>
 #import <SENTSDK/SENTSDKStatus.h>
 #import <SENTSDK/SENTPublicDefinitions.h>
-#import <RNSentianceNativeInitialization.h>
+#import "RNSentianceNativeInitialization.h"
 
 @interface RNSentiance()
 
@@ -624,7 +624,7 @@ RCT_EXPORT_METHOD(listenVehicleCrashEvents:(RCTPromiseResolveBlock)resolve rejec
 
 RCT_EXPORT_METHOD(invokeDummyVehicleCrash:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    NSLog(@"Not implemented in iOS.");
+    [[SENTSDK sharedInstance] invokeDummyVehicleCrashHandler];
     resolve(@(YES));
 }
 
@@ -632,14 +632,8 @@ RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(NSString *)type
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
-    NSLog(@"Not implemented in iOS.");
-    SENTTripType tripType;
-    if ([type isEqualToString:@"TRIP_TYPE_SDK"]) {
-        tripType = SENTTripTypeSDK;
-    } else if ([type isEqualToString:@"TRIP_TYPE_EXTERNAL"]) {
-        tripType = SENTTripTypeExternal;
-    }
-    resolve(@(YES));
+    BOOL supported = [[SENTSDK sharedInstance] isVehicleCrashDetectionSupported:type];
+    resolve(supported ? @(YES) : @(NO));
 }
 
 - (BOOL)isNativeInitializationEnabled {
