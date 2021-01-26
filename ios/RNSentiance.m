@@ -632,7 +632,16 @@ RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(NSString *)type
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
-    BOOL supported = [[SENTSDK sharedInstance] isVehicleCrashDetectionSupported:type];
+    SENTTripType tripType;
+    if ([type isEqualToString:@"TRIP_TYPE_SDK"]) {
+        tripType = SENTTripTypeSDK;
+    } else if ([type isEqualToString:@"TRIP_TYPE_EXTERNAL"]) {
+        tripType = SENTTripTypeExternal;
+    } else {
+        return resolve(@(NO));
+    }
+    
+    BOOL supported = [[SENTSDK sharedInstance] isVehicleCrashDetectionSupported:tripType];
     resolve(supported ? @(YES) : @(NO));
 }
 
