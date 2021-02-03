@@ -63,8 +63,8 @@ declare module "react-native-sentiance" {
   export interface Location {
     latitude: string;
     longitude: string;
-    accuracy: string; // Android only
-    altitude: string; // Android only
+    accuracy?: string; // Android only
+    altitude?: string; // Android only
     provider?: string; // Android only
   }
 
@@ -88,6 +88,15 @@ declare module "react-native-sentiance" {
     lastKnownLocation?: Location;
   }
 
+  export interface VehicleCrashEvent {
+    time: number;
+    location?: Location;
+    magnitude?: number;
+    speedAtImpact?: number;
+    deltaV?: number;
+    confidence?: number;
+  }
+
   export interface HardEvent {
     magnitude: number;
     timestamp: number;
@@ -109,7 +118,7 @@ declare module "react-native-sentiance" {
     transportSegments: TransportSegments[];
   }
 
-  export type SdkEvent = "SDKStatusUpdate" | "SDKUserLink" | "SDKUserActivityUpdate" | "SDKCrashEvent" | "SDKTripProfile" | "SDKTripTimeout";
+  export type SdkEvent = "SDKStatusUpdate" | "SDKUserLink" | "SDKUserActivityUpdate" | "SDKCrashEvent" | "SDKTripProfile" | "SDKTripTimeout" | "VehicleCrashEvent";
 
   export type SDKStatusUpdateListener = (sdkStatus: SdkStatus) => void;
 
@@ -177,6 +186,9 @@ declare module "react-native-sentiance" {
     isNativeInitializationEnabled(): Promise<boolean>;
     enableNativeInitialization(): Promise<boolean>;
     disableNativeInitialization(): Promise<boolean>;
+    listenVehicleCrashEvents(): Promise<boolean>;
+    invokeDummyVehicleCrash(): Promise<boolean>;
+    isVehicleCrashDetectionSupported(type: TripType): Promise<boolean>;
   }
 
   export interface RNSentianceEventEmitter extends NativeEventEmitter {

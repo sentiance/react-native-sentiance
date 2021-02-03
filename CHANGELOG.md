@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.3.0] - 2021-02-03
+### Changed
+- Upgrade iOS SDK to [5.9.0](https://docs.sentiance.com/sdk/changelog/ios#5-9-0-29-jan-2021)
+- Upgrade Android SDK to [4.18.0](https://docs.sentiance.com/sdk/changelog/android#4-18-0-14-jan-2021)
+
+### Added
+- `invokeDummyVehicleCrash` invoke a dummy vehicle crash event for development purpose
+- `isVehicleCrashDetectionSupported`
+- `listenVehicleCrashEvents`
+
+### Removed
+- `SENTSDK.podspec` The reference of SENTSDK.podspec is no longer needed in the enclosing App's Podfile.
+
 ## [4.2.0] - 2020-10-07
 ### Added
 

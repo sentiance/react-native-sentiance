@@ -25,6 +25,8 @@ import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TripType;
 import com.sentiance.sdk.trip.TransportMode;
+import com.sentiance.sdk.ondevicefull.crashdetection.VehicleCrashListener;
+import com.sentiance.sdk.ondevicefull.crashdetection.VehicleCrashEvent;
 
 import android.annotation.SuppressLint;
 import android.os.Handler;
@@ -524,7 +526,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   }
 
   @ReactMethod
-  @SuppressWarnings("unused")
+  @SuppressWarnings("deprecated")
   public void listenCrashEvents(final Promise promise) {
     if (!isSdkInitialized()) {
       promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
@@ -535,6 +537,23 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       @Override
       public void onCrash(long time, @Nullable Location lastKnownLocation) {
         emitter.sendCrashEvent(time, lastKnownLocation);
+      }
+    });
+    promise.resolve(true);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void listenVehicleCrashEvents(final Promise promise) {
+    if (!isSdkInitialized()) {
+      promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
+      return;
+    }
+
+    sdk.setVehicleCrashListener(new VehicleCrashListener() {
+      @Override
+      public void onVehicleCrash(VehicleCrashEvent crashEvent) {
+        emitter.sendVehicleCrashEvent(crashEvent);
       }
     });
     promise.resolve(true);
@@ -637,6 +656,21 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   public void disableNativeInitialization(Promise promise) {
     rnSentianceHelper.disableNativeInitialization();
     promise.resolve(true);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void invokeDummyVehicleCrash(Promise promise) {
+    sdk.invokeDummyVehicleCrash();
+    promise.resolve(true);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void isVehicleCrashDetectionSupported(String tripType, Promise promise) {
+    final TripType type = RNSentianceConverter.toTripType(tripType);
+    Boolean isCrashDetectionSupported = sdk.isVehicleCrashDetectionSupported(type);
+    promise.resolve(isCrashDetectionSupported);
   }
 
   private boolean isSdkInitialized() {
