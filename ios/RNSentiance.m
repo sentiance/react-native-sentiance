@@ -26,7 +26,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent", @"SDKTripProfile"];
+    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent", @"SDKTripProfile", @"VehicleCrashEvent"];
 }
 
 // Will be called when this module's first listener is added.
@@ -624,7 +624,7 @@ RCT_EXPORT_METHOD(listenVehicleCrashEvents:(RCTPromiseResolveBlock)resolve rejec
 
 RCT_EXPORT_METHOD(invokeDummyVehicleCrash:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [[SENTSDK sharedInstance] invokeDummyVehicleCrashHandler];
+    [[SENTSDK sharedInstance] invokeDummyVehicleCrash];
     resolve(@(YES));
 }
 
