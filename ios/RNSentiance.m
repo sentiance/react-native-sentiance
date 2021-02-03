@@ -2,7 +2,7 @@
 #import <SENTSDK/SENTSDK.h>
 #import <SENTSDK/SENTSDKStatus.h>
 #import <SENTSDK/SENTPublicDefinitions.h>
-#import <RNSentianceNativeInitialization.h>
+#import "RNSentianceNativeInitialization.h"
 
 @interface RNSentiance()
 
@@ -26,7 +26,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent", @"SDKTripProfile"];
+    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent", @"SDKTripProfile", @"VehicleCrashEvent"];
 }
 
 // Will be called when this module's first listener is added.
@@ -605,6 +605,46 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve re
     [self disableSDKNativeInitialization:resolve rejecter:reject];
 }
 
+RCT_EXPORT_METHOD(listenVehicleCrashEvents:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    @try {
+        __weak typeof(self) weakSelf = self;
+
+        [[SENTSDK sharedInstance] setVehicleCrashHandler:^(SENTVehicleCrashEvent *crashEvent) {
+            if(weakSelf.hasListeners) {
+                NSDictionary *crashEventDict = [self convertVehicleCrashEventToDict:crashEvent];
+                [weakSelf sendEventWithName:@"VehicleCrashEvent" body:crashEventDict];
+            }
+        }];
+        resolve(@(YES));
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
+}
+
+RCT_EXPORT_METHOD(invokeDummyVehicleCrash:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [[SENTSDK sharedInstance] invokeDummyVehicleCrash];
+    resolve(@(YES));
+}
+
+RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(NSString *)type
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    SENTTripType tripType;
+    if ([type isEqualToString:@"TRIP_TYPE_SDK"]) {
+        tripType = SENTTripTypeSDK;
+    } else if ([type isEqualToString:@"TRIP_TYPE_EXTERNAL"]) {
+        tripType = SENTTripTypeExternal;
+    } else {
+        return resolve(@(NO));
+    }
+    
+    BOOL supported = [[SENTSDK sharedInstance] isVehicleCrashDetectionSupported:tripType];
+    resolve(supported ? @(YES) : @(NO));
+}
+
 - (BOOL)isNativeInitializationEnabled {
     return [[RNSentianceNativeInitialization sharedObject] isFlagFileExists];
 }
@@ -892,6 +932,27 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve re
 
     [dict setValue:transportSegmentsArray forKey:@"transportSegments"];
 
+    return [dict copy];
+}
+
+- (NSDictionary*)convertVehicleCrashEventToDict:(SENTVehicleCrashEvent*) crashEvent {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    double time = [crashEvent.date timeIntervalSince1970] * 1000;
+    dict[@"time"] = @(time);
+
+
+    if(crashEvent.location != nil) {
+        NSDictionary *location = @{
+                                   @"latitude": @(crashEvent.location.coordinate.latitude),
+                                   @"longitude": @(crashEvent.location.coordinate.longitude)
+                                   };
+        dict[@"location"] = location;
+    }
+
+    dict[@"magnitude"] = @(crashEvent.magnitude);
+    dict[@"speedAtImpact"] = @(crashEvent.speedAtImpact);
+    dict[@"deltaV"] = @(crashEvent.deltaV);
+    dict[@"confidence"] = @(crashEvent.confidence);
     return [dict copy];
 }
 

@@ -479,7 +479,7 @@ try {
 }
 ```
 
-#### Crash Event Detection
+#### Crash Event Detection(deprecated)
 
 Subscribe to vehicle crash events.
 
@@ -576,3 +576,38 @@ In AppDelegate (iOS) and MainApplication (Android), ```isNativeInitializationEna
 To disable native initialization, invoke ```await RNSentiance.disableNativeInitialization()```.
 
 Please refer to our [example app](https://github.com/sentiance/react-native-sentiance-example) for a complete usage.
+
+##### Invoke a dummy vehicle crash event
+
+```javascript
+await RNSentiance.invokeDummyVehicleCrash()
+```
+
+##### Check if crash detection is supported
+
+```javascript
+const crashDetectionSupported = await RNSentiance.isVehicleCrashDetectionSupported('TRIP_TYPE_SDK')
+if (crashDetectionSupported) {
+  // setup vehicle crash event listener
+}
+```
+
+#### Vehicle Crash Event Detection
+
+Listen to vehicle crash events.
+
+```javascript
+import { NativeEventEmitter } from "react-native";
+
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
+const vehicleCrashEventSubscription = sentianceEmitter.addListener(
+  "VehicleCrashEvent",
+  (event: VehicleCrashEvent) => {}
+);
+
+RNSentiance.listenVehicleCrashEvents();
+
+// To unsubscribe
+vehicleCrashEventSubscription.remove();
+```
+

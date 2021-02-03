@@ -19,6 +19,7 @@ import com.sentiance.sdk.ondevice.transportclassifier.TransportSegment;
 import com.sentiance.sdk.ondevice.transportclassifier.VehicleMode;
 import com.sentiance.sdk.trip.TransportMode;
 import com.sentiance.sdk.trip.TripType;
+import com.sentiance.sdk.ondevicefull.crashdetection.VehicleCrashEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -233,7 +234,7 @@ public class RNSentianceConverter {
     }
   }
 
-    public static WritableMap convertTripProfile(TripProfile tripProfile) {
+  public static WritableMap convertTripProfile(TripProfile tripProfile) {
     WritableMap map = Arguments.createMap();
 
     try {
@@ -284,4 +285,32 @@ public class RNSentianceConverter {
     return map;
   }
 
+  public static WritableMap convertVehicleCrashEvent(VehicleCrashEvent crashEvent) {
+    WritableMap map = Arguments.createMap();
+
+    map.putDouble("time", (double) crashEvent.getTime());
+
+    if (crashEvent.getLocation() != null) {
+      WritableMap locationMap = convertLocation(crashEvent.getLocation());
+      map.putMap("location", locationMap);
+    }
+
+    if (crashEvent.getMagnitude() != null) {
+      map.putDouble("magnitude", crashEvent.getMagnitude());
+    }
+
+    if (crashEvent.getSpeedAtImpact() != null) {
+      map.putDouble("speedAtImpact", crashEvent.getSpeedAtImpact());
+    }
+
+    if (crashEvent.getDeltaV() != null) {
+      map.putDouble("deltaV", crashEvent.getDeltaV());
+    }
+
+    if (crashEvent.getConfidence() != null) {
+      map.putInt("confidence", crashEvent.getConfidence());
+    }
+
+    return map;
+  }
 }
