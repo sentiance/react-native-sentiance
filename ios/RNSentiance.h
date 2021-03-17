@@ -8,7 +8,7 @@ typedef void (^SdkStatusHandler)(SENTSDKStatus *status);
 - (MetaUserLinker) getUserLinker;
 - (SdkStatusHandler) getSdkStatusUpdateHandler;
 - (void) initSDK:(NSString *)appId secret:(NSString *)secret baseURL:(NSString *)baseURL shouldStart:(BOOL)shouldStart resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject;
-- (void) initSDKIfUserLinkingCompleted:(NSString *)appId secret:(NSString *)secret baseURL:(NSString *)baseURL shouldStart:(BOOL)shouldStart resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject;
+- (BOOL) initSDKIfUserLinkingCompleted:(NSString *)appId secret:(NSString *)secret baseURL:(NSString *)baseURL shouldStart:(BOOL)shouldStart resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject;
 - (BOOL) isThirdPartyLinked;
 - (NSString *) getValueForKey:(NSString *)key value:(NSString *)defaultValue;
 - (void) setValueForKey:(NSString *)key value:(NSString *)value;

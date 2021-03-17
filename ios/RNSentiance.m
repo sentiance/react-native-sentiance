@@ -87,7 +87,7 @@ RCT_EXPORT_MODULE()
     }
 }
 
-- (void) initSDKIfUserLinkingCompleted:(NSString *)appId
+- (BOOL) initSDKIfUserLinkingCompleted:(NSString *)appId
           secret:(NSString *)secret
          baseURL:(nullable NSString *)baseURL
      shouldStart:(BOOL)shouldStart
@@ -97,7 +97,9 @@ RCT_EXPORT_MODULE()
     BOOL isThirdPartyLinked = [self isThirdPartyLinked];
     if (isThirdPartyLinked) {
         [self initSDK:appId secret:secret baseURL:baseURL shouldStart:shouldStart resolver:resolve rejecter:reject];
+        return YES;
     }
+    return NO;
 }
 
 - (void) startSDK:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject {
