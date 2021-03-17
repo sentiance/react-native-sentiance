@@ -94,7 +94,7 @@ RCT_EXPORT_MODULE()
         resolver:(RCTPromiseResolveBlock)resolve
         rejecter:(RCTPromiseRejectBlock)reject
 {
-    BOOL isThirdPartyLinked = [self isNativeInitializationEnabled];
+    BOOL isThirdPartyLinked = [self isThirdPartyLinked];
     if (isThirdPartyLinked) {
         [self initSDK:appId secret:secret baseURL:baseURL shouldStart:shouldStart resolver:resolve rejecter:reject];
     }
