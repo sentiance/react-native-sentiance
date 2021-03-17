@@ -2,8 +2,8 @@ apply plugin: 'com.android.library'
 
 buildscript {
     repositories {
-        jcenter()
-        google()
+      google()
+      gradlePluginPortal()
     }
 
     dependencies {
@@ -26,14 +26,15 @@ android {
 }
 
 repositories {
+    google()
     mavenCentral()
+    gradlePluginPortal()
     maven {
         url "http://repository.sentiance.com"
     }
-    google()
 }
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    api ('com.sentiance:sdk:4.18.0@aar') { transitive = true }
+    api ('com.sentiance:sdk:4.19.0@aar') { transitive = true }
 }
