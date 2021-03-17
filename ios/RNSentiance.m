@@ -4,6 +4,11 @@
 #import <SENTSDK/SENTPublicDefinitions.h>
 #import "RNSentianceNativeInitialization.h"
 
+@interface SENTSDK (Bindings)
+- (BOOL)userExists;
+- (BOOL)isThirdPartyLinked;
+@end
+
 @interface RNSentiance()
 
 @property (nonatomic, strong) void (^userLinkSuccess)(void);
@@ -79,6 +84,19 @@ RCT_EXPORT_MODULE()
         if (reject) {
             reject(e.name, e.reason, nil);
         }
+    }
+}
+
+- (void) initSDKIfUserLinkingCompleted:(NSString *)appId
+          secret:(NSString *)secret
+         baseURL:(nullable NSString *)baseURL
+     shouldStart:(BOOL)shouldStart
+        resolver:(RCTPromiseResolveBlock)resolve
+        rejecter:(RCTPromiseRejectBlock)reject
+{
+    BOOL isThirdPartyLinked = [self isNativeInitializationEnabled];
+    if (isThirdPartyLinked) {
+        [self initSDK:appId secret:secret baseURL:baseURL shouldStart:shouldStart resolver:resolve rejecter:reject];
     }
 }
 
@@ -643,6 +661,10 @@ RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(NSString *)type
     
     BOOL supported = [[SENTSDK sharedInstance] isVehicleCrashDetectionSupported:tripType];
     resolve(supported ? @(YES) : @(NO));
+}
+
+- (BOOL)isThirdPartyLinked {
+    return [[SENTSDK sharedInstance] isThirdPartyLinked];
 }
 
 - (BOOL)isNativeInitializationEnabled {
