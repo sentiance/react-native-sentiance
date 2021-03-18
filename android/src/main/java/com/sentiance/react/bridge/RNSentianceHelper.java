@@ -113,10 +113,13 @@ public class RNSentianceHelper {
         initializeAndStartSentianceSDK(appId, appSecret, shouldStart, baseUrl, true, initCallback, startFinishedHandler);
     }
 
-    public void initializeSentianceSDKIfUserLinkingCompleted(String appId, String appSecret, boolean shouldStart,
-                                                             @Nullable String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
+    public boolean initializeSentianceSDKIfUserLinkingCompleted(String appId, String appSecret, boolean shouldStart,
+                                                                @Nullable String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
         if (isThirdPartyLinked()) {
             initializeAndStartSentianceSDK(appId, appSecret, shouldStart, baseUrl, true, initCallback, startFinishedHandler);
+            return true;
+        } else {
+          return false;
         }
     }
 
