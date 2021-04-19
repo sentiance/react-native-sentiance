@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.4.0] - 2021-04-19
+### Changed
+- Upgrade iOS SDK to [5.10.0](https://docs.sentiance.com/sdk/changelog/ios#5-10-0-14-apr-2021)
+- Upgrade Android SDK to [4.19.0](https://docs.sentiance.com/sdk/changelog/android#4-19-0-14-apr-2021)
+
+### Added
+- `isThirdPartyLinked` to determine whether third part linking has been completed successfully
+- `initSDKIfUserLinkingCompleted` to initialize the SDK only if user linking has been completed successfully
+
 ## [4.3.1] - 2021-02-03
 ### Changed
 - Updated iOS integration doc

@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat;
 
 import android.util.Log;
 
+import com.sentiance.sdk.InternalSentianceHelper;
 import com.sentiance.sdk.MetaUserLinker;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnSdkStatusUpdateHandler;
@@ -110,6 +111,22 @@ public class RNSentianceHelper {
     public void initializeSentianceSDKWithUserLinking(String appId, String appSecret, boolean shouldStart,
                                                       @Nullable String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
         initializeAndStartSentianceSDK(appId, appSecret, shouldStart, baseUrl, true, initCallback, startFinishedHandler);
+    }
+
+    public boolean initializeSentianceSDKIfUserLinkingCompleted(String appId, String appSecret, boolean shouldStart,
+                                                                @Nullable String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
+        if (isThirdPartyLinked()) {
+            initializeAndStartSentianceSDK(appId, appSecret, shouldStart, baseUrl, true, initCallback, startFinishedHandler);
+            return true;
+        } else {
+          return false;
+        }
+    }
+
+    public boolean isThirdPartyLinked() {
+        Context context = weakContext.get();
+        if (context == null) return false;
+        return InternalSentianceHelper.isThirdPartyLinked(context);
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
