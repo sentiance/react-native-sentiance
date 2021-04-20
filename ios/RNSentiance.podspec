@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "RNSentiance"
-  s.version      = "4.4.0"
+  s.version      = "4.4.1"
   s.summary      = "RNSentiance"
   s.description  = <<-DESC
                    RNSentiance
