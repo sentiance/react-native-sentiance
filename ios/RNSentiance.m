@@ -175,19 +175,21 @@ RCT_EXPORT_METHOD(userLinkCallback:(BOOL)success) {
 - (NSString *) getValueForKey:(NSString *)key value:(NSString *)defaultValue {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     NSString *value = [prefs stringForKey:key];
+
+    if (value == nil) {
+        return defaultValue;
+    }
+
     return value;
 }
 
 RCT_EXPORT_METHOD(getValueForKey:(NSString *)key
                   value:(NSString *)defaultValue
-                  resolver:(RCTPromiseResolveBlock)resolve){
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject){
 
     NSString *value = [self getValueForKey:key value:defaultValue];
-    if (value == nil) {
-        resolve(defaultValue);
-    } else {
-        resolve(value);
-    }
+    resolve(value);
 }
 
 RCT_EXPORT_METHOD(setValueForKey:(NSString *)key
