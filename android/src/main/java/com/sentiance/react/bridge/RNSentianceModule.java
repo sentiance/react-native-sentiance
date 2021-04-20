@@ -640,6 +640,12 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
+  public void isThirdPartyLinked(Promise promise) {
+    promise.resolve(rnSentianceHelper.isThirdPartyLinked());
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
   public void isNativeInitializationEnabled(Promise promise) {
     promise.resolve(rnSentianceHelper.isNativeInitializationEnabled());
   }
