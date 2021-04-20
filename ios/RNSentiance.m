@@ -111,7 +111,7 @@ RCT_EXPORT_MODULE()
 
     @try {
         __weak typeof(self) weakSelf = self;
-        
+
         SdkStatusHandler sdkStatusHandler =  ^(SENTSDKStatus* status) {
             NSLog(@"SDK started properly.");
             if (resolve && !resolved) {
@@ -119,7 +119,7 @@ RCT_EXPORT_MODULE()
                 resolved = YES;
             }
         };
-        
+
         if (stopEpochTimeMs == nil) {
             [[SENTSDK sharedInstance] start:sdkStatusHandler];
         }
@@ -175,19 +175,21 @@ RCT_EXPORT_METHOD(userLinkCallback:(BOOL)success) {
 - (NSString *) getValueForKey:(NSString *)key value:(NSString *)defaultValue {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     NSString *value = [prefs stringForKey:key];
+
+    if (value == nil) {
+        return defaultValue;
+    }
+
     return value;
 }
 
 RCT_EXPORT_METHOD(getValueForKey:(NSString *)key
                   value:(NSString *)defaultValue
-                  resolver:(RCTPromiseResolveBlock)resolve){
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject){
 
     NSString *value = [self getValueForKey:key value:defaultValue];
-    if (value == nil) {
-        resolve(defaultValue);
-    } else {
-        resolve(value);
-    }
+    resolve(value);
 }
 
 RCT_EXPORT_METHOD(setValueForKey:(NSString *)key
@@ -660,9 +662,15 @@ RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(NSString *)type
     } else {
         return resolve(@(NO));
     }
-    
+
     BOOL supported = [[SENTSDK sharedInstance] isVehicleCrashDetectionSupported:tripType];
     resolve(supported ? @(YES) : @(NO));
+}
+
+RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    BOOL isThirdPartyLinked = [self isThirdPartyLinked];
+    resolve(@(isThirdPartyLinked));
 }
 
 - (BOOL)isThirdPartyLinked {

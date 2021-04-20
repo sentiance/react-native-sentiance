@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.4.1] - 2021-04-20
+### Fixed
+- getValueForKey function signature on iOS
+
 ## [4.4.0] - 2021-04-19
 ### Changed
 - Upgrade iOS SDK to [5.10.0](https://docs.sentiance.com/sdk/changelog/ios#5-10-0-14-apr-2021)
