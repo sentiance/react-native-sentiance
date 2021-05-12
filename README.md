@@ -70,7 +70,7 @@ In your `AppDelegate` add the following:
 
 1. Open up youd application class`android/app/src/main/java/[...]/{your-app-class}.java`
 
-- Add `import com.reactlibrary.RNSentiancePackage;` to the imports at the top of the file
+- Add `import com.sentiance.react.bridge.RNSentiancePackage;` to the imports at the top of the file
 - Add `new RNSentiancePackage()` to the list returned by the `getPackages()` method
 
 2. Append the following lines to `android/settings.gradle`:
@@ -80,7 +80,7 @@ In your `AppDelegate` add the following:
    ```
 3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
    ```
-   compile project(':react-native-sentiance')
+   implementation project(':react-native-sentiance')
    ```
 4. Add following entry to `android/build.gradle`
    ```
