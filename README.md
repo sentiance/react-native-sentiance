@@ -122,13 +122,12 @@ public void onCreate() {
   super.onCreate();
   SoLoader.init(this, /* native exopackage */ false);
   RNSentianceHelper rnSentianceHelper = RNSentianceHelper.getInstance(getApplicationContext());
-      rnSentianceHelper.initializeSentianceSDK(
-              SENTIANCE_APP_ID,SENTIANCE_SECRET, // app id and secret
-              true, //auto start
-              null, // init callback
-              null // start callback
-      );
-      ...
+  InitOptions initOptions = new InitOptions.Builder(SENTIANCE_APP_ID, SENTIANCE_SECRET)
+    .autoStart(true)
+    .build();
+
+  rnSentianceHelper.initializeSentianceSDK(initOptions);
+  ...
 }
 ```
 
@@ -475,31 +474,6 @@ try {
 }
 ```
 
-#### Crash Event Detection(deprecated)
-
-Subscribe to vehicle crash events.
-
-```javascript
-import { NativeEventEmitter } from "react-native";
-
-const sentianceEmitter = new NativeEventEmitter(RNSentiance);
-const sdkCrashEventSubscription = sentianceEmitter.addListener(
-  "SDKCrashEvent",
-  ({ time, lastKnownLocation }) => {
-    // parameter time is in milliseconds
-    // parameter lastKnownLocation is nullable
-    if (lastKnownLocation) {
-      const { latitude, longitude } = lastKnownLocation;
-    }
-  }
-);
-
-RNSentiance.listenCrashEvents();
-
-// To unsubscribe
-sdkCrashEventSubscription.remove();
-```
-
 #### Trip Profiling
 
 ##### Handle on-device trip profiling
@@ -607,3 +581,39 @@ RNSentiance.listenVehicleCrashEvents();
 vehicleCrashEventSubscription.remove();
 ```
 
+#### User Context Data
+
+Get the user's context.
+
+```javascript
+await RNSentiance.getUserContext();
+```
+
+Listen for user context updates.
+
+```javascript
+import { NativeEventEmitter } from "react-native";
+
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
+const userContextUpdateEventSubscription = sentianceEmitter.addListener(
+  "UserContextUpdateEvent",
+  (event: UserContextUpdateEvent) => {}
+);
+
+// To unsubscribe
+userContextUpdateEventSubscription.remove();
+```
+
+#### App Foreground Session Data
+
+Control whether the SDK can collect "app session" data (e.g. sensor and location) whenever the app comes to the foreground.
+
+```javascript
+await RNSentiance.setAppSessionDataCollectionEnabled(enabled);
+```
+
+Check whether app session data collection is enabled.
+
+```javascript
+await RNSentinace.isAppSessionDataCollectionEnabled();
+```
