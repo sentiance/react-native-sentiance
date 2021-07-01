@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		9AE9AE342527BDFA0070A307 /* RNSentianceNativeInitialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AE9AE332527BDFA0070A307 /* RNSentianceNativeInitialization.m */; };
 		B3E7B58A1CC2AC0600A0062D /* RNSentiance.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNSentiance.m */; };
+		DEFF7636271337B900C69F1B /* RNSentiance+Converter.m in Sources */ = {isa = PBXBuildFile; fileRef = DEFF76332713232400C69F1B /* RNSentiance+Converter.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,6 +30,8 @@
 		9AE9AE332527BDFA0070A307 /* RNSentianceNativeInitialization.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNSentianceNativeInitialization.m; sourceTree = "<group>"; };
 		B3E7B5881CC2AC0600A0062D /* RNSentiance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSentiance.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RNSentiance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSentiance.m; sourceTree = "<group>"; };
+		DEFF76332713232400C69F1B /* RNSentiance+Converter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "RNSentiance+Converter.m"; sourceTree = "<group>"; };
+		DEFF76352713270200C69F1B /* RNSentiance+Converter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RNSentiance+Converter.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +56,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				DEFF76352713270200C69F1B /* RNSentiance+Converter.h */,
+				DEFF76332713232400C69F1B /* RNSentiance+Converter.m */,
 				9AE9AE332527BDFA0070A307 /* RNSentianceNativeInitialization.m */,
 				9AE9AE322527BDD90070A307 /* RNSentianceNativeInitialization.h */,
 				B3E7B5881CC2AC0600A0062D /* RNSentiance.h */,
@@ -120,6 +125,7 @@
 			files = (
 				B3E7B58A1CC2AC0600A0062D /* RNSentiance.m in Sources */,
 				9AE9AE342527BDFA0070A307 /* RNSentianceNativeInitialization.m in Sources */,
+				DEFF7636271337B900C69F1B /* RNSentiance+Converter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,7 +223,10 @@
 					"$(SRCROOT)/../../react-native/React/**",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = RNSentiance;
 				SKIP_INSTALL = YES;
 			};
@@ -233,7 +242,10 @@
 					"$(SRCROOT)/../../react-native/React/**",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
 				PRODUCT_NAME = RNSentiance;
 				SKIP_INSTALL = YES;
 			};

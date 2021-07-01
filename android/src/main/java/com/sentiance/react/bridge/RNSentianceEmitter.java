@@ -1,22 +1,31 @@
 package com.sentiance.react.bridge;
 
+import static com.sentiance.react.bridge.RNSentianceConverter.convertInstallId;
+import static com.sentiance.react.bridge.RNSentianceConverter.convertSdkStatus;
+import static com.sentiance.react.bridge.RNSentianceConverter.convertTripProfile;
+import static com.sentiance.react.bridge.RNSentianceConverter.convertUserActivity;
+import static com.sentiance.react.bridge.RNSentianceConverter.convertUserContext;
+import static com.sentiance.react.bridge.RNSentianceConverter.convertVehicleCrashEvent;
+
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.location.Location;
-import androidx.annotation.Nullable;
 
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.sentiance.sdk.SdkStatus;
+import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.ondevice.TripProfile;
-import com.sentiance.sdk.ondevicefull.crashdetection.VehicleCrashEvent;
+import com.sentiance.sdk.usercontext.api.UserContext;
+import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 
-import static com.sentiance.react.bridge.RNSentianceConverter.*;
+import java.util.List;
 
 class RNSentianceEmitter {
   private static final String USER_LINK = "SDKUserLink";
@@ -24,7 +33,8 @@ class RNSentianceEmitter {
   private static final String USER_ACTIVITY_UPDATE = "SDKUserActivityUpdate";
   private static final String CRASH_EVENT = "SDKCrashEvent";
   private static final String TRIP_PROFILE = "SDKTripProfile";
-  private static final String VEHICLE_CRASH_EVENT = "VehicleCrashEvent";
+  private static final String VEHICLE_CRASH_EVENT = "SDKVehicleCrashEvent";
+  private static final String USER_CONTEXT_EVENT = "UserContextUpdateEvent";
   private final Handler mHandler = new Handler(Looper.getMainLooper());
 
   private ReactContext reactContext;
@@ -54,16 +64,28 @@ class RNSentianceEmitter {
     sendEvent(USER_ACTIVITY_UPDATE, convertUserActivity(userActivity));
   }
 
-  void sendCrashEvent(long time, @Nullable Location lastKnownLocation) {
-    sendEvent(CRASH_EVENT, convertCrashEvent(time, lastKnownLocation));
-  }
-
   void sendTripProfile(TripProfile tripProfile) {
     sendEvent(TRIP_PROFILE, convertTripProfile(tripProfile));
   }
 
   void sendVehicleCrashEvent(VehicleCrashEvent crashEvent) {
     sendEvent(VEHICLE_CRASH_EVENT, convertVehicleCrashEvent(crashEvent));
+  }
+
+  void sendUserContext(List<UserContextUpdateCriteria> criteria, UserContext userContext) {
+    WritableMap map = Arguments.createMap();
+    map.putMap("userContext", convertUserContext(userContext));
+    map.putArray("criteria", convertCriteriaList(criteria));
+
+    sendEvent(USER_CONTEXT_EVENT, map);
+  }
+
+  private WritableArray convertCriteriaList(List<UserContextUpdateCriteria> criteria) {
+    WritableArray array = Arguments.createArray();
+    for (UserContextUpdateCriteria criterion: criteria) {
+      array.pushString(criterion.toString());
+    }
+    return array;
   }
 
   private void sendEvent(final String key, final WritableMap map) {

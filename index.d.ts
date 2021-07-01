@@ -11,6 +11,29 @@ declare module "react-native-sentiance" {
 
   export type TripType = "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL";
 
+  export type LocationPermission = "ALWAYS" | "ONLY_WHILE_IN_USE" | "NEVER";
+
+  export type SegmentCategory = "LEISURE" | "MOBILITY" | "WORK_LIFE";
+
+  export type SegmentSubcategory = "COMMUTE" | "DRIVING" | "ENTERTAINMENT" | "FAMILY" | "HOME" | "SHOPPING" | "SOCIAL" | "TRANSPORT" | "TRAVEL" | "WELLBEING" | "WINING_AND_DINING" | "WORK";
+
+  export type SegmentType = "AGGRESSIVE_DRIVER", "ANTICIPATIVE_DRIVER", "BAR_GOER", "BEAUTY_QUEEN", "BRAND_LOYAL__BAR", "BRAND_LOYAL__CAFE", 
+                            "BRAND_LOYAL__RESTAURANT", "BRAND_LOYAL__RETAIL", "BRAND_LOYALTY", "BRAND_LOYALTY__GAS_STATIONS", 
+                            "BRAND_LOYALTY__RESTAURANT_BAR", "BRAND_LOYALTY__SUPERMARKET", "CITY_DRIVER", "CITY_HOME", "CITY_WORKER", 
+                            "CLUBBER", "CULTURE_BUFF", "DIE_HARD_DRIVER", "DISTRACTED_DRIVER", "DO_IT_YOURSELVER", "DOG_WALKER", "EARLY_BIRD", 
+                            "EASY_COMMUTER", "EFFICIENT_DRIVER", "FASHIONISTA", "FOODIE", "FREQUENT_FLYER", "FULLTIME_WORKER", "GAMER", 
+                            "GREEN_COMMUTER", "HEALTHY_BIKER", "HEALTHY_WALKER", "HEAVY_COMMUTER", "HOME_BOUND", "HOMEBODY", "HOMEWORKER", 
+                            "ILLEGAL_DRIVER", "LATE_WORKER", "LEGAL_DRIVER", "LONG_COMMUTER", "MOBILITY", "MOBILITY__HIGH", "MOBILITY__LIMITED", 
+                            "MOBILITY__MODERATE", "MOTORWAY_DRIVER", "MUSIC_LOVER", "NATURE_LOVER", "NIGHT_OWL", "NIGHTWORKER", "NORMAL_COMMUTER", 
+                            "PARTTIME_WORKER", "PET_OWNER", "PHYSICAL_ACTIVITY__HIGH", "PHYSICAL_ACTIVITY__LIMITED", "PHYSICAL_ACTIVITY__MODERATE", 
+                            "PUBLIC_TRANSPORTS_COMMUTER", "PUBLIC_TRANSPORTS_USER", "RECENTLY_CHANGED_JOB", "RECENTLY_MOVED_HOME", "RESTO_LOVER", 
+                            "RESTO_LOVER__AMERICAN", "RESTO_LOVER__ASIAN", "RESTO_LOVER__BARBECUE", "RESTO_LOVER__FASTFOOD", "RESTO_LOVER__FRENCH", 
+                            "RESTO_LOVER__GERMAN", "RESTO_LOVER__GREEK", "RESTO_LOVER__GRILL", "RESTO_LOVER__INTERNATIONAL", "RESTO_LOVER__ITALIAN", 
+                            "RESTO_LOVER__MEDITERRANEAN", "RESTO_LOVER__MEXICAN", "RESTO_LOVER__SEAFOOD", "RESTO_LOVER__SNACK", "RURAL_HOME", 
+                            "RURAL_WORKER", "SHOPAHOLIC", "SHORT_COMMUTER", "SLEEP_DEPRIVED", "SOCIAL_ACTIVITY", "SOCIAL_ACTIVITY__HIGH", 
+                            "SOCIAL_ACTIVITY__LIMITED", "SOCIAL_ACTIVITY__MODERATE", "SPORTIVE", "STUDENT", "TOWN_HOME", "TOWN_WORKER", 
+                            "UBER_PARENT", "WORK_LIFE_BALANCE", "WORK_TRAVELLER", "WORKAHOLIC";
+
   export enum TransportMode {
     UNKNOWN = 1,
     CAR,
@@ -29,13 +52,13 @@ declare module "react-native-sentiance" {
     startStatus: string;
     canDetect: boolean;
     isRemoteEnabled: boolean;
-    isLocationPermGranted: boolean;
     isAccelPresent: boolean;
     isGyroPresent: boolean;
     isGpsPresent: boolean;
     wifiQuotaStatus: string;
     mobileQuotaStatus: string;
     diskQuotaStatus: string;
+    locationPermission: LocationPermission;
     isBgAccessPermGranted?: boolean; // iOS only
     isActivityRecognitionPermGranted?: boolean; // Android only
     locationSetting?: string; // Android only
@@ -45,6 +68,7 @@ declare module "react-native-sentiance" {
     isBatteryOptimizationEnabled?: boolean; // Android only
     isBatterySavingEnabled?: boolean; // Android only
     isBackgroundProcessingRestricted?: boolean; // Android only
+    isPreciseLocationAuthorizationGranted?: boolean; // iOS only
   }
 
   export interface UserAccessToken {
@@ -118,7 +142,7 @@ declare module "react-native-sentiance" {
     transportSegments: TransportSegments[];
   }
 
-  export type SdkEvent = "SDKStatusUpdate" | "SDKUserLink" | "SDKUserActivityUpdate" | "SDKCrashEvent" | "SDKTripProfile" | "SDKTripTimeout" | "VehicleCrashEvent";
+  export type SdkEvent = "SDKStatusUpdate" | "SDKUserLink" | "SDKUserActivityUpdate" | "SDKTripProfile" | "SDKTripTimeout" | "VehicleCrashEvent" | "UserContextUpdateEvent";
 
   export type SDKStatusUpdateListener = (sdkStatus: SdkStatus) => void;
 
@@ -136,6 +160,83 @@ declare module "react-native-sentiance" {
     SDKUserActivityUpdateListener |
     SDKCrashEventListener |
     SDKTripProfileListener;
+
+  export interface VenueLabels {
+    [labels: string]: string;
+  }
+
+  export interface Venue {
+    name?: string;
+    location: Location;
+    VenueLabels: VenueLabels;
+  }
+
+  export interface Visit {
+    startTime: string;
+    endTime: string;
+    durationInSeconds?: number;
+  }
+
+  export interface VenueCandidate {
+    venue: Venue;
+    likelihood: number;
+    visits: Visit[];
+  }
+
+  export interface Event {
+    startTime: string;
+    endTime?: string;
+    durationInSeconds?: number;
+    type: "UNKNOWN" | "STATIONARY" | "OFF_THE_GRID" | "IN_TRANSPORT";
+  }
+
+  export interface OffTheGridEvent extends Event {}
+
+  export interface UnknownEvent extends Event {}
+
+  export interface StationaryEvent extends Event {
+    venueType: "UNKNOWN" | "HOME" | "WORK" | "POINT_OF_INTEREST";
+    venueCandidates: VenueCandidate[];
+  }
+
+  export interface TransportEvent extends Event {
+    transportMode: "UNKNOWN" | "BYCICLE" | "WALKING" | "RUNNING" | "VEHICLE" | "RAIL";
+  }
+
+  export interface Moment {
+
+  }
+
+  export interface SegmentAttribute {
+    name: string,
+    value: number
+  }
+
+  export interface Segment {
+    category: SegmentCategory;
+    subcategory: SegmentSubcategory;
+    type: SegmentType;
+    id: number;
+    startTime: string;
+    endTime?: string;
+    attributes: SegmentAttribute[];
+  }
+
+  export interface UserContext {
+    events: Event[];
+    activeMoments: Moment[];
+    activeSegments: Segment[];
+    lastKnownLocation?: Location;
+    home?: Venue;
+    work?: Venue;
+  }
+
+  export type UserContextUpdateCriteria = "CURRENT_EVENT" | "ACTIVE_MOMENTS" | "ACTIVE_SEGMENTS" | "VISITED_VENUES";
+
+  export interface UserContextUpdateEvent {
+    userContext: UserContext;
+    criteria: UserContextUpdateCriteria[];
+  }
 
   export interface RNSentianceConstructor extends EventSubscriptionVendor {
     init(
@@ -171,7 +272,6 @@ declare module "react-native-sentiance" {
     disableBatteryOptimization(): Promise<boolean>;
     getUserActivity(): Promise<UserActivity>;
     listenUserActivityUpdates(): Promise<boolean>;
-    listenCrashEvents(): Promise<boolean>;
     listenTripProfiles(): Promise<boolean>;
     updateTripProfileConfig(config: TripProfileConfig): Promise<boolean>;
     userLinkCallback(success: boolean): void;
@@ -189,7 +289,11 @@ declare module "react-native-sentiance" {
     disableNativeInitialization(): Promise<boolean>;
     listenVehicleCrashEvents(): Promise<boolean>;
     invokeDummyVehicleCrash(): Promise<boolean>;
-    isVehicleCrashDetectionSupported(type: TripType): Promise<boolean>;
+    isVehicleCrashDetectionSupported(): Promise<boolean>;
+    getUserContext(): Promise<UserContext>;
+    listenUserContextUpdates(): Promise<boolean>;
+    setAppSessionDataCollectionEnabled(enabled: boolean): Promise<boolean>;
+    isAppSessionDataCollectionEnabled(): Promise<boolean>;
   }
 
   export interface RNSentianceEventEmitter extends NativeEventEmitter {

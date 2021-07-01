@@ -9,20 +9,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-import android.util.Log;
-
 import com.sentiance.sdk.InternalSentianceHelper;
-import com.sentiance.sdk.MetaUserLinker;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnSdkStatusUpdateHandler;
 import com.sentiance.sdk.OnStartFinishedHandler;
 import com.sentiance.sdk.SdkConfig;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
+import com.sentiance.sdk.UserLinker;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
@@ -41,7 +40,7 @@ public class RNSentianceHelper {
     private Boolean userLinkResult = false;
     private volatile CountDownLatch userLinkLatch;
 
-    private OnSdkStatusUpdateHandler onSdkStatusUpdateHandler = new OnSdkStatusUpdateHandler() {
+    private final OnSdkStatusUpdateHandler onSdkStatusUpdateHandler = new OnSdkStatusUpdateHandler() {
         @Override
         public void onSdkStatusUpdate(SdkStatus status) {
             Log.d(TAG, "status update");
@@ -49,7 +48,7 @@ public class RNSentianceHelper {
         }
     };
 
-    private MetaUserLinker userLinker = new MetaUserLinker() {
+    private final UserLinker userLinker = new UserLinker() {
         @Override
         public boolean link(String installId) {
             Log.d(TAG, "User Link");
@@ -90,33 +89,20 @@ public class RNSentianceHelper {
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public void initializeSentianceSDK(String appId, String appSecret, boolean shouldStart,
-                                       @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
-        initializeAndStartSentianceSDK(appId, appSecret, shouldStart, null, false, initCallback, startFinishedHandler);
+    public void initializeSentianceSDK(InitOptions initOptions) {
+        initializeAndStartSentianceSDK(initOptions, false);
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public void initializeSentianceSDK(String appId, String appSecret, boolean shouldStart,
-                                       @Nullable String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
-        initializeAndStartSentianceSDK(appId, appSecret, shouldStart, baseUrl, false, initCallback, startFinishedHandler);
+    void initializeSentianceSDKWithUserLinking(InitOptions initOptions) {
+        // This method is only used internally by RNSentianceHelper.
+        initializeAndStartSentianceSDK(initOptions, true);
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public void initializeSentianceSDKWithUserLinking(String appId, String appSecret, boolean shouldStart,
-                                                      @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
-        initializeAndStartSentianceSDK(appId, appSecret, shouldStart, null, true, initCallback, startFinishedHandler);
-    }
-
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public void initializeSentianceSDKWithUserLinking(String appId, String appSecret, boolean shouldStart,
-                                                      @Nullable String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
-        initializeAndStartSentianceSDK(appId, appSecret, shouldStart, baseUrl, true, initCallback, startFinishedHandler);
-    }
-
-    public Boolean initializeSentianceSDKIfUserLinkingCompleted(String appId, String appSecret, boolean shouldStart,
-                                                                @Nullable String baseUrl, @Nullable OnInitCallback initCallback, @Nullable OnStartFinishedHandler startFinishedHandler) {
+    @SuppressWarnings({"unused"})
+    public Boolean initializeSentianceSDKIfUserLinkingCompleted(InitOptions initOptions) {
         if (isThirdPartyLinked()) {
-            initializeAndStartSentianceSDK(appId, appSecret, shouldStart, baseUrl, true, initCallback, startFinishedHandler);
+            initializeAndStartSentianceSDK(initOptions, true);
             return true;
         } else {
           return false;
@@ -161,19 +147,25 @@ public class RNSentianceHelper {
         setValueForKey(SDK_NATIVE_INIT_FLAG, "");
     }
 
-    private void initializeAndStartSentianceSDK(String appId, String appSecret,
-                                                final boolean shouldStart, @Nullable String baseUrl, boolean userLinkingEnabled,
-                                                final @Nullable OnInitCallback initCallback, final @Nullable OnStartFinishedHandler startFinishedHandler) {
+    private void initializeAndStartSentianceSDK(InitOptions initOptions, boolean userLinkingEnabled) {
         Context context = weakContext.get();
         if (context == null) return;
 
         Notification notification = createNotificationFromManifestData();
 
+        String appId = initOptions.getAppId();
+        String appSecret = initOptions.getSecret();
+        String baseUrl = initOptions.getApiEndpoint();
+        final boolean shouldStart = initOptions.shouldAutoStart();
+        final OnInitCallback initCallback = initOptions.getOnInitCallback();
+        final OnStartFinishedHandler startFinishedHandler = initOptions.getOnStartFinishedHandler();
+
         // Create the config.
         SdkConfig.Builder builder = new SdkConfig.Builder(appId, appSecret, notification)
-                .setOnSdkStatusUpdateHandler(onSdkStatusUpdateHandler);
+                .setOnSdkStatusUpdateHandler(onSdkStatusUpdateHandler)
+                .enableAllFeatures();
         if (userLinkingEnabled)
-            builder.setMetaUserLinker(userLinker);
+            builder.setUserLinker(userLinker);
         if (baseUrl != null)
             builder.baseURL(baseUrl);
 

@@ -3,6 +3,7 @@
 #import <SENTSDK/SENTSDKStatus.h>
 #import <SENTSDK/SENTPublicDefinitions.h>
 #import "RNSentianceNativeInitialization.h"
+#import "RNSentiance+Converter.h"
 
 @interface SENTSDK (Bindings)
 - (BOOL)userExists;
@@ -13,7 +14,7 @@
 
 @property (nonatomic, strong) void (^userLinkSuccess)(void);
 @property (nonatomic, strong) void (^userLinkFailed)(void);
-@property (nonatomic, strong) MetaUserLinker userLinker;
+@property (nonatomic, strong) UserLinker userLinker;
 @property (nonatomic, strong) SdkStatusHandler sdkStatusHandler;
 @property (assign) BOOL userLinkingEnabled;
 @property (assign) BOOL hasListeners;
@@ -31,7 +32,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent", @"SDKTripProfile", @"VehicleCrashEvent"];
+    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent", @"SDKTripProfile", @"VehicleCrashEvent", @"UserContextUpdateEvent"];
 }
 
 // Will be called when this module's first listener is added.
@@ -136,7 +137,7 @@ RCT_EXPORT_MODULE()
     }
 }
 
-- (MetaUserLinker) getUserLinker {
+- (UserLinker) getUserLinker {
     if(self.userLinker != nil) return self.userLinker;
 
     __weak typeof(self) weakSelf = self;
@@ -556,23 +557,6 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
     }];
 }
 
-RCT_EXPORT_METHOD(listenCrashEvents:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    @try {
-        __weak typeof(self) weakSelf = self;
-
-        [[SENTSDK sharedInstance] setCrashListener:^(NSDate *date, CLLocation *lastKnownLocation){
-            if(weakSelf.hasListeners) {
-                NSDictionary *crashEventDict = [self convertCrashEventToDict:date lastKnownLocation:lastKnownLocation];
-                [weakSelf sendEventWithName:@"SDKCrashEvent" body:crashEventDict];
-            }
-        }];
-        resolve(@(YES));
-    } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
-    }
-}
-
 RCT_EXPORT_METHOD(listenTripProfiles:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
@@ -650,20 +634,9 @@ RCT_EXPORT_METHOD(invokeDummyVehicleCrash:(RCTPromiseResolveBlock)resolve reject
     resolve(@(YES));
 }
 
-RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(NSString *)type
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    SENTTripType tripType;
-    if ([type isEqualToString:@"TRIP_TYPE_SDK"]) {
-        tripType = SENTTripTypeSDK;
-    } else if ([type isEqualToString:@"TRIP_TYPE_EXTERNAL"]) {
-        tripType = SENTTripTypeExternal;
-    } else {
-        return resolve(@(NO));
-    }
-
-    BOOL supported = [[SENTSDK sharedInstance] isVehicleCrashDetectionSupported:tripType];
+    BOOL supported = [[SENTSDK sharedInstance] isVehicleCrashDetectionSupported];
     resolve(supported ? @(YES) : @(NO));
 }
 
@@ -675,6 +648,50 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
 
 - (BOOL)isThirdPartyLinked {
     return [[SENTSDK sharedInstance] isThirdPartyLinked];
+}
+
+RCT_EXPORT_METHOD(getUserContext:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    __weak typeof(self) weakSelf = self;
+    
+    [[SENTSDK sharedInstance] requestUserContext:^(SENTUserContext * _Nonnull userContext) {
+        resolve([weakSelf convertUserContextToDict:userContext]);
+    } failure:^(NSError * _Nonnull error) {
+        reject(@"E_SDK_GET_USER_CONTEXT_ERROR", @"Failed to retreive user context", nil);
+    }];
+}
+
+RCT_EXPORT_METHOD(listenUserContextUpdates:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    [SENTSDK sharedInstance].userContextDelegate = self;
+    [SENTSDK sharedInstance].criteriaMaskForUserContextUpdates = SENTUserContextUpdateCriteriaCurrentEvent |
+                                                                            SENTUserContextUpdateCriteriaActiveSegments |
+                                                                            SENTUserContextUpdateCriteriaActiveMoments |
+                                                                            SENTUserContextUpdateCriteriaVisitedVenues;
+    resolve(@(YES));
+}
+
+RCT_EXPORT_METHOD(setAppSessionDataCollectionEnabled:(BOOL)enabled
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    // TODO
+    resolve(@(YES));
+}
+
+RCT_EXPORT_METHOD(isAppSessionDataCollectionEnabled:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    // TODO
+    resolve(@(NO));
+}
+
+- (void)didUpdateUserContext:(SENTUserContext *)userContext
+             forCriteriaMask:(SENTUserContextUpdateCriteria)criteriaMask {
+    NSDictionary *dict = @{
+        @"userContext": [self convertUserContextToDict:userContext],
+        @"criteria": [self convertUserContextCriteriaToArray:criteriaMask]
+    };
+    [self sendEventWithName:@"UserContextUpdateEvent" body:dict];
 }
 
 - (BOOL)isNativeInitializationEnabled {
@@ -791,8 +808,8 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
                            @"startStatus":[self convertStartStatusToString:status.startStatus],
                            @"canDetect":@(status.canDetect),
                            @"isRemoteEnabled":@(status.isRemoteEnabled),
-                           @"isLocationPermGranted":@(status.isLocationPermGranted),
-                           @"isBgAccessPermGranted":@(status.isBgAccessPermGranted),
+                           @"locationPermission":[self convertLocationPermissionToString:status.locationPermission],
+                           @"isPreciseLocationAuthorizationGranted":@(status.isPreciseLocationAuthorizationGranted),
                            @"isAccelPresent":@(status.isAccelPresent),
                            @"isGyroPresent":@(status.isGyroPresent),
                            @"isGpsPresent":@(status.isGpsPresent),
@@ -859,6 +876,18 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
     }
 }
 
+- (NSString*)convertLocationPermissionToString:(SENTLocationPermission) status {
+    switch (status) {
+        case SENTLocationPermissionAlways:
+            return @"ALWAYS";
+        case SENTLocationPermissionWhileInUse:
+            return @"ONLY_WHILE_IN_USE";
+        case SENTLocationPermissionNever:
+        default:
+            return @"NEVER";
+    }
+}
+
 - (NSString*)convertInitStateToString:(SENTSDKInitState) state {
     switch (state) {
         case SENTNotInitialized:
@@ -896,22 +925,6 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
         default:
             return @"TRIP_TYPE_UNRECOGNIZED";
     }
-}
-
-- (NSDictionary*)convertCrashEventToDict:(NSDate*)date lastKnownLocation:(CLLocation*)lastKnownLocation {
-    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    double time = [date timeIntervalSince1970] * 1000;
-    dict[@"time"] = @(time);
-
-
-    if(lastKnownLocation != nil) {
-        NSDictionary *location = @{
-                                   @"latitude": @(lastKnownLocation.coordinate.latitude),
-                                   @"longitude": @(lastKnownLocation.coordinate.longitude)
-                                   };
-        dict[@"lastKnownLocation"] = location;
-    }
-    return [dict copy];
 }
 
 - (NSString*)convertVehicleModeToString:(SENTTripProcessingVehicleMode) vehicleMode {
