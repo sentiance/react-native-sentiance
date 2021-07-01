@@ -1,0 +1,17 @@
+def coreProj
+if (findProject(':core')) {
+  coreProj = project(':core')
+} else if (findProject(':sentiance-react-native_core')) {
+  coreProj = project(':sentiance-react-native_core')
+} else if (findProject(':@sentiance-react-native_core')) {
+  coreProj = project(':@sentiance-react-native_core')
+} else {
+  throw new GradleException('Could not find the @sentiance-react-native/core package, have you installed it?')
+}
+
+apply from: "$coreProj.projectDir/package-json-reader.gradle"
+
+def packageJson = PackageJson.of(coreProj)
+ext.getSentianceSdkVersion = {
+  return packageJson['sdkVersions']['android']['sentiance']
+}

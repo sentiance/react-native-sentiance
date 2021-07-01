@@ -1,0 +1,26 @@
+{
+  "name": "@sentiance-react-native/legacy",
+  "version": "6.0.0",
+  "description": "React Native Sentiance - This module provides a legacy API.",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint lib/index.d.ts"
+  },
+  "keywords": [
+    "react-native",
+    "legacy",
+    "sentiance"
+  ],
+  "peerDependencies": {
+    "@sentiance-react-native/crash-detection": "6.0.0"
+  },
+  "author": "",
+  "license": "",
+  "homepage": "https://github.com/sentiance/react-native-sentiance/legacy#readme",
+  "repository": "github:sentiance/react-native-sentiance",
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,20 +1,40 @@
 {
-  "name": "react-native-sentiance",
-  "version": "4.4.8",
-  "description": "React Native library for the Sentiance SDK",
-  "main": "index.js",
+  "name": "sentiance-react-native",
+  "version": "6.0.0-beta.19",
+  "description": "React Native libraries for the Sentiance SDK",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "docs": "npx jsdoc2md index.d.ts > types.md",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "fetch:npm_tag": "node ./scripts/determine-version-tag.js",
+    "sync:package_versions": "node ./scripts/sync-package-versions.js",
+    "lint": "npm run lint --workspaces",
+    "prepublishLocal": "npm run sync:package_versions",
+    "publishLocal": "npm publish --workspaces --registry http://localhost:4873/ --tag $(npm run fetch:npm_tag --silent)",
+    "publishLocal:overwrite": "npm unpublish --force --workspaces --registry http://localhost:4873/ && npm publish --workspaces --registry http://localhost:4873/ --tag $(npm run fetch:npm_tag --silent)"
   },
-  "keywords": [
-    "react-native"
+  "workspaces": [
+    "packages/core",
+    "packages/crash-detection",
+    "packages/user-context",
+    "packages/legacy"
   ],
   "author": "",
   "license": "",
   "peerDependencies": {
-    "react-native": "^0.59.0"
+    "react-native": "^0.60.3"
   },
   "homepage": "https://github.com/sentiance/react-native-sentiance#readme",
   "bugs": "https://github.com/sentiance/react-native-sentiance/issues",
-  "repository": "github:sentiance/react-native-sentiance"
+  "repository": "github:sentiance/react-native-sentiance",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "jsdoc": "^3.6.10",
+    "jsdoc-to-markdown": "^7.1.1",
+    "prettier": "^2.6.2",
+    "prettier-plugin-jsdoc": "^0.3.38",
+    "typescript": "^4.5.5",
+    "verdaccio": "^5.10.2"
+  }
 }

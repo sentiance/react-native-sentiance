@@ -1,0 +1,38 @@
+{
+  "name": "@sentiance-react-native/core",
+  "version": "6.0.0",
+  "description": "React Native Sentiance core library",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint lib/index.d.ts"
+  },
+  "keywords": [
+    "react-native",
+    "core",
+    "sentiance"
+  ],
+  "peerDependencies": {
+    "react-native": ">=0.60"
+  },
+  "author": "",
+  "license": "",
+  "homepage": "https://github.com/sentiance/react-native-sentiance/sentiance#readme",
+  "repository": "github:sentiance/react-native-sentiance",
+  "publishConfig": {
+    "access": "public"
+  },
+  "sdkVersions": {
+    "android": {
+      "minSdk": 23,
+      "targetSdk": 31,
+      "compileSdk": 31,
+      "buildTools": "30.0.3",
+      "sentiance": "6.0.0"
+    },
+    "ios": {
+      "sentiance": "6.0.0"
+    }
+  }
+}

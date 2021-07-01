@@ -1,11 +1,35 @@
-version: 2
+version: 2.1
 
 defaults: &defaults
   working_directory: ~/repo
   docker:
-    - image: circleci/node:8.9.1
+    - image: circleci/node:16.10.0
+
+commands:
+  generate_github_pr_for_docs:
+    parameters:
+      checkout:
+        default: true
+        description: Boolean value used for whether or not to checkout bitbucket repo as a first step. Default is true.
+        type: boolean
+    steps:
+      - add_ssh_keys
+      - when:
+          condition: <<parameters.checkout>>
+          steps:
+            - checkout
+      - run:
+          name: Docs PR Generating
+          command: |
+            . ./.sentiance/doc-pr-gen.sh
 
 jobs:
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm run lint
   deploy:
     <<: *defaults
     steps:
@@ -17,17 +41,40 @@ jobs:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
-          name: Publish package
+          name: Sync package versions for all modules
+          command: npm run sync:package_versions
+      - run:
+          name: Tag and publish all subpackages
           command: |
-            npm publish
+            NPMTAG=$(npm run fetch:npm_tag --silent)
+            npm publish --workspaces --tag $NPMTAG
+  publish_docs:
+    environment:
+      DOCKER_BUILDKIT: "1"
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - generate_github_pr_for_docs
 
 workflows:
   version: 2
-  deploy:
+  workflow:
     jobs:
+      - test:
+          filters:
+            tags:
+              only: /^v.*/
       - deploy:
+          requires: [test]
           filters:
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
+      - publish_docs:
+          context: default
+          requires: [test]
+          filters:
+            branches:
+              only:
+                - main

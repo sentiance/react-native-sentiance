@@ -1,0 +1,36 @@
+pluginManagement {
+  repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
+}
+
+rootProject.name = 'RNSentiance'
+
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositories {
+    google()
+    mavenLocal()
+    maven {
+      url("$rootDir/../node_modules/react-native/android")
+    }
+    mavenCentral {
+      // We don't want to fetch react-native from Maven Central as there are
+      // older versions over there.
+      content {
+        excludeGroup "com.facebook.react"
+      }
+    }
+    maven {
+      url "https://repository.sentiance.com"
+    }
+  }
+}
+
+['core', 'crash-detection', 'user-context', 'legacy'].each { projectName ->
+  def module = ":$projectName"
+  include(module)
+  project(module).projectDir = new File(rootProject.projectDir, "./$projectName/android")
+}
