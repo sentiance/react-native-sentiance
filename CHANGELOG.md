@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.4.5] - 2021-07-02
+### Changed
+- Upgrade Android SDK to use latest available hotfix release for [4.19.x] [changelog](https://docs.sentiance.com/sdk/changelog/android)
+
 ## [4.4.3] - 2021-06-10
 ### Changed
 - Upgrade Android SDK to [4.19.1](https://docs.sentiance.com/sdk/changelog/android#4-19-1-9-jun-2021)
