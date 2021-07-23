@@ -16,5 +16,5 @@ Pod::Spec.new do |s|
   s.xcconfig     = { 'FRAMEWORK_SEARCH_PATHS' => '${PODS_ROOT}/SENTSDK' }
 
   s.dependency "React"
-  s.dependency "SENTSDK", "5.10.0"
+  s.dependency "SENTSDK", "~> 5.11.0"
 end
