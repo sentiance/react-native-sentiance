@@ -9,6 +9,8 @@ jobs:
   deploy:
     <<: *defaults
     steps:
+      - checkout
+      - run: npm install
       - attach_workspace:
           at: ~/repo
       - run:
