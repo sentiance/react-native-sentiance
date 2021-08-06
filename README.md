@@ -615,7 +615,7 @@ NPM: https://www.npmjs.com/package/react-native-sentiance
 
 ```shell
 $ npm version x.y.z # updates package*.json and creates the git tag
-$ git push
+$ git push && git push --tags
 ```
 
 Publishing Progress: https://app.circleci.com/pipelines/bitbucket/getjini/sentiance.sdk.react-native-bridge
