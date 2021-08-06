@@ -607,3 +607,15 @@ RNSentiance.listenVehicleCrashEvents();
 vehicleCrashEventSubscription.remove();
 ```
 
+### Deploy and Publish (Internal Use)
+
+Publishing the version to the NPM package happens via CircleCI and is triggered `on semver tag`
+
+NPM: https://www.npmjs.com/package/react-native-sentiance
+
+```shell
+$ npm version x.y.z # updates package*.json and creates the git tag
+$ git push
+```
+
+Publishing Progress: https://app.circleci.com/pipelines/bitbucket/getjini/sentiance.sdk.react-native-bridge
