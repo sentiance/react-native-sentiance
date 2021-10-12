@@ -94,7 +94,8 @@ public class RNSentianceHelper {
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
-    public void initializeSentianceSDKWithUserLinking(InitOptions initOptions) {
+    void initializeSentianceSDKWithUserLinking(InitOptions initOptions) {
+        // This method is only used internally by RNSentianceHelper.
         initializeAndStartSentianceSDK(initOptions, true);
     }
 

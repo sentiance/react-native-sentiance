@@ -3,9 +3,9 @@
 #import <React/RCTEventEmitter.h>
 #import <SENTSDK/SENTSDK.h>
 
-@interface RNSentiance : RCTEventEmitter <RCTBridgeModule>
+@interface RNSentiance : RCTEventEmitter <RCTBridgeModule, SENTUserContextDelegate>
 typedef void (^SdkStatusHandler)(SENTSDKStatus *status);
-- (MetaUserLinker) getUserLinker;
+- (UserLinker) getUserLinker;
 - (SdkStatusHandler) getSdkStatusUpdateHandler;
 - (void) initSDK:(NSString *)appId secret:(NSString *)secret baseURL:(NSString *)baseURL shouldStart:(BOOL)shouldStart resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject;
 - (BOOL) initSDKIfUserLinkingCompleted:(NSString *)appId secret:(NSString *)secret baseURL:(NSString *)baseURL shouldStart:(BOOL)shouldStart resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject;
