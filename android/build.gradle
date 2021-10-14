@@ -37,7 +37,7 @@ repositories {
     }
 }
 
-def sentianceSdkVersion = "6.0.0-alpha2"
+def sentianceSdkVersion = "6.0.0-beta2"
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
