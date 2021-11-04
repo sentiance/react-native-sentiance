@@ -3,7 +3,7 @@ version: 2
 defaults: &defaults
   working_directory: ~/repo
   docker:
-    - image: circleci/node:8.9.1
+    - image: circleci/node:14.18.1
 
 jobs:
   deploy:
@@ -11,6 +11,7 @@ jobs:
     steps:
       - checkout
       - run: npm install
+      - run: npm run lint
       - attach_workspace:
           at: ~/repo
       - run:
@@ -19,7 +20,8 @@ jobs:
       - run:
           name: Publish package
           command: |
-            npm publish
+            NPMTAG=$(npm run fetch:npm_tag)
+            npm publish --tag $NPMTAG
 
 workflows:
   version: 2
