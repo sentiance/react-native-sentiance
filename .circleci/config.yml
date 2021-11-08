@@ -32,7 +32,9 @@ workflows:
   version: 2
   deploy:
     jobs:
-      - test
+      - test:
+          tags:
+            only: /^v.*/
       - deploy:
           requires: [test]
           filters:
