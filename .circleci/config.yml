@@ -30,7 +30,7 @@ jobs:
 
 workflows:
   version: 2
-  deploy:
+  workflow:
     jobs:
       - test:
           filters:
