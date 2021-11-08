@@ -20,7 +20,7 @@ jobs:
       - run:
           name: Publish package
           command: |
-            NPMTAG=$(npm run fetch:npm_tag)
+            NPMTAG=$(npm run fetch:npm_tag --silent)
             npm publish --tag $NPMTAG
 
 workflows:
