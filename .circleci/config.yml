@@ -30,15 +30,13 @@ jobs:
 
 workflows:
   version: 2
-  test:
+  deploy:
     jobs:
       - test
-  # deploy:
-  #   jobs:
-  #     - deploy:
-  #         requires: [test]
-  #         filters:
-  #           tags:
-  #             only: /^v.*/
-  #           branches:
-  #             ignore: /.*/
+      - deploy:
+          requires: [test]
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
