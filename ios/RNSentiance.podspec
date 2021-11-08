@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "RNSentiance"
-  s.version      = "6.0.0-beta.4"
+  s.version      = "6.0.0-beta.5"
   s.summary      = "RNSentiance"
   s.description  = <<-DESC
                    RNSentiance
@@ -16,5 +16,5 @@ Pod::Spec.new do |s|
   s.xcconfig     = { 'FRAMEWORK_SEARCH_PATHS' => '${PODS_ROOT}/SENTSDK' }
 
   s.dependency "React"
-  s.dependency "SENTSDK", "~> 6.0.0-beta4"
+  s.dependency "SENTSDK", "~> 6.0.0-beta6"
 end
