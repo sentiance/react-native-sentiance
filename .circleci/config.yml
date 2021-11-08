@@ -6,12 +6,17 @@ defaults: &defaults
     - image: circleci/node:14.18.1
 
 jobs:
-  deploy:
+  test:
     <<: *defaults
     steps:
       - checkout
       - run: npm install
       - run: npm run lint
+  deploy:
+    <<: *defaults
+    steps:
+      - checkout
+      - run: npm install
       - attach_workspace:
           at: ~/repo
       - run:
@@ -25,9 +30,13 @@ jobs:
 
 workflows:
   version: 2
+  test:
+    jobs:
+      - test
   deploy:
     jobs:
       - deploy:
+          requires: [test]
           filters:
             tags:
               only: /^v.*/
