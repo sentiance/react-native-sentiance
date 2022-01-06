@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.6.0] - 2022-01-06
+- Upgrade Android SDK to use latest available hotfix release for [4.20.x] [changelog](https://docs.sentiance.com/sdk/changelog/android)
+
+## [4.5.0] - 2022-01-05
+- Upgrade iOS SDK to use latest available release for [5.12.x] [changelog](http://docs.sentiance.com/sdk/changelog/ios)
+
 ## [4.4.7] - 2021-07-23
 ### Changed
 - Upgrade iOS SDK to use latest available release for [5.11.x] [changelog](http://docs.sentiance.com/sdk/changelog/ios)

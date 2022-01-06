@@ -36,5 +36,5 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    api ('com.sentiance:sdk:4.19+@aar') { transitive = true }
+    api ('com.sentiance:sdk:4.20+@aar') { transitive = true }
 }
