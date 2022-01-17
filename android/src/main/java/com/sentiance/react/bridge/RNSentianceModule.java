@@ -14,6 +14,8 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.sentiance.sdk.init.InitializationResult;
+import com.sentiance.sdk.init.SentianceOptions;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.ResetCallback;
@@ -22,14 +24,11 @@ import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.SubmitDetectionsCallback;
 import com.sentiance.sdk.Token;
 import com.sentiance.sdk.TokenResultCallback;
-import com.sentiance.sdk.TripProfileConfig;
-import com.sentiance.sdk.TripProfileListener;
 import com.sentiance.sdk.crashdetection.api.CrashDetectionApi;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashListener;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityListener;
-import com.sentiance.sdk.ondevice.TripProfile;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TransportMode;
@@ -39,6 +38,10 @@ import com.sentiance.sdk.usercontext.api.UserContextApi;
 import com.sentiance.sdk.usercontext.api.UserContextHandler;
 import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 import com.sentiance.sdk.usercontext.api.UserContextUpdateListener;
+
+import com.sentiance.sdk.usercreation.UserCreationResultHandler;
+import com.sentiance.sdk.usercreation.UserCreationFailureReason;
+import com.sentiance.sdk.usercreation.UserInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -131,8 +134,46 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         rnSentianceHelper.initializeSentianceSDK(initOptions);
       }
     });
-
   }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public InitializationResult initialize(final String platformUrl) {
+    Log.v(LOG_TAG, "Initializing SDK with platform URL: " + platformUrl);
+    return rnSentianceHelper.initializeSDK(platformUrl);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+    public void createUnlinkedUser(String appId, String secret, final Promise promise) {
+        sdk.createUnlinkedUser(appId, secret, new UserCreationResultHandler() {
+            @Override
+            public void onUserCreationSuccess(UserInfo userInfo) {
+                promise.resolve(userInfo);
+            }
+
+            @Override
+            public void onUserCreationFailure(UserCreationFailureReason reason, String details) {
+                promise.reject(reason.toString(), details);
+            }
+        });
+    }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+    public void createLinkedUser(String appId, String secret, final Promise promise) {
+        rnSentianceHelper.createLinkedUser(appId, secret, new UserCreationResultHandler() {
+            @Override
+            public void onUserCreationSuccess(UserInfo userInfo) {
+                promise.resolve(userInfo);
+            }
+
+            @Override
+            public void onUserCreationFailure(UserCreationFailureReason reason, String details) {
+                promise.reject(reason.toString(), details);
+            }
+        });
+    }
 
   @ReactMethod
   @SuppressWarnings("unused")
@@ -343,6 +384,16 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
+  public void userExists(final Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    promise.resolve(sdk.userExists());
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
   public void addUserMetadataField(final String label, final String value, final Promise promise) {
     if (rejectIfNotInitialized(promise)) {
       return;
@@ -535,51 +586,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void listenTripProfiles(final Promise promise) {
-    if (rejectIfNotInitialized(promise)) {
-      return;
-    }
-
-    Sentiance.getInstance(reactContext).setTripProfileListener(new TripProfileListener() {
-      @Override
-      public void onTripProfiled(@NonNull TripProfile tripProfile) {
-        Log.d(LOG_TAG, tripProfile.toString());
-        emitter.sendTripProfile(tripProfile);
-      }
-    });
-    promise.resolve(true);
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void updateTripProfileConfig(ReadableMap config, final Promise promise) {
-    if (rejectIfNotInitialized(promise)) {
-      return;
-    }
-
-    if (!config.hasKey("enableFullProfiling")) {
-      promise.reject(E_SDK_MISSING_PARAMS, "enableFullProfiling is not provided");
-      return;
-    }
-    boolean enableFullProfiling = config.getBoolean("enableFullProfiling");
-    Double speedLimit;
-    if (config.hasKey("speedLimit")) {
-      speedLimit = config.getDouble("speedLimit");
-    } else {
-      speedLimit = null;
-    }
-    Sentiance.getInstance(reactContext)
-      .updateTripProfileConfig(
-        new TripProfileConfig.Builder()
-          .setSpeedLimit(speedLimit)
-          .enableFullProfiling(enableFullProfiling)
-          .build()
-      );
-    promise.resolve(true);
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
   public void getUserActivity(final Promise promise) {
     if (rejectIfNotInitialized(promise)) {
       return;
@@ -611,12 +617,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   public void getValueForKey(String key, String defaultValue, Promise promise) {
     String value = rnSentianceHelper.getValueForKey(key, defaultValue);
     promise.resolve(value);
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void isThirdPartyLinked(Promise promise) {
-    promise.resolve(rnSentianceHelper.isThirdPartyLinked());
   }
 
   @ReactMethod

@@ -15,7 +15,6 @@ import com.sentiance.sdk.Token;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityType;
-import com.sentiance.sdk.ondevice.TripProfile;
 import com.sentiance.sdk.ondevice.api.Attribute;
 import com.sentiance.sdk.ondevice.api.GeoLocation;
 import com.sentiance.sdk.ondevice.api.event.Event;
@@ -25,9 +24,6 @@ import com.sentiance.sdk.ondevice.api.segment.Segment;
 import com.sentiance.sdk.ondevice.api.venue.Venue;
 import com.sentiance.sdk.ondevice.api.venue.VenueCandidate;
 import com.sentiance.sdk.ondevice.api.venue.Visit;
-import com.sentiance.sdk.ondevice.transportclassifier.HardEvent;
-import com.sentiance.sdk.ondevice.transportclassifier.TransportSegment;
-import com.sentiance.sdk.ondevice.transportclassifier.VehicleMode;
 import com.sentiance.sdk.trip.TransportMode;
 import com.sentiance.sdk.trip.TripType;
 import com.sentiance.sdk.usercontext.api.UserContext;
@@ -243,70 +239,6 @@ public class RNSentianceConverter {
       default:
         return "USER_ACTIVITY_TYPE_UNRECOGNIZED";
     }
-  }
-
-  private static String convertVehicleMode(VehicleMode mode) {
-    switch(mode) {
-      case IDLE:
-        return "IDLE";
-      case VEHICLE:
-        return "VEHICLE";
-      case NOT_VEHICLE:
-        return "NOT_VEHICLE";
-      default:
-        return "UNKNOWN";
-    }
-  }
-
-  public static WritableMap convertTripProfile(TripProfile tripProfile) {
-    WritableMap map = Arguments.createMap();
-
-    try {
-      map.putString("tripId", tripProfile.getTripId());
-      List<TransportSegment> transportSegments = tripProfile.getTransportSegments();
-      WritableArray transportSegmentsArray = Arguments.createArray();
-      for (TransportSegment transportSegment : transportSegments) {
-        WritableMap transportSegmentMap = Arguments.createMap();
-        transportSegmentMap.putDouble("startTime", (double) transportSegment.getStartTime());
-        transportSegmentMap.putDouble("endTime", (double) transportSegment.getEndTime());
-        Double distance = transportSegment.getDistance();
-        if (distance != null) {
-          transportSegmentMap.putDouble("distance", distance);
-        }
-        Double avgSpeed = transportSegment.getAverageSpeed();
-        if (avgSpeed != null) {
-          transportSegmentMap.putDouble("averageSpeed", avgSpeed);
-        }
-        Double topSpeed = transportSegment.getTopSpeed();
-        if (topSpeed != null) {
-          transportSegmentMap.putDouble("topSpeed", topSpeed);
-        }
-        Integer percentOfTimeSpeeding = transportSegment.getPercentOfTimeSpeeding();
-        if (percentOfTimeSpeeding != null) {
-          transportSegmentMap.putInt("percentOfTimeSpeeding", percentOfTimeSpeeding);
-        }
-        transportSegmentMap.putString("vehicleMode", convertVehicleMode(transportSegment.getVehicleMode()));
-
-        List<HardEvent> hardEvents = transportSegment.getHardEvents();
-        WritableArray hardEventsArray = Arguments.createArray();
-        if (hardEvents != null) {
-          for (HardEvent hardEvent : hardEvents) {
-            WritableMap hardEventMap = Arguments.createMap();
-            hardEventMap.putDouble("magnitude", hardEvent.getMagnitude());
-            hardEventMap.putDouble("timestamp", (double) hardEvent.getTimestamp());
-            hardEventsArray.pushMap(hardEventMap);
-          }
-        }
-        transportSegmentMap.putArray("hardEvents", hardEventsArray);
-
-        transportSegmentsArray.pushMap(transportSegmentMap);
-      }
-      map.putArray("transportSegments", transportSegmentsArray);
-    } catch (Exception ignored) {
-
-    }
-
-    return map;
   }
 
   public static WritableMap convertVehicleCrashEvent(VehicleCrashEvent crashEvent) {

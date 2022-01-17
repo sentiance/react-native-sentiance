@@ -2,7 +2,6 @@ package com.sentiance.react.bridge;
 
 import static com.sentiance.react.bridge.RNSentianceConverter.convertInstallId;
 import static com.sentiance.react.bridge.RNSentianceConverter.convertSdkStatus;
-import static com.sentiance.react.bridge.RNSentianceConverter.convertTripProfile;
 import static com.sentiance.react.bridge.RNSentianceConverter.convertUserActivity;
 import static com.sentiance.react.bridge.RNSentianceConverter.convertUserContext;
 import static com.sentiance.react.bridge.RNSentianceConverter.convertVehicleCrashEvent;
@@ -21,7 +20,6 @@ import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.detectionupdates.UserActivity;
-import com.sentiance.sdk.ondevice.TripProfile;
 import com.sentiance.sdk.usercontext.api.UserContext;
 import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 
@@ -35,6 +33,7 @@ class RNSentianceEmitter {
   private static final String TRIP_PROFILE = "SDKTripProfile";
   private static final String VEHICLE_CRASH_EVENT = "SDKVehicleCrashEvent";
   private static final String USER_CONTEXT_EVENT = "UserContextUpdateEvent";
+  private static final String ON_START_FINISHED = "OnStartFinished";
   private final Handler mHandler = new Handler(Looper.getMainLooper());
 
   private ReactContext reactContext;
@@ -64,12 +63,12 @@ class RNSentianceEmitter {
     sendEvent(USER_ACTIVITY_UPDATE, convertUserActivity(userActivity));
   }
 
-  void sendTripProfile(TripProfile tripProfile) {
-    sendEvent(TRIP_PROFILE, convertTripProfile(tripProfile));
-  }
-
   void sendVehicleCrashEvent(VehicleCrashEvent crashEvent) {
     sendEvent(VEHICLE_CRASH_EVENT, convertVehicleCrashEvent(crashEvent));
+  }
+
+  void sendOnStartFinishedEvent(SdkStatus status) {
+    sendEvent(ON_START_FINISHED, convertSdkStatus(status));
   }
 
   void sendUserContext(List<UserContextUpdateCriteria> criteria, UserContext userContext) {
