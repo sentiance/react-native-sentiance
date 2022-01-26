@@ -6,30 +6,31 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
-
-import com.sentiance.sdk.init.InitializationResult;
-import com.sentiance.sdk.init.InitializationFailureReason;
-import com.sentiance.sdk.init.SentianceOptions;
-import com.sentiance.sdk.OnInitCallback;
+import com.facebook.react.bridge.Promise;
 import com.sentiance.sdk.OnSdkStatusUpdateHandler;
 import com.sentiance.sdk.OnStartFinishedHandler;
-import com.sentiance.sdk.SdkConfig;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.UserLinker;
+import com.sentiance.sdk.authentication.UserLinkingFailureReason;
+import com.sentiance.sdk.authentication.UserLinkingResultHandler;
+import com.sentiance.sdk.init.InitializationFailureReason;
+import com.sentiance.sdk.init.InitializationResult;
+import com.sentiance.sdk.init.SentianceOptions;
 import com.sentiance.sdk.usercreation.UserCreationResultHandler;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 public class RNSentianceHelper {
 
@@ -37,6 +38,7 @@ public class RNSentianceHelper {
     private static final String MY_PREFS_NAME = "RNSentianceHelper";
     private static final String TAG = "RNSentianceHelper";
     private static final int NOTIFICATION_ID = 1001;
+    private static final int USER_LINKING_WINDOW_MILLIS = 5000;
     private static RNSentianceHelper rnSentianceHelper;
 
     private final RNSentianceEmitter emitter;
@@ -60,7 +62,10 @@ public class RNSentianceHelper {
             userLinkLatch = new CountDownLatch(1);
             emitter.sendUserLinkEvent(installId);
             try {
-                userLinkLatch.await();
+                // We allow a 5 seconds timeframe for the user linking to happen otherwise the user linking
+                // process may get stuck here in case the enclosing app did not call `userLinkCallback()`
+                // to count this latch down.
+                userLinkLatch.await(USER_LINKING_WINDOW_MILLIS, TimeUnit.MILLISECONDS);
 
                 return userLinkResult;
             } catch (InterruptedException e) {
@@ -96,22 +101,23 @@ public class RNSentianceHelper {
     public InitializationResult initializeSDK(final String platformUrl) {
         Context context = weakContext.get();
         if (context == null) {
-            return new InitializationResult(false, InitializationFailureReason.EXCEPTION_OR_ERROR, null);
+            return new InitializationResult(
+                    false, InitializationFailureReason.EXCEPTION_OR_ERROR, new Throwable("Context is null"));
         }
         OnStartFinishedHandler handler = new OnStartFinishedHandler() {
-             @Override
-             public void onStartFinished(@NonNull SdkStatus sdkStatus) {
-                  emitter.sendOnStartFinishedEvent(sdkStatus);
-             }
+            @Override
+            public void onStartFinished(@NonNull SdkStatus sdkStatus) {
+                emitter.sendOnStartFinishedEvent(sdkStatus);
+            }
         };
         Notification notification = createNotificationFromManifestData();
         Sentiance sentiance = Sentiance.getInstance(context);
 
         SentianceOptions options = new SentianceOptions.Builder(context)
-                                   .enableAllFeatures()
-                                   .setNotification(notification, NOTIFICATION_ID)
-                                   .setPlatformUrl(platformUrl)
-                                   .build();
+                .enableAllFeatures()
+                .setNotification(notification, NOTIFICATION_ID)
+                .setPlatformUrl(platformUrl)
+                .build();
         InitializationResult result = sentiance.initialize(options);
         sentiance.setSdkStatusUpdateHandler(onSdkStatusUpdateHandler);
         if (sentiance.userExists()) {
@@ -121,115 +127,46 @@ public class RNSentianceHelper {
     }
 
     public void createLinkedUser(String appId, String secret, UserCreationResultHandler handler) {
-      Context context = weakContext.get();
-      if (context == null) return;
-      Sentiance sentiance = Sentiance.getInstance(context);
-
-      sentiance.createLinkedUser(appId, secret, userLinker, handler);
-    }
-
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public void initializeSentianceSDK(InitOptions initOptions) {
-        initializeAndStartSentianceSDK(initOptions, false);
-    }
-
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    void initializeSentianceSDKWithUserLinking(InitOptions initOptions) {
-        // This method is only used internally by RNSentianceHelper.
-        initializeAndStartSentianceSDK(initOptions, true);
-    }
-
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public void setValueForKey(String key, String value) {
         Context context = weakContext.get();
         if (context == null) return;
-        SharedPreferences prefs = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit().putString(key, value).apply();
+        Sentiance sentiance = Sentiance.getInstance(context);
+
+        sentiance.createLinkedUser(appId, secret, userLinker, handler);
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public String getValueForKey(String key, String defaultValue) {
-        Context context = weakContext.get();
-        if (context == null) return defaultValue;
-        SharedPreferences prefs = context.getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(key, defaultValue);
-    }
-
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public Boolean isNativeInitializationEnabled() {
-        String nativeInitFlag = rnSentianceHelper.getValueForKey(SDK_NATIVE_INIT_FLAG, "");
-        return nativeInitFlag.equals("enabled");
-    }
-
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public void enableNativeInitialization() {
-        setValueForKey(SDK_NATIVE_INIT_FLAG, "enabled");
-    }
-
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public void disableNativeInitialization() {
-        setValueForKey(SDK_NATIVE_INIT_FLAG, "");
-    }
-
-    private void initializeAndStartSentianceSDK(InitOptions initOptions, boolean userLinkingEnabled) {
+    public void linkUser(final Promise promise) {
         Context context = weakContext.get();
         if (context == null) return;
+        Sentiance sentiance = Sentiance.getInstance(context);
 
-        Notification notification = createNotificationFromManifestData();
-
-        String appId = initOptions.getAppId();
-        String appSecret = initOptions.getSecret();
-        String baseUrl = initOptions.getApiEndpoint();
-        final boolean shouldStart = initOptions.shouldAutoStart();
-        final OnInitCallback initCallback = initOptions.getOnInitCallback();
-        final OnStartFinishedHandler startFinishedHandler = initOptions.getOnStartFinishedHandler();
-
-        // Create the config.
-        SdkConfig.Builder builder = new SdkConfig.Builder(appId, appSecret, notification)
-                .setOnSdkStatusUpdateHandler(onSdkStatusUpdateHandler)
-                .enableAllFeatures();
-        if (userLinkingEnabled)
-            builder.setUserLinker(userLinker);
-        if (baseUrl != null)
-            builder.baseURL(baseUrl);
-
-        SdkConfig config = builder.build();
-
-        // Initialize  and start  Sentiance SDK.
-        Sentiance.getInstance(context).init(config, new OnInitCallback() {
+        sentiance.linkUser(userLinker, new UserLinkingResultHandler() {
             @Override
-            public void onInitSuccess() {
-                Log.i(TAG, "onInitSuccess");
-                if (initCallback != null)
-                    initCallback.onInitSuccess();
-                if (shouldStart)
-                    startSentianceSDK(startFinishedHandler);
+            public void onUserLinkingSuccess() {
+                promise.resolve(true);
             }
 
             @Override
-            public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
-                if (initCallback != null)
-                    initCallback.onInitFailure(issue, throwable);
-                Log.e(TAG, issue.toString());
+            public void onUserLinkingFailure(UserLinkingFailureReason reason, String details) {
+                promise.reject(reason.toString(), details);
             }
         });
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
     public void startSentianceSDK(@Nullable final OnStartFinishedHandler callback) {
-      startSentianceSDK(null, callback);
+        startSentianceSDK(null, callback);
     }
 
     @SuppressWarnings({"unused", "WeakerAccess"})
     public void startSentianceSDK(@Nullable final Long stopEpochTimeMs, @Nullable final OnStartFinishedHandler callback) {
-      Context context = weakContext.get();
-      if (context == null) return;
+        Context context = weakContext.get();
+        if (context == null) return;
 
-      if (stopEpochTimeMs != null) {
-        Sentiance.getInstance(context).start(new Date(stopEpochTimeMs), callback);
-      } else {
-        Sentiance.getInstance(context).start(callback);
-      }
+        if (stopEpochTimeMs != null) {
+            Sentiance.getInstance(context).start(new Date(stopEpochTimeMs), callback);
+        } else {
+            Sentiance.getInstance(context).start(callback);
+        }
     }
 
     private Notification createNotification(PendingIntent pendingIntent, String title, String message, String channelName, String channelId, Integer icon) {

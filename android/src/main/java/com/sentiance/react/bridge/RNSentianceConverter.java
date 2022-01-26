@@ -1,10 +1,8 @@
 package com.sentiance.react.bridge;
 
 import android.location.Location;
-import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableArray;
@@ -15,6 +13,8 @@ import com.sentiance.sdk.Token;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityType;
+import com.sentiance.sdk.init.InitializationFailureReason;
+import com.sentiance.sdk.init.InitializationResult;
 import com.sentiance.sdk.ondevice.api.Attribute;
 import com.sentiance.sdk.ondevice.api.GeoLocation;
 import com.sentiance.sdk.ondevice.api.event.Event;
@@ -27,13 +27,13 @@ import com.sentiance.sdk.ondevice.api.venue.Visit;
 import com.sentiance.sdk.trip.TransportMode;
 import com.sentiance.sdk.trip.TripType;
 import com.sentiance.sdk.usercontext.api.UserContext;
-import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
+import com.sentiance.sdk.usercreation.UserInfo;
 import com.sentiance.sdk.util.DateTime;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.Nullable;
 
 public class RNSentianceConverter {
 
@@ -108,6 +108,35 @@ public class RNSentianceConverter {
     try {
       map.putString("tokenId", token.getTokenId());
       map.putString("expiryDate", String.valueOf(token.getExpiryDate()));
+    } catch (Exception ignored) {
+    }
+
+    return map;
+  }
+
+  public static WritableMap convertUserInfo(UserInfo userInfo) {
+    WritableMap map = Arguments.createMap();
+    try {
+      Token token = userInfo.getToken();
+      map.putString("userId", userInfo.getUserId());
+      map.putString("tokenId", token.getTokenId());
+      map.putString("tokenExpiryDate", token.getExpiryDate().toString());
+      map.putBoolean("isTokenExpired", token.isExpired());
+    } catch (Exception ignored) {
+    }
+
+    return map;
+  }
+
+  public static WritableMap convertInitializationResult(InitializationResult initResult) {
+    WritableMap map = Arguments.createMap();
+    try {
+      map.putBoolean("isSuccessful", initResult.isSuccessful());
+
+      InitializationFailureReason failureReason = initResult.getFailureReason();
+      if (failureReason != null) {
+        map.putString("failureReason", failureReason.name());
+      }
     } catch (Exception ignored) {
     }
 

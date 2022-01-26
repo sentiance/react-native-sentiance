@@ -14,8 +14,6 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
-import com.sentiance.sdk.init.InitializationResult;
-import com.sentiance.sdk.init.SentianceOptions;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.ResetCallback;
@@ -29,6 +27,8 @@ import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashListener;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityListener;
+import com.sentiance.sdk.init.InitializationFailureReason;
+import com.sentiance.sdk.init.InitializationResult;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TransportMode;
@@ -38,9 +38,8 @@ import com.sentiance.sdk.usercontext.api.UserContextApi;
 import com.sentiance.sdk.usercontext.api.UserContextHandler;
 import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 import com.sentiance.sdk.usercontext.api.UserContextUpdateListener;
-
-import com.sentiance.sdk.usercreation.UserCreationResultHandler;
 import com.sentiance.sdk.usercreation.UserCreationFailureReason;
+import com.sentiance.sdk.usercreation.UserCreationResultHandler;
 import com.sentiance.sdk.usercreation.UserInfo;
 
 import java.util.List;
@@ -48,7 +47,6 @@ import java.util.Map;
 
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
-  private static final boolean DEBUG = true;
   private static final String LOG_TAG = "RNSentiance";
   private final ReactApplicationContext reactContext;
   private final Sentiance sdk;
@@ -82,12 +80,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     return "RNSentiance";
   }
 
-  private void log(String msg, Object... params) {
-    if (DEBUG) {
-      Log.e("SentianceSDK", String.format(msg, params));
-    }
-  }
-
   @ReactMethod
   @SuppressWarnings("unused")
   public void userLinkCallback(final Boolean linkResult) {
@@ -99,57 +91,26 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     });
   }
 
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void init(final String appId, final String appSecret, @Nullable final String baseURL, final boolean shouldStart, final Promise promise) {
-    Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId);
-
-    final OnInitCallback initCallback = new OnInitCallback() {
-      @Override
-      public void onInitSuccess() {
-        if (!shouldStart)
-          promise.resolve(true);
-      }
-
-      @Override
-      public void onInitFailure(@NonNull InitIssue issue, @Nullable Throwable throwable) {
-        if (throwable != null) {
-          promise.reject(issue.name(), throwable);
+    @ReactMethod
+    @SuppressWarnings("unused")
+    public void initialize(final String platformUrl, final Promise promise) {
+        InitializationResult result = rnSentianceHelper.initializeSDK(platformUrl);
+        if (result.isSuccessful()) {
+            promise.resolve(RNSentianceConverter.convertInitializationResult(result));
         } else {
-          promise.reject(issue.name(), "");
+            InitializationFailureReason failureReason = result.getFailureReason();
+            String error = failureReason == null ? "failure reason unknown" : failureReason.name();
+            promise.reject("Initialization failed", error);
         }
-      }
-    };
+    }
 
-    new Handler(Looper.getMainLooper()).post(new Runnable() {
-      @Override
-      public void run() {
-        InitOptions initOptions = new InitOptions.Builder(appId, appSecret)
-          .autoStart(shouldStart)
-          .apiEndpoint(baseURL)
-          .initCallback(initCallback)
-          .startFinishedHandler(startFinishedHandlerCreator.createNewStartFinishedHandler(promise))
-          .build();
-
-        rnSentianceHelper.initializeSentianceSDK(initOptions);
-      }
-    });
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public InitializationResult initialize(final String platformUrl) {
-    Log.v(LOG_TAG, "Initializing SDK with platform URL: " + platformUrl);
-    return rnSentianceHelper.initializeSDK(platformUrl);
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
+    @ReactMethod
+    @SuppressWarnings("unused")
     public void createUnlinkedUser(String appId, String secret, final Promise promise) {
         sdk.createUnlinkedUser(appId, secret, new UserCreationResultHandler() {
             @Override
             public void onUserCreationSuccess(UserInfo userInfo) {
-                promise.resolve(userInfo);
+                promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
             }
 
             @Override
@@ -159,13 +120,13 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         });
     }
 
-  @ReactMethod
-  @SuppressWarnings("unused")
+    @ReactMethod
+    @SuppressWarnings("unused")
     public void createLinkedUser(String appId, String secret, final Promise promise) {
         rnSentianceHelper.createLinkedUser(appId, secret, new UserCreationResultHandler() {
             @Override
             public void onUserCreationSuccess(UserInfo userInfo) {
-                promise.resolve(userInfo);
+                promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
             }
 
             @Override
@@ -175,43 +136,31 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
         });
     }
 
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void initWithUserLinkingEnabled(final String appId, final String appSecret, @Nullable final String baseURL, final boolean shouldStart, final Promise promise) {
-    Log.v(LOG_TAG, "Initializing SDK with APP_ID: " + appId);
+    @ReactMethod
+    @SuppressWarnings("unused")
+    public void linkUser(final Promise promise) {
+        rnSentianceHelper.linkUser(promise);
+    }
 
-    final OnInitCallback initCallback = new OnInitCallback() {
-      @Override
-      public void onInitSuccess() {
-        if (!shouldStart)
-          promise.resolve(true);
-      }
-
-      @Override
-      public void onInitFailure(@NonNull InitIssue issue, @Nullable Throwable throwable) {
-        if (throwable != null) {
-          promise.reject(issue.name(), throwable);
-        } else {
-          promise.reject(issue.name(), "");
+    @ReactMethod
+    @SuppressWarnings("unused")
+    public void userExists(final Promise promise) {
+        if (rejectIfNotInitialized(promise)) {
+            return;
         }
-      }
-    };
 
-    new Handler(Looper.getMainLooper()).post(new Runnable() {
-      @Override
-      public void run() {
-        InitOptions initOptions = new InitOptions.Builder(appId, appSecret)
-          .autoStart(shouldStart)
-          .apiEndpoint(baseURL)
-          .initCallback(initCallback)
-          .startFinishedHandler(startFinishedHandlerCreator.createNewStartFinishedHandler(promise))
-          .build();
+        promise.resolve(sdk.userExists());
+    }
 
-        rnSentianceHelper.initializeSentianceSDKWithUserLinking(initOptions);
-      }
-    });
+    @ReactMethod
+    @SuppressWarnings("unused")
+    public void isUserLinked(final Promise promise) {
+        if (rejectIfNotInitialized(promise)) {
+            return;
+        }
 
-  }
+        promise.resolve(sdk.isUserLinked());
+    }
 
   @ReactMethod
   @SuppressWarnings("unused")
@@ -219,7 +168,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk.reset(new ResetCallback() {
       @Override
       public void onResetSuccess() {
-        rnSentianceHelper.disableNativeInitialization();
         promise.resolve(true);
       }
 
@@ -380,16 +328,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
     String userId = sdk.getUserId();
     promise.resolve(userId);
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void userExists(final Promise promise) {
-    if (rejectIfNotInitialized(promise)) {
-      return;
-    }
-
-    promise.resolve(sdk.userExists());
   }
 
   @ReactMethod
@@ -603,39 +541,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     }
 
     Sentiance.getInstance(reactContext).updateSdkNotification(rnSentianceHelper.createNotificationFromManifestData(title, message));
-    promise.resolve(true);
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void setValueForKey(String key, String value) {
-    rnSentianceHelper.setValueForKey(key, value);
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void getValueForKey(String key, String defaultValue, Promise promise) {
-    String value = rnSentianceHelper.getValueForKey(key, defaultValue);
-    promise.resolve(value);
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void isNativeInitializationEnabled(Promise promise) {
-    promise.resolve(rnSentianceHelper.isNativeInitializationEnabled());
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void enableNativeInitialization(Promise promise) {
-    rnSentianceHelper.enableNativeInitialization();
-    promise.resolve(true);
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void disableNativeInitialization(Promise promise) {
-    rnSentianceHelper.disableNativeInitialization();
     promise.resolve(true);
   }
 

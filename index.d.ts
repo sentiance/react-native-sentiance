@@ -238,19 +238,25 @@ declare module "react-native-sentiance" {
     criteria: UserContextUpdateCriteria[];
   }
 
+  export interface InitializationResult {
+    isSuccessful: boolean,
+    failureReason?: string
+  }
+
+  export interface UserInfo {
+    userId: string,
+    tokenId: string,
+    tokenExpiryDate: string,
+    isTokenExpired: boolean
+  }
+
   export interface RNSentianceConstructor extends EventSubscriptionVendor {
-    init(
-      appId: string,
-      secret: string,
-      baseURL: string | null,
-      shouldStart: boolean
-    ): Promise<boolean | SdkStatus>;
-    initWithUserLinkingEnabled(
-      appId: string,
-      secret: string,
-      baseURL: string | null,
-      shouldStart: boolean
-    ): Promise<boolean | SdkStatus>;
+    initialize(platformUrl: string): Promise<InitializationResult>;
+    createUnlinkedUser(appId: string, secret: string): Promise<UserInfo>;
+    createLinkedUser(appId: string, secret: string): Promise<UserInfo>;
+    linkUser(): Promise<boolean>;
+    userExists(): Promise<boolean>;
+    isUserLinked(): Promise<boolean>;
     start(): Promise<SdkStatus>;
     startWithStopDate(stopEpochTimeMs: number): Promise<SdkStatus>;
     stop(): Promise<boolean>;
@@ -275,18 +281,12 @@ declare module "react-native-sentiance" {
     listenTripProfiles(): Promise<boolean>;
     updateTripProfileConfig(config: TripProfileConfig): Promise<boolean>;
     userLinkCallback(success: boolean): void;
-    getValueForKey(key: string, defaultValue: string): Promise<string>;
-    setValueForKey(key: string, value: string): void;
     startTrip(metadata: MetadataObject|null, hint: TransportMode): Promise<boolean>;
     stopTrip(): Promise<boolean>;
     isTripOngoing(type: TripType): Promise<boolean>;
     submitDetections(): Promise<boolean>;
     updateSdkNotification(title: string, message: string): Promise<boolean>;
     addTripMetadata(metadata: MetadataObject): Promise<boolean>;
-    isThirdPartyLinked(): Promise<boolean>;
-    isNativeInitializationEnabled(): Promise<boolean>;
-    enableNativeInitialization(): Promise<boolean>;
-    disableNativeInitialization(): Promise<boolean>;
     listenVehicleCrashEvents(): Promise<boolean>;
     invokeDummyVehicleCrash(): Promise<boolean>;
     isVehicleCrashDetectionSupported(): Promise<boolean>;
