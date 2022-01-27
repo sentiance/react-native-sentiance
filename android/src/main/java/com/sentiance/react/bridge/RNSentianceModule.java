@@ -29,6 +29,8 @@ import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityListener;
 import com.sentiance.sdk.init.InitializationFailureReason;
 import com.sentiance.sdk.init.InitializationResult;
+import com.sentiance.sdk.reset.ResetFailureReason;
+import com.sentiance.sdk.reset.ResetResultHandler;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TransportMode;
@@ -165,14 +167,14 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   @SuppressWarnings("unused")
   public void reset(final Promise promise) {
-    sdk.reset(new ResetCallback() {
+    sdk.reset(new ResetResultHandler() {
       @Override
       public void onResetSuccess() {
         promise.resolve(true);
       }
 
       @Override
-      public void onResetFailure(@NonNull ResetFailureReason reason) {
+      public void onResetFailure(@NonNull ResetFailureReason reason, @Nullable Throwable throwable) {
         promise.reject(reason.name(), "Resetting the SDK failed");
       }
     });
