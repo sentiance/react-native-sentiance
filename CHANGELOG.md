@@ -5,11 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Runtime exception on Android 12 caused by unspecified PendingIntent mutability.
 
 ## [4.6.0] - 2022-01-06
+### Changed
 - Upgrade Android SDK to use latest available hotfix release for [4.20.x] [changelog](https://docs.sentiance.com/sdk/changelog/android)
 
 ## [4.5.0] - 2022-01-05
+### Changed
 - Upgrade iOS SDK to use latest available release for [5.12.x] [changelog](http://docs.sentiance.com/sdk/changelog/ios)
 
 ## [4.4.7] - 2021-07-23

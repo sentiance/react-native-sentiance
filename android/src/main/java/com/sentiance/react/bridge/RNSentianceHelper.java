@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import android.os.Build;
 import android.util.Log;
 
 import com.sentiance.sdk.InternalSentianceHelper;
@@ -295,7 +296,8 @@ public class RNSentianceHelper {
             launchIntent = new Intent();
         }
         launchIntent.setPackage(null);
-        return PendingIntent.getActivity(context, 0, launchIntent, 0);
+        int flags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
+        return PendingIntent.getActivity(context, 0, launchIntent, flags);
     }
 
     private String getStringMetadataFromManifest(ApplicationInfo info, String name, String defaultValue) {
