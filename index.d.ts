@@ -190,6 +190,14 @@ declare module "react-native-sentiance" {
     listenVehicleCrashEvents(): Promise<boolean>;
     invokeDummyVehicleCrash(): Promise<boolean>;
     isVehicleCrashDetectionSupported(type: TripType): Promise<boolean>;
+
+    /** Temporary wrapper method to help SDK integration */
+    initialize(): Promise<boolean>;
+    createUser(credentials: {
+      appId: string;
+      appSecret: string;
+      baseUrl?: string;
+    }, linker: () => void)
   }
 
   export interface RNSentianceEventEmitter extends NativeEventEmitter {

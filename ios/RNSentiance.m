@@ -988,4 +988,35 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
     return [dict copy];
 }
 
+/** Temporary wrapper methods to make integration easier */
+
+- (void) initialize:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject {
+    NSLog(@"[helper] method init");
+    NSString *appId = [self getValueForKey:@"SENTIANCE_SDK_APP_ID" value:@""];
+    NSString *appSecret = [self getValueForKey:@"SENTIANCE_SDK_APP_SECRET" value:@""];
+    NSString *baseUrl = [self getValueForKey:@"SENTIANCE_SDK_APP_BASE_URL" value:@""];
+    
+    if(appId.length == 0 || appSecret.length == 0) {
+        NSLog(@"[helper] no credentials found skipping for now");
+        return;
+    }
+    
+    NSLog(@"[helper] credentials found, its show time!");
+    
+    SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:appSecret link:nil launchOptions:@{}];
+    
+    [[SENTSDK sharedInstance] initWithConfig:config success:^{
+        NSLog(@"[helper] success in initializing");
+        [self startSDK:resolve rejecter:reject];
+    } failure:^(SENTInitIssue issue) {
+        NSLog(@"[helper] error in initilizing");
+    }];
+    
+}
+
+- (void) createUser:(NSString *)appId appSecret:(NSString *)appSecret baseUrl:(nullable NSString *)baseUrl resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject {
+    
+}
+
+
 @end

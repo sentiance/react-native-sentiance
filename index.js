@@ -17,4 +17,14 @@ RNSentiance.TransportMode = {};
   TransportMode[TransportMode["RUNNING"] = 11] = "RUNNING";
 })(RNSentiance.TransportMode);
 
+RNSentiance.createUser = (credentials, linker) => {
+  console.log({credentials, linker})
+
+  console.log("[bridge setting credentials]")
+  RNSentiance.setValueForKey("SENTIANCE_SDK_APP_ID", credentials.appId);
+  RNSentiance.setValueForKey("SENTIANCE_SDK_APP_SECRET", credentials.appSecret);
+  RNSentiance.setValueForKey("SENTIANCE_SDK_APP_BASE_URL", credentials.baseUrl ?? null);
+
+}
+
 module.exports = RNSentiance;
