@@ -990,7 +990,7 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
 
 /** Temporary wrapper methods to make integration easier */
 
-- (void) initialize:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject {
+- (void) initializeWithSuccess: (InitializeSuccessBlock) successBlock failure:(InitializeFailureBlock)failureBlock{
     NSLog(@"[helper] method init");
     NSString *appId = [self getValueForKey:@"SENTIANCE_SDK_APP_ID" value:@""];
     NSString *appSecret = [self getValueForKey:@"SENTIANCE_SDK_APP_SECRET" value:@""];
@@ -1007,9 +1007,12 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
     
     [[SENTSDK sharedInstance] initWithConfig:config success:^{
         NSLog(@"[helper] success in initializing");
-        [self startSDK:resolve rejecter:reject];
+        if(successBlock != nil) {
+            successBlock();
+        }
     } failure:^(SENTInitIssue issue) {
         NSLog(@"[helper] error in initilizing");
+        failureBlock(issue);
     }];
     
 }

@@ -19,6 +19,9 @@ typedef void (^SdkStatusHandler)(SENTSDKStatus *status);
 - (void) enableSDKNativeInitialization:(RCTPromiseResolveBlock _Nullable)resolve rejecter:(RCTPromiseRejectBlock _Nullable)reject;
 
 // Temporary wrapper methods to make integration easier
-- (void) initialize:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject;
+
+typedef void (^InitializeSuccessBlock)(void);
+typedef void (^InitializeFailureBlock)(SENTInitIssue);
+- (void) initializeWithSuccess: InitializeSuccessBlock failure: (InitializeFailureBlock) failureBlock;
 - (void) createUser:(NSString *)appId appSecret:(NSString *)appSecret baseUrl:(nullable NSString *)baseUrl resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject;
 @end
