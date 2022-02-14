@@ -990,11 +990,19 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
 
 /** Temporary wrapper methods to make integration easier */
 
-- (void) initializeWithSuccess: (InitializeSuccessBlock) successBlock failure:(InitializeFailureBlock)failureBlock{
+RCT_EXPORT_METHOD(initializeWithSuccess: (InitializeSuccessBlock) successBlock failure:(InitializeFailureBlock)failureBlock){
     NSLog(@"[helper] method init");
+    NSString *isReadyForBackground = [self getValueForKey:@"SENTIANCE_SDK_IS_READY_FOR_BACKGROUND" value:@""];
     NSString *appId = [self getValueForKey:@"SENTIANCE_SDK_APP_ID" value:@""];
     NSString *appSecret = [self getValueForKey:@"SENTIANCE_SDK_APP_SECRET" value:@""];
     NSString *baseUrl = [self getValueForKey:@"SENTIANCE_SDK_APP_BASE_URL" value:@""];
+    
+    if(![isReadyForBackground isEqualToString:@"YES"]) {
+        NSLog(@"[helper] not ready for background collection");
+        return;
+    }
+    
+    NSLog(@"[helper] is ready %@", isReadyForBackground);
     
     if(appId.length == 0 || appSecret.length == 0) {
         NSLog(@"[helper] no credentials found skipping for now");
@@ -1018,6 +1026,7 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
 }
 
 - (void) createUser:(NSString *)appId appSecret:(NSString *)appSecret baseUrl:(nullable NSString *)baseUrl resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject {
+    
     
 }
 

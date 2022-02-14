@@ -1,6 +1,14 @@
-const { NativeModules } = require('react-native');
+const { NativeModules, NativeEventEmitter } = require('react-native');
 
 const { RNSentiance } = NativeModules;
+
+const SENTIANCE_EMITTER = new NativeEventEmitter(RNSentiance);
+const SENTINACE_STORE_KEYS = [
+  "SENTIANCE_SDK_APP_ID", 
+  "SENTIANCE_SDK_APP_SECRET", 
+  "SENTIANCE_SDK_APP_BASE_URL", 
+  "SENTIANCE_SDK_IS_READY_FOR_BACKGROUND"
+]
 
 RNSentiance.TransportMode = {};
 (function (TransportMode) {
@@ -17,14 +25,55 @@ RNSentiance.TransportMode = {};
   TransportMode[TransportMode["RUNNING"] = 11] = "RUNNING";
 })(RNSentiance.TransportMode);
 
-RNSentiance.createUser = (credentials, linker) => {
+
+
+RNSentiance.createUser = async (configuration) => {
+  const {credentials, linker} = configuration;
+
+  SENTINACE_STORE_KEYS.forEach(async key => {
+    console.log(key, await RNSentiance.getValueForKey(key, ""));
+  })
+  RNSentiance.setValueForKey("SENTIANCE_SDK_IS_READY_FOR_BACKGROUND", "");
   console.log({credentials, linker})
-
+ 
   console.log("[bridge setting credentials]")
-  RNSentiance.setValueForKey("SENTIANCE_SDK_APP_ID", credentials.appId);
-  RNSentiance.setValueForKey("SENTIANCE_SDK_APP_SECRET", credentials.appSecret);
-  RNSentiance.setValueForKey("SENTIANCE_SDK_APP_BASE_URL", credentials.baseUrl ?? null);
+  const baseUrl = credentials.baseUrl ?? null
+  const { appId, appSecret } = credentials;
 
+  RNSentiance.setValueForKey("SENTIANCE_SDK_APP_ID", appId);
+  RNSentiance.setValueForKey("SENTIANCE_SDK_APP_SECRET", appSecret);
+  RNSentiance.setValueForKey("SENTIANCE_SDK_APP_BASE_URL", baseUrl);
+
+  if(! linker) {
+    await RNSentiance.init(credentials.appId, credentials.appSecret, baseUrl, false)
+    await RNSentiance.setValueForKey("SENTIANCE_SDK_IS_READY_FOR_BACKGROUND", "YES")
+    return Promise.resolve();
+  }
+  
+  return new Promise(async (resolve, _reject) => {
+    SENTIANCE_EMITTER.addListener('SDKUserLink', (data) => {
+      console.log("[helper]", { data})
+      linker(data, () => {
+        console.log("[helper] ready to link success")
+        RNSentiance.userLinkCallback(true)
+        RNSentiance.setValueForKey("SENTIANCE_SDK_IS_READY_FOR_BACKGROUND", "YES")
+      }, () => {
+        RNSentiance.userLinkCallback(false)
+      });
+    })
+    
+    await RNSentiance.initWithUserLinkingEnabled(appId,appSecret,baseUrl,false)
+    resolve();
+  })
+  
+}
+
+RNSentiance.clear = () => {
+  SENTINACE_STORE_KEYS.forEach(async key => {
+    console.log(key, await RNSentiance.getValueForKey(key, ""));
+    RNSentiance.setValueForKey(key, "");
+  })
+  RNSentiance.reset();
 }
 
 module.exports = RNSentiance;

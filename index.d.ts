@@ -137,6 +137,7 @@ declare module "react-native-sentiance" {
     SDKCrashEventListener |
     SDKTripProfileListener;
 
+
   export interface RNSentianceConstructor extends EventSubscriptionVendor {
     init(
       appId: string,
@@ -193,11 +194,15 @@ declare module "react-native-sentiance" {
 
     /** Temporary wrapper method to help SDK integration */
     initialize(): Promise<boolean>;
-    createUser(credentials: {
-      appId: string;
-      appSecret: string;
-      baseUrl?: string;
-    }, linker: () => void)
+    createUser(configuration: {
+      credentials: {
+        appId: string;
+        appSecret: string;
+        baseUrl?: string;
+      }
+      linker?: (data: any, done: () => void, error: () => void) => void
+    })
+    clear(): void;
   }
 
   export interface RNSentianceEventEmitter extends NativeEventEmitter {
