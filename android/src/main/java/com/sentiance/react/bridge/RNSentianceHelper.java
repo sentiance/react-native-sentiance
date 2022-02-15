@@ -321,4 +321,63 @@ public class RNSentianceHelper {
             return defaultValue;
         }
     }
+
+  /**
+   * ========================================
+   * Temporary wrapper methods to ease the
+   * integration of the SDK
+   * ========================================
+   */
+
+  /**
+   * The wrapper method handle SDK initialization without needing to pass the
+   * crendentials. This method is meant to be called in the "MainActivity.onCreate". While
+   * the credentials are passed during the "createUser" method exposed.
+   *
+   * This method basically rallies around the state vairables.
+   * - SENTIANCE_SDK_IS_READY_FOR_BACKGROUND
+   * - SENTIANCE_SDK_APP_ID
+   * - SENTIANCE_SDK_APP_SECRET
+   *
+   * The above variables are set in the "createUser" method
+   *
+   * @param callback
+   */
+  public void initialize(@Nullable final InitCallback callback) {
+      String isReadyForBackground = this.getValueForKey("SENTIANCE_SDK_IS_READY_FOR_BACKGROUND", "");
+
+      if (!isReadyForBackground.equals("YES")) {
+        return;
+      }
+
+      String appId = this.getValueForKey("SENTIANCE_SDK_APP_ID", "");
+      String appSecret = this.getValueForKey("SENTIANCE_SDK_APP_SECRET", "");
+      String baseUrl = this.getValueForKey("SENTIANCE_SDK_APP_BASE_URL", "");
+
+      if (appId.equals("") || appSecret.equals("")) {
+        return;
+      }
+
+      this.initializeSentianceSDK(appId, appSecret, false, baseUrl, new OnInitCallback() {
+        @Override
+        public void onInitSuccess() {
+          callback.onSuccess();
+        }
+
+        @Override
+        public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
+          callback.onFailure(issue);
+        }
+      }, null);
+
+    }
+
+  /**
+   * InitCallback interface
+   */
+  public interface InitCallback {
+      public void onSuccess();
+      public void onFailure(OnInitCallback.InitIssue issue);
+    }
+
 }
