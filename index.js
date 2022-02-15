@@ -47,6 +47,8 @@ RNSentiance.TransportMode = {};
  *
  * @param {CreateUserConfiguration} configuration
  */
+const createUser = (configuration) => {};
+
 RNSentiance.createUser = async (configuration) => {
   RNSentiance.setValueForKey("SENTIANCE_SDK_IS_READY_FOR_BACKGROUND", "");
 
@@ -105,11 +107,14 @@ RNSentiance.createUser = async (configuration) => {
  * This method is intended to be used when a user is logged out or whenever the
  * SDK is meant to be reset.
  */
-RNSentiance.clear = () => {
+const clear = () => {
   SENTIANCE_STORE_KEYS.forEach(async (key) => {
     RNSentiance.setValueForKey(key, "");
   });
   RNSentiance.reset();
 };
+
+RNSentiance.createUser = createUser;
+RNSentiance.clear = clear;
 
 module.exports = RNSentiance;

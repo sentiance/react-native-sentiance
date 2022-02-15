@@ -1,11 +1,29 @@
 declare module "react-native-sentiance" {
-  import { EventSubscriptionVendor, NativeEventEmitter, EmitterSubscription } from "react-native";
+  import {
+    EventSubscriptionVendor,
+    NativeEventEmitter,
+    EmitterSubscription,
+  } from "react-native";
 
-  export type SdkInitState = "NOT_INITIALIZED" | "INIT_IN_PROGRESS" | "INITIALIZED" | "RESETTING" | "UNRECOGNIZED_STATE";
+  export type SdkInitState =
+    | "NOT_INITIALIZED"
+    | "INIT_IN_PROGRESS"
+    | "INITIALIZED"
+    | "RESETTING"
+    | "UNRECOGNIZED_STATE";
 
-  export type SdkResetFailureReason = "SDK_INIT_IN_PROGRESS" | "SDK_RESET_IN_PROGRESS" | "SDK_RESET_UNKNOWN_ERROR";
+  export type SdkResetFailureReason =
+    | "SDK_INIT_IN_PROGRESS"
+    | "SDK_RESET_IN_PROGRESS"
+    | "SDK_RESET_UNKNOWN_ERROR";
 
-  export type InitIssue = "INVALID_CREDENTIALS" | "CHANGED_CREDENTIALS" | "SERVICE_UNREACHABLE" | "LINK_FAILED" | "SDK_RESET_IN_PROGRESS" | "INITIALIZATION_ERROR";
+  export type InitIssue =
+    | "INVALID_CREDENTIALS"
+    | "CHANGED_CREDENTIALS"
+    | "SERVICE_UNREACHABLE"
+    | "LINK_FAILED"
+    | "SDK_RESET_IN_PROGRESS"
+    | "INITIALIZATION_ERROR";
 
   export type VehicleMode = "IDLE" | "VEHICLE" | "NOT_VEHICLE" | "UNKNOWN";
 
@@ -57,7 +75,11 @@ declare module "react-native-sentiance" {
   }
 
   export interface TripInfo {
-    type: "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL" | "TRIP_TYPE_UNRECOGNIZED" | "ANY";
+    type:
+      | "TRIP_TYPE_SDK"
+      | "TRIP_TYPE_EXTERNAL"
+      | "TRIP_TYPE_UNRECOGNIZED"
+      | "ANY";
   }
 
   export interface Location {
@@ -73,7 +95,11 @@ declare module "react-native-sentiance" {
   }
 
   export interface UserActivity {
-    type: "USER_ACTIVITY_TYPE_TRIP" | "USER_ACTIVITY_TYPE_STATIONARY" | "USER_ACTIVITY_TYPE_UNKNOWN" | "USER_ACTIVITY_TYPE_UNRECOGNIZED";
+    type:
+      | "USER_ACTIVITY_TYPE_TRIP"
+      | "USER_ACTIVITY_TYPE_STATIONARY"
+      | "USER_ACTIVITY_TYPE_UNKNOWN"
+      | "USER_ACTIVITY_TYPE_UNRECOGNIZED";
     tripInfo?: TripInfo;
     stationaryInfo?: StationaryInfo;
   }
@@ -118,25 +144,47 @@ declare module "react-native-sentiance" {
     transportSegments: TransportSegments[];
   }
 
-  export type SdkEvent = "SDKStatusUpdate" | "SDKUserLink" | "SDKUserActivityUpdate" | "SDKCrashEvent" | "SDKTripProfile" | "SDKTripTimeout" | "VehicleCrashEvent";
+  export type SdkEvent =
+    | "SDKStatusUpdate"
+    | "SDKUserLink"
+    | "SDKUserActivityUpdate"
+    | "SDKCrashEvent"
+    | "SDKTripProfile"
+    | "SDKTripTimeout"
+    | "VehicleCrashEvent";
 
   export type SDKStatusUpdateListener = (sdkStatus: SdkStatus) => void;
 
   export type SDKUserLinkListener = (param: { installId: string }) => void;
 
-  export type SDKUserActivityUpdateListener = (userActivity: UserActivity) => void;
+  export type SDKUserActivityUpdateListener = (
+    userActivity: UserActivity
+  ) => void;
 
   export type SDKCrashEventListener = (crashEvent: CrashEvent) => void;
 
   export type SDKTripProfileListener = (tripProfile: TripProfile) => void;
 
   export type SdkEventListener =
-    SDKStatusUpdateListener |
-    SDKUserLinkListener |
-    SDKUserActivityUpdateListener |
-    SDKCrashEventListener |
-    SDKTripProfileListener;
+    | SDKStatusUpdateListener
+    | SDKUserLinkListener
+    | SDKUserActivityUpdateListener
+    | SDKCrashEventListener
+    | SDKTripProfileListener;
 
+  type CreateUserConfiguration = {
+    credentials: {
+      appId: string;
+      appSecret: string;
+      baseUrl?: string;
+    };
+
+    /**
+     * @param {{ installId: string }} data
+     * @param {() => void} done
+     */
+    linker: (data: { installId: string }, done: () => void) => void;
+  };
 
   export interface RNSentianceConstructor extends EventSubscriptionVendor {
     init(
@@ -178,7 +226,10 @@ declare module "react-native-sentiance" {
     userLinkCallback(success: boolean): void;
     getValueForKey(key: string, defaultValue: string): Promise<string>;
     setValueForKey(key: string, value: string): void;
-    startTrip(metadata: MetadataObject|null, hint: TransportMode): Promise<boolean>;
+    startTrip(
+      metadata: MetadataObject | null,
+      hint: TransportMode
+    ): Promise<boolean>;
     stopTrip(): Promise<boolean>;
     isTripOngoing(type: TripType): Promise<boolean>;
     submitDetections(): Promise<boolean>;
@@ -192,21 +243,35 @@ declare module "react-native-sentiance" {
     invokeDummyVehicleCrash(): Promise<boolean>;
     isVehicleCrashDetectionSupported(type: TripType): Promise<boolean>;
 
-    /** Temporary wrapper method to help SDK integration */
-    initialize(): Promise<boolean>;
-    createUser(configuration: {
-      credentials: {
-        appId: string;
-        appSecret: string;
-        baseUrl?: string;
-      }
-      linker?: (data: any, done: () => void, error: () => void) => void
-    })
+    /**
+     * ########################
+     *
+     * TEMPORARY WRAPPER METHODS TO EASE SDK INTEGRATION
+     *
+     * ########################
+     */
+
+    /**
+     * Creates an SDK user and configures the SDK with the provided credentials
+     *
+     * @param {CreateUserConfiguration} configuration
+     */
+    createUser(configuration: CreateUserConfiguration);
+
+    /**
+     * Clears the SDK state and resets the SDK
+     *
+     * @returns Void
+     */
     clear(): void;
   }
 
   export interface RNSentianceEventEmitter extends NativeEventEmitter {
-    addListener(eventType: SdkEvent, listener: SdkEventListener, context?: any): EmitterSubscription;
+    addListener(
+      eventType: SdkEvent,
+      listener: SdkEventListener,
+      context?: any
+    ): EmitterSubscription;
   }
 
   export interface RNSentianceEventSubscriptions {
