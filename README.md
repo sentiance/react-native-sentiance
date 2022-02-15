@@ -151,10 +151,10 @@ In order for the SDK to start collecting data you would need to perform two step
 
 #### Create User and start the Sentiance SDK
 
-Create a user and start the sentiance SDK.
+Create a user and start the sentiance SDK. The following should be placed where and when your application is ready to start collecting data (e.g. on user login, on reaching a particular page)
 
 ##### Without User Linking
-```javascript
+```js
 await RNSentiance.createUser({
   credentials: { appId, appSecret, baseUrl},
 })
