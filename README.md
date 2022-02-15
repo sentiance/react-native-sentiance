@@ -151,7 +151,7 @@ In order for the SDK to start collecting data you would need to perform two step
 
 #### Create User and start the Sentiance SDK
 
-Initialize and start sentiance SDK.
+Create a user and start the sentiance SDK.
 
 ##### Without User Linking
 ```javascript
