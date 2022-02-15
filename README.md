@@ -6,30 +6,14 @@ https://github.com/sentiance/react-native-sentiance-example
 
 ## Getting started
 
-`$ npm install react-native-sentiance --save`
+```
+$ npm install react-native-sentiance --save
+```
 
-### Manual installation
 
-#### iOS
+### iOS 
 
-**with Cocoapods**
-
-1. Add `RNSentiance` Pod to your Podfile
-   ```
-   pod 'RNSentiance', :path => '../node_modules/react-native-sentiance/ios/RNSentiance.podspec'
-   ```
-2. Run `pod install` in your `ios` folder
-
-**without Cocoapods**
-
-1. [Download](https://developers.sentiance.com/docs/sdk/ios/integration) the latest version of the Sentiance iOS SDK from our developer documentation.
-2. In XCode, in the project navigator, right click `Libraries` ➜ `Add Files to [your project's name]`
-3. Go to `node_modules` ➜ `react-native-sentiance-library` and add `RNSentianceLibrary.xcodeproj`
-4. In XCode, in the project navigator, select `RNSentianceLibrary.xcodeproj`. Add the folder where `SENTSDK.framework` is located to `Search Paths` ➜ `Framework Search Paths`
-5. In XCode, in the project navigator, select your project. Add `libRNSentianceLibrary.a` to your project's `Build Phases` ➜ `Link Binary With Libraries`
-6. Run your project (`Cmd+R`)<
-
-**Configuring capabilities**
+#### iOS Configuration
 
 1. Go to the **Capabilities** tab of your target settings
 1. Turn on **Background Modes** and enable **Location updates**
@@ -37,102 +21,122 @@ https://github.com/sentiance/react-native-sentiance-example
 
 ![iOS Background Modes](./assets/ios-background-modes.png)
 
-#### Native initialization
+#### iOS Initialization
 
-In your `AppDelegate` add the following:
+The correct way to natively initialize on iOS is to do it inside the `didFinishLaunchingWithOptions` method of the `AppDelegate` class.
 
 ```objective-c
-  #import <React/RCTBundleURLProvider.h>
-  #import <React/RCTRootView.h>
-  @import SENTSDK;
-  #import <RNSentiance.h>
+#import <RNSentiance.h> // Import Sentiance React Native bridge module
+...
+
+@implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
-  RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
-                                                   moduleName:@"RNSentiance"
-                                            initialProperties:nil];
+  ...
 
-  // Read SENTIANCE_APP_ID and SENTIANCE_APP_SECRET from any safe source
-  NSString * SENTIANCE_APP_ID = @"";
-  NSString * SENTIANCE_APP_SECRET = @"";
-
-  [[bridge moduleForName:@"RNSentiance"] initSDK:SENTIANCE_APP_ID secret:SENTIANCE_APP_SECRET baseURL:nil shouldStart:YES resolver:nil rejecter:nil];
-
-  .....
-
-  return YES;
+  [[bridge moduleForName: @"RNSentiance"] initializeWithSuccess:^ {    
+    [[bridge moduleForName:@"RNSentiance"] startSDK:nil rejecter:nil];
+  } failure:nil];
+  
+  ...
 }
 ```
 
-#### Android
+### Android
 
-1. Open up youd application class`android/app/src/main/java/[...]/{your-app-class}.java`
+#### Android Installation
 
-- Add `import com.sentiance.react.bridge.RNSentiancePackage;` to the imports at the top of the file
-- Add `new RNSentiancePackage()` to the list returned by the `getPackages()` method
+Add the following lines to the settings.gradle file in your project's android directory:
 
-2. Append the following lines to `android/settings.gradle`:
-   ```
-   include ':react-native-sentiance'
-   project(':react-native-sentiance').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-sentiance/android')
-   ```
-3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
-   ```
-   implementation project(':react-native-sentiance')
-   ```
-4. Add following entry to `android/build.gradle`
-   ```
-   allprojects {
-     repositories {
-       ...
-       maven {
-           url "http://repository.sentiance.com"
-       }
-     }
-   }
-   ```
-5. Configure foreground notification, Add the following lines to application's `AndroidManifest.xml` file inside `<application>` tag:
-   ```xml
-   <meta-data android:name="com.sentiance.react.bridge.notification_title" android:resource="@string/app_name"/>
-   <meta-data android:name="com.sentiance.react.bridge.notification_text" android:value="Touch to open."/>
-   <meta-data android:name="com.sentiance.react.bridge.notification_icon" android:resource="@mipmap/ic_launcher"/>
-   <meta-data android:name="com.sentiance.react.bridge.notification_channel_name" android:value="Sentiance"/>
-   <meta-data android:name="com.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
-   ```
 
-#### Manifest permissions
+```
+# android/settings.gradle
 
-If you're targeting API level 29 and above, you must add the following permissions to your application's `AndroidManifest.xml` file, inside the `<manifest>` tag:
+include ':react-native-sentiance'
+project(':react-native-sentiance').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sentiance/android')
+```
+
+Add the Sentiance repository to the build.gradle file in your project's android directory:
+
+```
+# android/build.gradle
+
+allprojects {
+    repositories {
+        ...
+        maven { url "http://repository.sentiance.com" }
+    }
+}
+```
+
+Finally, add a dependency to the React Native project to your app's build.gradle:
+
+```
+# android/app/build.gradle
+
+dependencies {
+    ...
+    implementation project(':react-native-sentiance')
+}
+```
+
+#### Android Configuration
+
+When targeting API level 29 (Android 10), you must add the following permissions to your app's AndroidManifest.xml file.
 
 ```xml
+AndroidManifest.xml
+
+<manifest ...>
   <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
   <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+  ...
+  
+</manifest>
 ```
-For more information about why these permissions are required, please refer to our [Android Permissions](https://docs.sentiance.com/sdk/getting-started/android-sdk/permissions) page.
 
-#### Native initialization
+**Customize the Notification**
 
-Inside `Application#onCreate()` method, initialize and start sentiance SDK
+The Sentiance SDK needs to provide a notification to Android, which gets shown to the user when a foreground service is running. You can customize this notification via the **AndroidManifest.xml** file.
+
+```xml
+<application ...>
+    <meta-data android:name="com.sentiance.react.bridge.notification_title" android:resource="@string/app_name"/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_text" android:value="Touch to open."/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_icon" android:resource="@mipmap/ic_launcher"/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_channel_name" android:value="Sentiance"/>
+    <meta-data android:name="com.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
+    
+    ...
+</application>
+```
+
+#### Android Initialization
+
+The correct way to natively initialize on Android is to do it inside the onCreate() method of the Application class. 
 
 ```java
-@Override
-public void onCreate() {
-  super.onCreate();
-  SoLoader.init(this, /* native exopackage */ false);
-  RNSentianceHelper rnSentianceHelper = RNSentianceHelper.getInstance(getApplicationContext());
-      rnSentianceHelper.initializeSentianceSDK(
-              SENTIANCE_APP_ID,SENTIANCE_SECRET, // app id and secret
-              true, //auto start
-              null, // init callback
-              null // start callback
-      );
+import com.sentiance.react.bridge.RNSentianceHelper;
+
+public class MainApplication extends Application implements ReactApplication {
+
+  @Override
+  public void onCreate() {
+      super.onCreate();
       ...
+      RNSentianceHelper rnSentianceHelper = RNSentianceHelper.getInstance(getApplicationContext());
+      rnSentianceHelper.initialize(new RNSentianceHelper.InitCallback() {
+          @Override
+          public void onSuccess() {
+              rnSentianceHelper.startSentianceSDK(null);
+          }
+      });
+  }
 }
+
 ```
 
-_NOTE: Ideally, initializing the SDK is done from `AppDelegate's didFinishLaunchingWithOptions` or `Application's onCreate` method as this will guarantee that the SDK is running as often as possible. If your application uses a login flow, you will want to start the SDK only if the user is logged in, at that point you could start the SDK through JavaScript. Once the user is logged in, the SDK should always start before the end of `onCreate or didFinishLaunchingWithOptions`. Please refer to https://docs.sentiance.com/ for documentation on the SDK integration._
 
 ## Usage
 
@@ -140,49 +144,39 @@ _NOTE: Ideally, initializing the SDK is done from `AppDelegate's didFinishLaunch
 import RNSentiance from "react-native-sentiance";
 ```
 
-#### Initialize and start the Sentiance SDK
+In order for the SDK to start collecting data you would need to perform two steps.
+
+1. Create a SDK User
+2. Start the SDK
+
+#### Create User and start the Sentiance SDK
 
 Initialize and start sentiance SDK.
 
+##### Without User Linking
 ```javascript
-try {
-  const startResponse = await RNSentiance.init(
-    APP_ID,
-    APP_SECRET, // app id and secret
-    null, // override base url
-    true // auto start
-  );
-} catch (err) {
-  // SDK did not start.
-}
+await RNSentiance.createUser({
+  credentials: { appId, appSecret, baseUrl},
+})
+await RNSentiance.start();
 ```
 
-#### Starting the Sentiance SDK
+##### With User Linking
 
-If SDK is not started automatically i.e `shouldStart = false` during init, it can be started manually.
+_Please refer to https://docs.sentiance.com/guide/user-linking for documentation on the user linking._
 
-```javascript
-try {
-  const startResponse = await RNSentiance.start();
-  const { startStatus } = startResponse;
-  if (startStatus === "STARTED") {
-    // SDK started properly.
-  } else if (startStatus === "PENDING") {
-    // Something prevented the SDK to start properly. Once fixed, the SDK will start automatically.
+```js
+await RNSentiance.createUser({
+  credentials: { appId, appSecret, baseUrl},
+  linker: async (data, done) => {
+    // request your backend to perform user linking
+    await linkUser(data.installId);
+
+    // Ensure you call the "done" after
+    done(); 
   }
-} catch (err) {
-  // SDK did not start.
-}
-```
-
-Start SDK with stop date.
-
-```javascript
-try {
-  const startResponse = await RNSentiance.startWithStopDate(stopEpochTimeMs);
-} catch (err) {
-  // SDK did not start.
-}
+})
+await RNSentiance.start();
 ```
 
 #### Stopping the Sentiance SDK
@@ -436,39 +430,14 @@ Note that this change is valid only during the process's lifetime. After the app
 await RNSentiance.updateSdkNotification("RN SDK Sample", "SDK is running");
 ```
 
-#### User linking
+#### Clearing/Resetting the SDK
 
-To make use of this feature, you must initialize the SDK by calling `RNSentiance.initWithUserLinkingEnabled` instead of `RNSentiance.init`.
-
-During initialization, the SDK will send a `SDKUserLink` event along with an `installId`. This install ID should be linked to your third party ID. After successful linking, you must call `RNSentiance.userLinkCallback(true)` to notify the SDK. If linking fails, you must instead call `RNSentiance.userLinkCallback(false)`.
-
-_Please refer to https://docs.sentiance.com/guide/user-linking for documentation on the user linking._
-
-```javascript
-import { NativeEventEmitter } from "react-native";
-
-const sentianceEmitter = new NativeEventEmitter(RNSentiance);
-sentianceEmitter = rnSentianceEmitter.addListener("SDKUserLink", id => {
-  const { installId } = id;
-
-  //send this installid to you server for linking
-  linkUser(installId);
-
-  //once linking is done notify sdk
-  RNSentiance.userLinkCallback(true);
-});
-```
-
-_NOTE: `SDKUserLink` listener must be set before calling `RNSentiance.initWithUserLinkingEnabled`._
-
-#### Resetting the SDK
-
-To delete the Sentiance user and its data from the device, you can reset the SDK by calling `RNSentiance.reset`. This allows you to create a new Sentiance user by reinitializing the SDK, and link it to a new third party ID.
+To delete the Sentiance user and its data from the device, you can reset the SDK by calling `RNSentiance.clear`. This allows you to create a new Sentiance user by reinitializing the SDK, and link it to a new third party ID.
 
 ```javascript
 try {
-  await RNSentiance.reset();
-  // The SDK was succesfully reset
+  await RNSentiance.clear();
+  // The SDK was successfully cleared and reset
 } catch (err) {
   // Resetting the SDK failed
   // err.name has three values: SDK_INIT_IN_PROGRESS, SDK_RESET_IN_PROGRESS, SDK_RESET_UNKNOWN_ERROR
