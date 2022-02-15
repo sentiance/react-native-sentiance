@@ -988,47 +988,55 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
     return [dict copy];
 }
 
-/** Temporary wrapper methods to make integration easier */
+/**
+ * ========================================
+ * Temporary wrapper methods to ease the
+ * integration of the SDK
+ * ========================================
+ */
 
+/**
+ * The wrapper method handle SDK initialization without needing to pass the
+ * crendentials. This method is meant to be called in the "appdelegate". While
+ * the credentials are passed during the "createUser" method exposed.
+ *
+ * This method basically rallies around the state vairables.
+ * - SENTIANCE_SDK_IS_READY_FOR_BACKGROUND
+ * - SENTIANCE_SDK_APP_ID
+ * - SENTIANCE_SDK_APP_SECRET
+ *
+ * The above variables are set in the "createUser" method
+ */
 RCT_EXPORT_METHOD(initializeWithSuccess: (InitializeSuccessBlock) successBlock failure:(InitializeFailureBlock)failureBlock){
-    NSLog(@"[helper] method init");
     NSString *isReadyForBackground = [self getValueForKey:@"SENTIANCE_SDK_IS_READY_FOR_BACKGROUND" value:@""];
     NSString *appId = [self getValueForKey:@"SENTIANCE_SDK_APP_ID" value:@""];
     NSString *appSecret = [self getValueForKey:@"SENTIANCE_SDK_APP_SECRET" value:@""];
-    NSString *baseUrl = [self getValueForKey:@"SENTIANCE_SDK_APP_BASE_URL" value:@""];
+    NSString *baseURL = [self getValueForKey:@"SENTIANCE_SDK_APP_BASE_URL" value:@""];
     
+    // Returns if not ready for background init
     if(![isReadyForBackground isEqualToString:@"YES"]) {
-        NSLog(@"[helper] not ready for background collection");
         return;
     }
     
-    NSLog(@"[helper] is ready %@", isReadyForBackground);
-    
+    // Returns if credentials are for some reason not present
     if(appId.length == 0 || appSecret.length == 0) {
-        NSLog(@"[helper] no credentials found skipping for now");
         return;
     }
-    
-    NSLog(@"[helper] credentials found, its show time!");
     
     SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:appSecret link:nil launchOptions:@{}];
     
+    if (baseURL.length > 0) {
+        config.baseURL = baseURL;
+    }
+    
     [[SENTSDK sharedInstance] initWithConfig:config success:^{
-        NSLog(@"[helper] success in initializing");
         if(successBlock != nil) {
             successBlock();
         }
     } failure:^(SENTInitIssue issue) {
-        NSLog(@"[helper] error in initilizing");
         failureBlock(issue);
     }];
     
 }
-
-- (void) createUser:(NSString *)appId appSecret:(NSString *)appSecret baseUrl:(nullable NSString *)baseUrl resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject {
-    
-    
-}
-
 
 @end

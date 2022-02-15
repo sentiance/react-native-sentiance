@@ -22,6 +22,5 @@ typedef void (^SdkStatusHandler)(SENTSDKStatus *status);
 
 typedef void (^InitializeSuccessBlock)(void);
 typedef void (^InitializeFailureBlock)(SENTInitIssue);
-- (void) initializeWithSuccess: InitializeSuccessBlock failure: (InitializeFailureBlock) failureBlock;
-- (void) createUser:(NSString *)appId appSecret:(NSString *)appSecret baseUrl:(nullable NSString *)baseUrl resolver:(RCTPromiseResolveBlock)resolve  rejecter:(RCTPromiseRejectBlock)reject;
+- (void) initializeWithSuccess:(InitializeSuccessBlock _Nullable)successBlock failure: (InitializeFailureBlock _Nullable) failureBlock;
 @end

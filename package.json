@@ -16,5 +16,9 @@
   },
   "homepage": "https://github.com/sentiance/react-native-sentiance#readme",
   "bugs": "https://github.com/sentiance/react-native-sentiance/issues",
-  "repository": "github:sentiance/react-native-sentiance"
+  "repository": "github:sentiance/react-native-sentiance",
+  "devDependencies": {
+    "prettier": "2.5.1",
+    "prettier-plugin-jsdoc": "^0.3.30"
+  }
 }
