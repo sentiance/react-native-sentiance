@@ -256,14 +256,14 @@ declare module "react-native-sentiance" {
      *
      * @param {CreateUserConfiguration} configuration
      */
-    createUser(configuration: CreateUserConfiguration);
+    createUserExperiment(configuration: CreateUserConfiguration);
 
     /**
      * Clears the SDK state and resets the SDK
      *
      * @returns Void
      */
-    clear(): void;
+    clearExperiment(): void;
   }
 
   export interface RNSentianceEventEmitter extends NativeEventEmitter {

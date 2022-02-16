@@ -47,9 +47,8 @@ RNSentiance.TransportMode = {};
  *
  * @param {CreateUserConfiguration} configuration
  */
-const createUser = (configuration) => {};
 
-RNSentiance.createUser = async (configuration) => {
+RNSentiance.createUserExperiment = async (configuration) => {
   RNSentiance.setValueForKey("SENTIANCE_SDK_IS_READY_FOR_BACKGROUND", "");
 
   const { credentials, linker } = configuration;
@@ -80,10 +79,6 @@ RNSentiance.createUser = async (configuration) => {
         data,
         () => {
           RNSentiance.userLinkCallback(true);
-          RNSentiance.setValueForKey(
-            "SENTIANCE_SDK_IS_READY_FOR_BACKGROUND",
-            "YES"
-          );
         },
         () => {
           RNSentiance.userLinkCallback(false);
@@ -97,6 +92,7 @@ RNSentiance.createUser = async (configuration) => {
       baseUrl,
       false
     );
+    RNSentiance.setValueForKey("SENTIANCE_SDK_IS_READY_FOR_BACKGROUND", "YES");
     resolve();
   });
 };
@@ -107,14 +103,14 @@ RNSentiance.createUser = async (configuration) => {
  * This method is intended to be used when a user is logged out or whenever the
  * SDK is meant to be reset.
  */
-const clear = () => {
+const clearExperiment = () => {
   SENTIANCE_STORE_KEYS.forEach(async (key) => {
     RNSentiance.setValueForKey(key, "");
   });
   RNSentiance.reset();
 };
 
-RNSentiance.createUser = createUser;
-RNSentiance.clear = clear;
+RNSentiance.createUserExperiment = createUserExperiment;
+RNSentiance.clearExperiment = clearExperiment;
 
 module.exports = RNSentiance;
