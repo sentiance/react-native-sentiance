@@ -270,7 +270,7 @@ declare module "react-native-sentiance" {
      * 
      * @returns Promise<void>
      */
-    disbaleExperimental(): Promise<void>;
+     disableExperimental(): Promise<void>;
 
     /**
      * Restarts the SDK. This method assumes the

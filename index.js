@@ -127,7 +127,7 @@ const resetExperimental = () => {
  * The application would need to call "enableExperimental" when it want to resume 
  * data collection
  */
-const disbaleExperimental = async () => {
+const disableExperimental = async () => {
   RNSentiance.setValueForKey(KEY_SENTIANCE_SDK_IS_DISABLED, "YES");
   await RNSentiance.stop()
 }
@@ -145,7 +145,7 @@ const enableExperimental = async () => {
 
 RNSentiance.createUserExperimental = createUserExperimental;
 RNSentiance.resetExperimental = resetExperimental;
-RNSentiance.disbaleExperimental = disbaleExperimental;
+RNSentiance.disableExperimental = disableExperimental;
 RNSentiance.enableExperimental = enableExperimental;
 
 module.exports = RNSentiance;
