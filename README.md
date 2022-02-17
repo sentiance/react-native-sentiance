@@ -123,13 +123,7 @@ public class MainApplication extends Application implements ReactApplication {
   public void onCreate() {
       super.onCreate();
       ...
-      RNSentianceHelper rnSentianceHelper = RNSentianceHelper.getInstance(getApplicationContext());
-      rnSentianceHelper.initialize(new RNSentianceHelper.InitCallback() {
-          @Override
-          public void onSuccess() {
-              rnSentianceHelper.startSentianceSDK(null);
-          }
-      });
+      RNSentianceHelper.getInstance(getApplicationContext()).initialize();
   }
 }
 
