@@ -35,9 +35,7 @@ The correct way to natively initialize on iOS is to do it inside the `didFinishL
 {
   ...
 
-  [[bridge moduleForName: @"RNSentiance"] initializeWithSuccess:^ {    
-    [[bridge moduleForName:@"RNSentiance"] startSDK:nil rejecter:nil];
-  } failure:nil];
+  [[bridge moduleForName: @"RNSentiance"] initializeWithSuccess:^ nil failure:nil];
   
   ...
 }
