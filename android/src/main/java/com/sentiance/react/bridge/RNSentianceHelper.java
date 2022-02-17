@@ -353,6 +353,7 @@ public class RNSentianceHelper {
       String appId = this.getValueForKey("SENTIANCE_SDK_APP_ID", "");
       String appSecret = this.getValueForKey("SENTIANCE_SDK_APP_SECRET", "");
       String baseUrl = this.getValueForKey("SENTIANCE_SDK_APP_BASE_URL", "");
+      final String isDisabled = this.getValueForKey("SENTIANCE_SDK_IS_DISABLED", "");
 
       if (appId.equals("") || appSecret.equals("")) {
         return;
@@ -361,12 +362,21 @@ public class RNSentianceHelper {
       this.initializeSentianceSDK(appId, appSecret, false, baseUrl, new OnInitCallback() {
         @Override
         public void onInitSuccess() {
-          callback.onSuccess();
+          if(!isDisabled.equals("YES")) {
+            startSentianceSDK(
+              new OnStartFinishedHandler() {
+                @Override
+                public void onStartFinished(SdkStatus sdkStatus) {
+                  if(callback != null) callback.onSuccess();
+                }
+              }
+            );
+          }
         }
 
         @Override
         public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
-          callback.onFailure(issue);
+          if(callback != null) callback.onFailure(issue);
         }
       }, null);
 
