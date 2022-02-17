@@ -1030,9 +1030,17 @@ RCT_EXPORT_METHOD(initializeWithSuccess: (InitializeSuccessBlock) successBlock f
     }
     
     [[SENTSDK sharedInstance] initWithConfig:config success:^{
-        if(successBlock != nil) {
-            successBlock();
+        NSString *isDisabled = [self getValueForKey:@"SENTIANCE_SDK_IS_DISABLED" value:@""];
+
+        if(isDisabled.length > 0) {
+            return;
         }
+        
+        [[SENTSDK sharedInstance] start:^(SENTSDKStatus *status) {
+            if(successBlock != nil) {
+                successBlock();
+            }
+        }];
     } failure:^(SENTInitIssue issue) {
         failureBlock(issue);
     }];

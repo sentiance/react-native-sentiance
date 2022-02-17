@@ -183,7 +183,7 @@ declare module "react-native-sentiance" {
      * @param {{ installId: string }} data
      * @param {() => void} done
      */
-    linker: (data: { installId: string }, done: () => void) => void;
+    linker: (data: { installId: string }, done: (isDone?: boolean) => void) => void;
   };
 
   export interface RNSentianceConstructor extends EventSubscriptionVendor {
@@ -256,14 +256,29 @@ declare module "react-native-sentiance" {
      *
      * @param {CreateUserConfiguration} configuration
      */
-    createUserExperiment(configuration: CreateUserConfiguration);
+    createUserExperimental(configuration: CreateUserConfiguration);
 
     /**
      * Clears the SDK state and resets the SDK
      *
      * @returns Void
      */
-    clearExperiment(): void;
+    resetExperimental(): void;
+
+    /**
+     * Stops the SDK and pauses and background collection as well
+     * 
+     * @returns Promise<void>
+     */
+    disbaleExperimental(): Promise<void>;
+
+    /**
+     * Restarts the SDK. This method assumes the
+     * 
+     * @returns Promise<void>
+     */
+    enableExperimental() : Promise<void>
+    
   }
 
   export interface RNSentianceEventEmitter extends NativeEventEmitter {
