@@ -64,7 +64,7 @@ const createUserExperimental = async (configuration) => {
     return Promise.resolve();
   }
 
-  return new Promise(async (resolve, _reject) => {
+  return new Promise(async (resolve, reject) => {
     SENTIANCE_EMITTER.addListener("SDKUserLink", (data) => {
       linker(data, async (isDone) => {
         if (isDone === false) {
