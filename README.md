@@ -10,8 +10,7 @@ https://github.com/sentiance/react-native-sentiance-example
 $ npm install react-native-sentiance --save
 ```
 
-
-### iOS 
+### iOS
 
 #### iOS Configuration
 
@@ -36,7 +35,7 @@ The correct way to natively initialize on iOS is to do it inside the `didFinishL
   ...
 
   [[bridge moduleForName: @"RNSentiance"] initializeWithSuccess:^ nil failure:nil];
-  
+
   ...
 }
 ```
@@ -46,7 +45,6 @@ The correct way to natively initialize on iOS is to do it inside the `didFinishL
 #### Android Installation
 
 Add the following lines to the settings.gradle file in your project's android directory:
-
 
 ```
 # android/settings.gradle
@@ -90,7 +88,7 @@ AndroidManifest.xml
   <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
   <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
   ...
-  
+
 </manifest>
 ```
 
@@ -105,14 +103,14 @@ The Sentiance SDK needs to provide a notification to Android, which gets shown t
     <meta-data android:name="com.sentiance.react.bridge.notification_icon" android:resource="@mipmap/ic_launcher"/>
     <meta-data android:name="com.sentiance.react.bridge.notification_channel_name" android:value="Sentiance"/>
     <meta-data android:name="com.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
-    
+
     ...
 </application>
 ```
 
 #### Android Initialization
 
-The correct way to natively initialize on Android is to do it inside the onCreate() method of the Application class. 
+The correct way to natively initialize on Android is to do it inside the onCreate() method of the Application class.
 
 ```java
 import com.sentiance.react.bridge.RNSentianceHelper;
@@ -128,7 +126,6 @@ public class MainApplication extends Application implements ReactApplication {
 }
 
 ```
-
 
 ## Usage
 
@@ -146,10 +143,11 @@ In order for the SDK to start collecting data you would need to perform two step
 Create a user and start the sentiance SDK. The following should be placed where and when your application is ready to start collecting data (e.g. on user login, on reaching a particular page)
 
 ##### Without User Linking
+
 ```js
 await RNSentiance.createUser({
-  credentials: { appId, appSecret, baseUrl},
-})
+  credentials: { appId, appSecret, baseUrl },
+});
 await RNSentiance.start();
 ```
 
@@ -159,17 +157,19 @@ _Please refer to https://docs.sentiance.com/guide/user-linking for documentation
 
 ```js
 await RNSentiance.createUser({
-  credentials: { appId, appSecret, baseUrl},
+  credentials: { appId, appSecret, baseUrl },
   linker: async (data, done) => {
     // request your backend to perform user linking
     await linkUser(data.installId);
 
     // Ensure you call the "done" after
-    done(); 
-  }
-})
+    done();
+  },
+});
 await RNSentiance.start();
 ```
+
+> _If your backend was unable to link the user to the Sentiance platform, execute `done(false)` instead to notify the SDK that the linking failed_
 
 #### Stopping the Sentiance SDK
 
@@ -207,7 +207,7 @@ The SDK can signal SDK status updates to JavaScript without being invoked direct
 import { NativeEventEmitter } from "react-native";
 
 const sentianceEmitter = new NativeEventEmitter(RNSentiance);
-const subscription = sentianceEmitter.addListener("SDKStatusUpdate", res => {
+const subscription = sentianceEmitter.addListener("SDKStatusUpdate", (res) => {
   // Returns SDK status
 });
 
@@ -378,7 +378,7 @@ import { NativeEventEmitter } from "react-native";
 const sentianceEmitter = new NativeEventEmitter(RNSentiance);
 const subscription = sentianceEmitter.addListener(
   "SDKUserActivityUpdate",
-  userActivity => {
+  (userActivity) => {
     // Handle user activity
   }
 );
@@ -415,10 +415,7 @@ Updates the title and text of SDK notification. After calling this method, any n
 Note that this change is valid only during the process's lifetime. After the app process restarts, the SDK will display the default notification.
 
 ```javascript
-/**
- * {string} title
- * {string} message
- */
+/** {string} title {string} message */
 await RNSentiance.updateSdkNotification("RN SDK Sample", "SDK is running");
 ```
 
@@ -473,29 +470,16 @@ const sentianceEmitter = new NativeEventEmitter(RNSentiance);
 const sdkTripProfilesSubscription = sentianceEmitter.addListener(
   "SDKTripProfile",
   /**
-   * tripProfile: {
-   *   tripId: String
-   *   transportSegments: Array[
-   *     TransportSegment{
-   *       startTime: number // milliseconds since 1970-01-01
-   *       endTime: number // milliseconds since 1970-01-01
-   *       vehicleMode: string, VEHICLE | NOT_VEHICLE | IDLE | UNKNOWN
-   *       distance?: number // in meters
-   *       averageSpeed?: number // the average speed travelled in m/s
-   *       topSpeed?: number // the top speed travelled in m/s
-   *       percentOfTimeSpeeding?: number // the percent of time the user was speeding
-   *       hardEvents?: Array[
-   *         HardEvent{
-   *           magnitude: number, the magnitude of this hard event in m/s2
-   *           timestamp: milliseconds since 1970-01-01
-   *         }
-   *       ]
-   *     }
-   *   ]
-   * }
+   * TripProfile: { tripId: String transportSegments: Array[ TransportSegment{
+   * startTime: number // milliseconds since 1970-01-01 endTime: number //
+   * milliseconds since 1970-01-01 vehicleMode: string, VEHICLE | NOT_VEHICLE |
+   * IDLE | UNKNOWN distance?: number // in meters averageSpeed?: number // the
+   * average speed travelled in m/s topSpeed?: number // the top speed travelled
+   * in m/s percentOfTimeSpeeding?: number // the percent of time the user was
+   * speeding hardEvents?: Array[ HardEvent{ magnitude: number, the magnitude of
+   * this hard event in m/s2 timestamp: milliseconds since 1970-01-01 } ] } ] }
    */
-  (tripProfile) => {
-  }
+  (tripProfile) => {}
 );
 RNSentiance.listenTripProfiles();
 
@@ -507,43 +491,46 @@ sdkTripProfilesSubscription.remove();
 
 ```javascript
 /**
- * enableFullProfiling:
- *   If set to true, full trip profiling will be enabled allowing the Sentiance platform to profile
- *   the trip and the results made available via the API. In addition, the app will no longer receive trip profiles via
- *   the "SDKTripProfile" listener.
- *   If set to false, on-device trip profiling will be enabled.
- * speedLimit:
- *   Sets the speed limit in km/h, which is used to determine the percent of time the user was speeding.
- *   If null, the SDK will use an internal default value.
+ * EnableFullProfiling: If set to true, full trip profiling will be enabled
+ * allowing the Sentiance platform to profile the trip and the results made
+ * available via the API. In addition, the app will no longer receive trip
+ * profiles via the "SDKTripProfile" listener. If set to false, on-device trip
+ * profiling will be enabled. speedLimit: Sets the speed limit in km/h, which is
+ * used to determine the percent of time the user was speeding. If null, the SDK
+ * will use an internal default value.
  */
 try {
-  await RNSentiance.updateTripProfileConfig({ enableFullProfiling: false, speedLimit: 80 })
+  await RNSentiance.updateTripProfileConfig({
+    enableFullProfiling: false,
+    speedLimit: 80,
+  });
 } catch (err) {
-  console.error(err)
+  console.error(err);
 }
 ```
 
 ###### Determine if the app should initialize Sentiance SDK natively
 
 To make user linking possible, the first SDK initialization should be executed in JS. After it completes successfully,
-```await RNSentiance.enableNativeInitialization()``` should be invoked.
+`await RNSentiance.enableNativeInitialization()` should be invoked.
 
-In AppDelegate (iOS) and MainApplication (Android), ```isNativeInitializationEnabled``` can be used to determine if the SDK should be initialized natively.
+In AppDelegate (iOS) and MainApplication (Android), `isNativeInitializationEnabled` can be used to determine if the SDK should be initialized natively.
 
-To disable native initialization, invoke ```await RNSentiance.disableNativeInitialization()```.
+To disable native initialization, invoke `await RNSentiance.disableNativeInitialization()`.
 
 Please refer to our [example app](https://github.com/sentiance/react-native-sentiance-example) for a complete usage.
 
 ##### Invoke a dummy vehicle crash event
 
 ```javascript
-await RNSentiance.invokeDummyVehicleCrash()
+await RNSentiance.invokeDummyVehicleCrash();
 ```
 
 ##### Check if crash detection is supported
 
 ```javascript
-const crashDetectionSupported = await RNSentiance.isVehicleCrashDetectionSupported('TRIP_TYPE_SDK')
+const crashDetectionSupported =
+  await RNSentiance.isVehicleCrashDetectionSupported("TRIP_TYPE_SDK");
 if (crashDetectionSupported) {
   // setup vehicle crash event listener
 }

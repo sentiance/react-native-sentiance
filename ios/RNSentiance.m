@@ -1023,11 +1023,15 @@ RCT_EXPORT_METHOD(initializeWithSuccess: (InitializeSuccessBlock) successBlock f
         return;
     }
     
+    
     SENTConfig *config = [[SENTConfig alloc] initWithAppId:appId secret:appSecret link:nil launchOptions:@{}];
     
     if (baseURL.length > 0) {
         config.baseURL = baseURL;
     }
+    
+    __weak typeof(self) weakSelf = self;
+    [config setDidReceiveSdkStatusUpdate:weakSelf.getSdkStatusUpdateHandler];
     
     [[SENTSDK sharedInstance] initWithConfig:config success:^{
         NSString *isDisabled = [self getValueForKey:@"SENTIANCE_SDK_IS_DISABLED" value:@""];

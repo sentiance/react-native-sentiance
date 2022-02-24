@@ -40,6 +40,12 @@ const SENTIANCE_STORE_KEYS = [
  */
 
 const createUserExperimental = async (configuration) => {
+  if (await RNSentiance.getUserId()) {
+    throw new Error(
+      "User already exists. Please reset SDK before attempting to create a user."
+    );
+  }
+
   RNSentiance.setValueForKey("SENTIANCE_SDK_IS_READY_FOR_BACKGROUND", "");
 
   const { credentials, linker } = configuration;
@@ -95,8 +101,8 @@ const createUserExperimental = async (configuration) => {
 /**
  * Clears the state variables and resets the SDK managed by the "createUser"
  *
- * This method is intended to be used when a user is logged out or whenever
- * the SDK is meant to be reset.
+ * This method is intended to be used when a user is logged out or whenever the
+ * SDK is meant to be reset.
  */
 const resetExperimental = () => {
   SENTIANCE_STORE_KEYS.forEach(async (key) => {
@@ -120,8 +126,8 @@ const disableExperimental = async () => {
 /**
  * Restarts the SDK.
  *
- * This assumes that the SDK is already INITIALIZED. It sets the "IS READY"
- * flag allowing the SDK to resume data collection while in the background.
+ * This assumes that the SDK is already INITIALIZED. It sets the "IS READY" flag
+ * allowing the SDK to resume data collection while in the background.
  */
 const enableExperimental = async () => {
   await RNSentiance.start();
