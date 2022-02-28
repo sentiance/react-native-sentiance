@@ -1034,7 +1034,7 @@ RCT_EXPORT_METHOD(initializeWithSuccess: (InitializeSuccessBlock) successBlock f
     [config setDidReceiveSdkStatusUpdate:weakSelf.getSdkStatusUpdateHandler];
     
     [[SENTSDK sharedInstance] initWithConfig:config success:^{
-        NSString *isDisabled = [self getValueForKey:@"SENTIANCE_SDK_IS_DISABLED" value:@""];
+        NSString *isDisabled = [weakSelf getValueForKey:@"SENTIANCE_SDK_IS_DISABLED" value:@""];
 
         if(isDisabled.length > 0) {
             return;
