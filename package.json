@@ -1,10 +1,13 @@
 {
   "name": "react-native-sentiance",
-  "version": "4.7.0",
+  "version": "4.7.1-beta.4",
   "description": "React Native library for the Sentiance SDK",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "docs": "npx jsdoc2md index.d.ts > types.md",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "fetch:npm_tag": "node ./scripts/determine-version-tag.js",
+    "lint": "npx eslint index.d.ts"
   },
   "keywords": [
     "react-native"
@@ -16,5 +19,15 @@
   },
   "homepage": "https://github.com/sentiance/react-native-sentiance#readme",
   "bugs": "https://github.com/sentiance/react-native-sentiance/issues",
-  "repository": "github:sentiance/react-native-sentiance"
+  "repository": "github:sentiance/react-native-sentiance",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "jsdoc": "^3.6.10",
+    "jsdoc-to-markdown": "^7.1.1",
+    "prettier": "2.5.1",
+    "prettier-plugin-jsdoc": "^0.3.30",
+    "typescript": "^4.5.5"
+  }
 }

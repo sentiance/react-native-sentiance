@@ -17,4 +17,10 @@ typedef void (^SdkStatusHandler)(SENTSDKStatus *status);
 - (BOOL) isNativeInitializationEnabled;
 - (void) disableSDKNativeInitialization:(RCTPromiseResolveBlock _Nullable)resolve rejecter:(RCTPromiseRejectBlock _Nullable)reject;
 - (void) enableSDKNativeInitialization:(RCTPromiseResolveBlock _Nullable)resolve rejecter:(RCTPromiseRejectBlock _Nullable)reject;
+
+// Temporary wrapper methods to make integration easier
+
+typedef void (^InitializeSuccessBlock)(void);
+typedef void (^InitializeFailureBlock)(SENTInitIssue);
+- (void) initializeWithSuccess:(InitializeSuccessBlock _Nullable)successBlock failure: (InitializeFailureBlock _Nullable) failureBlock;
 @end
