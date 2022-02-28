@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.7.1] - 2022-02-28
+
 ### Added
 
 - Experimental createUser workflow (method: `createUserExperimental`, `enableExperimental`, `disableExperimental`, `resetExperimental`)
