@@ -17,21 +17,21 @@ declare module "react-native-sentiance" {
 
   export type SegmentSubcategory = "COMMUTE" | "DRIVING" | "ENTERTAINMENT" | "FAMILY" | "HOME" | "SHOPPING" | "SOCIAL" | "TRANSPORT" | "TRAVEL" | "WELLBEING" | "WINING_AND_DINING" | "WORK";
 
-  export type SegmentType = "AGGRESSIVE_DRIVER"| "ANTICIPATIVE_DRIVER"| "BAR_GOER"| "BEAUTY_QUEEN"| "BRAND_LOYAL__BAR"| "BRAND_LOYAL__CAFE"| 
-                            "BRAND_LOYAL__RESTAURANT"| "BRAND_LOYAL__RETAIL"| "BRAND_LOYALTY"| "BRAND_LOYALTY__GAS_STATIONS"| 
-                            "BRAND_LOYALTY__RESTAURANT_BAR"| "BRAND_LOYALTY__SUPERMARKET"| "CITY_DRIVER"| "CITY_HOME"| "CITY_WORKER"| 
-                            "CLUBBER"| "CULTURE_BUFF"| "DIE_HARD_DRIVER"| "DISTRACTED_DRIVER"| "DO_IT_YOURSELVER"| "DOG_WALKER"| "EARLY_BIRD"| 
-                            "EASY_COMMUTER"| "EFFICIENT_DRIVER"| "FASHIONISTA"| "FOODIE"| "FREQUENT_FLYER"| "FULLTIME_WORKER"| "GAMER"| 
-                            "GREEN_COMMUTER"| "HEALTHY_BIKER"| "HEALTHY_WALKER"| "HEAVY_COMMUTER"| "HOME_BOUND"| "HOMEBODY"| "HOMEWORKER"| 
-                            "ILLEGAL_DRIVER"| "LATE_WORKER"| "LEGAL_DRIVER"| "LONG_COMMUTER"| "MOBILITY"| "MOBILITY__HIGH"| "MOBILITY__LIMITED"| 
-                            "MOBILITY__MODERATE"| "MOTORWAY_DRIVER"| "MUSIC_LOVER"| "NATURE_LOVER"| "NIGHT_OWL"| "NIGHTWORKER"| "NORMAL_COMMUTER"| 
-                            "PARTTIME_WORKER"| "PET_OWNER"| "PHYSICAL_ACTIVITY__HIGH"| "PHYSICAL_ACTIVITY__LIMITED"| "PHYSICAL_ACTIVITY__MODERATE"| 
-                            "PUBLIC_TRANSPORTS_COMMUTER"| "PUBLIC_TRANSPORTS_USER"| "RECENTLY_CHANGED_JOB"| "RECENTLY_MOVED_HOME"| "RESTO_LOVER"| 
-                            "RESTO_LOVER__AMERICAN"| "RESTO_LOVER__ASIAN"| "RESTO_LOVER__BARBECUE"| "RESTO_LOVER__FASTFOOD"| "RESTO_LOVER__FRENCH"| 
-                            "RESTO_LOVER__GERMAN"| "RESTO_LOVER__GREEK"| "RESTO_LOVER__GRILL"| "RESTO_LOVER__INTERNATIONAL"| "RESTO_LOVER__ITALIAN"| 
-                            "RESTO_LOVER__MEDITERRANEAN"| "RESTO_LOVER__MEXICAN"| "RESTO_LOVER__SEAFOOD"| "RESTO_LOVER__SNACK"| "RURAL_HOME"| 
-                            "RURAL_WORKER"| "SHOPAHOLIC"| "SHORT_COMMUTER"| "SLEEP_DEPRIVED"| "SOCIAL_ACTIVITY"| "SOCIAL_ACTIVITY__HIGH"| 
-                            "SOCIAL_ACTIVITY__LIMITED"| "SOCIAL_ACTIVITY__MODERATE"| "SPORTIVE"| "STUDENT"| "TOWN_HOME"| "TOWN_WORKER"| 
+  export type SegmentType = "AGGRESSIVE_DRIVER"| "ANTICIPATIVE_DRIVER"| "BAR_GOER"| "BEAUTY_QUEEN"| "BRAND_LOYAL__BAR"| "BRAND_LOYAL__CAFE"|
+                            "BRAND_LOYAL__RESTAURANT"| "BRAND_LOYAL__RETAIL"| "BRAND_LOYALTY"| "BRAND_LOYALTY__GAS_STATIONS"|
+                            "BRAND_LOYALTY__RESTAURANT_BAR"| "BRAND_LOYALTY__SUPERMARKET"| "CITY_DRIVER"| "CITY_HOME"| "CITY_WORKER"|
+                            "CLUBBER"| "CULTURE_BUFF"| "DIE_HARD_DRIVER"| "DISTRACTED_DRIVER"| "DO_IT_YOURSELVER"| "DOG_WALKER"| "EARLY_BIRD"|
+                            "EASY_COMMUTER"| "EFFICIENT_DRIVER"| "FASHIONISTA"| "FOODIE"| "FREQUENT_FLYER"| "FULLTIME_WORKER"| "GAMER"|
+                            "GREEN_COMMUTER"| "HEALTHY_BIKER"| "HEALTHY_WALKER"| "HEAVY_COMMUTER"| "HOME_BOUND"| "HOMEBODY"| "HOMEWORKER"|
+                            "ILLEGAL_DRIVER"| "LATE_WORKER"| "LEGAL_DRIVER"| "LONG_COMMUTER"| "MOBILITY"| "MOBILITY__HIGH"| "MOBILITY__LIMITED"|
+                            "MOBILITY__MODERATE"| "MOTORWAY_DRIVER"| "MUSIC_LOVER"| "NATURE_LOVER"| "NIGHT_OWL"| "NIGHTWORKER"| "NORMAL_COMMUTER"|
+                            "PARTTIME_WORKER"| "PET_OWNER"| "PHYSICAL_ACTIVITY__HIGH"| "PHYSICAL_ACTIVITY__LIMITED"| "PHYSICAL_ACTIVITY__MODERATE"|
+                            "PUBLIC_TRANSPORTS_COMMUTER"| "PUBLIC_TRANSPORTS_USER"| "RECENTLY_CHANGED_JOB"| "RECENTLY_MOVED_HOME"| "RESTO_LOVER"|
+                            "RESTO_LOVER__AMERICAN"| "RESTO_LOVER__ASIAN"| "RESTO_LOVER__BARBECUE"| "RESTO_LOVER__FASTFOOD"| "RESTO_LOVER__FRENCH"|
+                            "RESTO_LOVER__GERMAN"| "RESTO_LOVER__GREEK"| "RESTO_LOVER__GRILL"| "RESTO_LOVER__INTERNATIONAL"| "RESTO_LOVER__ITALIAN"|
+                            "RESTO_LOVER__MEDITERRANEAN"| "RESTO_LOVER__MEXICAN"| "RESTO_LOVER__SEAFOOD"| "RESTO_LOVER__SNACK"| "RURAL_HOME"|
+                            "RURAL_WORKER"| "SHOPAHOLIC"| "SHORT_COMMUTER"| "SLEEP_DEPRIVED"| "SOCIAL_ACTIVITY"| "SOCIAL_ACTIVITY__HIGH"|
+                            "SOCIAL_ACTIVITY__LIMITED"| "SOCIAL_ACTIVITY__MODERATE"| "SPORTIVE"| "STUDENT"| "TOWN_HOME"| "TOWN_WORKER"|
                             "UBER_PARENT"| "WORK_LIFE_BALANCE"| "WORK_TRAVELLER"| "WORKAHOLIC";
 
   export enum TransportMode {
@@ -250,6 +250,11 @@ declare module "react-native-sentiance" {
     isTokenExpired: boolean
   }
 
+  export interface EnableDetectionsResult {
+    sdkStatus: SdkStatus,
+    detectionStatus: string
+  }
+
   export interface RNSentianceConstructor extends EventSubscriptionVendor {
     initialize(platformUrl: string): Promise<InitializationResult>;
     createUnlinkedUser(appId: string, secret: string): Promise<UserInfo>;
@@ -257,8 +262,8 @@ declare module "react-native-sentiance" {
     linkUser(): Promise<boolean>;
     userExists(): Promise<boolean>;
     isUserLinked(): Promise<boolean>;
-    start(): Promise<SdkStatus>;
-    startWithStopDate(stopEpochTimeMs: number): Promise<SdkStatus>;
+    enableDetections(): Promise<EnableDetectionsResult>;
+    enableDetectionsWithStopDate(stopEpochTimeMs: number): Promise<EnableDetectionsResult>;
     stop(): Promise<boolean>;
     reset(): Promise<boolean>;
     getInitState(): Promise<SdkInitState>;

@@ -7,6 +7,8 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.sentiance.sdk.DetectionStatus;
+import com.sentiance.sdk.DisableDetectionsResult;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Token;
@@ -29,6 +31,7 @@ import com.sentiance.sdk.trip.TripType;
 import com.sentiance.sdk.usercontext.api.UserContext;
 import com.sentiance.sdk.usercreation.UserInfo;
 import com.sentiance.sdk.util.DateTime;
+import com.sentiance.sdk.EnableDetectionsResult;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -383,6 +386,24 @@ public class RNSentianceConverter {
     }
 
     return userContextMap;
+  }
+
+  public static WritableMap convertEnableDetectionsResult(EnableDetectionsResult enableDetectionsResult) {
+    return convertDetectionsResult(enableDetectionsResult.getSdkStatus(), enableDetectionsResult.getDetectionStatus());
+  }
+
+  public static WritableMap convertDisableDetectionsResult(DisableDetectionsResult disableDetectionsResult) {
+    return convertDetectionsResult(disableDetectionsResult.getSdkStatus(), disableDetectionsResult.getDetectionStatus());
+  }
+
+  private static WritableMap convertDetectionsResult(SdkStatus sdkStatus, DetectionStatus detectionStatus) {
+    WritableMap result = Arguments.createMap();
+    WritableMap sdkStatusMap = convertSdkStatus(sdkStatus);
+
+    result.putMap("sdkStatus", sdkStatusMap);
+    result.putString("detectionStatus", detectionStatus.toString());
+
+    return result;
   }
 
   private static void addStationaryEventInfo(WritableMap map, StationaryEvent event) {

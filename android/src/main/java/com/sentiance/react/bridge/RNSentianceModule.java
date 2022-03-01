@@ -5,9 +5,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -15,13 +12,11 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.sentiance.sdk.InitState;
-import com.sentiance.sdk.OnInitCallback;
-import com.sentiance.sdk.ResetCallback;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
-import com.sentiance.sdk.SubmitDetectionsCallback;
+import com.sentiance.sdk.SubmitDetectionsError;
 import com.sentiance.sdk.Token;
-import com.sentiance.sdk.TokenResultCallback;
+import com.sentiance.sdk.UserAccessTokenError;
 import com.sentiance.sdk.crashdetection.api.CrashDetectionApi;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashListener;
@@ -29,23 +24,31 @@ import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityListener;
 import com.sentiance.sdk.init.InitializationFailureReason;
 import com.sentiance.sdk.init.InitializationResult;
-import com.sentiance.sdk.reset.ResetFailureReason;
-import com.sentiance.sdk.reset.ResetResultHandler;
-import com.sentiance.sdk.trip.StartTripCallback;
-import com.sentiance.sdk.trip.StopTripCallback;
+import com.sentiance.sdk.pendingoperation.OnCompleteListener;
+import com.sentiance.sdk.pendingoperation.PendingOperation;
+import com.sentiance.sdk.r0;
+import com.sentiance.sdk.reset.ResetError;
+import com.sentiance.sdk.reset.ResetResult;
+import com.sentiance.sdk.trip.StartTripError;
+import com.sentiance.sdk.trip.StartTripResult;
+import com.sentiance.sdk.trip.StopTripError;
+import com.sentiance.sdk.trip.StopTripResult;
 import com.sentiance.sdk.trip.TransportMode;
 import com.sentiance.sdk.trip.TripType;
+import com.sentiance.sdk.usercontext.api.GetUserContextError;
 import com.sentiance.sdk.usercontext.api.UserContext;
 import com.sentiance.sdk.usercontext.api.UserContextApi;
-import com.sentiance.sdk.usercontext.api.UserContextHandler;
 import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 import com.sentiance.sdk.usercontext.api.UserContextUpdateListener;
-import com.sentiance.sdk.usercreation.UserCreationFailureReason;
-import com.sentiance.sdk.usercreation.UserCreationResultHandler;
+import com.sentiance.sdk.usercreation.UserCreationError;
+import com.sentiance.sdk.usercreation.UserCreationResult;
 import com.sentiance.sdk.usercreation.UserInfo;
 
 import java.util.List;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
@@ -108,34 +111,66 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
     @ReactMethod
     @SuppressWarnings("unused")
-    public void createUnlinkedUser(String appId, String secret, final Promise promise) {
-        sdk.createUnlinkedUser(appId, secret, new UserCreationResultHandler() {
-            @Override
-            public void onUserCreationSuccess(UserInfo userInfo) {
-                promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
-            }
+    public void enableDetections(final Promise promise) {
+      if (rejectIfNotInitialized(promise)) {
+        return;
+      }
+      rnSentianceHelper.enableDetections(promise);
+    }
 
-            @Override
-            public void onUserCreationFailure(UserCreationFailureReason reason, String details) {
-                promise.reject(reason.toString(), details);
-            }
-        });
+    @ReactMethod
+    @SuppressWarnings("unused")
+    public void enableDetectionsWithStopDate(@Nullable final Double stopEpochTimeMs, final Promise promise) {
+      if (rejectIfNotInitialized(promise)) {
+        return;
+      }
+      Long stopTime = stopEpochTimeMs == null ? null : stopEpochTimeMs.longValue();
+      rnSentianceHelper.enableDetections(stopTime, promise);
+    }
+
+    @ReactMethod
+    @SuppressWarnings("unused")
+    public void disableDetections(final Promise promise) {
+      if (rejectIfNotInitialized(promise)) {
+        return;
+      }
+      rnSentianceHelper.disableDetections(promise);
+    }
+
+    @ReactMethod
+    @SuppressWarnings("unused")
+    public void createUnlinkedUser(String appId, String secret, final Promise promise) {
+      sdk.createUnlinkedUser(appId, secret)
+              .addOnCompleteListener(new OnCompleteListener<UserCreationResult, UserCreationError>() {
+                  @Override
+                  public void onComplete(@NonNull PendingOperation<UserCreationResult, UserCreationError> pendingOperation) {
+                    if (pendingOperation.isSuccessful()) {
+                      UserInfo userInfo = pendingOperation.getResult().getUserInfo();
+                      promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
+                    } else {
+                      UserCreationError error = pendingOperation.getError();
+                      promise.reject(error.getReason().toString(), error.getDetails());
+                    }
+                  }
+              });
     }
 
     @ReactMethod
     @SuppressWarnings("unused")
     public void createLinkedUser(String appId, String secret, final Promise promise) {
-        rnSentianceHelper.createLinkedUser(appId, secret, new UserCreationResultHandler() {
-            @Override
-            public void onUserCreationSuccess(UserInfo userInfo) {
-                promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
-            }
-
-            @Override
-            public void onUserCreationFailure(UserCreationFailureReason reason, String details) {
-                promise.reject(reason.toString(), details);
-            }
-        });
+      rnSentianceHelper.createLinkedUser(appId, secret)
+              .addOnCompleteListener(new OnCompleteListener<UserCreationResult, UserCreationError>() {
+                @Override
+                public void onComplete(@NonNull PendingOperation<UserCreationResult, UserCreationError> pendingOperation) {
+                  if (pendingOperation.isSuccessful()) {
+                    UserInfo userInfo = pendingOperation.getResult().getUserInfo();
+                    promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
+                  } else {
+                    UserCreationError error = pendingOperation.getError();
+                    promise.reject(error.getReason().toString(), error.getDetails());
+                  }
+                }
+              });
     }
 
     @ReactMethod
@@ -167,41 +202,18 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   @ReactMethod
   @SuppressWarnings("unused")
   public void reset(final Promise promise) {
-    sdk.reset(new ResetResultHandler() {
-      @Override
-      public void onResetSuccess() {
-        promise.resolve(true);
-      }
-
-      @Override
-      public void onResetFailure(@NonNull ResetFailureReason reason, @Nullable Throwable throwable) {
-        promise.reject(reason.name(), "Resetting the SDK failed");
-      }
-    });
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void start(final Promise promise) {
-    startWithStopDate(null, promise);
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
-  public void startWithStopDate(@Nullable final Double stopEpochTimeMs, final Promise promise) {
-    if (rejectIfNotInitialized(promise)) {
-      return;
-    }
-
-    mHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        Long stopTime = stopEpochTimeMs == null ? null : stopEpochTimeMs.longValue();
-        rnSentianceHelper.startSentianceSDK(stopTime,
-          startFinishedHandlerCreator.createNewStartFinishedHandler(promise)
-        );
-      }
-    });
+    sdk.reset()
+            .addOnCompleteListener(new OnCompleteListener<ResetResult, ResetError>() {
+              @Override
+              public void onComplete(@NonNull PendingOperation<ResetResult, ResetError> pendingOperation) {
+                if (pendingOperation.isSuccessful()) {
+                  promise.resolve(true);
+                } else {
+                  ResetError error = pendingOperation.getError();
+                  promise.reject(error.getReason().name(), "Resetting the SDK failed");
+                }
+              }
+            });
   }
 
   @ReactMethod
@@ -229,22 +241,23 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       return;
     }
 
-    Map metadataMap = null;
+    Map<String, String> metadataMap = null;
     if (metadata != null) {
       metadataMap = metadata.toHashMap();
     }
     final TransportMode transportModeHint = RNSentianceConverter.toTransportMode(hint);
-    sdk.startTrip(metadataMap, transportModeHint, new StartTripCallback() {
-      @Override
-      public void onSuccess() {
-        promise.resolve(true);
-      }
-
-      @Override
-      public void onFailure(SdkStatus sdkStatus) {
-        promise.reject(E_SDK_START_TRIP_ERROR, sdkStatus.toString());
-      }
-    });
+    sdk.startTrip(metadataMap, transportModeHint)
+            .addOnCompleteListener(new OnCompleteListener<StartTripResult, StartTripError>() {
+              @Override
+              public void onComplete(@NonNull PendingOperation<StartTripResult, StartTripError> pendingOperation) {
+                if (pendingOperation.isSuccessful()) {
+                  promise.resolve(true);
+                } else {
+                  StartTripError error = pendingOperation.getError();
+                  promise.reject(E_SDK_START_TRIP_ERROR, error.getSdkStatus().toString());
+                }
+              }
+            });
   }
 
   @ReactMethod
@@ -253,18 +266,18 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     if (rejectIfNotInitialized(promise)) {
       return;
     }
-
-    sdk.stopTrip(new StopTripCallback() {
-      @Override
-      public void onSuccess() {
-        promise.resolve(true);
-      }
-
-      @Override
-      public void onFailure(SdkStatus sdkStatus) {
-        promise.reject(E_SDK_STOP_TRIP_ERROR, "");
-      }
-    });
+    sdk.stopTrip()
+            .addOnCompleteListener(new OnCompleteListener<StopTripResult, StopTripError>() {
+              @Override
+              public void onComplete(@NonNull PendingOperation<StopTripResult, StopTripError> pendingOperation) {
+                if (pendingOperation.isSuccessful()) {
+                  promise.resolve(true);
+                } else {
+                  StopTripError error = pendingOperation.getError();
+                  promise.reject(E_SDK_STOP_TRIP_ERROR, error.getReason().name());
+                }
+              }
+            });
   }
 
   @ReactMethod
@@ -308,17 +321,18 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       return;
     }
 
-    sdk.getUserAccessToken(new TokenResultCallback() {
-      @Override
-      public void onSuccess(@NonNull Token token) {
-        promise.resolve(RNSentianceConverter.convertToken(token));
-      }
-
-      @Override
-      public void onFailure() {
-        promise.reject(E_SDK_GET_TOKEN_ERROR, "Something went wrong while obtaining a user token.");
-      }
-    });
+    sdk.getUserAccessToken()
+            .addOnCompleteListener(new OnCompleteListener<Token, UserAccessTokenError>() {
+              @Override
+              public void onComplete(@NonNull PendingOperation<Token, UserAccessTokenError> pendingOperation) {
+                if (pendingOperation.isSuccessful()) {
+                  Token token = pendingOperation.getResult();
+                  promise.resolve(RNSentianceConverter.convertToken(token));
+                } else {
+                  promise.reject(E_SDK_GET_TOKEN_ERROR, "Something went wrong while obtaining a user token.");
+                }
+              }
+            });
   }
 
   @ReactMethod
@@ -400,17 +414,18 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       return;
     }
 
-    sdk.submitDetections(new SubmitDetectionsCallback() {
-      @Override
-      public void onSuccess() {
-        promise.resolve(true);
-      }
-
-      @Override
-      public void onFailure() {
-        promise.reject(E_SDK_SUBMIT_DETECTIONS_ERROR, "Submission failed");
-      }
-    });
+    sdk.submitDetections()
+            .addOnCompleteListener(new OnCompleteListener<r0, SubmitDetectionsError>() {
+              @Override
+              public void onComplete(@NonNull PendingOperation<r0, SubmitDetectionsError> pendingOperation) {
+                if (pendingOperation.isSuccessful()) {
+                  promise.resolve(true);
+                } else {
+                  SubmitDetectionsError error = pendingOperation.getError();
+                  promise.reject(E_SDK_SUBMIT_DETECTIONS_ERROR, error.getReason().name());
+                }
+              }
+            });
   }
 
   @ReactMethod
@@ -567,12 +582,20 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       return;
     }
 
-    UserContextApi.getInstance(reactContext).getUserContext(new UserContextHandler() {
-      @Override
-      public void onUserContextReady(@NonNull UserContext userContext) {
-        promise.resolve(RNSentianceConverter.convertUserContext(userContext));
-      }
-    });
+    UserContextApi.getInstance(reactContext)
+            .getUserContext()
+            .addOnCompleteListener(new OnCompleteListener<UserContext, GetUserContextError>() {
+              @Override
+              public void onComplete(@NonNull PendingOperation<UserContext, GetUserContextError> pendingOperation) {
+                if (pendingOperation.isSuccessful()) {
+                  UserContext userContext = pendingOperation.getResult();
+                  promise.resolve(RNSentianceConverter.convertUserContext(userContext));
+                } else {
+                  GetUserContextError error = pendingOperation.getError();
+                  promise.reject(error.getReason().name(), "Failed to get user context");
+                }
+              }
+            });
   }
 
   @ReactMethod

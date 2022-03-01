@@ -11,22 +11,27 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
+import com.sentiance.sdk.DisableDetectionsError;
+import com.sentiance.sdk.DisableDetectionsResult;
+import com.sentiance.sdk.EnableDetectionsError;
+import com.sentiance.sdk.EnableDetectionsResult;
 import com.sentiance.sdk.OnSdkStatusUpdateHandler;
-import com.sentiance.sdk.OnStartFinishedHandler;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.UserLinker;
-import com.sentiance.sdk.authentication.UserLinkingFailureReason;
-import com.sentiance.sdk.authentication.UserLinkingResultHandler;
+import com.sentiance.sdk.authentication.UserLinkingError;
+import com.sentiance.sdk.authentication.UserLinkingResult;
 import com.sentiance.sdk.init.InitializationFailureReason;
 import com.sentiance.sdk.init.InitializationResult;
 import com.sentiance.sdk.init.SentianceOptions;
-import com.sentiance.sdk.usercreation.UserCreationResultHandler;
+import com.sentiance.sdk.pendingoperation.OnCompleteListener;
+import com.sentiance.sdk.pendingoperation.PendingOperation;
+import com.sentiance.sdk.usercreation.UserCreationError;
+import com.sentiance.sdk.usercreation.UserCreationResult;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -62,10 +67,8 @@ public class RNSentianceHelper {
             userLinkLatch = new CountDownLatch(1);
             emitter.sendUserLinkEvent(installId);
             try {
-                // We allow a 5 seconds timeframe for the user linking to happen otherwise the user linking
-                // process may get stuck here in case the enclosing app did not call `userLinkCallback()`
-                // to count this latch down.
-                userLinkLatch.await(USER_LINKING_WINDOW_MILLIS, TimeUnit.MILLISECONDS);
+                // This will hang indefinitely if a user linking listener is not registered on the RN side
+                userLinkLatch.await();
 
                 return userLinkResult;
             } catch (InterruptedException e) {
@@ -104,12 +107,6 @@ public class RNSentianceHelper {
             return new InitializationResult(
                     false, InitializationFailureReason.EXCEPTION_OR_ERROR, new Throwable("Context is null"));
         }
-        OnStartFinishedHandler handler = new OnStartFinishedHandler() {
-            @Override
-            public void onStartFinished(@NonNull SdkStatus sdkStatus) {
-                emitter.sendOnStartFinishedEvent(sdkStatus);
-            }
-        };
         Notification notification = createNotificationFromManifestData();
         Sentiance sentiance = Sentiance.getInstance(context);
 
@@ -121,52 +118,127 @@ public class RNSentianceHelper {
         InitializationResult result = sentiance.initialize(options);
         sentiance.setSdkStatusUpdateHandler(onSdkStatusUpdateHandler);
         if (sentiance.userExists()) {
-            sentiance.start(handler);
+            enableDetections();
         }
         return result;
     }
 
-    public void createLinkedUser(String appId, String secret, UserCreationResultHandler handler) {
-        Context context = weakContext.get();
-        if (context == null) return;
-        Sentiance sentiance = Sentiance.getInstance(context);
-
-        sentiance.createLinkedUser(appId, secret, userLinker, handler);
+    private void enableDetections() {
+        enableDetections(null);
     }
 
-    public void linkUser(final Promise promise) {
+    void enableDetections(@Nullable final Promise promise) {
         Context context = weakContext.get();
-        if (context == null) return;
+        if (context == null) {
+            throw new IllegalStateException("Context is null.");
+        }
+        Sentiance.getInstance(context)
+                .enableDetections()
+                .addOnCompleteListener(new OnCompleteListener<EnableDetectionsResult, EnableDetectionsError>() {
+                    @Override
+                    public void onComplete(@NonNull PendingOperation<EnableDetectionsResult, EnableDetectionsError> pendingOperation) {
+                        if (pendingOperation.isSuccessful()) {
+                            EnableDetectionsResult result = pendingOperation.getResult();
+                            emitter.sendOnStartFinishedEvent(result.getSdkStatus());
+                            if (promise != null) {
+                                promise.resolve(RNSentianceConverter.convertEnableDetectionsResult(result));
+                            }
+                        } else {
+                            EnableDetectionsError error = pendingOperation.getError();
+                            Log.e(TAG, "Failed to enable detection, error: " + error.getReason()
+                                    + "Detection Status: " + error.getDetectionStatus());
+                            if (promise != null) {
+                                promise.reject(error.getReason().toString());
+                            }
+                        }
+                    }
+                });
+    }
+
+    public void enableDetections(@Nullable Long stopTime, @Nullable final Promise promise) {
+        Context context = weakContext.get();
+        if (context == null) {
+            throw new IllegalStateException("Context is null.");
+        }
         Sentiance sentiance = Sentiance.getInstance(context);
+        PendingOperation<EnableDetectionsResult, EnableDetectionsError> enableDetectionsOp;
 
-        sentiance.linkUser(userLinker, new UserLinkingResultHandler() {
-            @Override
-            public void onUserLinkingSuccess() {
-                promise.resolve(true);
-            }
+        if (stopTime == null) {
+            enableDetectionsOp = sentiance.enableDetections();
+        } else {
+            enableDetectionsOp = sentiance.enableDetections(new Date(stopTime));
+        }
 
+        enableDetectionsOp.addOnCompleteListener(new OnCompleteListener<EnableDetectionsResult, EnableDetectionsError>() {
             @Override
-            public void onUserLinkingFailure(UserLinkingFailureReason reason, String details) {
-                promise.reject(reason.toString(), details);
+            public void onComplete(@NonNull PendingOperation<EnableDetectionsResult, EnableDetectionsError> pendingOperation) {
+                if (pendingOperation.isSuccessful()) {
+                    EnableDetectionsResult result = pendingOperation.getResult();
+                    emitter.sendOnStartFinishedEvent(result.getSdkStatus());
+                    if (promise != null) {
+                        promise.resolve(RNSentianceConverter.convertEnableDetectionsResult(result));
+                    }
+                } else {
+                    EnableDetectionsError error = pendingOperation.getError();
+                    Log.e(TAG, "Failed to enable detection, error: " + error.getReason()
+                            + "Detection Status: " + error.getDetectionStatus());
+                    if (promise != null) {
+                        promise.reject(error.getReason().toString());
+                    }
+                }
             }
         });
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public void startSentianceSDK(@Nullable final OnStartFinishedHandler callback) {
-        startSentianceSDK(null, callback);
+    void disableDetections(final Promise promise) {
+        Context context = weakContext.get();
+        if (context == null) {
+            throw new IllegalStateException("Context is null.");
+        }
+        Sentiance.getInstance(context)
+                .disableDetections()
+                .addOnCompleteListener(new OnCompleteListener<DisableDetectionsResult, DisableDetectionsError>() {
+                    @Override
+                    public void onComplete(@NonNull PendingOperation<DisableDetectionsResult, DisableDetectionsError> pendingOperation) {
+                        if (pendingOperation.isSuccessful()) {
+                            DisableDetectionsResult result = pendingOperation.getResult();
+                            promise.resolve(RNSentianceConverter.convertDisableDetectionsResult(result));
+                        } else {
+                            DisableDetectionsError error = pendingOperation.getError();
+                            Log.e(TAG, "Failed to disable detection, error: " + error.getReason()
+                                    + "Detection Status: " + error.getDetectionStatus());
+                            promise.reject(error.getReason().toString());
+                        }
+                    }
+                });
     }
 
-    @SuppressWarnings({"unused", "WeakerAccess"})
-    public void startSentianceSDK(@Nullable final Long stopEpochTimeMs, @Nullable final OnStartFinishedHandler callback) {
+    PendingOperation<UserCreationResult, UserCreationError> createLinkedUser(String appId, String secret) {
+        Context context = weakContext.get();
+        if (context == null) {
+            throw new IllegalStateException("Context is null.");
+        }
+        Sentiance sentiance = Sentiance.getInstance(context);
+        return sentiance.createLinkedUser(appId, secret, userLinker);
+    }
+
+    void linkUser(final Promise promise) {
         Context context = weakContext.get();
         if (context == null) return;
+        Sentiance sentiance = Sentiance.getInstance(context);
 
-        if (stopEpochTimeMs != null) {
-            Sentiance.getInstance(context).start(new Date(stopEpochTimeMs), callback);
-        } else {
-            Sentiance.getInstance(context).start(callback);
-        }
+        sentiance.linkUser(userLinker)
+                .addOnCompleteListener(new OnCompleteListener<UserLinkingResult, UserLinkingError>() {
+                    @Override
+                    public void onComplete(@NonNull PendingOperation<UserLinkingResult, UserLinkingError> pendingOperation) {
+                        if (pendingOperation.isSuccessful()) {
+                            promise.resolve(true);
+                        } else {
+                            UserLinkingError error = pendingOperation.getError();
+                            promise.reject(error.getReason().toString(), error.getDetails());
+                        }
+                    }
+                });
     }
 
     private Notification createNotification(PendingIntent pendingIntent, String title, String message, String channelName, String channelId, Integer icon) {
