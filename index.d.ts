@@ -263,8 +263,7 @@ declare module "react-native-sentiance" {
     userExists(): Promise<boolean>;
     isUserLinked(): Promise<boolean>;
     enableDetections(): Promise<EnableDetectionsResult>;
-    enableDetectionsWithStopDate(stopEpochTimeMs: number): Promise<EnableDetectionsResult>;
-    stop(): Promise<boolean>;
+    enableDetectionsWithExpiryDate(stopEpochTimeMs: number): Promise<EnableDetectionsResult>;
     reset(): Promise<boolean>;
     getInitState(): Promise<SdkInitState>;
     getSdkStatus(): Promise<SdkStatus>;

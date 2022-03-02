@@ -37,13 +37,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
-public class RNSentianceHelper {
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_DISABLE_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_ENABLE_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_USER_LINK_ERROR;
 
-    private static final String SDK_NATIVE_INIT_FLAG = "SDK_NATIVE_INIT_FLAG";
-    private static final String MY_PREFS_NAME = "RNSentianceHelper";
+public class RNSentianceHelper {
     private static final String TAG = "RNSentianceHelper";
     private static final int NOTIFICATION_ID = 1001;
-    private static final int USER_LINKING_WINDOW_MILLIS = 5000;
     private static RNSentianceHelper rnSentianceHelper;
 
     private final RNSentianceEmitter emitter;
@@ -101,7 +101,7 @@ public class RNSentianceHelper {
         }
     }
 
-    public InitializationResult initializeSDK(final String platformUrl) {
+    InitializationResult initializeSDK(final String platformUrl) {
         Context context = weakContext.get();
         if (context == null) {
             return new InitializationResult(
@@ -128,31 +128,7 @@ public class RNSentianceHelper {
     }
 
     void enableDetections(@Nullable final Promise promise) {
-        Context context = weakContext.get();
-        if (context == null) {
-            throw new IllegalStateException("Context is null.");
-        }
-        Sentiance.getInstance(context)
-                .enableDetections()
-                .addOnCompleteListener(new OnCompleteListener<EnableDetectionsResult, EnableDetectionsError>() {
-                    @Override
-                    public void onComplete(@NonNull PendingOperation<EnableDetectionsResult, EnableDetectionsError> pendingOperation) {
-                        if (pendingOperation.isSuccessful()) {
-                            EnableDetectionsResult result = pendingOperation.getResult();
-                            emitter.sendOnStartFinishedEvent(result.getSdkStatus());
-                            if (promise != null) {
-                                promise.resolve(RNSentianceConverter.convertEnableDetectionsResult(result));
-                            }
-                        } else {
-                            EnableDetectionsError error = pendingOperation.getError();
-                            Log.e(TAG, "Failed to enable detection, error: " + error.getReason()
-                                    + "Detection Status: " + error.getDetectionStatus());
-                            if (promise != null) {
-                                promise.reject(error.getReason().toString());
-                            }
-                        }
-                    }
-                });
+        enableDetections(null, promise);
     }
 
     public void enableDetections(@Nullable Long stopTime, @Nullable final Promise promise) {
@@ -180,10 +156,8 @@ public class RNSentianceHelper {
                     }
                 } else {
                     EnableDetectionsError error = pendingOperation.getError();
-                    Log.e(TAG, "Failed to enable detection, error: " + error.getReason()
-                            + "Detection Status: " + error.getDetectionStatus());
                     if (promise != null) {
-                        promise.reject(error.getReason().toString());
+                        promise.reject(E_SDK_ENABLE_DETECTIONS_ERROR, error.getReason().toString());
                     }
                 }
             }
@@ -205,9 +179,7 @@ public class RNSentianceHelper {
                             promise.resolve(RNSentianceConverter.convertDisableDetectionsResult(result));
                         } else {
                             DisableDetectionsError error = pendingOperation.getError();
-                            Log.e(TAG, "Failed to disable detection, error: " + error.getReason()
-                                    + "Detection Status: " + error.getDetectionStatus());
-                            promise.reject(error.getReason().toString());
+                            promise.reject(E_SDK_DISABLE_DETECTIONS_ERROR, error.getReason().toString());
                         }
                     }
                 });
@@ -235,7 +207,10 @@ public class RNSentianceHelper {
                             promise.resolve(true);
                         } else {
                             UserLinkingError error = pendingOperation.getError();
-                            promise.reject(error.getReason().toString(), error.getDetails());
+                            promise.reject(
+                                    E_SDK_USER_LINK_ERROR,
+                                    String.format("%s: %s", error.getReason().toString(), error.getDetails())
+                            );
                         }
                     }
                 });

@@ -50,17 +50,22 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_CREATE_LINKED_USER_ERROR;
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_CREATE_UNLINKED_USER_ERROR;
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_FAILED_TO_INITIALIZE;
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_GET_TOKEN_ERROR;
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_MISSING_PARAMS;
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_NOT_INITIALIZED;
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_RESET_ERROR;
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_START_TRIP_ERROR;
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_STOP_TRIP_ERROR;
+import static com.sentiance.react.bridge.ErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
+
 public class RNSentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
   private static final String LOG_TAG = "RNSentiance";
   private final ReactApplicationContext reactContext;
   private final Sentiance sdk;
-  private final String E_SDK_MISSING_PARAMS = "E_SDK_MISSING_PARAMS";
-  private final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
-  private final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";
-  private final String E_SDK_STOP_TRIP_ERROR = "E_SDK_STOP_TRIP_ERROR";
-  private final String E_SDK_NOT_INITIALIZED = "E_SDK_NOT_INITIALIZED";
-  private final String E_SDK_SUBMIT_DETECTIONS_ERROR = "E_SDK_SUBMIT_DETECTIONS_ERROR";
   private final Handler mHandler = new Handler(Looper.getMainLooper());
   private final RNSentianceHelper rnSentianceHelper;
   private final RNSentianceEmitter emitter;
@@ -104,8 +109,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
             promise.resolve(RNSentianceConverter.convertInitializationResult(result));
         } else {
             InitializationFailureReason failureReason = result.getFailureReason();
-            String error = failureReason == null ? "failure reason unknown" : failureReason.name();
-            promise.reject("Initialization failed", error);
+            String error = failureReason == null ? "failure reason unknown" :
+                    String.format("%s - %s", failureReason.name(), result.getThrowable());
+            promise.reject(E_SDK_FAILED_TO_INITIALIZE, error);
         }
     }
 
@@ -120,12 +126,12 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
     @ReactMethod
     @SuppressWarnings("unused")
-    public void enableDetectionsWithStopDate(@Nullable final Double stopEpochTimeMs, final Promise promise) {
+    public void enableDetectionsWithExpiryDate(@Nullable final Double expiryEpochTimeMs, final Promise promise) {
       if (rejectIfNotInitialized(promise)) {
         return;
       }
-      Long stopTime = stopEpochTimeMs == null ? null : stopEpochTimeMs.longValue();
-      rnSentianceHelper.enableDetections(stopTime, promise);
+      Long expiryTime = expiryEpochTimeMs == null ? null : expiryEpochTimeMs.longValue();
+      rnSentianceHelper.enableDetections(expiryTime, promise);
     }
 
     @ReactMethod
@@ -149,7 +155,10 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                       promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
                     } else {
                       UserCreationError error = pendingOperation.getError();
-                      promise.reject(error.getReason().toString(), error.getDetails());
+                      promise.reject(
+                              E_SDK_CREATE_UNLINKED_USER_ERROR,
+                              String.format("%s: %s", error.getReason().toString(), error.getDetails())
+                      );
                     }
                   }
               });
@@ -167,7 +176,10 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                     promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
                   } else {
                     UserCreationError error = pendingOperation.getError();
-                    promise.reject(error.getReason().toString(), error.getDetails());
+                    promise.reject(
+                            E_SDK_CREATE_LINKED_USER_ERROR,
+                            String.format("%s: %s", error.getReason().toString(), error.getDetails())
+                    );
                   }
                 }
               });
@@ -210,7 +222,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                   promise.resolve(true);
                 } else {
                   ResetError error = pendingOperation.getError();
-                  promise.reject(error.getReason().name(), "Resetting the SDK failed");
+                  promise.reject(E_SDK_RESET_ERROR,
+                          String.format("%s - %s", error.getReason().name(), error.getException()));
                 }
               }
             });
