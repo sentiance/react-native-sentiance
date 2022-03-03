@@ -52,7 +52,6 @@ import androidx.annotation.Nullable;
 
 import static com.sentiance.react.bridge.ErrorCodes.E_SDK_CREATE_LINKED_USER_ERROR;
 import static com.sentiance.react.bridge.ErrorCodes.E_SDK_CREATE_UNLINKED_USER_ERROR;
-import static com.sentiance.react.bridge.ErrorCodes.E_SDK_FAILED_TO_INITIALIZE;
 import static com.sentiance.react.bridge.ErrorCodes.E_SDK_GET_TOKEN_ERROR;
 import static com.sentiance.react.bridge.ErrorCodes.E_SDK_MISSING_PARAMS;
 import static com.sentiance.react.bridge.ErrorCodes.E_SDK_NOT_INITIALIZED;
@@ -100,20 +99,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       }
     });
   }
-
-    @ReactMethod
-    @SuppressWarnings("unused")
-    public void initialize(final String platformUrl, final Promise promise) {
-        InitializationResult result = rnSentianceHelper.initializeSDK(platformUrl);
-        if (result.isSuccessful()) {
-            promise.resolve(RNSentianceConverter.convertInitializationResult(result));
-        } else {
-            InitializationFailureReason failureReason = result.getFailureReason();
-            String error = failureReason == null ? "failure reason unknown" :
-                    String.format("%s - %s", failureReason.name(), result.getThrowable());
-            promise.reject(E_SDK_FAILED_TO_INITIALIZE, error);
-        }
-    }
 
     @ReactMethod
     @SuppressWarnings("unused")
