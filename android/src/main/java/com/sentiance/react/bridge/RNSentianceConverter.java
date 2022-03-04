@@ -8,10 +8,18 @@ import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.sentiance.sdk.DetectionStatus;
+import com.sentiance.sdk.DisableDetectionsError;
+import com.sentiance.sdk.DisableDetectionsFailureReason;
 import com.sentiance.sdk.DisableDetectionsResult;
+import com.sentiance.sdk.EnableDetectionsError;
+import com.sentiance.sdk.EnableDetectionsFailureReason;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Token;
+import com.sentiance.sdk.UserAccessTokenError;
+import com.sentiance.sdk.UserAccessTokenFailureReason;
+import com.sentiance.sdk.authentication.UserLinkingError;
+import com.sentiance.sdk.authentication.UserLinkingFailureReason;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityType;
@@ -26,9 +34,17 @@ import com.sentiance.sdk.ondevice.api.segment.Segment;
 import com.sentiance.sdk.ondevice.api.venue.Venue;
 import com.sentiance.sdk.ondevice.api.venue.VenueCandidate;
 import com.sentiance.sdk.ondevice.api.venue.Visit;
+import com.sentiance.sdk.reset.ResetError;
+import com.sentiance.sdk.trip.StartTripError;
+import com.sentiance.sdk.trip.StartTripFailureReason;
+import com.sentiance.sdk.trip.StopTripError;
+import com.sentiance.sdk.trip.StopTripFailureReason;
 import com.sentiance.sdk.trip.TransportMode;
 import com.sentiance.sdk.trip.TripType;
+import com.sentiance.sdk.usercontext.api.GetUserContextError;
+import com.sentiance.sdk.usercontext.api.GetUserContextFailureReason;
 import com.sentiance.sdk.usercontext.api.UserContext;
+import com.sentiance.sdk.usercreation.UserCreationError;
 import com.sentiance.sdk.usercreation.UserInfo;
 import com.sentiance.sdk.util.DateTime;
 import com.sentiance.sdk.EnableDetectionsResult;
@@ -404,6 +420,92 @@ public class RNSentianceConverter {
     result.putString("detectionStatus", detectionStatus.toString());
 
     return result;
+  }
+
+  public static String stringifyEnableDetectionsError(EnableDetectionsError error) {
+    EnableDetectionsFailureReason reason = error.getReason();
+    String details = "";
+    switch (reason) {
+      case NO_USER: details = "No user present on device"; break;
+      case PAST_EXPIRY_DATE: details = "Expiry date is in past."; break;
+      case SDK_KILL_SWITCHED: details = "SDK has been killed switched from backend."; break;
+    }
+    return String.format("Reason: %s - %s", reason.name(), details);
+  }
+
+  public static String stringifyDisableDetectionsError(DisableDetectionsError error) {
+    DisableDetectionsFailureReason reason = error.getReason();
+    String details = "";
+    switch (reason) {
+      case NO_USER: details = "No user present on device"; break;
+    }
+    return String.format("Reason: %s - %s", reason.name(), details);
+  }
+
+  public static String stringifyUserLinkingError(UserLinkingError error) {
+    return String.format("Reason: %s - %s", error.getReason().name(), error.getDetails());
+  }
+
+  public static String stringifyUserCreationError(UserCreationError error) {
+    return String.format("Reason: %s - %s", error.getReason().name(), error.getDetails());
+  }
+
+  public static String stringifyResetError(ResetError error) {
+    return String.format("%s - caused by: %s", error.getReason().name(), error.getException());
+  }
+
+  public static String stringifyStartTripError(StartTripError error) {
+    StartTripFailureReason reason = error.getReason();
+    String details = "";
+    switch (reason) {
+      case NO_USER: details = "No user present on device"; break;
+      case DETECTIONS_DISABLED: details = "Enable detections first before starting a trip."; break;
+      case DETECTIONS_EXPIRED: details = "Detections are stopped as per the provided stop date to " +
+              "Sentiance.enableDetections(Date), please enable detections before starting a trip."; break;
+      case DETECTIONS_NOT_RUNNING: details = "Detections are not running, check SDK Status."; break;
+      case TRIP_ALREADY_STARTED: details = "Trip is already started, to start a new trip call Sentiance.stopTrip() first.";
+        break;
+    }
+    return String.format("Reason: %s - %s", reason.name(), details);
+  }
+
+  public static String stringifyStopTripError(StopTripError error) {
+    StopTripFailureReason reason = error.getReason();
+    String details = "";
+    switch (reason) {
+      case NO_USER: details = "No user present on device"; break;
+      case DETECTIONS_DISABLED: details = "Enable detections first before starting a trip."; break;
+      case DETECTIONS_EXPIRED: details = "Detections are stopped as per the provided stop date to " +
+              "Sentiance.enableDetections(Date), please enable detections before starting a trip."; break;
+      case DETECTIONS_NOT_RUNNING: details = "Detections are not running, check SDK Status."; break;
+      case NO_ONGOING_TRIP: details = "There is no trip ongoing."; break;
+    }
+    return String.format("Reason: %s - %s", reason.name(), details);
+  }
+
+  public static String stringifyUserAccessTokenError(UserAccessTokenError error) {
+    UserAccessTokenFailureReason reason = error.getReason();
+    String details = "";
+    switch (reason) {
+      case NO_USER: details = "No user present on device"; break;
+      case NETWORK_ERROR: details = "This can happen if both of the following conditions are met: " +
+              "1. The token has expired; 2. There is no network connection that can be used to get a new token from " +
+              "the Sentiance API.";
+      break;
+    }
+    return String.format("Reason: %s - %s", reason.name(), details);
+  }
+
+  public static String stringifyGetUserContextError(GetUserContextError error) {
+    GetUserContextFailureReason reason = error.getReason();
+    String details = "";
+    switch (reason) {
+      case NO_USER: details = "No user present on device"; break;
+      case FEATURE_NOT_ENABLED: details = "Feature not enabled, make sure you have enabled the feature at " +
+              "initialization and it is also enabled for your app from Sentiance backend.";
+      break;
+    }
+    return String.format("Reason: %s - %s", reason.name(), details);
   }
 
   private static void addStationaryEventInfo(WritableMap map, StationaryEvent event) {

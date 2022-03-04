@@ -22,8 +22,6 @@ import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashListener;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityListener;
-import com.sentiance.sdk.init.InitializationFailureReason;
-import com.sentiance.sdk.init.InitializationResult;
 import com.sentiance.sdk.pendingoperation.OnCompleteListener;
 import com.sentiance.sdk.pendingoperation.PendingOperation;
 import com.sentiance.sdk.r0;
@@ -140,10 +138,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                       promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
                     } else {
                       UserCreationError error = pendingOperation.getError();
-                      promise.reject(
-                              E_SDK_CREATE_UNLINKED_USER_ERROR,
-                              String.format("%s: %s", error.getReason().toString(), error.getDetails())
-                      );
+                      promise.reject(E_SDK_CREATE_UNLINKED_USER_ERROR,
+                              RNSentianceConverter.stringifyUserCreationError(error));
                     }
                   }
               });
@@ -161,10 +157,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                     promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
                   } else {
                     UserCreationError error = pendingOperation.getError();
-                    promise.reject(
-                            E_SDK_CREATE_LINKED_USER_ERROR,
-                            String.format("%s: %s", error.getReason().toString(), error.getDetails())
-                    );
+                    promise.reject(E_SDK_CREATE_LINKED_USER_ERROR,
+                            RNSentianceConverter.stringifyUserCreationError(error));
                   }
                 }
               });
@@ -207,8 +201,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                   promise.resolve(true);
                 } else {
                   ResetError error = pendingOperation.getError();
-                  promise.reject(E_SDK_RESET_ERROR,
-                          String.format("%s - %s", error.getReason().name(), error.getException()));
+                  promise.reject(E_SDK_RESET_ERROR, RNSentianceConverter.stringifyResetError(error));
                 }
               }
             });
@@ -239,7 +232,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
       return;
     }
 
-    Map<String, String> metadataMap = null;
+    Map metadataMap = null;
     if (metadata != null) {
       metadataMap = metadata.toHashMap();
     }
@@ -252,7 +245,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                   promise.resolve(true);
                 } else {
                   StartTripError error = pendingOperation.getError();
-                  promise.reject(E_SDK_START_TRIP_ERROR, error.getSdkStatus().toString());
+                  promise.reject(E_SDK_START_TRIP_ERROR,
+                          RNSentianceConverter.stringifyStartTripError(error));
                 }
               }
             });
@@ -272,7 +266,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                   promise.resolve(true);
                 } else {
                   StopTripError error = pendingOperation.getError();
-                  promise.reject(E_SDK_STOP_TRIP_ERROR, error.getReason().name());
+                  promise.reject(E_SDK_STOP_TRIP_ERROR,
+                          RNSentianceConverter.stringifyStopTripError(error));
                 }
               }
             });
@@ -327,7 +322,9 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                   Token token = pendingOperation.getResult();
                   promise.resolve(RNSentianceConverter.convertToken(token));
                 } else {
-                  promise.reject(E_SDK_GET_TOKEN_ERROR, "Something went wrong while obtaining a user token.");
+                  UserAccessTokenError error = pendingOperation.getError();
+                  promise.reject(E_SDK_GET_TOKEN_ERROR,
+                          RNSentianceConverter.stringifyUserAccessTokenError(error));
                 }
               }
             });
@@ -590,7 +587,8 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                   promise.resolve(RNSentianceConverter.convertUserContext(userContext));
                 } else {
                   GetUserContextError error = pendingOperation.getError();
-                  promise.reject(error.getReason().name(), "Failed to get user context");
+                  promise.reject(error.getReason().name(),
+                          RNSentianceConverter.stringifyGetUserContextError(error));
                 }
               }
             });

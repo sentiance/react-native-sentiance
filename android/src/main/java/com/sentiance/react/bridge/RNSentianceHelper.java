@@ -101,7 +101,7 @@ public class RNSentianceHelper {
         }
     }
 
-    InitializationResult initializeSDK(final String platformUrl) {
+    public InitializationResult initializeSDK(final String platformUrl) {
         Context context = weakContext.get();
         if (context == null) {
             return new InitializationResult(
@@ -157,7 +157,8 @@ public class RNSentianceHelper {
                 } else {
                     EnableDetectionsError error = pendingOperation.getError();
                     if (promise != null) {
-                        promise.reject(E_SDK_ENABLE_DETECTIONS_ERROR, error.getReason().toString());
+                        promise.reject(E_SDK_ENABLE_DETECTIONS_ERROR,
+                                RNSentianceConverter.stringifyEnableDetectionsError(error));
                     }
                 }
             }
@@ -179,7 +180,8 @@ public class RNSentianceHelper {
                             promise.resolve(RNSentianceConverter.convertDisableDetectionsResult(result));
                         } else {
                             DisableDetectionsError error = pendingOperation.getError();
-                            promise.reject(E_SDK_DISABLE_DETECTIONS_ERROR, error.getReason().toString());
+                            promise.reject(E_SDK_DISABLE_DETECTIONS_ERROR,
+                                    RNSentianceConverter.stringifyDisableDetectionsError(error));
                         }
                     }
                 });
@@ -207,10 +209,8 @@ public class RNSentianceHelper {
                             promise.resolve(true);
                         } else {
                             UserLinkingError error = pendingOperation.getError();
-                            promise.reject(
-                                    E_SDK_USER_LINK_ERROR,
-                                    String.format("%s: %s", error.getReason().toString(), error.getDetails())
-                            );
+                            promise.reject(E_SDK_USER_LINK_ERROR,
+                                    RNSentianceConverter.stringifyUserLinkingError(error));
                         }
                     }
                 });
