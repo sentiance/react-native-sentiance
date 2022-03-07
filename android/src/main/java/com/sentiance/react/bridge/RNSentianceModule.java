@@ -66,7 +66,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
   private final Handler mHandler = new Handler(Looper.getMainLooper());
   private final RNSentianceHelper rnSentianceHelper;
   private final RNSentianceEmitter emitter;
-  private final StartFinishedHandlerCreator startFinishedHandlerCreator;
 
   private @Nullable UserContextUpdateListener mUserContextUpdateListener;
 
@@ -78,7 +77,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
     sdk = Sentiance.getInstance(reactContext);
     rnSentianceHelper = RNSentianceHelper.getInstance(reactContext);
     emitter = new RNSentianceEmitter(reactContext);
-    startFinishedHandlerCreator = new StartFinishedHandlerCreator(emitter);
   }
 
   @NonNull
