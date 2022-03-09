@@ -117,9 +117,6 @@ public class RNSentianceHelper {
                 .build();
         InitializationResult result = sentiance.initialize(options);
         sentiance.setSdkStatusUpdateHandler(onSdkStatusUpdateHandler);
-        if (sentiance.userExists()) {
-            enableDetections();
-        }
         return result;
     }
 
