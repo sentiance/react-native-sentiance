@@ -101,7 +101,7 @@ public class RNSentianceHelper {
         }
     }
 
-    public InitializationResult initializeSDK(final String platformUrl) {
+    public InitializationResult initializeSDK() {
         Context context = weakContext.get();
         if (context == null) {
             return new InitializationResult(
@@ -113,7 +113,6 @@ public class RNSentianceHelper {
         SentianceOptions options = new SentianceOptions.Builder(context)
                 .enableAllFeatures()
                 .setNotification(notification, NOTIFICATION_ID)
-                .setPlatformUrl(platformUrl)
                 .build();
         InitializationResult result = sentiance.initialize(options);
         sentiance.setSdkStatusUpdateHandler(onSdkStatusUpdateHandler);
