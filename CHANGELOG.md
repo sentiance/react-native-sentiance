@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.7.2] - 2022-03-10
+
 ### Fixed
 
 - createUserExperimental hanging at "getUserId" on Android
