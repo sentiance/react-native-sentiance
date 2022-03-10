@@ -119,46 +119,41 @@ public class RNSentianceHelper {
         return result;
     }
 
-    private void enableDetections() {
-        enableDetections(null);
-    }
-
     void enableDetections(@Nullable final Promise promise) {
         enableDetections(null, promise);
     }
 
-    public void enableDetections(@Nullable Long stopTime, @Nullable final Promise promise) {
+    void enableDetections(@Nullable Long stopTime, @Nullable final Promise promise) {
         Context context = weakContext.get();
         if (context == null) {
             throw new IllegalStateException("Context is null.");
         }
         Sentiance sentiance = Sentiance.getInstance(context);
-        PendingOperation<EnableDetectionsResult, EnableDetectionsError> enableDetectionsOp;
+        Date stopDate = null;
 
-        if (stopTime == null) {
-            enableDetectionsOp = sentiance.enableDetections();
-        } else {
-            enableDetectionsOp = sentiance.enableDetections(new Date(stopTime));
+        if (stopTime != null) {
+            stopDate = new Date(stopTime);
         }
 
-        enableDetectionsOp.addOnCompleteListener(new OnCompleteListener<EnableDetectionsResult, EnableDetectionsError>() {
-            @Override
-            public void onComplete(@NonNull PendingOperation<EnableDetectionsResult, EnableDetectionsError> pendingOperation) {
-                if (pendingOperation.isSuccessful()) {
-                    EnableDetectionsResult result = pendingOperation.getResult();
-                    emitter.sendOnStartFinishedEvent(result.getSdkStatus());
-                    if (promise != null) {
-                        promise.resolve(RNSentianceConverter.convertEnableDetectionsResult(result));
+        sentiance.enableDetections(stopDate)
+                .addOnCompleteListener(new OnCompleteListener<EnableDetectionsResult, EnableDetectionsError>() {
+                    @Override
+                    public void onComplete(@NonNull PendingOperation<EnableDetectionsResult, EnableDetectionsError> pendingOperation) {
+                        if (pendingOperation.isSuccessful()) {
+                            EnableDetectionsResult result = pendingOperation.getResult();
+                            emitter.sendOnDetectionsEnabledEvent(result.getSdkStatus());
+                            if (promise != null) {
+                                promise.resolve(RNSentianceConverter.convertEnableDetectionsResult(result));
+                            }
+                        } else {
+                            EnableDetectionsError error = pendingOperation.getError();
+                            if (promise != null) {
+                                promise.reject(E_SDK_ENABLE_DETECTIONS_ERROR,
+                                        RNSentianceConverter.stringifyEnableDetectionsError(error));
+                            }
+                        }
                     }
-                } else {
-                    EnableDetectionsError error = pendingOperation.getError();
-                    if (promise != null) {
-                        promise.reject(E_SDK_ENABLE_DETECTIONS_ERROR,
-                                RNSentianceConverter.stringifyEnableDetectionsError(error));
-                    }
-                }
-            }
-        });
+                });
     }
 
     void disableDetections(final Promise promise) {

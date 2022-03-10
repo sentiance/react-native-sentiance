@@ -33,7 +33,7 @@ class RNSentianceEmitter {
   private static final String TRIP_PROFILE = "SDKTripProfile";
   private static final String VEHICLE_CRASH_EVENT = "SDKVehicleCrashEvent";
   private static final String USER_CONTEXT_EVENT = "UserContextUpdateEvent";
-  private static final String ON_START_FINISHED = "OnStartFinished";
+  private static final String ON_DETECTIONS_ENABLED = "OnDetectionsEnabled";
   private final Handler mHandler = new Handler(Looper.getMainLooper());
 
   private ReactContext reactContext;
@@ -67,8 +67,8 @@ class RNSentianceEmitter {
     sendEvent(VEHICLE_CRASH_EVENT, convertVehicleCrashEvent(crashEvent));
   }
 
-  void sendOnStartFinishedEvent(SdkStatus status) {
-    sendEvent(ON_START_FINISHED, convertSdkStatus(status));
+  void sendOnDetectionsEnabledEvent(SdkStatus status) {
+    sendEvent(ON_DETECTIONS_ENABLED, convertSdkStatus(status));
   }
 
   void sendUserContext(List<UserContextUpdateCriteria> criteria, UserContext userContext) {
