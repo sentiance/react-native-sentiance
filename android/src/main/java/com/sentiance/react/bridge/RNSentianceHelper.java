@@ -197,7 +197,7 @@ public class RNSentianceHelper {
                     @Override
                     public void onComplete(@NonNull PendingOperation<UserLinkingResult, UserLinkingError> pendingOperation) {
                         if (pendingOperation.isSuccessful()) {
-                            promise.resolve(true);
+                            promise.resolve(RNSentianceConverter.convertUserLinkingResult(pendingOperation.getResult()));
                         } else {
                             UserLinkingError error = pendingOperation.getError();
                             promise.reject(E_SDK_USER_LINK_ERROR,

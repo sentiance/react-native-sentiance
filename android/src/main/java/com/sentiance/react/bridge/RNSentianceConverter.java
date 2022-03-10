@@ -20,6 +20,7 @@ import com.sentiance.sdk.UserAccessTokenError;
 import com.sentiance.sdk.UserAccessTokenFailureReason;
 import com.sentiance.sdk.authentication.UserLinkingError;
 import com.sentiance.sdk.authentication.UserLinkingFailureReason;
+import com.sentiance.sdk.authentication.UserLinkingResult;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityType;
@@ -45,6 +46,7 @@ import com.sentiance.sdk.usercontext.api.GetUserContextError;
 import com.sentiance.sdk.usercontext.api.GetUserContextFailureReason;
 import com.sentiance.sdk.usercontext.api.UserContext;
 import com.sentiance.sdk.usercreation.UserCreationError;
+import com.sentiance.sdk.usercreation.UserCreationResult;
 import com.sentiance.sdk.usercreation.UserInfo;
 import com.sentiance.sdk.util.DateTime;
 import com.sentiance.sdk.EnableDetectionsResult;
@@ -133,8 +135,24 @@ public class RNSentianceConverter {
     return map;
   }
 
-  public static WritableMap convertUserInfo(UserInfo userInfo) {
+  public static WritableMap convertUserCreationResult(UserCreationResult result) {
     WritableMap map = Arguments.createMap();
+    UserInfo userInfo = result.getUserInfo();
+    try {
+      Token token = userInfo.getToken();
+      map.putString("userId", userInfo.getUserId());
+      map.putString("tokenId", token.getTokenId());
+      map.putString("tokenExpiryDate", token.getExpiryDate().toString());
+      map.putBoolean("isTokenExpired", token.isExpired());
+    } catch (Exception ignored) {
+    }
+
+    return map;
+  }
+
+  public static WritableMap convertUserLinkingResult(UserLinkingResult result) {
+    WritableMap map = Arguments.createMap();
+    UserInfo userInfo = result.getUserInfo();
     try {
       Token token = userInfo.getToken();
       map.putString("userId", userInfo.getUserId());

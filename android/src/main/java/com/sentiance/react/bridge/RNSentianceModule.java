@@ -40,7 +40,6 @@ import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 import com.sentiance.sdk.usercontext.api.UserContextUpdateListener;
 import com.sentiance.sdk.usercreation.UserCreationError;
 import com.sentiance.sdk.usercreation.UserCreationResult;
-import com.sentiance.sdk.usercreation.UserInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -132,8 +131,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                   @Override
                   public void onComplete(@NonNull PendingOperation<UserCreationResult, UserCreationError> pendingOperation) {
                     if (pendingOperation.isSuccessful()) {
-                      UserInfo userInfo = pendingOperation.getResult().getUserInfo();
-                      promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
+                      promise.resolve(RNSentianceConverter.convertUserCreationResult(pendingOperation.getResult()));
                     } else {
                       UserCreationError error = pendingOperation.getError();
                       promise.reject(E_SDK_CREATE_UNLINKED_USER_ERROR,
@@ -151,8 +149,7 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
                 @Override
                 public void onComplete(@NonNull PendingOperation<UserCreationResult, UserCreationError> pendingOperation) {
                   if (pendingOperation.isSuccessful()) {
-                    UserInfo userInfo = pendingOperation.getResult().getUserInfo();
-                    promise.resolve(RNSentianceConverter.convertUserInfo(userInfo));
+                    promise.resolve(RNSentianceConverter.convertUserCreationResult(pendingOperation.getResult()));
                   } else {
                     UserCreationError error = pendingOperation.getError();
                     promise.reject(E_SDK_CREATE_LINKED_USER_ERROR,
