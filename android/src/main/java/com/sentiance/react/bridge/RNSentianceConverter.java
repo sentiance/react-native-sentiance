@@ -175,6 +175,7 @@ public class RNSentianceConverter {
     WritableMap map = Arguments.createMap();
     try {
       map.putString("startStatus", status.startStatus.name());
+      map.putString("detectionStatus", status.detectionStatus.name());
       map.putBoolean("canDetect", status.canDetect);
       map.putBoolean("isRemoteEnabled", status.isRemoteEnabled);
       map.putString("locationPermission", status.locationPermission.toString());
