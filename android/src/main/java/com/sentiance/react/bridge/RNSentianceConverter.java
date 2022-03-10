@@ -461,10 +461,10 @@ public class RNSentianceConverter {
     switch (reason) {
       case NO_USER: details = "No user present on device"; break;
       case DETECTIONS_DISABLED: details = "Enable detections first before starting a trip."; break;
-      case DETECTIONS_EXPIRED: details = "Detections are stopped as per the provided stop date to " +
-              "Sentiance.enableDetections(Date), please enable detections before starting a trip."; break;
+      case DETECTIONS_EXPIRED: details = "Detections are stopped as per a previously set stop date," +
+              " please enable detections before starting a trip."; break;
       case DETECTIONS_NOT_RUNNING: details = "Detections are not running, check SDK Status."; break;
-      case TRIP_ALREADY_STARTED: details = "Trip is already started, to start a new trip call Sentiance.stopTrip() first.";
+      case TRIP_ALREADY_STARTED: details = "Trip is already started.";
         break;
     }
     return String.format("Reason: %s - %s", reason.name(), details);
@@ -476,8 +476,8 @@ public class RNSentianceConverter {
     switch (reason) {
       case NO_USER: details = "No user present on device"; break;
       case DETECTIONS_DISABLED: details = "Enable detections first before starting a trip."; break;
-      case DETECTIONS_EXPIRED: details = "Detections are stopped as per the provided stop date to " +
-              "Sentiance.enableDetections(Date), please enable detections before starting a trip."; break;
+      case DETECTIONS_EXPIRED: details = "Detections are stopped as per a previously set stop date," +
+              " please enable detections before starting a trip."; break;
       case DETECTIONS_NOT_RUNNING: details = "Detections are not running, check SDK Status."; break;
       case NO_ONGOING_TRIP: details = "There is no trip ongoing."; break;
     }
