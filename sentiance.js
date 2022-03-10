@@ -40,12 +40,6 @@ const SENTIANCE_STORE_KEYS = [
  */
 
 const createUserExperimental = async (configuration) => {
-  if (await RNSentiance.getUserId()) {
-    throw new Error(
-      "User already exists. Please reset SDK before attempting to create a user."
-    );
-  }
-
   RNSentiance.setValueForKey("SENTIANCE_SDK_IS_READY_FOR_BACKGROUND", "");
 
   const { credentials, linker } = configuration;
