@@ -204,17 +204,6 @@ public class RNSentianceModule extends ReactContextBaseJavaModule implements Lif
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void stop(final Promise promise) {
-    if (rejectIfNotInitialized(promise)) {
-      return;
-    }
-
-    sdk.stop();
-    promise.resolve(true);
-  }
-
-  @ReactMethod
-  @SuppressWarnings("unused")
   public void getInitState(final Promise promise) {
     InitState initState = sdk.getInitState();
     promise.resolve(RNSentianceConverter.convertInitState(initState));

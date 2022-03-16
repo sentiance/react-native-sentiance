@@ -250,21 +250,29 @@ declare module "react-native-sentiance" {
     isTokenExpired: boolean
   }
 
-  export interface EnableDetectionsResult {
+  export interface EnableDisableDetectionsResult {
     sdkStatus: SdkStatus,
     detectionStatus: string
   }
 
+  export interface CreateUserResult {
+    userInfo: UserInfo
+  }
+
+  export interface UserLinkingResult {
+    userInfo: UserInfo
+  }
+
   export interface RNSentianceConstructor extends EventSubscriptionVendor {
-    initialize(platformUrl: string): Promise<InitializationResult>;
-    createUnlinkedUser(appId: string, secret: string): Promise<UserInfo>;
-    createLinkedUser(appId: string, secret: string): Promise<UserInfo>;
-    linkUser(): Promise<boolean>;
     userExists(): Promise<boolean>;
-    isUserLinked(): Promise<boolean>;
-    enableDetections(): Promise<EnableDetectionsResult>;
-    enableDetectionsWithExpiryDate(stopEpochTimeMs: number): Promise<EnableDetectionsResult>;
+    enableDetections(): Promise<EnableDisableDetectionsResult>;
+    enableDetectionsWithExpiryDate(expiryEpochTimeMs: number): Promise<EnableDisableDetectionsResult>;
     reset(): Promise<boolean>;
+    createUnlinkedUser(appId: string, secret: string): Promise<CreateUserResult>;
+    createLinkedUser(appId: string, secret: string): Promise<CreateUserResult>;
+    linkUser(): Promise<UserLinkingResult>;
+    isUserLinked(): Promise<boolean>;
+    disableDetections(): Promise<EnableDisableDetectionsResult>;
     getInitState(): Promise<SdkInitState>;
     getSdkStatus(): Promise<SdkStatus>;
     getVersion(): Promise<string>;
@@ -282,9 +290,6 @@ declare module "react-native-sentiance" {
     disableBatteryOptimization(): Promise<boolean>;
     getUserActivity(): Promise<UserActivity>;
     listenUserActivityUpdates(): Promise<boolean>;
-    listenTripProfiles(): Promise<boolean>;
-    updateTripProfileConfig(config: TripProfileConfig): Promise<boolean>;
-    userLinkCallback(success: boolean): void;
     startTrip(metadata: MetadataObject|null, hint: TransportMode): Promise<boolean>;
     stopTrip(): Promise<boolean>;
     isTripOngoing(type: TripType): Promise<boolean>;

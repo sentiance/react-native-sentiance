@@ -1,6 +1,4 @@
-const { NativeModules } = require('react-native');
-
-const { RNSentiance } = NativeModules;
+const RNSentiance = {};
 
 RNSentiance.TransportMode = {};
 (function (TransportMode) {
@@ -16,5 +14,87 @@ RNSentiance.TransportMode = {};
   TransportMode[TransportMode["METRO"] = 10] = "METRO";
   TransportMode[TransportMode["RUNNING"] = 11] = "RUNNING";
 })(RNSentiance.TransportMode);
+
+const {
+  userExists,
+  enableDetections,
+  enableDetectionsWithExpiryDate,
+  reset,
+  getUserContext,
+  isUserLinked,
+  getVersion,
+  getUserId,
+  getUserAccessToken,
+  addUserMetadataField,
+  addUserMetadataFields,
+  removeUserMetadataField,
+  getUserActivity,
+  listenUserActivityUpdates,
+  startTrip,
+  stopTrip,
+  isTripOngoing,
+  submitDetections,
+  updateSdkNotification,
+  addTripMetadata,
+  listenVehicleCrashEvents,
+  invokeDummyVehicleCrash,
+  isVehicleCrashDetectionSupported,
+  listenUserContextUpdates,
+  setAppSessionDataCollectionEnabled,
+  isAppSessionDataCollectionEnabled,
+  disableDetections,
+  getInitState,
+  getSdkStatus,
+  getDiskQuotaLimit,
+  getDiskQuotaUsage,
+  disableBatteryOptimization,
+  getMobileQuotaLimit,
+  getMobileQuotaUsage,
+  getWiFiQuotaLimit,
+  getWiFiQuotaUsage,
+  createLinkedUser,
+  createUnlinkedUser,
+  linkUser
+} = require('./sentiance');
+
+RNSentiance.userExists = userExists;
+RNSentiance.enableDetections = enableDetections;
+RNSentiance.enableDetectionsWithExpiryDate = enableDetectionsWithExpiryDate;
+RNSentiance.reset = reset;
+RNSentiance.getUserContext = getUserContext;
+RNSentiance.isUserLinked = isUserLinked;
+RNSentiance.getUserId = getUserId;
+RNSentiance.getUserAccessToken = getUserAccessToken;
+RNSentiance.addUserMetadataField = addUserMetadataField;
+RNSentiance.addUserMetadataFields = addUserMetadataFields;
+RNSentiance.removeUserMetadataField = removeUserMetadataField;
+RNSentiance.getVersion = getVersion;
+RNSentiance.getUserActivity = getUserActivity;
+RNSentiance.listenUserActivityUpdates = listenUserActivityUpdates;
+RNSentiance.startTrip = startTrip;
+RNSentiance.stopTrip = stopTrip;
+RNSentiance.isTripOngoing = isTripOngoing;
+RNSentiance.submitDetections = submitDetections;
+RNSentiance.updateSdkNotification = updateSdkNotification;
+RNSentiance.addTripMetadata = addTripMetadata;
+RNSentiance.listenVehicleCrashEvents = listenVehicleCrashEvents;
+RNSentiance.invokeDummyVehicleCrash = invokeDummyVehicleCrash;
+RNSentiance.isVehicleCrashDetectionSupported = isVehicleCrashDetectionSupported;
+RNSentiance.listenUserContextUpdates = listenUserContextUpdates;
+RNSentiance.setAppSessionDataCollectionEnabled = setAppSessionDataCollectionEnabled;
+RNSentiance.isAppSessionDataCollectionEnabled = isAppSessionDataCollectionEnabled;
+RNSentiance.disableDetections = disableDetections;
+RNSentiance.getInitState = getInitState;
+RNSentiance.getSdkStatus = getSdkStatus;
+RNSentiance.getDiskQuotaLimit = getDiskQuotaLimit;
+RNSentiance.getDiskQuotaUsage = getDiskQuotaUsage;
+RNSentiance.disableBatteryOptimization = disableBatteryOptimization;
+RNSentiance.getMobileQuotaLimit = getMobileQuotaLimit;
+RNSentiance.getMobileQuotaUsage = getMobileQuotaUsage;
+RNSentiance.getWiFiQuotaLimit = getWiFiQuotaLimit;
+RNSentiance.getWiFiQuotaUsage = getWiFiQuotaUsage;
+RNSentiance.createLinkedUser = createLinkedUser;
+RNSentiance.createUnlinkedUser = createUnlinkedUser;
+RNSentiance.linkUser = linkUser;
 
 module.exports = RNSentiance;

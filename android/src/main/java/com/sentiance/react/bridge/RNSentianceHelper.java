@@ -67,7 +67,6 @@ public class RNSentianceHelper {
             userLinkLatch = new CountDownLatch(1);
             emitter.sendUserLinkEvent(installId);
             try {
-                // This will hang indefinitely if a user linking listener is not registered on the RN side
                 userLinkLatch.await();
 
                 return userLinkResult;
@@ -101,7 +100,7 @@ public class RNSentianceHelper {
         }
     }
 
-    public InitializationResult initializeSDK() {
+    public InitializationResult initializeSDK(String platformUrl) {
         Context context = weakContext.get();
         if (context == null) {
             return new InitializationResult(
@@ -113,6 +112,7 @@ public class RNSentianceHelper {
         SentianceOptions options = new SentianceOptions.Builder(context)
                 .enableAllFeatures()
                 .setNotification(notification, NOTIFICATION_ID)
+                .setPlatformUrl(platformUrl)
                 .build();
         InitializationResult result = sentiance.initialize(options);
         sentiance.setSdkStatusUpdateHandler(onSdkStatusUpdateHandler);
