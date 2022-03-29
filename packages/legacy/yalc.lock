@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "packages": {
+    "@react-native-sentiance/sentiance": {
+      "signature": "eead8ca18affe286d4545f8cca84cb98",
+      "file": true
+    },
+    "@react-native-sentiance/crash-detection": {
+      "signature": "d4f91b5df967202cdd43226eef6fa8fc",
+      "file": true
+    }
+  }
+}
