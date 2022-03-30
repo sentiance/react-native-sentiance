@@ -2,7 +2,7 @@
   "version": "v1",
   "packages": {
     "@react-native-sentiance/sentiance": {
-      "signature": "eead8ca18affe286d4545f8cca84cb98",
+      "signature": "5497ed1b701d42a67affbc91cf70e634",
       "file": true
     }
   }

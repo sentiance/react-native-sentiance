@@ -1,6 +1,6 @@
 {
   "name": "@react-native-sentiance/sentiance",
-  "version": "1.3.2",
+  "version": "1.3.5",
   "description": "React Native Sentiance",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",

@@ -45,6 +45,3 @@ gradlew*
 buck-out/
 \.buckd/
 *.keystore
-
-
-.yalc

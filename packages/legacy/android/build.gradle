@@ -17,7 +17,7 @@ if (findProject(':@react-native-sentiance_crash-detection')) {
 } else if (findProject(':react-native-sentiance_crash-detection')) {
   crashDetectionProj = project(':react-native-sentiance_crash-detection')
 } else {
-  throw new GradleException('Could not find the react-native-firebase/crash-detection package, have you installed it?')
+  throw new GradleException('Could not find the react-native-sentiance/crash-detection package, have you installed it?')
 }
 
 android {
@@ -50,7 +50,7 @@ repositories {
 def sentianceSdkVersion = "20211015-SDK1-1569-pending-op"
 
 dependencies {
-    api crashDetectionProj
+    api(crashDetectionProj) { transitive = true }
 
     implementation 'com.facebook.react:react-native:+'
     api ("com.sentiance:sdk:$sentianceSdkVersion@aar") { transitive = true }
