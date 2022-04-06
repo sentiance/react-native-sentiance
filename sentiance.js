@@ -85,9 +85,8 @@ const createUserExperimental = async (configuration) => {
       appId,
       appSecret,
       baseUrl,
-      true
+      false
     );
-    await RNSentiance.start();
     resolve();
   });
 };

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - createUserExperimental to resolve only after SDK is INITIALIZED
 
+### Changed
+
+- createUserExperimental does not start the by default
+
 ## [4.7.2] - 2022-03-10
 
 ### Fixed
