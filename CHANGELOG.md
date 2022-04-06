@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- createUserExperimental does not start the by default
+- createUserExperimental does not start the SDK by default
 
 ## [4.7.2] - 2022-03-10
 
