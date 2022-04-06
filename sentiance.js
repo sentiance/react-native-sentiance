@@ -78,8 +78,6 @@ const createUserExperimental = async (configuration) => {
           KEY_SENTIANCE_SDK_IS_READY_FOR_BACKGROUND,
           "YES"
         );
-        await RNSentiance.start();
-        resolve();
       });
     });
 
@@ -89,6 +87,8 @@ const createUserExperimental = async (configuration) => {
       baseUrl,
       true
     );
+    await RNSentiance.start();
+    resolve();
   });
 };
 
