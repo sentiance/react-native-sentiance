@@ -1,0 +1,24 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://repository.sentiance.com"
+        }
+    }
+}
+
+['core', 'crash-detection', 'user-context', 'legacy'].each { projectName ->
+    def module = ":$projectName"
+    include(module)
+    project(module).projectDir = new File(rootProject.projectDir, "./$projectName/android")
+}

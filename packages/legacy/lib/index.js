@@ -1,18 +1,13 @@
-const sentiance = require('@react-native-sentiance/sentiance');
+const core = require('@react-native-sentiance/core');
 const crashDetection = require('@react-native-sentiance/crash-detection');
-
-console.log("packages/legacy/index.js: ------------------");
+const legacy = require('./legacy');
 
 const RNSentiance = {};
 
-RNSentiance.TransportMode = sentiance.transportModes;
+RNSentiance.TransportMode = core.transportModes;
 
 const {
-  userExists,
-  enableDetections,
-  enableDetectionsWithExpiryDate,
-  reset,
-  isUserLinked,
+  userLinkCallback,
   getVersion,
   getUserId,
   getUserAccessToken,
@@ -29,7 +24,6 @@ const {
   addTripMetadata,
   setAppSessionDataCollectionEnabled,
   isAppSessionDataCollectionEnabled,
-  disableDetections,
   getInitState,
   getSdkStatus,
   getDiskQuotaLimit,
@@ -39,10 +33,8 @@ const {
   getMobileQuotaUsage,
   getWiFiQuotaLimit,
   getWiFiQuotaUsage,
-  createLinkedUser,
-  createUnlinkedUser,
   linkUser
-} = sentiance;
+} = core;
 
 const {
   listenVehicleCrashEvents,
@@ -50,11 +42,23 @@ const {
   isVehicleCrashDetectionSupported
 } = crashDetection;
 
-RNSentiance.userExists = userExists;
-RNSentiance.enableDetections = enableDetections;
-RNSentiance.enableDetectionsWithExpiryDate = enableDetectionsWithExpiryDate;
-RNSentiance.reset = reset;
-RNSentiance.isUserLinked = isUserLinked;
+const {
+  init,
+  initWithUserLinkingEnabled,
+  reset,
+  start,
+  startWithStopDate,
+  stop,
+  setValueForKey,
+  getValueForKey,
+  isThirdPartyLinked,
+  isNativeInitializationEnabled,
+  enableNativeInitialization,
+  disableNativeInitialization
+} = legacy;
+
+// Core bindings
+RNSentiance.userLinkCallback = userLinkCallback;
 RNSentiance.getUserId = getUserId;
 RNSentiance.getUserAccessToken = getUserAccessToken;
 RNSentiance.addUserMetadataField = addUserMetadataField;
@@ -69,12 +73,8 @@ RNSentiance.isTripOngoing = isTripOngoing;
 RNSentiance.submitDetections = submitDetections;
 RNSentiance.updateSdkNotification = updateSdkNotification;
 RNSentiance.addTripMetadata = addTripMetadata;
-RNSentiance.listenVehicleCrashEvents = listenVehicleCrashEvents;
-RNSentiance.invokeDummyVehicleCrash = invokeDummyVehicleCrash;
-RNSentiance.isVehicleCrashDetectionSupported = isVehicleCrashDetectionSupported;
 RNSentiance.setAppSessionDataCollectionEnabled = setAppSessionDataCollectionEnabled;
 RNSentiance.isAppSessionDataCollectionEnabled = isAppSessionDataCollectionEnabled;
-RNSentiance.disableDetections = disableDetections;
 RNSentiance.getInitState = getInitState;
 RNSentiance.getSdkStatus = getSdkStatus;
 RNSentiance.getDiskQuotaLimit = getDiskQuotaLimit;
@@ -84,8 +84,25 @@ RNSentiance.getMobileQuotaLimit = getMobileQuotaLimit;
 RNSentiance.getMobileQuotaUsage = getMobileQuotaUsage;
 RNSentiance.getWiFiQuotaLimit = getWiFiQuotaLimit;
 RNSentiance.getWiFiQuotaUsage = getWiFiQuotaUsage;
-RNSentiance.createLinkedUser = createLinkedUser;
-RNSentiance.createUnlinkedUser = createUnlinkedUser;
 RNSentiance.linkUser = linkUser;
+
+// Crash detection bindings
+RNSentiance.listenVehicleCrashEvents = listenVehicleCrashEvents;
+RNSentiance.invokeDummyVehicleCrash = invokeDummyVehicleCrash;
+RNSentiance.isVehicleCrashDetectionSupported = isVehicleCrashDetectionSupported;
+
+// Legacy bindings
+RNSentiance.init = init;
+RNSentiance.initWithUserLinkingEnabled = initWithUserLinkingEnabled;
+RNSentiance.reset = reset;
+RNSentiance.start = start;
+RNSentiance.startWithStopDate = startWithStopDate;
+RNSentiance.stop = stop;
+RNSentiance.setValueForKey = setValueForKey;
+RNSentiance.getValueForKey = getValueForKey;
+RNSentiance.isThirdPartyLinked = isThirdPartyLinked;
+RNSentiance.isNativeInitializationEnabled = isNativeInitializationEnabled;
+RNSentiance.enableNativeInitialization = enableNativeInitialization;
+RNSentiance.disableNativeInitialization = disableNativeInitialization;
 
 module.exports = RNSentiance;

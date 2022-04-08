@@ -1,7 +1,7 @@
 {
-  "name": "@react-native-sentiance/user-context",
+  "name": "@react-native-sentiance/core",
   "version": "0.6.2",
-  "description": "React Native Sentiance - This module provides an easy API to add user context awareness into your apps.",
+  "description": "React Native Sentiance core library",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
@@ -9,14 +9,16 @@
   },
   "keywords": [
     "react-native",
-    "crash-detection"
+    "sentiance"
   ],
   "peerDependencies": {
-    "@react-native-sentiance/core": "0.6.2"
+    "react-native-cli": "*",
+    "react": "*",
+    "react-native": "*"
   },
   "author": "",
   "license": "",
-  "homepage": "https://github.com/sentiance/react-native-sentiance/user-context#readme",
+  "homepage": "https://github.com/sentiance/react-native-sentiance/sentiance#readme",
   "repository": "github:sentiance/react-native-sentiance",
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,6 @@
 {
   "name": "@react-native-sentiance/legacy",
-  "version": "1.3.7",
+  "version": "0.6.2",
   "description": "React Native Sentiance - This module provides a legacy API.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -12,8 +12,9 @@
     "legacy"
   ],
   "peerDependencies": {
-    "react": "*",
-    "react-native": "*"
+    "react-native-cli": "*",
+    "react-native": "*",
+    "@react-native-sentiance/crash-detection": "0.6.2"
   },
   "author": "",
   "license": "",
@@ -21,8 +22,5 @@
   "repository": "github:sentiance/react-native-sentiance",
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {
-    "@react-native-sentiance/crash-detection": "file:.yalc/@react-native-sentiance/crash-detection"
   }
 }

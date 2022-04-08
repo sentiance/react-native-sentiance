@@ -2,15 +2,6 @@ plugins {
     id "com.android.library"
 }
 
-def crashDetectionProj
-if (findProject(':crash-detection')) {
-  crashDetectionProj = project(':crash-detection')
-} else if (findProject(':react-native-sentiance_crash-detection')) {
-  crashDetectionProj = project(':react-native-sentiance_crash-detection')
-} else {
-  throw new GradleException('Could not find the react-native-sentiance/crash-detection package, have you installed it?')
-}
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
@@ -28,8 +19,6 @@ android {
 }
 
 dependencies {
-    implementation crashDetectionProj
-
     implementation 'com.facebook.react:react-native:+'
     api("com.sentiance:sdk:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
     api("com.sentiance:sdk-lifestyle:${rootProject.ext.sentianceVersion}@aar") { transitive = true }

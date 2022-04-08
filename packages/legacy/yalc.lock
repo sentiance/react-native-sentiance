@@ -1,9 +1,0 @@
-{
-  "version": "v1",
-  "packages": {
-    "@react-native-sentiance/crash-detection": {
-      "signature": "8baedf979fdcecf1e97bea45ccbdc064",
-      "file": true
-    }
-  }
-}
