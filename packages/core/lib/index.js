@@ -1,66 +1,59 @@
-const {NativeModules, NativeEventEmitter} = require("react-native");
-const {varToString} = require("./utils");
-const {SentianceCore} = NativeModules;
+const {NativeEventEmitter} = require("react-native");
+import core from './core';
 
-if (!SentianceCore) {
-  const nativeModuleName = varToString({SentianceCore});
-  throw `Could not locate the native ${nativeModuleName} module.
-  Make sure that your native code is properly linked, and that the module name you specified is correct.`;
-}
+const SENTIANCE_EMITTER = new NativeEventEmitter(core);
 
-const SENTIANCE_EMITTER = new NativeEventEmitter(SentianceCore);
-
-const userLinkCallback = (userLinkResult) => SentianceCore.userLinkCallback(userLinkResult);
-const userExists = () => SentianceCore.userExists();
-const enableDetections = () => SentianceCore.enableDetections();
-const enableDetectionsWithExpiryDate = (expiryTime) => SentianceCore.enableDetectionsWithExpiryDate(expiryTime);
-const reset = () => SentianceCore.reset();
-const isUserLinked = () => SentianceCore.isUserLinked();
-const getVersion = () => SentianceCore.getVersion();
-const getUserId = () => SentianceCore.getUserId();
-const getUserAccessToken = () => SentianceCore.getUserAccessToken();
-const addUserMetadataField = (label, value) => SentianceCore.addUserMetadataField(label, value);
-const addUserMetadataFields = (metadata) => SentianceCore.addUserMetadataFields(metadata);
-const removeUserMetadataField = (label) => SentianceCore.removeUserMetadataField(label);
-const getUserActivity = () => SentianceCore.getUserActivity();
-const listenUserActivityUpdates = () => SentianceCore.listenUserActivityUpdates();
-const startTrip = (metadata, hint) => SentianceCore.startTrip(metadata, hint);
-const stopTrip = () => SentianceCore.stopTrip();
-const isTripOngoing = (tripType) => SentianceCore.isTripOngoing(tripType);
-const submitDetections = () => SentianceCore.submitDetections();
-const updateSdkNotification = (title, message) => SentianceCore.updateSdkNotification(title, message);
-const addTripMetadata = (metadata) => SentianceCore.addTripMetadata(metadata);
-const setAppSessionDataCollectionEnabled = (enabled) => SentianceCore.setAppSessionDataCollectionEnabled(enabled);
-const isAppSessionDataCollectionEnabled = () => SentianceCore.isAppSessionDataCollectionEnabled();
-const disableDetections = () => SentianceCore.disableDetections();
-const getInitState = () => SentianceCore.getInitState();
-const getSdkStatus = () => SentianceCore.getSdkStatus();
-const getDiskQuotaLimit = () => SentianceCore.getDiskQuotaLimit();
-const getDiskQuotaUsage = () => SentianceCore.getDiskQuotaUsage();
-const disableBatteryOptimization = () => SentianceCore.disableBatteryOptimization();
-const getMobileQuotaLimit = () => SentianceCore.getMobileQuotaLimit();
-const getMobileQuotaUsage = () => SentianceCore.getMobileQuotaUsage();
-const getWiFiQuotaLimit = () => SentianceCore.getWiFiQuotaLimit();
-const getWiFiQuotaUsage = () => SentianceCore.getWiFiQuotaUsage();
+const userLinkCallback = (userLinkResult) => core.userLinkCallback(userLinkResult);
+const userExists = () => core.userExists();
+const enableDetections = () => core.enableDetections();
+const enableDetectionsWithExpiryDate = (expiryTime) => core.enableDetectionsWithExpiryDate(expiryTime);
+const reset = () => core.reset();
+const isUserLinked = () => core.isUserLinked();
+const getVersion = () => core.getVersion();
+const getUserId = () => core.getUserId();
+const getUserAccessToken = () => core.getUserAccessToken();
+const addUserMetadataField = (label, value) => core.addUserMetadataField(label, value);
+const addUserMetadataFields = (metadata) => core.addUserMetadataFields(metadata);
+const removeUserMetadataField = (label) => core.removeUserMetadataField(label);
+const getUserActivity = () => core.getUserActivity();
+const listenUserActivityUpdates = () => core.listenUserActivityUpdates();
+const startTrip = (metadata, hint) => core.startTrip(metadata, hint);
+const stopTrip = () => core.stopTrip();
+const isTripOngoing = (tripType) => core.isTripOngoing(tripType);
+const submitDetections = () => core.submitDetections();
+const updateSdkNotification = (title, message) => core.updateSdkNotification(title, message);
+const addTripMetadata = (metadata) => core.addTripMetadata(metadata);
+const setAppSessionDataCollectionEnabled = (enabled) => core.setAppSessionDataCollectionEnabled(enabled);
+const isAppSessionDataCollectionEnabled = () => core.isAppSessionDataCollectionEnabled();
+const disableDetections = () => core.disableDetections();
+const getInitState = () => core.getInitState();
+const getSdkStatus = () => core.getSdkStatus();
+const getDiskQuotaLimit = () => core.getDiskQuotaLimit();
+const getDiskQuotaUsage = () => core.getDiskQuotaUsage();
+const disableBatteryOptimization = () => core.disableBatteryOptimization();
+const getMobileQuotaLimit = () => core.getMobileQuotaLimit();
+const getMobileQuotaUsage = () => core.getMobileQuotaUsage();
+const getWiFiQuotaLimit = () => core.getWiFiQuotaLimit();
+const getWiFiQuotaUsage = () => core.getWiFiQuotaUsage();
 const createUnlinkedUser = async (appId, secret) => {
-  return SentianceCore.createUnlinkedUser(appId, secret);
+  return core.createUnlinkedUser(appId, secret);
 };
 
 const createLinkedUser = async (appId, secret, linker) => {
   _addUserLinkListener(linker);
-  return SentianceCore.createLinkedUser(appId, secret);
+  return core.createLinkedUser(appId, secret);
 };
 
 const linkUser = async (linker) => {
   _addUserLinkListener(linker);
-  return SentianceCore.linkUser();
+  return core.linkUser();
 };
 
 const _addUserLinkListener = (linker) => {
   let subscription = SENTIANCE_EMITTER.addListener("SDKUserLink", async (event) => {
     const {installId} = event;
     const linkingResult = await linker(installId);
-    SentianceCore.userLinkCallback(linkingResult);
+    core.userLinkCallback(linkingResult);
     subscription.remove();
   });
 };

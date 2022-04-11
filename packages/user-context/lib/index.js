@@ -1,9 +1,7 @@
-const {NativeModules} = require("react-native");
+import userContext from './user-context';
 
-const {SentianceUserContext} = NativeModules;
-
-const getUserContext = () => SentianceUserContext.getUserContext();
-const listenUserContextUpdates = () => SentianceUserContext.listenUserContextUpdates();
+const getUserContext = () => userContext.getUserContext();
+const listenUserContextUpdates = () => userContext.listenUserContextUpdates();
 
 module.exports = {
   getUserContext,

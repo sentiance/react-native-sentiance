@@ -16,14 +16,10 @@ const {
   removeUserMetadataField,
   getUserActivity,
   listenUserActivityUpdates,
-  startTrip,
-  stopTrip,
   isTripOngoing,
   submitDetections,
   updateSdkNotification,
   addTripMetadata,
-  setAppSessionDataCollectionEnabled,
-  isAppSessionDataCollectionEnabled,
   getInitState,
   getSdkStatus,
   getDiskQuotaLimit,
@@ -32,8 +28,7 @@ const {
   getMobileQuotaLimit,
   getMobileQuotaUsage,
   getWiFiQuotaLimit,
-  getWiFiQuotaUsage,
-  linkUser
+  getWiFiQuotaUsage
 } = core;
 
 const {
@@ -49,6 +44,8 @@ const {
   start,
   startWithStopDate,
   stop,
+  startTrip,
+  stopTrip,
   setValueForKey,
   getValueForKey,
   isThirdPartyLinked,
@@ -67,14 +64,10 @@ RNSentiance.removeUserMetadataField = removeUserMetadataField;
 RNSentiance.getVersion = getVersion;
 RNSentiance.getUserActivity = getUserActivity;
 RNSentiance.listenUserActivityUpdates = listenUserActivityUpdates;
-RNSentiance.startTrip = startTrip;
-RNSentiance.stopTrip = stopTrip;
 RNSentiance.isTripOngoing = isTripOngoing;
 RNSentiance.submitDetections = submitDetections;
 RNSentiance.updateSdkNotification = updateSdkNotification;
 RNSentiance.addTripMetadata = addTripMetadata;
-RNSentiance.setAppSessionDataCollectionEnabled = setAppSessionDataCollectionEnabled;
-RNSentiance.isAppSessionDataCollectionEnabled = isAppSessionDataCollectionEnabled;
 RNSentiance.getInitState = getInitState;
 RNSentiance.getSdkStatus = getSdkStatus;
 RNSentiance.getDiskQuotaLimit = getDiskQuotaLimit;
@@ -84,7 +77,6 @@ RNSentiance.getMobileQuotaLimit = getMobileQuotaLimit;
 RNSentiance.getMobileQuotaUsage = getMobileQuotaUsage;
 RNSentiance.getWiFiQuotaLimit = getWiFiQuotaLimit;
 RNSentiance.getWiFiQuotaUsage = getWiFiQuotaUsage;
-RNSentiance.linkUser = linkUser;
 
 // Crash detection bindings
 RNSentiance.listenVehicleCrashEvents = listenVehicleCrashEvents;
@@ -98,6 +90,8 @@ RNSentiance.reset = reset;
 RNSentiance.start = start;
 RNSentiance.startWithStopDate = startWithStopDate;
 RNSentiance.stop = stop;
+RNSentiance.startTrip = startTrip;
+RNSentiance.stopTrip = stopTrip;
 RNSentiance.setValueForKey = setValueForKey;
 RNSentiance.getValueForKey = getValueForKey;
 RNSentiance.isThirdPartyLinked = isThirdPartyLinked;
@@ -105,4 +99,4 @@ RNSentiance.isNativeInitializationEnabled = isNativeInitializationEnabled;
 RNSentiance.enableNativeInitialization = enableNativeInitialization;
 RNSentiance.disableNativeInitialization = disableNativeInitialization;
 
-module.exports = RNSentiance;
+export default RNSentiance;

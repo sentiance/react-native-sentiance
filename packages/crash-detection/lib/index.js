@@ -1,14 +1,8 @@
-const {NativeModules} = require("react-native");
+import crashDetection from './crash-detection';
 
-const {SentianceCrashDetection} = NativeModules;
-
-/**
- * This is a description for listenVehicleCrashEvents.
- * @returns {Promise<boolean>}
- */
-const listenVehicleCrashEvents = () => SentianceCrashDetection.listenVehicleCrashEvents();
-const invokeDummyVehicleCrash = () => SentianceCrashDetection.invokeDummyVehicleCrash();
-const isVehicleCrashDetectionSupported = () => SentianceCrashDetection.isVehicleCrashDetectionSupported();
+const listenVehicleCrashEvents = () => crashDetection.listenVehicleCrashEvents();
+const invokeDummyVehicleCrash = () => crashDetection.invokeDummyVehicleCrash();
+const isVehicleCrashDetectionSupported = () => crashDetection.isVehicleCrashDetectionSupported();
 
 module.exports = {
   listenVehicleCrashEvents,

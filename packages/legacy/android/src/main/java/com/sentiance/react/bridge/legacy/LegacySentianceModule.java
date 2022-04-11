@@ -9,17 +9,27 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
+import com.sentiance.react.bridge.core.SentianceConverter;
 import com.sentiance.react.bridge.core.SentianceEmitter;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.ResetCallback;
+import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.reset.ResetFailureReason;
+import com.sentiance.sdk.trip.StartTripCallback;
+import com.sentiance.sdk.trip.StopTripCallback;
+import com.sentiance.sdk.trip.TransportMode;
+
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_NOT_INITIALIZED;
+import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_START_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_STOP_TRIP_ERROR;
 
 public class LegacySentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 
@@ -174,6 +184,51 @@ public class LegacySentianceModule extends ReactContextBaseJavaModule implements
 
 				sdk.stop();
 				promise.resolve(true);
+		}
+
+		@ReactMethod
+		@SuppressWarnings("unused")
+		public void startTrip(@Nullable ReadableMap metadata, int hint, final Promise promise) {
+				if (rejectIfNotInitialized(promise)) {
+						return;
+				}
+
+				Map metadataMap = null;
+				if (metadata != null) {
+						metadataMap = metadata.toHashMap();
+				}
+				final TransportMode transportModeHint = SentianceConverter.toTransportMode(hint);
+				sdk.startTrip(metadataMap, transportModeHint, new StartTripCallback() {
+						@Override
+						public void onSuccess() {
+								promise.resolve(true);
+						}
+
+						@Override
+						public void onFailure(SdkStatus sdkStatus) {
+								promise.reject(E_SDK_START_TRIP_ERROR, sdkStatus.toString());
+						}
+				});
+		}
+
+		@ReactMethod
+		@SuppressWarnings("unused")
+		public void stopTrip(final Promise promise) {
+				if (rejectIfNotInitialized(promise)) {
+						return;
+				}
+
+				sdk.stopTrip(new StopTripCallback() {
+						@Override
+						public void onSuccess() {
+								promise.resolve(true);
+						}
+
+						@Override
+						public void onFailure(SdkStatus sdkStatus) {
+								promise.reject(E_SDK_STOP_TRIP_ERROR, "");
+						}
+				});
 		}
 
 		@ReactMethod
