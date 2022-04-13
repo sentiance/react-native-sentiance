@@ -5,7 +5,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
-import com.sentiance.multidecisionengine.models.User;
+import com.sentiance.react.bridge.core.utils.SentianceUtils;
 import com.sentiance.sdk.DisableDetectionsError;
 import com.sentiance.sdk.DisableDetectionsResult;
 import com.sentiance.sdk.EnableDetectionsError;
@@ -32,9 +32,9 @@ import java.util.concurrent.CountDownLatch;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_DISABLE_DETECTIONS_ERROR;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_ENABLE_DETECTIONS_ERROR;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_USER_LINK_ERROR;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_DISABLE_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_ENABLE_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_USER_LINK_ERROR;
 
 public class SentianceHelper {
 		private static final String TAG = "SentianceHelper";
@@ -110,6 +110,33 @@ public class SentianceHelper {
 				InitializationResult result = sentiance.initialize(options);
 				sentiance.setSdkStatusUpdateHandler(onSdkStatusUpdateHandler);
 				return result;
+		}
+
+		PendingOperation<UserCreationResult, UserCreationError> createLinkedUser(String authCode, String platformUrl) {
+				UserCreationOptions.Builder builder = new UserCreationOptions.Builder(authCode);
+				if (platformUrl != null) {
+						builder.setPlatformUrl(platformUrl);
+				}
+				return getSentiance().createUser(builder.build());
+		}
+
+		PendingOperation<UserCreationResult, UserCreationError> createUnlinkedUser(String appId, String secret,
+																																							 String platformUrl) {
+				UserCreationOptions.Builder builder = new UserCreationOptions.Builder(appId, secret, UserLinker.NO_OP);
+				if (platformUrl != null) {
+						builder.setPlatformUrl(platformUrl);
+				}
+
+				return getSentiance().createUser(builder.build());
+		}
+
+		PendingOperation<UserCreationResult, UserCreationError> createLinkedUser(String appId, String secret,
+																																						 String platformUrl) {
+				UserCreationOptions.Builder builder = new UserCreationOptions.Builder(appId, secret, userLinker);
+				if (platformUrl != null) {
+						builder.setPlatformUrl(platformUrl);
+				}
+				return getSentiance().createUser(builder.build());
 		}
 
 		void enableDetections(@Nullable final Promise promise) {
@@ -207,5 +234,13 @@ public class SentianceHelper {
 
 		public OnSdkStatusUpdateHandler getOnSdkStatusUpdateHandler() {
 				return onSdkStatusUpdateHandler;
+		}
+
+		private Sentiance getSentiance() {
+				Context context = weakContext.get();
+				if (context == null) {
+						throw new IllegalStateException("Context is null.");
+				}
+				return Sentiance.getInstance(context);
 		}
 }

@@ -1,4 +1,4 @@
-package com.sentiance.react.bridge.core;
+package com.sentiance.react.bridge.core.utils;
 
 import android.app.Notification;
 import android.app.NotificationChannel;

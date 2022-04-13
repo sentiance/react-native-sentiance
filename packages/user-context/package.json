@@ -1,6 +1,6 @@
 {
   "name": "@react-native-sentiance/user-context",
-  "version": "0.6.2",
+  "version": "1.0.1",
   "description": "React Native Sentiance - This module provides an easy API to add user context awareness into your apps.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -12,7 +12,7 @@
     "crash-detection"
   ],
   "peerDependencies": {
-    "@react-native-sentiance/core": "0.6.2"
+    "@react-native-sentiance/core": "1.0.1"
   },
   "author": "",
   "license": "",

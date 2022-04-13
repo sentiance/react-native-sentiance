@@ -5,12 +5,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.sentiance.react.bridge.core.utils.SentianceUtils;
+import com.sentiance.react.bridge.core.utils.UserCreationCompletionHandler;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
@@ -22,7 +23,6 @@ import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityListener;
 import com.sentiance.sdk.pendingoperation.OnCompleteListener;
 import com.sentiance.sdk.pendingoperation.PendingOperation;
-import com.sentiance.sdk.r0;
 import com.sentiance.sdk.reset.ResetError;
 import com.sentiance.sdk.reset.ResetResult;
 import com.sentiance.sdk.trip.StartTripError;
@@ -31,9 +31,6 @@ import com.sentiance.sdk.trip.StopTripError;
 import com.sentiance.sdk.trip.StopTripResult;
 import com.sentiance.sdk.trip.TransportMode;
 import com.sentiance.sdk.trip.TripType;
-import com.sentiance.sdk.usercreation.UserCreationError;
-import com.sentiance.sdk.usercreation.UserCreationOptions;
-import com.sentiance.sdk.usercreation.UserCreationResult;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
@@ -41,17 +38,15 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_CREATE_LINKED_USER_ERROR;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_CREATE_UNLINKED_USER_ERROR;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_GET_TOKEN_ERROR;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_MISSING_PARAMS;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_NOT_INITIALIZED;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_RESET_ERROR;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_START_TRIP_ERROR;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_STOP_TRIP_ERROR;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_GET_TOKEN_ERROR;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_MISSING_PARAMS;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_NOT_INITIALIZED;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_RESET_ERROR;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_START_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_STOP_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
 
-public class SentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
+public class SentianceModule extends ReactContextBaseJavaModule {
 
 		private static final String NATIVE_MODULE_NAME = "SentianceCore";
 		private final ReactApplicationContext reactContext;
@@ -115,41 +110,23 @@ public class SentianceModule extends ReactContextBaseJavaModule implements Lifec
 
 		@ReactMethod
 		@SuppressWarnings("unused")
-		public void createUserWithAuthCode(String authCode, String platformUrl, final Promise promise) {
-				UserCreationOptions options = new UserCreationOptions.Builder(authCode)
-								.setPlatformUrl(platformUrl)
-								.build();
-				sdk.createUser(options)
-								.addOnCompleteListener(new OnCompleteListener<UserCreationResult, UserCreationError>() {
-										@Override
-										public void onComplete(@NonNull PendingOperation<UserCreationResult, UserCreationError> pendingOperation) {
-												if (pendingOperation.isSuccessful()) {
-														promise.resolve(SentianceConverter.convertUserCreationResult(pendingOperation.getResult()));
-												} else {
-														UserCreationError error = pendingOperation.getError();
-														promise.reject(E_SDK_CREATE_UNLINKED_USER_ERROR,
-																		SentianceConverter.stringifyUserCreationError(error));
-												}
-										}
-								});
+		public void createUnlinkedUser(String appId, String secret, @Nullable String platformUrl, final Promise promise) {
+				sentianceHelper.createUnlinkedUser(appId, secret, platformUrl)
+								.addOnCompleteListener(new UserCreationCompletionHandler(promise));
 		}
 
 		@ReactMethod
 		@SuppressWarnings("unused")
-		public void createUserWithCredentials(String appId, String secret, final Promise promise) {
-				sentianceHelper.createUser(appId, secret)
-								.addOnCompleteListener(new OnCompleteListener<UserCreationResult, UserCreationError>() {
-										@Override
-										public void onComplete(@NonNull PendingOperation<UserCreationResult, UserCreationError> pendingOperation) {
-												if (pendingOperation.isSuccessful()) {
-														promise.resolve(SentianceConverter.convertUserCreationResult(pendingOperation.getResult()));
-												} else {
-														UserCreationError error = pendingOperation.getError();
-														promise.reject(E_SDK_CREATE_LINKED_USER_ERROR,
-																		SentianceConverter.stringifyUserCreationError(error));
-												}
-										}
-								});
+		public void createLinkedUser(String appId, String secret, @Nullable String platformUrl, final Promise promise) {
+				sentianceHelper.createLinkedUser(appId, secret, platformUrl)
+								.addOnCompleteListener(new UserCreationCompletionHandler(promise));
+		}
+
+		@ReactMethod
+		@SuppressWarnings("unused")
+		public void createLinkedUserWithAuthCode(String authCode, @Nullable String platformUrl, final Promise promise) {
+				sentianceHelper.createLinkedUser(authCode, platformUrl)
+								.addOnCompleteListener(new UserCreationCompletionHandler(promise));
 		}
 
 		@ReactMethod
@@ -554,21 +531,5 @@ public class SentianceModule extends ReactContextBaseJavaModule implements Lifec
 		private boolean isSdkInitialized() {
 				return sdk.getInitState() == InitState.INITIALIZED;
 		}
-
-		@Override
-		public void onHostResume() {
-				// Activity `onResume`
-		}
-
-		@Override
-		public void onHostPause() {
-				// Activity `onPause`
-		}
-
-		@Override
-		public void onHostDestroy() {
-				// Activity `onDestroy`
-		}
-
 }
 

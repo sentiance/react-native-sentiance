@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.sentiance.react.bridge.core.SentianceHelper;
-import com.sentiance.react.bridge.core.SentianceUtils;
+import com.sentiance.react.bridge.core.utils.SentianceUtils;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnStartFinishedHandler;
 import com.sentiance.sdk.SdkConfig;
@@ -127,7 +127,7 @@ public class RNSentianceHelper {
 
 				SdkConfig config = builder.build();
 
-				// Initialize  and start  Sentiance SDK.
+				// Initialize and start Sentiance SDK.
 				Sentiance.getInstance(context).init(config, new OnInitCallback() {
 						@Override
 						public void onInitSuccess() {

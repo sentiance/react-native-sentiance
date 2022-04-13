@@ -27,9 +27,9 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_NOT_INITIALIZED;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_START_TRIP_ERROR;
-import static com.sentiance.react.bridge.core.SentianceErrorCodes.E_SDK_STOP_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_NOT_INITIALIZED;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_START_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_STOP_TRIP_ERROR;
 
 public class LegacySentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
 

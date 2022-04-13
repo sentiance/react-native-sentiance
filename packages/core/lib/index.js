@@ -1,12 +1,11 @@
-const {NativeEventEmitter} = require("react-native");
 import core from './core';
 
-const SENTIANCE_EMITTER = new NativeEventEmitter(core);
-
-const userLinkCallback = (userLinkResult) => core.userLinkCallback(userLinkResult);
-const userExists = () => core.userExists();
 const enableDetections = () => core.enableDetections();
 const enableDetectionsWithExpiryDate = (expiryTime) => core.enableDetectionsWithExpiryDate(expiryTime);
+const disableDetections = () => core.disableDetections();
+const getInitState = () => core.getInitState();
+const userLinkCallback = (userLinkResult) => core.userLinkCallback(userLinkResult);
+const userExists = () => core.userExists();
 const reset = () => core.reset();
 const isUserLinked = () => core.isUserLinked();
 const getVersion = () => core.getVersion();
@@ -25,8 +24,6 @@ const updateSdkNotification = (title, message) => core.updateSdkNotification(tit
 const addTripMetadata = (metadata) => core.addTripMetadata(metadata);
 const setAppSessionDataCollectionEnabled = (enabled) => core.setAppSessionDataCollectionEnabled(enabled);
 const isAppSessionDataCollectionEnabled = () => core.isAppSessionDataCollectionEnabled();
-const disableDetections = () => core.disableDetections();
-const getInitState = () => core.getInitState();
 const getSdkStatus = () => core.getSdkStatus();
 const getDiskQuotaLimit = () => core.getDiskQuotaLimit();
 const getDiskQuotaUsage = () => core.getDiskQuotaUsage();
@@ -35,28 +32,92 @@ const getMobileQuotaLimit = () => core.getMobileQuotaLimit();
 const getMobileQuotaUsage = () => core.getMobileQuotaUsage();
 const getWiFiQuotaLimit = () => core.getWiFiQuotaLimit();
 const getWiFiQuotaUsage = () => core.getWiFiQuotaUsage();
-const createUnlinkedUser = async (appId, secret) => {
-  return core.createUnlinkedUser(appId, secret);
-};
-
-const createLinkedUser = async (appId, secret, linker) => {
-  _addUserLinkListener(linker);
-  return core.createLinkedUser(appId, secret);
-};
 
 const linkUser = async (linker) => {
-  _addUserLinkListener(linker);
+  core._addUserLinkListener(linker);
   return core.linkUser();
 };
 
-const _addUserLinkListener = (linker) => {
-  let subscription = SENTIANCE_EMITTER.addListener("SDKUserLink", async (event) => {
-    const {installId} = event;
-    const linkingResult = await linker(installId);
-    core.userLinkCallback(linkingResult);
-    subscription.remove();
-  });
-};
+/**
+ * @typedef {Object} UserCreationOptions
+ * @property {String} authCode - Auth Code
+ * @property {String} platformUrl - Sentiance Platform URL
+ * @property {String} appId - APP ID
+ * @property {String} appSecret - APP Secret
+ * @property {Function} linker (data) => result - Function to handle the user linking
+ *
+ * const userCreationOptions = {
+ *  authCode: "<AUTH_CODE>"
+ * }
+ *
+ * createUser(userCreationOptions);
+ *
+ * Or with appId / appSecret (Not recommended)
+ *
+ * const userCreationOptions = {
+ *    linker : (installId) => {
+ *      return linkUser(installId);
+ *    },
+ *    appId : "<APP_ID>",
+ *    appSecret: "<APP_SECRET>"
+ *  }
+ *
+ *  createUser(userCreationOptions);
+ */
+
+
+/**
+ * Creates a Sentiance user if one does not yet exist, and links it to your app's user on the Sentiance platform.
+ * This method requires an initialized SDK, otherwise it throws a runtime exception.
+ *
+ * @param {UserCreationOptions} userCreationOptions
+ *
+ * @example
+ * const userCreationOptions = {
+ *  authCode: "<AUTH_CODE>"
+ * }
+ *
+ * createUser(userCreationOptions);
+ *
+ * Or with appId / appSecret (Not recommended)
+ *
+ * const userCreationOptions = {
+ *    linker : (installId) => {
+ *      return linkUser(installId);
+ *    },
+ *    appId : "<APP_ID>",
+ *    appSecret: "<APP_SECRET>"
+ *  }
+ *
+ *  createUser(userCreationOptions);
+ */
+const createUser = async (userCreationOptions) => {
+  const appId = userCreationOptions.appId;
+  const appSecret = userCreationOptions.appSecret;
+  const authCode = userCreationOptions.authCode;
+  const platformUrl = userCreationOptions.platformUrl;
+  const linker = userCreationOptions.linker;
+
+  if (!appId && !appSecret && !authCode) {
+    return Promise.reject('Invalid userCreationOptions passed, please set authCode or  appId/appSecret with a linker to create user');
+  }
+
+  if (authCode) {
+    return core.createLinkedUserWithAuthCode(authCode, platformUrl);
+  }
+  else if (linker) {
+    core._addUserLinkListener(linker);
+    return core.createLinkedUser(appId, appSecret, platformUrl);
+  }
+  else {
+    return core.createUnlinkedUser(appId, appSecret, platformUrl);
+  }
+}
+
+const addSdkStatusUpdateListener = core._addSdkStatusUpdateListener;
+const addUserLinkListener = core._addUserLinkListener;
+const addOnDetectionsEnabledListener = core._addOnDetectionsEnabledListener;
+const addSdkUserActivityUpdateListener = core._addSdkUserActivityUpdateListener;
 
 const transportModes = {};
 (function (transportModes) {
@@ -106,8 +167,11 @@ module.exports = {
   getMobileQuotaUsage,
   getWiFiQuotaLimit,
   getWiFiQuotaUsage,
-  createLinkedUser,
-  createUnlinkedUser,
+  createUser,
   linkUser,
+  addSdkStatusUpdateListener,
+  addUserLinkListener,
+  addOnDetectionsEnabledListener,
+  addSdkUserActivityUpdateListener,
   transportModes
 };

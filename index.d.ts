@@ -263,13 +263,20 @@ declare module "react-native-sentiance" {
     userInfo: UserInfo
   }
 
+  export interface UserCreationOptions {
+    appId: string,
+    appSecret: string,
+    authCode: string,
+    platformUrl: string,
+    linker: (installId: string) => boolean
+  }
+
   export interface RNSentianceConstructor extends EventSubscriptionVendor {
     userExists(): Promise<boolean>;
     enableDetections(): Promise<EnableDisableDetectionsResult>;
     enableDetectionsWithExpiryDate(expiryEpochTimeMs: number): Promise<EnableDisableDetectionsResult>;
     reset(): Promise<boolean>;
-    createUnlinkedUser(appId: string, secret: string): Promise<CreateUserResult>;
-    createLinkedUser(appId: string, secret: string): Promise<CreateUserResult>;
+    createUser(userCreationOptions: UserCreationOptions): Promise<CreateUserResult>;
     linkUser(): Promise<UserLinkingResult>;
     isUserLinked(): Promise<boolean>;
     disableDetections(): Promise<EnableDisableDetectionsResult>;
