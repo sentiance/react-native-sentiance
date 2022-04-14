@@ -5,7 +5,6 @@ import android.location.Location;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
-import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.sentiance.sdk.DetectionStatus;
 import com.sentiance.sdk.DisableDetectionsError;
@@ -21,20 +20,8 @@ import com.sentiance.sdk.UserAccessTokenError;
 import com.sentiance.sdk.UserAccessTokenFailureReason;
 import com.sentiance.sdk.authentication.UserLinkingError;
 import com.sentiance.sdk.authentication.UserLinkingResult;
-import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityType;
-import com.sentiance.sdk.init.InitializationFailureReason;
-import com.sentiance.sdk.init.InitializationResult;
-import com.sentiance.sdk.ondevice.api.Attribute;
-import com.sentiance.sdk.ondevice.api.GeoLocation;
-import com.sentiance.sdk.ondevice.api.event.Event;
-import com.sentiance.sdk.ondevice.api.event.StationaryEvent;
-import com.sentiance.sdk.ondevice.api.event.TransportEvent;
-import com.sentiance.sdk.ondevice.api.segment.Segment;
-import com.sentiance.sdk.ondevice.api.venue.Venue;
-import com.sentiance.sdk.ondevice.api.venue.VenueCandidate;
-import com.sentiance.sdk.ondevice.api.venue.Visit;
 import com.sentiance.sdk.reset.ResetError;
 import com.sentiance.sdk.trip.StartTripError;
 import com.sentiance.sdk.trip.StartTripFailureReason;
@@ -42,11 +29,9 @@ import com.sentiance.sdk.trip.StopTripError;
 import com.sentiance.sdk.trip.StopTripFailureReason;
 import com.sentiance.sdk.trip.TransportMode;
 import com.sentiance.sdk.trip.TripType;
-import com.sentiance.sdk.usercontext.api.UserContext;
 import com.sentiance.sdk.usercreation.UserCreationError;
 import com.sentiance.sdk.usercreation.UserCreationResult;
 import com.sentiance.sdk.usercreation.UserInfo;
-import com.sentiance.sdk.util.DateTime;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -160,21 +145,6 @@ public class SentianceConverter {
 				return map;
 		}
 
-		public static WritableMap convertInitializationResult(InitializationResult initResult) {
-				WritableMap map = Arguments.createMap();
-				try {
-						map.putBoolean("isSuccessful", initResult.isSuccessful());
-
-						InitializationFailureReason failureReason = initResult.getFailureReason();
-						if (failureReason != null) {
-								map.putString("failureReason", failureReason.name());
-						}
-				} catch (Exception ignored) {
-				}
-
-				return map;
-		}
-
 		public static WritableMap convertInstallId(String installId) {
 				WritableMap map = Arguments.createMap();
 				try {
@@ -254,16 +224,6 @@ public class SentianceConverter {
 
 		}
 
-		public static WritableMap convertGeoLocation(GeoLocation location) {
-				WritableMap locationMap = Arguments.createMap();
-
-				locationMap.putString("latitude", String.valueOf(location.getLatitude()));
-				locationMap.putString("longitude", String.valueOf(location.getLongitude()));
-				locationMap.putString("accuracy", String.valueOf(location.getAccuracyInMeters()));
-
-				return locationMap;
-		}
-
 		public static String convertTripType(TripType tripType) {
 				switch (tripType) {
 						case ANY:
@@ -290,128 +250,14 @@ public class SentianceConverter {
 				}
 		}
 
-		public static WritableMap convertVehicleCrashEvent(VehicleCrashEvent crashEvent) {
-				WritableMap map = Arguments.createMap();
-
-				map.putDouble("time", (double) crashEvent.getTime());
-
-				if (crashEvent.getLocation() != null) {
-						WritableMap locationMap = convertLocation(crashEvent.getLocation());
-						map.putMap("location", locationMap);
-				}
-
-				if (crashEvent.getMagnitude() != null) {
-						map.putDouble("magnitude", crashEvent.getMagnitude());
-				}
-
-				if (crashEvent.getSpeedAtImpact() != null) {
-						map.putDouble("speedAtImpact", crashEvent.getSpeedAtImpact());
-				}
-
-				if (crashEvent.getDeltaV() != null) {
-						map.putDouble("deltaV", crashEvent.getDeltaV());
-				}
-
-				if (crashEvent.getConfidence() != null) {
-						map.putInt("confidence", crashEvent.getConfidence());
-				}
-
-				return map;
-		}
-
-		private static WritableMap convertSegment(Segment segment) {
-				WritableMap map = Arguments.createMap();
-
-				map.putString("category", segment.getCategory().name());
-				map.putString("subcategory", segment.getSubcategory().name());
-				map.putString("type", segment.getType().name());
-				map.putInt("id", segment.getType().getUniqueId());
-				map.putString("startTime", segment.getStartTime().toString());
-
-				DateTime endTime = segment.getEndTime();
-				if (endTime != null) {
-						map.putString("endTime", endTime.toString());
-				}
-
-				WritableArray attributes = Arguments.createArray();
-				for (Attribute attribute : segment.getAttributes()) {
-						WritableMap a = Arguments.createMap();
-						a.putString("name", attribute.getName());
-						a.putDouble("value", attribute.getValue());
-						attributes.pushMap(a);
-				}
-				map.putArray("attributes", attributes);
-
-				return map;
-		}
-
-		private static WritableMap convertEvent(Event event) {
-				WritableMap map = Arguments.createMap();
-
-				map.putString("startTime", event.getStartTime().toString());
-				if (event.getEndTime() != null) {
-						map.putString("endTime", event.getEndTime().toString());
-
-						Long durationInSeconds = event.getDurationInSeconds();
-						if (durationInSeconds != null) {
-								map.putInt("durationInSeconds", (int) (long) durationInSeconds);
-						}
-				}
-
-				map.putString("type", event.getEventType().toString());
-
-				if (event instanceof StationaryEvent) {
-						addStationaryEventInfo(map, (StationaryEvent) event);
-				} else if (event instanceof TransportEvent) {
-						addTransportEventInfo(map, (TransportEvent) event);
-				}
-
-				return map;
-		}
-
-		public static WritableMap convertUserContext(UserContext userContext) {
-				WritableMap userContextMap = Arguments.createMap();
-
-				// Events
-				WritableArray eventArray = Arguments.createArray();
-				for (Event event : userContext.getEvents()) {
-						eventArray.pushMap(convertEvent(event));
-				}
-				userContextMap.putArray("events", eventArray);
-
-				// Segments
-				WritableArray segmentsArray = Arguments.createArray();
-				for (Segment segment : userContext.getActiveSegments()) {
-						segmentsArray.pushMap(convertSegment(segment));
-				}
-				userContextMap.putArray("activeSegments", segmentsArray);
-
-				// Last know location
-				if (userContext.getLastKnownLocation() != null) {
-						userContextMap.putMap("lastKnownLocation", convertGeoLocation(userContext.getLastKnownLocation()));
-				}
-
-				// Home
-				if (userContext.getHome() != null) {
-						userContextMap.putMap("home", convertVenue(userContext.getHome()));
-				}
-
-				// Work
-				if (userContext.getWork() != null) {
-						userContextMap.putMap("work", convertVenue(userContext.getWork()));
-				}
-
-				return userContextMap;
-		}
-
 		public static WritableMap convertEnableDetectionsResult(EnableDetectionsResult enableDetectionsResult) {
 				return convertDetectionsResult(enableDetectionsResult.getSdkStatus(),
-                enableDetectionsResult.getDetectionStatus());
+								enableDetectionsResult.getDetectionStatus());
 		}
 
 		public static WritableMap convertDisableDetectionsResult(DisableDetectionsResult disableDetectionsResult) {
 				return convertDetectionsResult(disableDetectionsResult.getSdkStatus(),
-                disableDetectionsResult.getDetectionStatus());
+								disableDetectionsResult.getDetectionStatus());
 		}
 
 		private static WritableMap convertDetectionsResult(SdkStatus sdkStatus, DetectionStatus detectionStatus) {
@@ -522,69 +368,10 @@ public class SentianceConverter {
 						case NETWORK_ERROR:
 								details = "This can happen if both of the following conditions are met: " +
 												"1. The token has expired; 2. There is no network connection that can be used to get a new " +
-                        "token from " +
+												"token from " +
 												"the Sentiance API.";
 								break;
 				}
 				return String.format("Reason: %s - %s", reason.name(), details);
-		}
-
-		private static void addStationaryEventInfo(WritableMap map, StationaryEvent event) {
-				if (event.getLocation() != null) {
-						map.putMap("location", convertGeoLocation(event.getLocation()));
-				}
-
-				map.putString("venueType", event.getVenueType().toString());
-
-				WritableArray venueCandidatesArray = Arguments.createArray();
-				for (VenueCandidate candidate : event.getVenueCandidates()) {
-						venueCandidatesArray.pushMap(convertVenueCandidate(candidate));
-				}
-
-				map.putArray("venueCandidates", venueCandidatesArray);
-		}
-
-		private static WritableMap convertVenueCandidate(VenueCandidate candidate) {
-				WritableMap venueCandidateMap = Arguments.createMap();
-				venueCandidateMap.putMap("venue", convertVenue(candidate.getVenue()));
-				venueCandidateMap.putDouble("likelihood", candidate.getLikelihood());
-
-				WritableArray visitsArray = Arguments.createArray();
-				for (Visit visit : candidate.getVisits()) {
-						visitsArray.pushMap(convertVisit(visit));
-				}
-				venueCandidateMap.putArray("visits", visitsArray);
-				return venueCandidateMap;
-		}
-
-		private static WritableMap convertVenue(Venue venue) {
-				WritableMap venueMap = Arguments.createMap();
-
-				if (venue.getName() != null) {
-						venueMap.putString("name", venue.getName());
-				}
-
-				venueMap.putMap("location", convertGeoLocation(venue.getLocation()));
-
-				WritableMap venueLabelsMap = Arguments.createMap();
-				for (Map.Entry<String, String> entry : venue.getLabels().entrySet()) {
-						venueLabelsMap.putString(entry.getKey(), entry.getValue());
-				}
-				venueMap.putMap("venueLabels", venueLabelsMap);
-
-				return venueMap;
-		}
-
-		private static WritableMap convertVisit(Visit visit) {
-				WritableMap visitMap = Arguments.createMap();
-				visitMap.putString("startTime", visit.getStartTime().toString());
-				visitMap.putString("endTime", visit.getEndTime().toString());
-				visitMap.putInt("durationInSeconds", (int) visit.getDurationInSeconds());
-
-				return visitMap;
-		}
-
-		private static void addTransportEventInfo(WritableMap map, TransportEvent event) {
-				map.putString("transportMode", event.getTransportMode().toString());
 		}
 }
