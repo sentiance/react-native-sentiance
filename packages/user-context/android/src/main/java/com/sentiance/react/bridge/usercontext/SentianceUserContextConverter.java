@@ -15,8 +15,10 @@ import com.sentiance.sdk.ondevice.api.venue.Visit;
 import com.sentiance.sdk.usercontext.api.GetUserContextError;
 import com.sentiance.sdk.usercontext.api.GetUserContextFailureReason;
 import com.sentiance.sdk.usercontext.api.UserContext;
+import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 import com.sentiance.sdk.util.DateTime;
 
+import java.util.List;
 import java.util.Map;
 
 public class SentianceUserContextConverter {
@@ -79,6 +81,14 @@ public class SentianceUserContextConverter {
 				}
 
 				return map;
+		}
+
+		public static WritableArray convertCriteriaList(List<UserContextUpdateCriteria> criteria) {
+				WritableArray array = Arguments.createArray();
+				for (UserContextUpdateCriteria criterion : criteria) {
+						array.pushString(criterion.toString());
+				}
+				return array;
 		}
 
 		public static WritableMap convertUserContext(UserContext userContext) {

@@ -2,36 +2,28 @@ package com.sentiance.react.bridge.crashdetection;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.sentiance.sdk.InitState;
-import com.sentiance.sdk.Sentiance;
+import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.sdk.crashdetection.api.CrashDetectionApi;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashListener;
 
 import androidx.annotation.NonNull;
 
-public class SentianceCrashDetectionModule extends ReactContextBaseJavaModule {
+public class SentianceCrashDetectionModule extends AbstractSentianceModule {
 
-		static final String E_SDK_NOT_INITIALIZED = "E_SDK_NOT_INITIALIZED";
-
-		private final ReactApplicationContext reactContext;
-		private final Sentiance sdk;
+		private static final String NATIVE_MODULE_NAME = "SentianceCrashDetection";
 		private final CrashDetectionEmitter emitter;
 
 		public SentianceCrashDetectionModule(ReactApplicationContext reactContext) {
 				super(reactContext);
-
-				this.reactContext = reactContext;
-				sdk = Sentiance.getInstance(reactContext);
 				emitter = new CrashDetectionEmitter(reactContext);
 		}
 
 		@NonNull
 		@Override
 		public String getName() {
-				return "SentianceCrashDetection";
+				return NATIVE_MODULE_NAME;
 		}
 
 		@ReactMethod
@@ -63,18 +55,6 @@ public class SentianceCrashDetectionModule extends ReactContextBaseJavaModule {
 				Boolean isCrashDetectionSupported =
 								CrashDetectionApi.getInstance(reactContext).isVehicleCrashDetectionSupported();
 				promise.resolve(isCrashDetectionSupported);
-		}
-
-		private boolean rejectIfNotInitialized(Promise promise) {
-				if (!isSdkInitialized()) {
-						promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
-						return true;
-				}
-				return false;
-		}
-
-		private boolean isSdkInitialized() {
-				return sdk.getInitState() == InitState.INITIALIZED;
 		}
 }
 

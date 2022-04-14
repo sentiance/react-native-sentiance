@@ -7,9 +7,9 @@ import android.util.Log;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.core.utils.SentianceUtils;
 import com.sentiance.react.bridge.core.utils.UserCreationCompletionHandler;
 import com.sentiance.sdk.InitState;
@@ -38,27 +38,22 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_GET_TOKEN_ERROR;
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_MISSING_PARAMS;
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_NOT_INITIALIZED;
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_RESET_ERROR;
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_START_TRIP_ERROR;
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_STOP_TRIP_ERROR;
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_GET_TOKEN_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_MISSING_PARAMS;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_RESET_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_START_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_STOP_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
 
-public class SentianceModule extends ReactContextBaseJavaModule {
+public class SentianceModule extends AbstractSentianceModule {
 
 		private static final String NATIVE_MODULE_NAME = "SentianceCore";
-		private final ReactApplicationContext reactContext;
-		private final Sentiance sdk;
 		private final Handler mHandler = new Handler(Looper.getMainLooper());
 		private final SentianceHelper sentianceHelper;
 		private final SentianceEmitter emitter;
 
 		public SentianceModule(ReactApplicationContext reactContext) {
 				super(reactContext);
-				this.reactContext = reactContext;
-				sdk = Sentiance.getInstance(reactContext);
 				sentianceHelper = SentianceHelper.getInstance(reactContext);
 				emitter = new SentianceEmitter(reactContext);
 		}
@@ -518,18 +513,6 @@ public class SentianceModule extends ReactContextBaseJavaModule {
 				}
 
 				promise.resolve(Sentiance.getInstance(reactContext).isAppSessionDataCollectionEnabled());
-		}
-
-		private boolean rejectIfNotInitialized(Promise promise) {
-				if (!isSdkInitialized()) {
-						promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
-						return true;
-				}
-				return false;
-		}
-
-		private boolean isSdkInitialized() {
-				return sdk.getInitState() == InitState.INITIALIZED;
 		}
 }
 

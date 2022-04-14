@@ -7,16 +7,14 @@ import android.util.Log;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.core.SentianceConverter;
 import com.sentiance.react.bridge.core.SentianceEmitter;
-import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.ResetCallback;
 import com.sentiance.sdk.SdkStatus;
-import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.reset.ResetFailureReason;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
@@ -27,26 +25,20 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_NOT_INITIALIZED;
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_START_TRIP_ERROR;
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_STOP_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_START_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_STOP_TRIP_ERROR;
 
-public class LegacySentianceModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
+public class LegacySentianceModule extends AbstractSentianceModule implements LifecycleEventListener {
 
 		private static final String NATIVE_MODULE_NAME = "RNSentiance";
-		private final Sentiance sdk;
 		private final Handler mHandler = new Handler(Looper.getMainLooper());
 		private final RNSentianceHelper legacySentianceHelper;
 		private final StartFinishedHandlerCreator startFinishedHandlerCreator;
-		private final SentianceEmitter emitter;
 
 		public LegacySentianceModule(ReactApplicationContext reactContext) {
 				super(reactContext);
-
-				sdk = Sentiance.getInstance(reactContext);
 				legacySentianceHelper = RNSentianceHelper.getInstance(reactContext);
-				emitter = new SentianceEmitter(reactContext);
-				startFinishedHandlerCreator = new StartFinishedHandlerCreator(emitter);
+				startFinishedHandlerCreator = new StartFinishedHandlerCreator();
 		}
 
 		@NonNull
@@ -270,18 +262,6 @@ public class LegacySentianceModule extends ReactContextBaseJavaModule implements
 				promise.resolve(true);
 		}
 
-		private boolean rejectIfNotInitialized(Promise promise) {
-				if (isSdkNotInitialized()) {
-						promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
-						return true;
-				}
-				return false;
-		}
-
-		private boolean isSdkNotInitialized() {
-				return sdk.getInitState() != InitState.INITIALIZED;
-		}
-
 		@Override
 		public void onHostResume() {
 				// Activity `onResume`
@@ -296,6 +276,5 @@ public class LegacySentianceModule extends ReactContextBaseJavaModule implements
 		public void onHostDestroy() {
 				// Activity `onDestroy`
 		}
-
 }
 

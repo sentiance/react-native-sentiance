@@ -32,9 +32,9 @@ import java.util.concurrent.CountDownLatch;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_DISABLE_DETECTIONS_ERROR;
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_ENABLE_DETECTIONS_ERROR;
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_USER_LINK_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_DISABLE_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_ENABLE_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_USER_LINK_ERROR;
 
 public class SentianceHelper {
 		private static final String TAG = "SentianceHelper";

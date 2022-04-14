@@ -1,6 +1,6 @@
 package com.sentiance.react.bridge.core.utils;
 
-public class SentianceErrorCodes {
+public class ErrorCodes {
 		public static final String E_SDK_MISSING_PARAMS = "E_SDK_MISSING_PARAMS";
 		public static final String E_SDK_GET_TOKEN_ERROR = "E_SDK_GET_TOKEN_ERROR";
 		public static final String E_SDK_START_TRIP_ERROR = "E_SDK_START_TRIP_ERROR";

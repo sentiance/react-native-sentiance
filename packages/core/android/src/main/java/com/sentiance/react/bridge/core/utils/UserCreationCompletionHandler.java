@@ -9,7 +9,7 @@ import com.sentiance.sdk.usercreation.UserCreationResult;
 
 import androidx.annotation.NonNull;
 
-import static com.sentiance.react.bridge.core.utils.SentianceErrorCodes.E_SDK_CREATE_USER_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_CREATE_USER_ERROR;
 
 public class UserCreationCompletionHandler implements OnCompleteListener<UserCreationResult, UserCreationError> {
 

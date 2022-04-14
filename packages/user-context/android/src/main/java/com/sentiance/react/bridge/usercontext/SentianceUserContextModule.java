@@ -2,10 +2,8 @@ package com.sentiance.react.bridge.usercontext;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.sentiance.sdk.InitState;
-import com.sentiance.sdk.Sentiance;
+import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.sdk.pendingoperation.OnCompleteListener;
 import com.sentiance.sdk.pendingoperation.PendingOperation;
 import com.sentiance.sdk.usercontext.api.GetUserContextError;
@@ -19,27 +17,22 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import static com.sentiance.react.bridge.usercontext.SentianceUserContextErrorCodes.E_SDK_NOT_INITIALIZED;
+public class SentianceUserContextModule extends AbstractSentianceModule {
 
-public class SentianceUserContextModule extends ReactContextBaseJavaModule {
+		private static final String NATIVE_MODULE_NAME = "SentianceUserContext";
 
-		private final ReactApplicationContext reactContext;
-		private final Sentiance sdk;
 		private final SentianceUserContextEmitter emitter;
-
 		private @Nullable UserContextUpdateListener mUserContextUpdateListener;
 
 		public SentianceUserContextModule(ReactApplicationContext reactContext) {
 				super(reactContext);
-				this.reactContext = reactContext;
-				sdk = Sentiance.getInstance(reactContext);
 				emitter = new SentianceUserContextEmitter(reactContext);
 		}
 
 		@NonNull
 		@Override
 		public String getName() {
-				return "SentianceUserContext";
+				return NATIVE_MODULE_NAME;
 		}
 
 		@ReactMethod
@@ -88,20 +81,7 @@ public class SentianceUserContextModule extends ReactContextBaseJavaModule {
 				};
 
 				userContextApi.addUserContextUpdateListener(mUserContextUpdateListener);
-
 				promise.resolve(true);
-		}
-
-		private boolean rejectIfNotInitialized(Promise promise) {
-				if (!isSdkInitialized()) {
-						promise.reject(E_SDK_NOT_INITIALIZED, "Sdk not initialized");
-						return true;
-				}
-				return false;
-		}
-
-		private boolean isSdkInitialized() {
-				return sdk.getInitState() == InitState.INITIALIZED;
 		}
 }
 

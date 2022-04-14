@@ -11,11 +11,9 @@ import java.util.List;
 
 public class StartFinishedHandlerCreator {
 
-		private final SentianceEmitter emitter;
 		private final List<OnStartFinishedHandler> startFinishedHandlers;
 
-		StartFinishedHandlerCreator(SentianceEmitter emitter) {
-				this.emitter = emitter;
+		StartFinishedHandlerCreator() {
 				this.startFinishedHandlers = new ArrayList<>();
 		}
 
