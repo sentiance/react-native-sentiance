@@ -1,5 +1,8 @@
 package com.sentiance.react.bridge.usercontext;
 
+import static com.sentiance.react.bridge.usercontext.SentianceUserContextConverter.convertCriteriaList;
+import static com.sentiance.react.bridge.usercontext.SentianceUserContextConverter.convertUserContext;
+
 import android.content.Context;
 
 import com.facebook.react.bridge.Arguments;
@@ -10,24 +13,21 @@ import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 
 import java.util.List;
 
-import static com.sentiance.react.bridge.usercontext.SentianceUserContextConverter.convertCriteriaList;
-import static com.sentiance.react.bridge.usercontext.SentianceUserContextConverter.convertUserContext;
-
 class SentianceUserContextEmitter extends AbstractSentianceEmitter {
 
-		private static final String USER_CONTEXT_EVENT = "UserContextUpdateEvent";
+  private static final String USER_CONTEXT_EVENT = "UserContextUpdateEvent";
 
-		public SentianceUserContextEmitter(Context context) {
-				super(context);
-		}
+  public SentianceUserContextEmitter(Context context) {
+    super(context);
+  }
 
-		void sendUserContext(List<UserContextUpdateCriteria> criteria, UserContext userContext) {
-				WritableMap map = Arguments.createMap();
-				map.putMap("userContext", convertUserContext(userContext));
-				map.putArray("criteria", convertCriteriaList(criteria));
+  void sendUserContext(List<UserContextUpdateCriteria> criteria, UserContext userContext) {
+    WritableMap map = Arguments.createMap();
+    map.putMap("userContext", convertUserContext(userContext));
+    map.putArray("criteria", convertCriteriaList(criteria));
 
-				sendEvent(USER_CONTEXT_EVENT, map);
-		}
+    sendEvent(USER_CONTEXT_EVENT, map);
+  }
 }
 
 
