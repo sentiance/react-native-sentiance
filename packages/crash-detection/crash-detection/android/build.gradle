@@ -1,0 +1,37 @@
+plugins {
+    id "com.android.library"
+}
+
+def coreProj
+if (findProject(':core')) {
+    coreProj = project(':core')
+} else if (findProject(':react-native-sentiance_core')) {
+    coreProj = project(':react-native-sentiance_core')
+} else {
+    throw new GradleException('Could not find the react-native-sentiance/core package, have you installed it?')
+}
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    api coreProj
+
+    implementation 'com.facebook.react:react-native:+'
+    api("com.sentiance:sdk:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+    api("com.sentiance:sdk-lifestyle:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+    api("com.sentiance:sdk-crash-detection:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+}

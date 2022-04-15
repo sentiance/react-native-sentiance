@@ -1,34 +1,25 @@
-import RNSentiance from './legacy';
+import { Platform } from 'react-native';
+import {NativeModules} from 'react-native'
+import {varToString} from '@react-native-sentiance/core/lib/utils'
 
-const init = (appId, appSecret, baseURL, shouldStart) => RNSentiance.init(appId, appSecret, baseURL, shouldStart);
-const initWithUserLinkingEnabled = (appId, appSecret, baseURL, shouldStart) =>
-  RNSentiance.initWithUserLinkingEnabled(appId, appSecret, baseURL, shouldStart);
-const reset = () => RNSentiance.reset();
-const start = () => RNSentiance.start();
-const startWithStopDate = (stopEpochTimeMs) => RNSentiance.startWithStopDate(stopEpochTimeMs);
-const stop = () => RNSentiance.stop();
-const startTrip = (metadata, hint) => RNSentiance.startTrip(metadata, hint);
-const stopTrip = () => RNSentiance.stopTrip();
-const setValueForKey = (key, value) => RNSentiance.setValueForKey(key, value);
-const getValueForKey = (key, defaultValue) => RNSentiance.getValueForKey(key, defaultValue);
-const isThirdPartyLinked = () => RNSentiance.isThirdPartyLinked();
-const isNativeInitializationEnabled = () => RNSentiance.isNativeInitializationEnabled();
-const enableNativeInitialization = () => RNSentiance.enableNativeInitialization();
-const disableNativeInitialization = () => RNSentiance.disableNativeInitialization();
+const {RNSentiance,SentianceCore} = NativeModules;
 
-module.exports = {
-  init,
-  initWithUserLinkingEnabled,
-  reset,
-  start,
-  startWithStopDate,
-  stop,
-  startTrip,
-  stopTrip,
-  setValueForKey,
-  getValueForKey,
-  isThirdPartyLinked,
-  isNativeInitializationEnabled,
-  enableNativeInitialization,
-  disableNativeInitialization
+var legacyModule
+if (Platform.OS === 'ios') {
+  if (!SentianceCore) {
+    const nativeModuleName = varToString({SentianceCore});
+    throw `Could not locate the native ${nativeModuleName} module.
+    Make sure that your native code is properly linked, and that the module name you specified is correct.`;
+  }
+  legacyModule = SentianceCore
 }
+else {
+  if (!RNSentiance) {
+    const nativeModuleName = varToString({RNSentiance});
+    throw `Could not locate the native ${nativeModuleName} module.
+    Make sure that your native code is properly linked, and that the module name you specified is correct.`;
+  }
+  legacyModule = RNSentiance
+}
+
+export default legacyModule

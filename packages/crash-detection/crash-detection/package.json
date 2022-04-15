@@ -1,22 +1,23 @@
 {
-  "name": "@react-native-sentiance/core",
+  "name": "@react-native-sentiance/crash-detection",
   "version": "6.5.0",
-  "description": "React Native Sentiance core library",
+  "description": "React Native Sentiance Crash Detection - This module provides an easy API to integrate crash detection into your apps.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
+    "tsc": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "react-native",
-    "sentiance"
+    "crash-detection"
   ],
   "peerDependencies": {
-    "react-native": ">=0.60"
+    "@react-native-sentiance/core": "6.4.0"
   },
   "author": "",
   "license": "",
-  "homepage": "https://github.com/sentiance/react-native-sentiance/sentiance#readme",
+  "homepage": "https://github.com/sentiance/react-native-sentiance/crash-detection#readme",
   "repository": "github:sentiance/react-native-sentiance",
   "publishConfig": {
     "access": "public"

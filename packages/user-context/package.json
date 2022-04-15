@@ -13,7 +13,7 @@
   ],
   "peerDependencies": {
     "react-native": ">=0.60",
-    "@react-native-sentiance/core": "1.2.1"
+    "@react-native-sentiance/core": "*"
   },
   "author": "",
   "license": "",
