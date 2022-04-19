@@ -2,6 +2,8 @@ const {NativeModules, NativeEventEmitter} = require("react-native");
 const {varToString} = require("@react-native-sentiance/core/lib/utils")
 const {SentianceUserContext} = NativeModules;
 
+const SDK_USER_CONTEXT_UPDATE_EVENT = "SENTIANCE_USER_ACTIVITY_UPDATE_EVENT";
+
 if (!SentianceUserContext) {
   const nativeModuleName = varToString({SentianceUserContext});
   throw `Could not locate the native ${nativeModuleName} module.
@@ -11,7 +13,7 @@ if (!SentianceUserContext) {
 const SENTIANCE_EMITTER = new NativeEventEmitter(SentianceUserContext);
 
 const _addUserContextUpdateListener = (onUserContextUpdated) => {
-  return SENTIANCE_EMITTER.addListener("UserContextUpdateEvent", async (data) => {
+  return SENTIANCE_EMITTER.addListener(SDK_USER_CONTEXT_UPDATE_EVENT, async (data) => {
     onUserContextUpdated(data);
   });
 };
