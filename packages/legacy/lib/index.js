@@ -1,6 +1,8 @@
 const core = require('@react-native-sentiance/core');
 const crashDetection = require('@react-native-sentiance/crash-detection');
-const RNSentiance = require('./deprecated');
+const legacy = require('./legacy');
+
+const RNSentiance = {};
 
 RNSentiance.TransportMode = core.transportModes;
 
@@ -35,6 +37,23 @@ const {
   isVehicleCrashDetectionSupported
 } = crashDetection;
 
+const {
+  init,
+  initWithUserLinkingEnabled,
+  reset,
+  start,
+  startWithStopDate,
+  stop,
+  startTrip,
+  stopTrip,
+  setValueForKey,
+  getValueForKey,
+  isThirdPartyLinked,
+  isNativeInitializationEnabled,
+  enableNativeInitialization,
+  disableNativeInitialization
+} = legacy;
+
 // Core bindings
 RNSentiance.userLinkCallback = userLinkCallback;
 RNSentiance.getUserId = getUserId;
@@ -63,5 +82,21 @@ RNSentiance.getWiFiQuotaUsage = getWiFiQuotaUsage;
 RNSentiance.listenVehicleCrashEvents = listenVehicleCrashEvents;
 RNSentiance.invokeDummyVehicleCrash = invokeDummyVehicleCrash;
 RNSentiance.isVehicleCrashDetectionSupported = isVehicleCrashDetectionSupported;
+
+// Legacy bindings
+RNSentiance.init = init;
+RNSentiance.initWithUserLinkingEnabled = initWithUserLinkingEnabled;
+RNSentiance.reset = reset;
+RNSentiance.start = start;
+RNSentiance.startWithStopDate = startWithStopDate;
+RNSentiance.stop = stop;
+RNSentiance.startTrip = startTrip;
+RNSentiance.stopTrip = stopTrip;
+RNSentiance.setValueForKey = setValueForKey;
+RNSentiance.getValueForKey = getValueForKey;
+RNSentiance.isThirdPartyLinked = isThirdPartyLinked;
+RNSentiance.isNativeInitializationEnabled = isNativeInitializationEnabled;
+RNSentiance.enableNativeInitialization = enableNativeInitialization;
+RNSentiance.disableNativeInitialization = disableNativeInitialization;
 
 export default RNSentiance;

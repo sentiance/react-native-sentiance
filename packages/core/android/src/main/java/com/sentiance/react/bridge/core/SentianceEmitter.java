@@ -11,10 +11,10 @@ import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 
 public class SentianceEmitter extends AbstractSentianceEmitter {
-  private static final String USER_LINK = "SDKUserLink";
-  private static final String STATUS_UPDATE = "SDKStatusUpdate";
-  private static final String USER_ACTIVITY_UPDATE = "SDKUserActivityUpdate";
-  private static final String ON_DETECTIONS_ENABLED = "OnDetectionsEnabled";
+  private static final String USER_LINK = "SENTIANCE_USER_LINK_EVENT";
+  private static final String STATUS_UPDATE = "SENTIANCE_STATUS_UPDATE_EVENT";
+  private static final String USER_ACTIVITY_UPDATE = "SENTIANCE_USER_ACTIVITY_UPDATE_EVENT";
+  private static final String ON_DETECTIONS_ENABLED = "SENTIANCE_ON_DETECTIONS_ENABLED_EVENT";
 
   public SentianceEmitter(Context context) {
     super(context);

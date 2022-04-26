@@ -15,7 +15,7 @@ import java.util.List;
 
 class SentianceUserContextEmitter extends AbstractSentianceEmitter {
 
-  private static final String USER_CONTEXT_EVENT = "UserContextUpdateEvent";
+  private static final String USER_CONTEXT_EVENT = "SENTIANCE_USER_CONTEXT_UPDATE_EVENT";
 
   public SentianceUserContextEmitter(Context context) {
     super(context);

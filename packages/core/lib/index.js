@@ -32,6 +32,7 @@ const getMobileQuotaLimit = () => core.getMobileQuotaLimit();
 const getMobileQuotaUsage = () => core.getMobileQuotaUsage();
 const getWiFiQuotaLimit = () => core.getWiFiQuotaLimit();
 const getWiFiQuotaUsage = () => core.getWiFiQuotaUsage();
+const linkUserWithAuthCode = (authCode) => core.linkUserWithAuthCode(authCode);
 
 const linkUser = async (linker) => {
   core._addUserLinkListener(linker);
@@ -169,6 +170,7 @@ module.exports = {
   getWiFiQuotaUsage,
   createUser,
   linkUser,
+  linkUserWithAuthCode,
   addSdkStatusUpdateListener,
   addUserLinkListener,
   addOnDetectionsEnabledListener,

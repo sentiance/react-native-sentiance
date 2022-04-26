@@ -132,6 +132,12 @@ public class SentianceModule extends AbstractSentianceModule {
 
   @ReactMethod
   @SuppressWarnings("unused")
+  public void linkUserWithAuthCode(String authCode, final Promise promise) {
+    sentianceHelper.linkUser(authCode, promise);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
   public void userExists(final Promise promise) {
     if (rejectIfNotInitialized(promise)) {
       return;

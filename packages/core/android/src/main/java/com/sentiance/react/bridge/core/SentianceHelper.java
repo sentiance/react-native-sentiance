@@ -2,6 +2,7 @@ package com.sentiance.react.bridge.core;
 
 import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_DISABLE_DETECTIONS_ERROR;
 import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_ENABLE_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_USER_LINK_AUTH_CODE_ERROR;
 import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_USER_LINK_ERROR;
 
 import android.app.Notification;
@@ -222,6 +223,26 @@ public class SentianceHelper {
           } else {
             UserLinkingError error = pendingOperation.getError();
             promise.reject(E_SDK_USER_LINK_ERROR,
+              SentianceConverter.stringifyUserLinkingError(error));
+          }
+        }
+      });
+  }
+
+  void linkUser(String authCode, final Promise promise) {
+    Context context = weakContext.get();
+    if (context == null) return;
+    Sentiance sentiance = Sentiance.getInstance(context);
+
+    sentiance.linkUser(authCode)
+      .addOnCompleteListener(new OnCompleteListener<UserLinkingResult, UserLinkingError>() {
+        @Override
+        public void onComplete(@NonNull PendingOperation<UserLinkingResult, UserLinkingError> pendingOperation) {
+          if (pendingOperation.isSuccessful()) {
+            promise.resolve(SentianceConverter.convertUserLinkingResult(pendingOperation.getResult()));
+          } else {
+            UserLinkingError error = pendingOperation.getError();
+            promise.reject(E_SDK_USER_LINK_AUTH_CODE_ERROR,
               SentianceConverter.stringifyUserLinkingError(error));
           }
         }

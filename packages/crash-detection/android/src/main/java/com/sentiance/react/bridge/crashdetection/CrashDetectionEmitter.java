@@ -9,7 +9,7 @@ import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 
 class CrashDetectionEmitter extends AbstractSentianceEmitter {
 
-  private static final String VEHICLE_CRASH_EVENT = "SDKVehicleCrashEvent";
+  private static final String VEHICLE_CRASH_EVENT = "SENTIANCE_VEHICLE_CRASH_EVENT";
 
   public CrashDetectionEmitter(Context context) {
     super(context);
