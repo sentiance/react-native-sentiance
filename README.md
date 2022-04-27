@@ -145,7 +145,7 @@ Create a user and start the sentiance SDK. The following should be placed where 
 ##### Without User Linking
 
 ```js
-await RNSentiance.createUser({
+await RNSentiance.createUserExperimental({
   credentials: { appId, appSecret, baseUrl },
 });
 await RNSentiance.start();
@@ -156,7 +156,7 @@ await RNSentiance.start();
 _Please refer to https://docs.sentiance.com/guide/user-linking for documentation on the user linking._
 
 ```js
-await RNSentiance.createUser({
+await RNSentiance.createUserExperimental({
   credentials: { appId, appSecret, baseUrl },
   linker: async (data, done) => {
     // request your backend to perform user linking
