@@ -6,7 +6,11 @@ def crashDetectionProj
 if (findProject(':crash-detection')) {
   crashDetectionProj = project(':crash-detection')
 } else if (findProject(':react-native-sentiance_crash-detection')) {
+  // Starting from RN 0.61, the @ sign is stripped from project names
   crashDetectionProj = project(':react-native-sentiance_crash-detection')
+} else if (findProject(':@react-native-sentiance_crash-detection')) {
+  // On RN 0.60, the @ sign is not stripped from project names
+  crashDetectionProj = project(':@react-native-sentiance_crash-detection')
 } else {
   throw new GradleException('Could not find the react-native-sentiance/crash-detection package, have you installed it?')
 }
