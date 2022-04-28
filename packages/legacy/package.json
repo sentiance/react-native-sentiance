@@ -1,6 +1,6 @@
 {
   "name": "@react-native-sentiance/legacy",
-  "version": "6.10.0",
+  "version": "1.0.1",
   "description": "React Native Sentiance - This module provides a legacy API.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
