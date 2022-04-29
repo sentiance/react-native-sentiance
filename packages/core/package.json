@@ -12,8 +12,6 @@
     "sentiance"
   ],
   "peerDependencies": {
-    "react-native-cli": "*",
-    "react": "*",
     "react-native": ">=0.60"
   },
   "author": "",

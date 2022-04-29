@@ -1,8 +1,28 @@
-const core = require('@react-native-sentiance/core');
-const crashDetection = require('@react-native-sentiance/crash-detection');
-const legacy = require('./legacy');
+import { Platform } from 'react-native';
+import Legacy  from './legacy';
+import core from '@react-native-sentiance/core';
+import crashDetection from '@react-native-sentiance/crash-detection';
 
-const RNSentiance = {};
+console.log(Legacy)
+
+var RNSentiance = {};
+RNSentiance.addListener = Legacy.addListener
+RNSentiance.removeListeners = Legacy.removeListeners
+
+var coreModule
+if (Platform.OS === 'android') {
+  coreModule = core;
+} else {
+  coreModule = Legacy;
+}
+
+var crashDetectionModule
+if (Platform.OS === 'android') {
+  crashDetectionModule = crashDetection;
+} else {
+  crashDetectionModule = Legacy;
+}
+
 
 RNSentiance.TransportMode = core.transportModes;
 
@@ -52,7 +72,7 @@ const {
   isNativeInitializationEnabled,
   enableNativeInitialization,
   disableNativeInitialization
-} = legacy;
+} = Legacy;
 
 // Core bindings
 RNSentiance.userLinkCallback = userLinkCallback;
@@ -98,5 +118,7 @@ RNSentiance.isThirdPartyLinked = isThirdPartyLinked;
 RNSentiance.isNativeInitializationEnabled = isNativeInitializationEnabled;
 RNSentiance.enableNativeInitialization = enableNativeInitialization;
 RNSentiance.disableNativeInitialization = disableNativeInitialization;
+// }
+
 
 export default RNSentiance;

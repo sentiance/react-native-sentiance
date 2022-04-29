@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "RNSentiance"
-  s.version      = "6.0.0-beta.5"
+  s.version      = "6.0.0"
   s.summary      = "RNSentiance"
   s.description  = <<-DESC
                    RNSentiance
@@ -16,5 +16,6 @@ Pod::Spec.new do |s|
   s.xcconfig     = { 'FRAMEWORK_SEARCH_PATHS' => '${PODS_ROOT}/SENTSDK' }
 
   s.dependency "React"
-  s.dependency "SENTSDK", "~> 6.0.0-beta6"
+  s.dependency "SENTSDK", "6.0.0-local"
+  s.dependency 'TensorFlowLiteC', '2.4.0'
 end

@@ -12,8 +12,6 @@
     "legacy"
   ],
   "peerDependencies": {
-    "react-native-cli": "*",
-    "react-native": ">=0.60",
     "@react-native-sentiance/crash-detection": "1.2.1"
   },
   "author": "",

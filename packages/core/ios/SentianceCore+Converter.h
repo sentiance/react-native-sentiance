@@ -5,9 +5,9 @@
 //  Created by Sebouh Aguehian on 10/10/2021.
 //  Copyright © 2021 Facebook. All rights reserved.
 //
-#import "RNSentiance.h"
+#import "SentianceCore.h"
 
-@interface RNSentiance (Converter)
+@interface SentianceCore (Converter)
 
 - (NSDictionary*)convertUserContextToDict:(SENTUserContext*) userContext;
 - (NSMutableArray*)convertUserContextCriteriaToArray:(SENTUserContextUpdateCriteria)criteriaMask;

@@ -1,27 +1,22 @@
-#import "RNSentiance.h"
+#import "SentianceCore.h"
 #import <SENTSDK/SENTSDK.h>
 #import <SENTSDK/SENTSDKStatus.h>
 #import <SENTSDK/SENTPublicDefinitions.h>
 #import "RNSentianceNativeInitialization.h"
-#import "RNSentiance+Converter.h"
+#import "SentianceCore+Converter.h"
 
-@interface SENTSDK (Bindings)
-- (BOOL)userExists;
-- (BOOL)isThirdPartyLinked;
-@end
-
-@interface RNSentiance()
+@interface SentianceCore()
 
 @property (nonatomic, strong) void (^userLinkSuccess)(void);
 @property (nonatomic, strong) void (^userLinkFailed)(void);
-@property (nonatomic, strong) UserLinker userLinker;
+@property (nonatomic, strong) SENTUserLinker userLinker;
 @property (nonatomic, strong) SdkStatusHandler sdkStatusHandler;
 @property (assign) BOOL userLinkingEnabled;
 @property (assign) BOOL hasListeners;
 
 @end
 
-@implementation RNSentiance
+@implementation SentianceCore
 
 - (dispatch_queue_t)methodQueue
 {
@@ -32,7 +27,7 @@ RCT_EXPORT_MODULE()
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SDKStatusUpdate", @"SDKTripTimeout", @"SDKUserLink", @"SDKUserActivityUpdate", @"SDKCrashEvent", @"SDKTripProfile", @"VehicleCrashEvent", @"UserContextUpdateEvent"];
+    return @[@"SENTIANCE_STATUS_UPDATE_EVENT", @"SENTIANCE_TRIP_TIMEOUT", @"SENTIANCE_USER_LINK_EVENT", @"SENTIANCE_USER_ACTIVITY_UPDATE_EVENT", @"SENTIANCE_VEHICLE_CRASH_EVENT", @"SENTIANCE_USER_CONTEXT_UPDATE_EVENT", @"SENTIANCE_ON_DETECTIONS_ENABLED_EVENT"];
 }
 
 // Will be called when this module's first listener is added.
@@ -69,7 +64,7 @@ RCT_EXPORT_MODULE()
             config.baseURL = baseURL;
         }
 
-        [[SENTSDK sharedInstance] initWithConfig:config success:^{
+        [[Sentiance sharedInstance] initWithConfig:config success:^{
             if (shouldStart) {
                 [weakSelf startSDK:resolve rejecter:reject];
             }
@@ -122,12 +117,12 @@ RCT_EXPORT_MODULE()
         };
 
         if (stopEpochTimeMs == nil) {
-            [[SENTSDK sharedInstance] start:sdkStatusHandler];
+            [[Sentiance sharedInstance] start:sdkStatusHandler];
         }
         else {
             NSTimeInterval interval = stopEpochTimeMs.longValue / 1000;
             NSDate* date = [NSDate dateWithTimeIntervalSince1970:interval];
-            [[SENTSDK sharedInstance] startWithStopDate:date completion:sdkStatusHandler];
+            [[Sentiance sharedInstance] startWithStopDate:date completion:sdkStatusHandler];
         }
     } @catch (NSException *e) {
         if (reject && !resolved) {
@@ -137,7 +132,7 @@ RCT_EXPORT_MODULE()
     }
 }
 
-- (UserLinker) getUserLinker {
+- (SENTUserLinker) getUserLinker {
     if(self.userLinker != nil) return self.userLinker;
 
     __weak typeof(self) weakSelf = self;
@@ -146,11 +141,12 @@ RCT_EXPORT_MODULE()
                         void (^linkFailed)(void)) {
         weakSelf.userLinkSuccess = linkSuccess;
         weakSelf.userLinkFailed = linkFailed;
-        [weakSelf sendEventWithName:@"SDKUserLink" body:[weakSelf convertInstallIdToDict:installId]];
+        [weakSelf sendEventWithName:@"SENTIANCE_USER_LINK_EVENT" body:[weakSelf convertInstallIdToDict:installId]];
     };
 
     return self.userLinker;
 }
+
 
 - (SdkStatusHandler) getSdkStatusUpdateHandler {
     if(self.sdkStatusHandler != nil) return self.sdkStatusHandler;
@@ -159,7 +155,7 @@ RCT_EXPORT_MODULE()
 
     [self setSdkStatusHandler:^(SENTSDKStatus *status) {
         if (weakSelf.hasListeners) {
-            [weakSelf sendEventWithName:@"SDKStatusUpdate" body:[weakSelf convertSdkStatusToDict:status]];
+            [weakSelf sendEventWithName:@"SENTIANCE_STATUS_UPDATE_EVENT" body:[weakSelf convertSdkStatusToDict:status]];
         }
     }];
     return self.sdkStatusHandler;
@@ -238,7 +234,7 @@ RCT_EXPORT_METHOD(startWithStopDate:(nonnull NSNumber *)stopEpochTimeMs
 RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        SENTSDK* sdk = [SENTSDK sharedInstance];
+        Sentiance* sdk = [Sentiance sharedInstance];
         [sdk stop];
         resolve(@(YES));
     } @catch (NSException *e) {
@@ -249,7 +245,7 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejec
 RCT_EXPORT_METHOD(getInitState:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        SENTSDKInitState initState = [[SENTSDK sharedInstance] getInitState];
+        SENTSDKInitState initState = [[Sentiance sharedInstance] getInitState];
         resolve([self convertInitStateToString:initState]);
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -260,7 +256,7 @@ RCT_EXPORT_METHOD(getInitState:(RCTPromiseResolveBlock)resolve rejecter:(RCTProm
 RCT_EXPORT_METHOD(getSdkStatus:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        NSDictionary* dict = [self convertSdkStatusToDict:[[SENTSDK sharedInstance] getSdkStatus]];
+        NSDictionary* dict = [self convertSdkStatusToDict:[[Sentiance sharedInstance] getSdkStatus]];
         resolve(dict);
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -270,7 +266,7 @@ RCT_EXPORT_METHOD(getSdkStatus:(RCTPromiseResolveBlock)resolve rejecter:(RCTProm
 RCT_EXPORT_METHOD(getVersion:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        NSString *version = [[SENTSDK sharedInstance] getVersion];
+        NSString *version = [[Sentiance sharedInstance] getVersion];
         resolve(version);
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -280,7 +276,7 @@ RCT_EXPORT_METHOD(getVersion:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromis
 RCT_EXPORT_METHOD(getUserId:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        NSString *userId = [[SENTSDK sharedInstance] getUserId];
+        NSString *userId = [[Sentiance sharedInstance] getUserId];
         resolve(userId);
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -292,7 +288,7 @@ RCT_EXPORT_METHOD(getUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(R
     __block BOOL hasReceivedToken = NO;
     @try {
         __weak typeof(self) weakSelf = self;
-        [[SENTSDK sharedInstance] getUserAccessToken:^(NSString* token) {
+        [[Sentiance sharedInstance] getUserAccessToken:^(NSString* token) {
             if (hasReceivedToken) {
                 return;
             }
@@ -317,7 +313,7 @@ RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
             return;
         }
 
-        [[SENTSDK sharedInstance] addUserMetadataField:label value:value];
+        [[Sentiance sharedInstance] addUserMetadataField:label value:value];
         resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -334,7 +330,7 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
             return;
         }
 
-        [[SENTSDK sharedInstance] removeUserMetadataField:label];
+        [[Sentiance sharedInstance] removeUserMetadataField:label];
         resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -351,7 +347,7 @@ RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
             return;
         }
 
-        [[SENTSDK sharedInstance] addUserMetadataFields:metadata];
+        [[Sentiance sharedInstance] addUserMetadataFields:metadata];
         resolve(@(YES));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -364,7 +360,7 @@ RCT_EXPORT_METHOD(startTrip:(NSDictionary *)metadata
 {
     @try {
         SENTTransportMode mode = [hint intValue] == -1 ? SENTTransportModeUnknown : (SENTTransportMode)hint;
-        [[SENTSDK sharedInstance] startTrip:metadata transportModeHint:mode success:^ {
+        [[Sentiance sharedInstance] startTrip:metadata transportModeHint:mode success:^ {
             resolve(@(YES));
         } failure:^(SENTSDKStatus *status) {
             reject(@"E_SDK_START_TRIP_ERROR", @"", nil);
@@ -377,7 +373,7 @@ RCT_EXPORT_METHOD(startTrip:(NSDictionary *)metadata
 RCT_EXPORT_METHOD(stopTrip:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        [[SENTSDK sharedInstance] stopTrip:^{
+        [[Sentiance sharedInstance] stopTrip:^{
             resolve(@(YES));
         } failure:^(SENTSDKStatus *status) {
             reject(@"E_SDK_STOP_TRIP_ERROR", @"", nil);
@@ -399,7 +395,7 @@ RCT_EXPORT_METHOD(isTripOngoing:(NSString *)type
             tripType = SENTTripTypeExternal;
         }
 
-        BOOL isTripOngoing = [[SENTSDK sharedInstance] isTripOngoing:tripType];
+        BOOL isTripOngoing = [[Sentiance sharedInstance] isTripOngoing:tripType];
         resolve(@(isTripOngoing));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -409,7 +405,7 @@ RCT_EXPORT_METHOD(isTripOngoing:(NSString *)type
 RCT_EXPORT_METHOD(submitDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        [[SENTSDK sharedInstance] submitDetections:^ {
+        [[Sentiance sharedInstance] submitDetections:^ {
             resolve(@(YES));
         } failure: ^ {
             reject(@"E_SDK_SUBMIT_DETECTIONS_ERROR", @"Submission failed", nil);
@@ -422,7 +418,7 @@ RCT_EXPORT_METHOD(submitDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCT
 RCT_EXPORT_METHOD(getWiFiQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        long long wifiQuotaLimit = [[SENTSDK sharedInstance] getWifiQuotaLimit];
+        long long wifiQuotaLimit = [[Sentiance sharedInstance] getWifiQuotaLimit];
         resolve(@(wifiQuotaLimit));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -432,7 +428,7 @@ RCT_EXPORT_METHOD(getWiFiQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RC
 RCT_EXPORT_METHOD(getWiFiQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        long long wifiQuotaUsage = [[SENTSDK sharedInstance] getWiFiQuotaUsage];
+        long long wifiQuotaUsage = [[Sentiance sharedInstance] getWiFiQuotaUsage];
         resolve(@(wifiQuotaUsage));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -442,7 +438,7 @@ RCT_EXPORT_METHOD(getWiFiQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 RCT_EXPORT_METHOD(getMobileQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        long long mobileQuotaLimit = [[SENTSDK sharedInstance] getMobileQuotaLimit];
+        long long mobileQuotaLimit = [[Sentiance sharedInstance] getMobileQuotaLimit];
         resolve(@(mobileQuotaLimit));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -452,7 +448,7 @@ RCT_EXPORT_METHOD(getMobileQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(
 RCT_EXPORT_METHOD(getMobileQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        long long mobileQuotaUsage = [[SENTSDK sharedInstance] getMobileQuotaUsage];
+        long long mobileQuotaUsage = [[Sentiance sharedInstance] getMobileQuotaUsage];
         resolve(@(mobileQuotaUsage));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -462,7 +458,7 @@ RCT_EXPORT_METHOD(getMobileQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(
 RCT_EXPORT_METHOD(getDiskQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        long long diskQuotaLimit = [[SENTSDK sharedInstance] getDiskQuotaLimit];
+        long long diskQuotaLimit = [[Sentiance sharedInstance] getDiskQuotaLimit];
         resolve(@(diskQuotaLimit));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -472,7 +468,7 @@ RCT_EXPORT_METHOD(getDiskQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RC
 RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        long long diskQuotaUsage = [[SENTSDK sharedInstance] getDiskQuotaUsage];
+        long long diskQuotaUsage = [[Sentiance sharedInstance] getDiskQuotaUsage];
         resolve(@(diskQuotaUsage));
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
@@ -515,10 +511,10 @@ RCT_EXPORT_METHOD(listenUserActivityUpdates:(RCTPromiseResolveBlock)resolve reje
 {
     @try {
         __weak typeof(self) weakSelf = self;
-        [[SENTSDK sharedInstance] setUserActivityListener:^(SENTUserActivity *userActivity) {
+        [[Sentiance sharedInstance] setUserActivityListener:^(SENTUserActivity *userActivity) {
             NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
             if(weakSelf.hasListeners) {
-                [weakSelf sendEventWithName:@"SDKUserActivityUpdate" body:userActivityDict];
+                [weakSelf sendEventWithName:@"SENTIANCE_USER_ACTIVITY_UPDATE_EVENT" body:userActivityDict];
             }
         }];
         resolve(@(YES));
@@ -530,7 +526,7 @@ RCT_EXPORT_METHOD(listenUserActivityUpdates:(RCTPromiseResolveBlock)resolve reje
 RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        SENTUserActivity *userActivity = [[SENTSDK sharedInstance] getUserActivity];
+        SENTUserActivity *userActivity = [[Sentiance sharedInstance] getUserActivity];
         NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
         resolve(userActivityDict);
     } @catch (NSException *e) {
@@ -540,7 +536,7 @@ RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTP
 
 RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [[SENTSDK sharedInstance] reset:^{
+    [[Sentiance sharedInstance] reset:^{
         [self disableSDKNativeInitialization:resolve rejecter:reject];
     } failure:^(SENTResetFailureReason reason) {
         NSString *message = @"Resetting the SDK failed";
@@ -555,44 +551,6 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
                 reject(@"SDK_RESET_UNKNOWN_ERROR", message, nil);
         }
     }];
-}
-
-RCT_EXPORT_METHOD(listenTripProfiles:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    @try {
-        __weak typeof(self) weakSelf = self;
-        [[SENTSDK sharedInstance] setTripProfileHandler:^(SENTTripProcessingTripProfile *tripProfile) {
-            NSDictionary *tripProfileDict = [self convertTripProfileToDict:tripProfile];
-            if(weakSelf.hasListeners) {
-                [weakSelf sendEventWithName:@"SDKTripProfile" body:tripProfileDict];
-            }
-        }];
-        resolve(@(YES));
-    } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
-    }
-}
-
-RCT_EXPORT_METHOD(updateTripProfileConfig:(NSDictionary *)config
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject)
-{
-    @try {
-        if (config == nil || config[@"enableFullProfiling"] == nil) {
-            reject(@"E_SDK_MISSING_PARAMS", @"enableFullProfiling is not provided", nil);
-            return;
-        }
-
-        [[SENTSDK sharedInstance] setFullTripProfilingEnabled: [config[@"enableFullProfiling"] boolValue]];
-
-        if (config[@"speedLimit"] != nil) {
-            [[SENTSDK sharedInstance] setSpeedLimit: [config[@"speedLimit"] doubleValue]];
-        }
-
-        resolve(@(YES));
-    } @catch (NSException *e) {
-        reject(e.name, e.reason, nil);
-    }
 }
 
 RCT_EXPORT_METHOD(isNativeInitializationEnabled:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -616,10 +574,10 @@ RCT_EXPORT_METHOD(listenVehicleCrashEvents:(RCTPromiseResolveBlock)resolve rejec
     @try {
         __weak typeof(self) weakSelf = self;
 
-        [[SENTSDK sharedInstance] setVehicleCrashHandler:^(SENTVehicleCrashEvent *crashEvent) {
+        [[Sentiance sharedInstance] setVehicleCrashHandler:^(SENTVehicleCrashEvent *crashEvent) {
             if(weakSelf.hasListeners) {
                 NSDictionary *crashEventDict = [self convertVehicleCrashEventToDict:crashEvent];
-                [weakSelf sendEventWithName:@"VehicleCrashEvent" body:crashEventDict];
+                [weakSelf sendEventWithName:@"SENTIANCE_VEHICLE_CRASH_EVENT" body:crashEventDict];
             }
         }];
         resolve(@(YES));
@@ -630,13 +588,13 @@ RCT_EXPORT_METHOD(listenVehicleCrashEvents:(RCTPromiseResolveBlock)resolve rejec
 
 RCT_EXPORT_METHOD(invokeDummyVehicleCrash:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [[SENTSDK sharedInstance] invokeDummyVehicleCrash];
+    [[Sentiance sharedInstance] invokeDummyVehicleCrash];
     resolve(@(YES));
 }
 
 RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    BOOL supported = [[SENTSDK sharedInstance] isVehicleCrashDetectionSupported];
+    BOOL supported = [[Sentiance sharedInstance] isVehicleCrashDetectionSupported];
     resolve(supported ? @(YES) : @(NO));
 }
 
@@ -647,14 +605,14 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
 }
 
 - (BOOL)isThirdPartyLinked {
-    return [[SENTSDK sharedInstance] isThirdPartyLinked];
+    return [[Sentiance sharedInstance] isUserLinked];
 }
 
 RCT_EXPORT_METHOD(getUserContext:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     __weak typeof(self) weakSelf = self;
     
-    [[SENTSDK sharedInstance] requestUserContext:^(SENTUserContext * _Nonnull userContext) {
+    [[Sentiance sharedInstance] requestUserContext:^(SENTUserContext * _Nonnull userContext) {
         resolve([weakSelf convertUserContextToDict:userContext]);
     } failure:^(NSError * _Nonnull error) {
         reject(@"E_SDK_GET_USER_CONTEXT_ERROR", @"Failed to retreive user context", nil);
@@ -663,8 +621,8 @@ RCT_EXPORT_METHOD(getUserContext:(RCTPromiseResolveBlock)resolve rejecter:(RCTPr
 
 RCT_EXPORT_METHOD(listenUserContextUpdates:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    [SENTSDK sharedInstance].userContextDelegate = self;
-    [SENTSDK sharedInstance].criteriaMaskForUserContextUpdates = SENTUserContextUpdateCriteriaCurrentEvent |
+    [Sentiance sharedInstance].userContextDelegate = self;
+    [Sentiance sharedInstance].criteriaMaskForUserContextUpdates = SENTUserContextUpdateCriteriaCurrentEvent |
                                                                             SENTUserContextUpdateCriteriaActiveSegments |
                                                                             SENTUserContextUpdateCriteriaActiveMoments |
                                                                             SENTUserContextUpdateCriteriaVisitedVenues;
@@ -691,7 +649,7 @@ RCT_EXPORT_METHOD(isAppSessionDataCollectionEnabled:(RCTPromiseResolveBlock)reso
         @"userContext": [self convertUserContextToDict:userContext],
         @"criteria": [self convertUserContextCriteriaToArray:criteriaMask]
     };
-    [self sendEventWithName:@"UserContextUpdateEvent" body:dict];
+    [self sendEventWithName:@"SENTIANCE_VEHICLE_CRASH_EVENT" body:dict];
 }
 
 - (BOOL)isNativeInitializationEnabled {
@@ -743,9 +701,9 @@ RCT_EXPORT_METHOD(isAppSessionDataCollectionEnabled:(RCTPromiseResolveBlock)reso
 - (void)tripTimeoutReceived
 {
     __weak typeof(self) weakSelf = self;
-    [[SENTSDK sharedInstance] setTripTimeOutListener:^ {
+    [[Sentiance sharedInstance] setTripTimeOutListener:^ {
         if (weakSelf.hasListeners) {
-            [weakSelf sendEventWithName:@"SDKTripTimeout" body:nil];
+            [weakSelf sendEventWithName:@"SENTIANCE_TRIP_TIMEOUT" body:nil];
         }
     }];
 }
@@ -925,59 +883,6 @@ RCT_EXPORT_METHOD(isAppSessionDataCollectionEnabled:(RCTPromiseResolveBlock)reso
         default:
             return @"TRIP_TYPE_UNRECOGNIZED";
     }
-}
-
-- (NSString*)convertVehicleModeToString:(SENTTripProcessingVehicleMode) vehicleMode {
-    switch (vehicleMode) {
-        case SENTTripProcessingVehicleModeIdle:
-            return @"IDLE";
-        case SENTTripProcessingVehicleModeVehicle:
-            return @"VEHICLE";
-        case SENTTripProcessingVehicleModeNoVehicle:
-            return @"NOT_VEHICLE";
-        default:
-            return @"UNKNOWN";
-    }
-}
-
-- (NSDictionary*)convertTripProfileToDict:(SENTTripProcessingTripProfile*) tripProfile {
-
-    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    dict[@"tripId"] = tripProfile.tripId;
-
-    NSMutableArray *transportSegmentsArray = [[NSMutableArray alloc] init];
-
-    if (tripProfile.transportSegments.count > 0) {
-        for (SENTTripProcessingTransportSegment *transportSegment in tripProfile.transportSegments) {
-            NSMutableDictionary *transportSegmentDict = [[NSMutableDictionary alloc] init];
-            double startTime = [transportSegment.startDate timeIntervalSince1970] * 1000;
-            transportSegmentDict[@"startTime"] = @(startTime);
-            double endTime = [transportSegment.endDate timeIntervalSince1970] * 1000;
-            transportSegmentDict[@"endTime"] = @(endTime);
-            transportSegmentDict[@"distance"] = @(transportSegment.distance);
-            transportSegmentDict[@"averageSpeed"] = @(transportSegment.averageSpeed);
-            transportSegmentDict[@"topSpeed"] = @(transportSegment.topSpeed);
-            transportSegmentDict[@"percentOfTimeSpeeding"] = @(transportSegment.speedingPercentage);
-            transportSegmentDict[@"vehicleMode"] = [self convertVehicleModeToString:transportSegment.vehicleMode];
-
-            NSMutableArray *hardEventsArray = [[NSMutableArray alloc] init];
-            if (transportSegment.hardEvents.count > 0) {
-                for (SENTTripProcessingHardEvent *hardEvent in transportSegment.hardEvents) {
-                    NSMutableDictionary *hardEventDict = [[NSMutableDictionary alloc] init];
-                    hardEventDict[@"magnitude"] = @(hardEvent.magnitude);
-                    double timestamp = [hardEvent.date timeIntervalSince1970] * 1000;
-                    hardEventDict[@"timestamp"] = @(timestamp);
-                    [hardEventsArray addObject:hardEventDict];
-                }
-            }
-            [transportSegmentDict setValue:hardEventsArray forKey:@"hardEvents"];
-            [transportSegmentsArray addObject:transportSegmentDict];
-        }
-    }
-
-    [dict setValue:transportSegmentsArray forKey:@"transportSegments"];
-
-    return [dict copy];
 }
 
 - (NSDictionary*)convertVehicleCrashEventToDict:(SENTVehicleCrashEvent*) crashEvent {
