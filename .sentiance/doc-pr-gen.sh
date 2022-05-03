@@ -25,26 +25,26 @@ for ((x=0; x<spec_length; x++));
 do
     filename=$(echo "$spec_maps" | jq -r ".[$x].fileName")
     repoDirPath=$(echo "$spec_maps" | jq -r ".[$x].repoDirPath")
-    docFilePath=$(echo "$spec_maps" | jq -r ".[$x].docFilePath")
+    outDirPath=$(echo "$spec_maps" | jq -r ".[$x].outDirPath")
 
     if [ ! -f "$repoDirPath/$filename" ]; then
     echo "Repo file does not exist."
     exit 2
     fi
 
-    if [ ! -f ".docs/$docFilePath/$filename" ]; then
+    if [ ! -f ".docs/$outDirPath/$filename" ]; then
     echo "Doc file does not exist."
     exit 3
     fi
 
     is_different="0"
-    diff -q "$repoDirPath/$filename" ".docs/$docFilePath/$filename" || is_different="1"
+    diff -q "$repoDirPath/$filename" ".docs/$outDirPath/$filename" || is_different="1"
     if [[ $is_different == "0" ]]
     then
     echo "No changes to $filename"
     else
     echo "$filename has changes, so updating..."
-    cp $repoDirPath/$filename .docs/$docFilePath/$filename
+    cp $repoDirPath/$filename .docs/$outDirPath/$filename
     has_file_changed=1
     changedFiles+=( "$filename")
     fi
