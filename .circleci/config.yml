@@ -68,12 +68,9 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-
-  # Docs generation to be triggered on main commit
-  docs:
-    jobs:
       - publish_docs:
           context: default
+          requires: [test]
           filters:
             branches:
               only:
