@@ -2,6 +2,7 @@
 ### Sentiance document pr creation script ###
 
 set -e
+echo "$SENTIANCE_GITHUB_TOKEN"
 rm -rf .docs
 git clone https://sentianceuser:$SENTIANCE_GITHUB_TOKEN@github.com/sentiance/documentation.git .docs
 
