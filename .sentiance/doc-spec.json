@@ -1,0 +1,9 @@
+{
+  "mappings": [
+    {
+      "fileName": "react-native.md",
+      "repoDirPath": "docs/",
+      "docFilePath": "sdk/api-reference"
+    }
+  ]
+}

@@ -5,6 +5,24 @@ defaults: &defaults
   docker:
     - image: circleci/node:14.18.1
 
+commands:
+  generate_github_pr_for_docs:
+    parameters:
+      checkout:
+        default: true
+        description: Boolean value used for whether or not to checkout bitbucket repo as a first step. Default is true.
+        type: boolean
+    steps:
+      - add_ssh_keys
+      - when:
+          condition: <<parameters.checkout>>
+          steps:
+            - checkout
+      - run:
+          name: Docs PR Generating
+          command: |
+            . ./.sentiance/doc-pr-gen.sh
+
 jobs:
   test:
     <<: *defaults
@@ -27,6 +45,12 @@ jobs:
           command: |
             NPMTAG=$(npm run fetch:npm_tag --silent)
             npm publish --tag $NPMTAG
+    publish_docs:
+      <<: *defaults
+      steps: 
+        - checkout
+        - generate_github_pr_for_docs
+
 
 workflows:
   version: 2
@@ -43,3 +67,10 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
+
+  # Docs generation to be triggered on main commit
+  - docs:
+      filters:
+        branches:
+          only:
+            - feature/API-2093_autodoc
