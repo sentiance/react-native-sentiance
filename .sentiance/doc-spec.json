@@ -3,7 +3,7 @@
     {
       "fileName": "react-native.md",
       "repoDirPath": "docs/",
-      "docFilePath": "sdk/api-reference"
+      "outDirPath": "sdk/api-reference"
     }
   ]
 }
