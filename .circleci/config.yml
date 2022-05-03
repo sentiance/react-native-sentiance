@@ -21,7 +21,6 @@ commands:
       - run:
           name: Docs PR Generating
           command: |
-            set -x
             . ./.sentiance/doc-pr-gen.sh
 
 jobs:
