@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  sentiance: sentiance/sentiance@2
+
 defaults: &defaults
   working_directory: ~/repo
   docker:
