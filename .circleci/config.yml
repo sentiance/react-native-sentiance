@@ -50,7 +50,6 @@ jobs:
     <<: *defaults
     steps:
       - generate_github_pr_for_docs
-          checkout: true
 
 workflows:
   version: 2
