@@ -47,7 +47,7 @@ jobs:
             npm publish --tag $NPMTAG
   publish_docs:
     environment:
-      DOCKER_BUILDKIT: '1'
+      DOCKER_BUILDKIT: "1"
     machine:
       image: ubuntu-2004:202201-02
     steps:
@@ -77,4 +77,4 @@ workflows:
           filters:
             branches:
               only:
-                - feature/API-2093_autodoc
+                - main
