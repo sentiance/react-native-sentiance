@@ -45,11 +45,11 @@ jobs:
           command: |
             NPMTAG=$(npm run fetch:npm_tag --silent)
             npm publish --tag $NPMTAG
-    publish_docs:
-      <<: *defaults
-      steps:
-        - checkout
-        - generate_github_pr_for_docs
+  publish_docs:
+    <<: *defaults
+    steps:
+      - checkout
+      - generate_github_pr_for_docs
 
 workflows:
   version: 2
