@@ -3,6 +3,7 @@
 
 set -e
 rm -rf .docs
+echo https://sentianceuser:$SENTIANCE_GITHUB_TOKEN@github.com/sentiance/documentation.git
 git clone https://sentianceuser:$SENTIANCE_GITHUB_TOKEN@github.com/sentiance/documentation.git .docs
 
 # other variables

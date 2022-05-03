@@ -21,6 +21,7 @@ commands:
       - run:
           name: Docs PR Generating
           command: |
+            set -x
             . ./.sentiance/doc-pr-gen.sh
 
 jobs:
@@ -48,8 +49,8 @@ jobs:
   publish_docs:
     <<: *defaults
     steps:
-      - checkout
       - generate_github_pr_for_docs
+          checkout: true
 
 workflows:
   version: 2
