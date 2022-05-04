@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [4.8.1] - 2022-05-04
+
+### Changed
+
+- Upgrade iOS SDK to [5.13.0](https://docs.sentiance.com/sdk/changelog/ios#5.13.0-5-may-2022)
 
 ## [4.8.0] - 2022-04-06
 
