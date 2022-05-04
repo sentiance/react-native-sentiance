@@ -8,7 +8,6 @@ import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableMap;
 import com.sentiance.sdk.DetectionStatus;
 import com.sentiance.sdk.DisableDetectionsError;
-import com.sentiance.sdk.DisableDetectionsFailureReason;
 import com.sentiance.sdk.DisableDetectionsResult;
 import com.sentiance.sdk.EnableDetectionsError;
 import com.sentiance.sdk.EnableDetectionsFailureReason;
@@ -287,17 +286,6 @@ public class SentianceConverter {
     return String.format("Reason: %s - %s", reason.name(), details);
   }
 
-  public static String stringifyDisableDetectionsError(DisableDetectionsError error) {
-    DisableDetectionsFailureReason reason = error.getReason();
-    String details = "";
-    switch (reason) {
-      case NO_USER:
-        details = "No user present on device";
-        break;
-    }
-    return String.format("Reason: %s - %s", reason.name(), details);
-  }
-
   public static String stringifyUserLinkingError(UserLinkingError error) {
     return String.format("Reason: %s - %s", error.getReason().name(), error.getDetails());
   }
@@ -320,15 +308,14 @@ public class SentianceConverter {
       case DETECTIONS_DISABLED:
         details = "Enable detections first before starting a trip.";
         break;
-      case DETECTIONS_EXPIRED:
-        details = "Detections are stopped as per a previously set stop date," +
-          " please enable detections before starting a trip.";
-        break;
-      case DETECTIONS_NOT_RUNNING:
-        details = "Detections are not running, check SDK Status.";
+      case DETECTIONS_BLOCKED:
+        details = "Detections are enabled but not running. Check the SDK's status to find out why.";
         break;
       case TRIP_ALREADY_STARTED:
         details = "Trip is already started.";
+        break;
+      case USER_DISABLED_REMOTELY:
+        details = "The user is disabled remotely.";
         break;
     }
     return String.format("Reason: %s - %s", reason.name(), details);
@@ -338,21 +325,8 @@ public class SentianceConverter {
     StopTripFailureReason reason = error.getReason();
     String details = "";
     switch (reason) {
-      case NO_USER:
-        details = "No user present on device";
-        break;
-      case DETECTIONS_DISABLED:
-        details = "Enable detections first before starting a trip.";
-        break;
-      case DETECTIONS_EXPIRED:
-        details = "Detections are stopped as per a previously set stop date," +
-          " please enable detections before starting a trip.";
-        break;
-      case DETECTIONS_NOT_RUNNING:
-        details = "Detections are not running, check SDK Status.";
-        break;
       case NO_ONGOING_TRIP:
-        details = "There is no trip ongoing.";
+        details = "There is no ongoing external trip.";
         break;
     }
     return String.format("Reason: %s - %s", reason.name(), details);

@@ -20,6 +20,7 @@ import com.sentiance.sdk.EnableDetectionsError;
 import com.sentiance.sdk.EnableDetectionsResult;
 import com.sentiance.sdk.OnSdkStatusUpdateHandler;
 import com.sentiance.sdk.SdkStatus;
+import com.sentiance.sdk.SdkStatusUpdateListener;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.UserLinker;
 import com.sentiance.sdk.authentication.UserLinkingError;
@@ -50,9 +51,15 @@ public class SentianceHelper {
 
   private final OnSdkStatusUpdateHandler onSdkStatusUpdateHandler = new OnSdkStatusUpdateHandler() {
     @Override
-    public void onSdkStatusUpdate(SdkStatus status) {
-      Log.d(TAG, "status update");
-      emitter.sendStatusUpdateEvent(status);
+    public void onSdkStatusUpdate(@NonNull SdkStatus status) {
+      onSdkStatusUpdated(status);
+    }
+  };
+
+  private final SdkStatusUpdateListener onSdkStatusUpdateListener = new SdkStatusUpdateListener() {
+    @Override
+    public void onSdkStatusUpdate(@NonNull SdkStatus status) {
+      onSdkStatusUpdated(status);
     }
   };
 
@@ -86,6 +93,11 @@ public class SentianceHelper {
     return sentianceHelper;
   }
 
+  private void onSdkStatusUpdated(@NonNull SdkStatus status) {
+    Log.d(TAG, "status update");
+    emitter.sendStatusUpdateEvent(status);
+  }
+
   void userLinkCallback(final Boolean linkResult) {
     userLinkResult = linkResult;
 
@@ -109,7 +121,7 @@ public class SentianceHelper {
       .setNotification(notification, NOTIFICATION_ID)
       .build();
     InitializationResult result = sentiance.initialize(options);
-    sentiance.setSdkStatusUpdateHandler(onSdkStatusUpdateHandler);
+    sentiance.setSdkStatusUpdateListener(onSdkStatusUpdateListener);
     return result;
   }
 
@@ -191,9 +203,7 @@ public class SentianceHelper {
             DisableDetectionsResult result = pendingOperation.getResult();
             promise.resolve(SentianceConverter.convertDisableDetectionsResult(result));
           } else {
-            DisableDetectionsError error = pendingOperation.getError();
-            promise.reject(E_SDK_DISABLE_DETECTIONS_ERROR,
-              SentianceConverter.stringifyDisableDetectionsError(error));
+            promise.reject(E_SDK_DISABLE_DETECTIONS_ERROR);
           }
         }
       });

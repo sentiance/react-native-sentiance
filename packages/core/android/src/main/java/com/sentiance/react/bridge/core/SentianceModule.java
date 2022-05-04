@@ -269,7 +269,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    sdk.getUserAccessToken()
+    sdk.requestUserAccessToken()
       .addOnCompleteListener(new OnCompleteListener<Token, UserAccessTokenError>() {
         @Override
         public void onComplete(@NonNull PendingOperation<Token, UserAccessTokenError> pendingOperation) {

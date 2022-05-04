@@ -146,7 +146,7 @@ public class SentianceUserContextConverter {
       map.putMap("location", convertGeoLocation(event.getLocation()));
     }
 
-    map.putString("venueType", event.getVenueType().toString());
+    map.putString("venueType", event.getVenueSignificance().toString());
 
     WritableArray venueCandidatesArray = Arguments.createArray();
     for (VenueCandidate candidate : event.getVenueCandidates()) {
