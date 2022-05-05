@@ -1,5 +1,5 @@
 plugins {
-    id "com.android.library"
+  id "com.android.library"
 }
 
 def coreProj
@@ -8,7 +8,7 @@ if (findProject(':core')) {
 } else if (findProject(':react-native-sentiance_core')) {
   // Starting from RN 0.61, the @ sign is stripped from project names
   coreProj = project(':react-native-sentiance_core')
-}  else if (findProject(':@react-native-sentiance_core')) {
+} else if (findProject(':@react-native-sentiance_core')) {
   // On RN 0.60, the @ sign is not stripped from project names
   coreProj = project(':@react-native-sentiance_core')
 } else {
@@ -16,23 +16,23 @@ if (findProject(':core')) {
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+  compileSdkVersion rootProject.ext.compileSdkVersion
 
-    defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-    }
+  defaultConfig {
+    minSdkVersion rootProject.ext.minSdkVersion
+    targetSdkVersion rootProject.ext.targetSdkVersion
+  }
 
-    lintOptions {
-        abortOnError false
-    }
+  lintOptions {
+    abortOnError false
+  }
 }
 
 dependencies {
-    api coreProj
+  api coreProj
 
-    implementation 'com.facebook.react:react-native:+'
-    api("com.sentiance:sdk:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
-    api("com.sentiance:sdk-lifestyle:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
-    api("com.sentiance:sdk-crash-detection:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+  implementation 'com.facebook.react:react-native:+'
+  api("com.sentiance:sdk:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk-lifestyle:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk-crash-detection:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
 }

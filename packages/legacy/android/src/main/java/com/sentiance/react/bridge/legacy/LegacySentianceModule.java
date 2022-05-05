@@ -20,7 +20,6 @@ import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.ResetCallback;
 import com.sentiance.sdk.SdkStatus;
-import com.sentiance.sdk.reset.ResetFailureReason;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TransportMode;

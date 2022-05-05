@@ -7,7 +7,6 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableMap;
 import com.sentiance.sdk.DetectionStatus;
-import com.sentiance.sdk.DisableDetectionsError;
 import com.sentiance.sdk.DisableDetectionsResult;
 import com.sentiance.sdk.EnableDetectionsError;
 import com.sentiance.sdk.EnableDetectionsFailureReason;

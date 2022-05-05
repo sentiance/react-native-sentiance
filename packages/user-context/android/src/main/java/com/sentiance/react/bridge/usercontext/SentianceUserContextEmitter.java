@@ -29,5 +29,3 @@ class SentianceUserContextEmitter extends AbstractSentianceEmitter {
     sendEvent(USER_CONTEXT_EVENT, map);
   }
 }
-
-

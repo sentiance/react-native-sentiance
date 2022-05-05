@@ -1,23 +1,23 @@
 plugins {
-    id "com.android.library"
+  id "com.android.library"
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
+  compileSdkVersion rootProject.ext.compileSdkVersion
 
-    defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
-    }
+  defaultConfig {
+    minSdkVersion rootProject.ext.minSdkVersion
+    targetSdkVersion rootProject.ext.targetSdkVersion
+  }
 
-    lintOptions {
-        abortOnError false
-    }
+  lintOptions {
+    abortOnError false
+  }
 }
 
 dependencies {
-    implementation 'com.facebook.react:react-native:+'
-    api("com.sentiance:sdk:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
-    api("com.sentiance:sdk-lifestyle:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
-    api("com.sentiance:sdk-crash-detection:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+  implementation 'com.facebook.react:react-native:+'
+  api("com.sentiance:sdk:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk-lifestyle:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk-crash-detection:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
 }
