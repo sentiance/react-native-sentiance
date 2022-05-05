@@ -1,5 +1,8 @@
+import io.invertase.gradle.common.PackageJson
+
 plugins {
   id "com.android.library"
+  id "io.invertase.gradle.build" version "1.5"
 }
 
 def coreProj
@@ -15,24 +18,46 @@ if (findProject(':core')) {
   throw new GradleException('Could not find the react-native-sentiance/core package, have you installed it?')
 }
 
-android {
-  compileSdkVersion rootProject.ext.compileSdkVersion
+def packageJson = PackageJson.getForProject(project)
+def corePackageJson = PackageJson.getForProject(coreProj)
 
-  defaultConfig {
-    minSdkVersion rootProject.ext.minSdkVersion
-    targetSdkVersion rootProject.ext.targetSdkVersion
-  }
+def defaultMinSdkVersion = corePackageJson['sdkVersions']['android']['minSdk']
+def defaultTargetSdkVersion = corePackageJson['sdkVersions']['android']['targetSdk']
+def defaultCompileSdkVersion = corePackageJson['sdkVersions']['android']['compileSdk']
+def defaultBuildToolsVersion = corePackageJson['sdkVersions']['android']['buildTools']
+def sentianceSdkVersion = corePackageJson['sdkVersions']['android']['sentiance']
 
-  lintOptions {
-    abortOnError false
+// We can do this if we want to enforce strict version dependencies in-between Sentiance artifacts
+def coreVersionDetected = corePackageJson['version']
+def coreVersionRequired = packageJson['peerDependencies'][corePackageJson['name']]
+
+if (coreVersionDetected != coreVersionRequired) {
+  // Only log after build completed so log warning appears at the end
+  gradle.buildFinished {
+    project.logger.warn("ReactNativeSentianceCrashDetection WARNING: NPM package '${packageJson['name']}' depends on '${corePackageJson['name']}' v${coreVersionRequired} but found v${coreVersionDetected} instead. This might cause build issues or runtime crashes.")
   }
+}
+
+project.ext {
+  set('react-native', [
+    versions: [
+      android: [
+        minSdk    : defaultMinSdkVersion,
+        targetSdk : defaultTargetSdkVersion,
+        compileSdk: defaultCompileSdkVersion,
+        buildTools: defaultBuildToolsVersion,
+      ],
+    ],
+  ])
 }
 
 dependencies {
   api coreProj
 
   implementation 'com.facebook.react:react-native:+'
-  api("com.sentiance:sdk:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
-  api("com.sentiance:sdk-lifestyle:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
-  api("com.sentiance:sdk-crash-detection:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk:${sentianceSdkVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk-lifestyle:${sentianceSdkVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk-crash-detection:${sentianceSdkVersion}@aar") { transitive = true }
 }
+
+ReactNative.module.applyAndroidVersions()

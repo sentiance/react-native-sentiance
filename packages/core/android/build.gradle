@@ -1,23 +1,35 @@
+import io.invertase.gradle.common.PackageJson
+
 plugins {
   id "com.android.library"
+  id "io.invertase.gradle.build" version "1.5"
 }
 
-android {
-  compileSdkVersion rootProject.ext.compileSdkVersion
+def packageJson = PackageJson.getForProject(project)
+def defaultMinSdkVersion = packageJson['sdkVersions']['android']['minSdk']
+def defaultTargetSdkVersion = packageJson['sdkVersions']['android']['targetSdk']
+def defaultCompileSdkVersion = packageJson['sdkVersions']['android']['compileSdk']
+def defaultBuildToolsVersion = packageJson['sdkVersions']['android']['buildTools']
+def sentianceSdkVersion = packageJson['sdkVersions']['android']['sentiance']
 
-  defaultConfig {
-    minSdkVersion rootProject.ext.minSdkVersion
-    targetSdkVersion rootProject.ext.targetSdkVersion
-  }
-
-  lintOptions {
-    abortOnError false
-  }
+project.ext {
+  set('react-native', [
+    versions: [
+      android: [
+        minSdk    : defaultMinSdkVersion,
+        targetSdk : defaultTargetSdkVersion,
+        compileSdk: defaultCompileSdkVersion,
+        buildTools: defaultBuildToolsVersion,
+      ],
+    ],
+  ])
 }
 
 dependencies {
   implementation 'com.facebook.react:react-native:+'
-  api("com.sentiance:sdk:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
-  api("com.sentiance:sdk-lifestyle:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
-  api("com.sentiance:sdk-crash-detection:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk:${sentianceSdkVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk-lifestyle:${sentianceSdkVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk-crash-detection:${sentianceSdkVersion}@aar") { transitive = true }
 }
+
+ReactNative.module.applyAndroidVersions()

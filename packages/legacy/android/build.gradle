@@ -1,5 +1,21 @@
+import io.invertase.gradle.common.PackageJson
+
 plugins {
   id "com.android.library"
+  id "io.invertase.gradle.build" version "1.5"
+}
+
+def coreProj
+if (findProject(':core')) {
+  coreProj = project(':core')
+} else if (findProject(':react-native-sentiance_core')) {
+  // Starting from RN 0.61, the @ sign is stripped from project names
+  coreProj = project(':react-native-sentiance_core')
+} else if (findProject(':@react-native-sentiance_core')) {
+  // On RN 0.60, the @ sign is not stripped from project names
+  coreProj = project(':@react-native-sentiance_core')
+} else {
+  throw new GradleException('Could not find the react-native-sentiance/core package, have you installed it?')
 }
 
 def crashDetectionProj
@@ -15,24 +31,47 @@ if (findProject(':crash-detection')) {
   throw new GradleException('Could not find the react-native-sentiance/crash-detection package, have you installed it?')
 }
 
-android {
-  compileSdkVersion rootProject.ext.compileSdkVersion
+def packageJson = PackageJson.getForProject(project)
+def corePackageJson = PackageJson.getForProject(coreProj)
+def crashDetectionPackageJson = PackageJson.getForProject(crashDetectionProj)
 
-  defaultConfig {
-    minSdkVersion rootProject.ext.minSdkVersion
-    targetSdkVersion rootProject.ext.targetSdkVersion
-  }
+def defaultMinSdkVersion = corePackageJson['sdkVersions']['android']['minSdk']
+def defaultTargetSdkVersion = corePackageJson['sdkVersions']['android']['targetSdk']
+def defaultCompileSdkVersion = corePackageJson['sdkVersions']['android']['compileSdk']
+def defaultBuildToolsVersion = corePackageJson['sdkVersions']['android']['buildTools']
+def sentianceSdkVersion = corePackageJson['sdkVersions']['android']['sentiance']
 
-  lintOptions {
-    abortOnError false
+// We can do this if we want to enforce strict version dependencies in-between Sentiance artifacts
+def crashDetectionVersionDetected = crashDetectionPackageJson['version']
+def crashDetectionVersionRequired = packageJson['peerDependencies'][crashDetectionPackageJson['name']]
+
+if (crashDetectionVersionDetected != crashDetectionVersionRequired) {
+  // Only log after build completed so log warning appears at the end
+  gradle.buildFinished {
+    project.logger.warn("ReactNativeSentianceLegacy WARNING: NPM package '${packageJson['name']}' depends on '${crashDetectionPackageJson['name']}' v${crashDetectionVersionRequired} but found v${crashDetectionVersionDetected} instead. This might cause build issues or runtime crashes.")
   }
+}
+
+project.ext {
+  set('react-native', [
+    versions: [
+      android: [
+        minSdk    : defaultMinSdkVersion,
+        targetSdk : defaultTargetSdkVersion,
+        compileSdk: defaultCompileSdkVersion,
+        buildTools: defaultBuildToolsVersion,
+      ],
+    ],
+  ])
 }
 
 dependencies {
   implementation crashDetectionProj
 
   implementation 'com.facebook.react:react-native:+'
-  api("com.sentiance:sdk:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
-  api("com.sentiance:sdk-lifestyle:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
-  api("com.sentiance:sdk-crash-detection:${rootProject.ext.sentianceVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk:${sentianceSdkVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk-lifestyle:${sentianceSdkVersion}@aar") { transitive = true }
+  api("com.sentiance:sdk-crash-detection:${sentianceSdkVersion}@aar") { transitive = true }
 }
+
+ReactNative.module.applyAndroidVersions()
