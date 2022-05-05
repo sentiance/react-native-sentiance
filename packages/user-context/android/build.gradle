@@ -55,9 +55,6 @@ dependencies {
   api coreProj
 
   implementation 'com.facebook.react:react-native:+'
-  api("com.sentiance:sdk:${sentianceSdkVersion}@aar") { transitive = true }
-  api("com.sentiance:sdk-lifestyle:${sentianceSdkVersion}@aar") { transitive = true }
-  api("com.sentiance:sdk-crash-detection:${sentianceSdkVersion}@aar") { transitive = true }
 }
 
 ReactNative.module.applyAndroidVersions()
