@@ -53,7 +53,6 @@ project.ext {
 
 dependencies {
   api coreProj
-
   implementation 'com.facebook.react:react-native:+'
 }
 
