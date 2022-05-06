@@ -117,7 +117,6 @@ public class SentianceHelper {
     Sentiance sentiance = Sentiance.getInstance(context);
 
     SentianceOptions options = new SentianceOptions.Builder(context)
-      .enableAllFeatures()
       .setNotification(notification, NOTIFICATION_ID)
       .build();
     InitializationResult result = sentiance.initialize(options);

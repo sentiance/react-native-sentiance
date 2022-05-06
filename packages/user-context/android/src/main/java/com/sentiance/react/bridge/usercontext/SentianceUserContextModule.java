@@ -9,7 +9,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.sdk.pendingoperation.OnCompleteListener;
 import com.sentiance.sdk.pendingoperation.PendingOperation;
-import com.sentiance.sdk.usercontext.api.GetUserContextError;
+import com.sentiance.sdk.usercontext.api.RequestUserContextError;
 import com.sentiance.sdk.usercontext.api.UserContext;
 import com.sentiance.sdk.usercontext.api.UserContextApi;
 import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
@@ -44,15 +44,15 @@ public class SentianceUserContextModule extends AbstractSentianceModule {
     }
 
     UserContextApi.getInstance(reactContext)
-      .getUserContext()
-      .addOnCompleteListener(new OnCompleteListener<UserContext, GetUserContextError>() {
+      .requestUserContext()
+      .addOnCompleteListener(new OnCompleteListener<UserContext, RequestUserContextError>() {
         @Override
-        public void onComplete(@NonNull PendingOperation<UserContext, GetUserContextError> pendingOperation) {
+        public void onComplete(@NonNull PendingOperation<UserContext, RequestUserContextError> pendingOperation) {
           if (pendingOperation.isSuccessful()) {
             UserContext userContext = pendingOperation.getResult();
             promise.resolve(SentianceUserContextConverter.convertUserContext(userContext));
           } else {
-            GetUserContextError error = pendingOperation.getError();
+            RequestUserContextError error = pendingOperation.getError();
             promise.reject(error.getReason().name(),
               SentianceUserContextConverter.stringifyGetUserContextError(error));
           }

@@ -12,8 +12,8 @@ import com.sentiance.sdk.ondevice.api.segment.Segment;
 import com.sentiance.sdk.ondevice.api.venue.Venue;
 import com.sentiance.sdk.ondevice.api.venue.VenueCandidate;
 import com.sentiance.sdk.ondevice.api.venue.Visit;
-import com.sentiance.sdk.usercontext.api.GetUserContextError;
-import com.sentiance.sdk.usercontext.api.GetUserContextFailureReason;
+import com.sentiance.sdk.usercontext.api.RequestUserContextError;
+import com.sentiance.sdk.usercontext.api.RequestUserContextFailureReason;
 import com.sentiance.sdk.usercontext.api.UserContext;
 import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 import com.sentiance.sdk.util.DateTime;
@@ -126,8 +126,8 @@ public class SentianceUserContextConverter {
     return userContextMap;
   }
 
-  public static String stringifyGetUserContextError(GetUserContextError error) {
-    GetUserContextFailureReason reason = error.getReason();
+  public static String stringifyGetUserContextError(RequestUserContextError error) {
+    RequestUserContextFailureReason reason = error.getReason();
     String details = "";
     switch (reason) {
       case NO_USER:
