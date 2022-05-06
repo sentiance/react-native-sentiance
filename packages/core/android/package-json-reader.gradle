@@ -1,0 +1,65 @@
+import groovy.json.JsonSlurper
+import org.gradle.api.Project
+
+class PackageJsonReader {
+  Object of(Project project) {
+    File packageJson = null
+    File parentDir = project.projectDir
+
+    for (int i = 0; i <= 3; i++) {
+      parentDir = parentDir.parentFile
+
+      packageJson = new File(
+        parentDir,
+        'package.json'
+      )
+
+      if (packageJson.exists()) break
+    }
+
+    if (packageJson != null) {
+      println ":${project.name} package.json found at ${packageJson.toString()}"
+      Object json = null
+
+      try {
+        json = new JsonSlurper().parseText(packageJson.text)
+      } catch (Exception ignored) {}
+
+      if (json == null) {
+        project.logger.warn ":${project.name} failed to parse package.json found at ${packageJson.toString()}"
+        return json
+      }
+
+      return json
+    }
+
+    println ":${project.name} unable to locate a package.json file relative to this project"
+    return null
+  }
+}
+
+ext.PackageJson = new PackageJsonReader()
+ext.applyAndroidVersionsFrom = { packageJson ->
+  def defaultMinSdkVersion = packageJson['sdkVersions']['android']['minSdk']
+  def defaultTargetSdkVersion = packageJson['sdkVersions']['android']['targetSdk']
+  def defaultCompileSdkVersion = packageJson['sdkVersions']['android']['compileSdk']
+  def defaultBuildToolsVersion = packageJson['sdkVersions']['android']['buildTools']
+
+  android {
+    compileSdkVersion defaultCompileSdkVersion
+    buildToolsVersion defaultBuildToolsVersion
+
+    defaultConfig {
+      minSdkVersion defaultMinSdkVersion
+      targetSdkVersion defaultTargetSdkVersion
+    }
+  }
+}
+ext.getSentianceSdkVersion = { packageJson ->
+  return packageJson['sdkVersions']['android']['sentiance']
+}
+ext.applyReactNativeDependency = {
+  dependencies {
+    implementation 'com.facebook.react:react-native:+'
+  }
+}

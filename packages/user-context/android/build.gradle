@@ -1,8 +1,5 @@
-import io.invertase.gradle.common.PackageJson
-
 plugins {
   id "com.android.library"
-  id "io.invertase.gradle.build" version "1.5"
 }
 
 def coreProj
@@ -18,42 +15,13 @@ if (findProject(':core')) {
   throw new GradleException('Could not find the react-native-sentiance/core package, have you installed it?')
 }
 
-def packageJson = PackageJson.getForProject(project)
-def corePackageJson = PackageJson.getForProject(coreProj)
+apply from: "$coreProj.projectDir/package-json-reader.gradle"
 
-def defaultMinSdkVersion = corePackageJson['sdkVersions']['android']['minSdk']
-def defaultTargetSdkVersion = corePackageJson['sdkVersions']['android']['targetSdk']
-def defaultCompileSdkVersion = corePackageJson['sdkVersions']['android']['compileSdk']
-def defaultBuildToolsVersion = corePackageJson['sdkVersions']['android']['buildTools']
-def sentianceSdkVersion = corePackageJson['sdkVersions']['android']['sentiance']
-
-// We can do this if we want to enforce strict version dependencies in-between Sentiance artifacts
-def coreVersionDetected = corePackageJson['version']
-def coreVersionRequired = packageJson['peerDependencies'][corePackageJson['name']]
-
-if (coreVersionDetected != coreVersionRequired) {
-  // Only log after build completed so log warning appears at the end
-  gradle.buildFinished {
-    project.logger.warn("ReactNativeSentianceUserContext WARNING: NPM package '${packageJson['name']}' depends on '${corePackageJson['name']}' v${coreVersionRequired} but found v${coreVersionDetected} instead. This might cause build issues or runtime crashes.")
-  }
-}
-
-project.ext {
-  set('react-native', [
-    versions: [
-      android: [
-        minSdk    : defaultMinSdkVersion,
-        targetSdk : defaultTargetSdkVersion,
-        compileSdk: defaultCompileSdkVersion,
-        buildTools: defaultBuildToolsVersion,
-      ],
-    ],
-  ])
-}
+def corePackageJson = PackageJson.of(coreProj)
+applyAndroidVersionsFrom(corePackageJson)
 
 dependencies {
   api coreProj
-  implementation 'com.facebook.react:react-native:+'
 }
 
-ReactNative.module.applyAndroidVersions()
+applyReactNativeDependency()

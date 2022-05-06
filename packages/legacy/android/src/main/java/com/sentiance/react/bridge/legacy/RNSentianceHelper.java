@@ -118,7 +118,6 @@ public class RNSentianceHelper {
 
     // Create the config.
     SdkConfig.Builder builder = new SdkConfig.Builder(appId, appSecret, notification)
-      .enableAllFeatures()
       .setOnSdkStatusUpdateHandler(sentianceHelper.getOnSdkStatusUpdateHandler());
     if (userLinkingEnabled)
       builder.setUserLinker(sentianceHelper.getUserLinker());

@@ -1,35 +1,17 @@
-import io.invertase.gradle.common.PackageJson
-
 plugins {
   id "com.android.library"
-  id "io.invertase.gradle.build" version "1.5"
 }
 
-def packageJson = PackageJson.getForProject(project)
-def defaultMinSdkVersion = packageJson['sdkVersions']['android']['minSdk']
-def defaultTargetSdkVersion = packageJson['sdkVersions']['android']['targetSdk']
-def defaultCompileSdkVersion = packageJson['sdkVersions']['android']['compileSdk']
-def defaultBuildToolsVersion = packageJson['sdkVersions']['android']['buildTools']
-def sentianceSdkVersion = packageJson['sdkVersions']['android']['sentiance']
+apply from: "$project.projectDir/package-json-reader.gradle"
 
-project.ext {
-  set('react-native', [
-    versions: [
-      android: [
-        minSdk    : defaultMinSdkVersion,
-        targetSdk : defaultTargetSdkVersion,
-        compileSdk: defaultCompileSdkVersion,
-        buildTools: defaultBuildToolsVersion,
-      ],
-    ],
-  ])
-}
+def packageJson = PackageJson.of(project)
+applyAndroidVersionsFrom(packageJson)
+def sentianceSdkVersion = getSentianceSdkVersion(packageJson)
 
 dependencies {
-  implementation 'com.facebook.react:react-native:+'
   implementation(platform("com.sentiance:sdk-bom:${sentianceSdkVersion}"))
   api("com.sentiance:sdk-lifestyle") { transitive = true }
   api("com.sentiance:sdk-crash-detection") { transitive = true }
 }
 
-ReactNative.module.applyAndroidVersions()
+applyReactNativeDependency()
