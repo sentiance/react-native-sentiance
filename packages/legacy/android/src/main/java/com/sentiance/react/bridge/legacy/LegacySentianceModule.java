@@ -1,5 +1,6 @@
 package com.sentiance.react.bridge.legacy;
 
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_GET_TOKEN_ERROR;
 import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_START_TRIP_ERROR;
 import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_STOP_TRIP_ERROR;
 import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
@@ -24,6 +25,8 @@ import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.SubmitDetectionsCallback;
 import com.sentiance.sdk.SubmitDetectionsError;
 import com.sentiance.sdk.SubmitDetectionsResult;
+import com.sentiance.sdk.Token;
+import com.sentiance.sdk.TokenResultCallback;
 import com.sentiance.sdk.pendingoperation.OnCompleteListener;
 import com.sentiance.sdk.pendingoperation.PendingOperation;
 import com.sentiance.sdk.trip.StartTripCallback;
@@ -265,6 +268,27 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
     legacySentianceHelper.disableNativeInitialization();
     promise.resolve(true);
   }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void getUserAccessToken(final Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    sdk.getUserAccessToken(new TokenResultCallback() {
+      @Override
+      public void onSuccess(Token token) {
+        promise.resolve(SentianceConverter.convertToken(token));
+      }
+
+      @Override
+      public void onFailure() {
+        promise.reject(E_SDK_GET_TOKEN_ERROR, "Something went wrong while obtaining a user token.");
+      }
+    });
+  }
+
 
   @ReactMethod
   @SuppressWarnings("unused")

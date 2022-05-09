@@ -25,7 +25,6 @@ const {
   userLinkCallback,
   getVersion,
   getUserId,
-  getUserAccessToken,
   addUserMetadataField,
   addUserMetadataFields,
   removeUserMetadataField,
@@ -67,6 +66,7 @@ const {
   enableNativeInitialization,
   disableNativeInitialization,
   submitDetections,
+  getUserAccessToken,
   addListener,
   removeListeners
 } = legacy;
