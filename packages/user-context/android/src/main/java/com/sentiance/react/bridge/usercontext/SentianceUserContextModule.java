@@ -38,7 +38,7 @@ public class SentianceUserContextModule extends AbstractSentianceModule {
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void getUserContext(final Promise promise) {
+  public void requestUserContext(final Promise promise) {
     if (rejectIfNotInitialized(promise)) {
       return;
     }

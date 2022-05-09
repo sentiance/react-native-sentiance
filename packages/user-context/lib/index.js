@@ -1,11 +1,11 @@
 import userContext from './user-context';
 
-const getUserContext = () => userContext.getUserContext();
+const requestUserContext = () => userContext.requestUserContext();
 const listenUserContextUpdates = () => userContext.listenUserContextUpdates();
 const addUserContextUpdateListener = userContext._addUserContextUpdateListener;
 
 module.exports = {
-  getUserContext,
+  requestUserContext,
   listenUserContextUpdates,
   addUserContextUpdateListener
 };
