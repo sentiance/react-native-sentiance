@@ -264,7 +264,7 @@ public class SentianceModule extends AbstractSentianceModule {
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void getUserAccessToken(final Promise promise) {
+  public void requestUserAccessToken(final Promise promise) {
     if (rejectIfNotInitialized(promise)) {
       return;
     }
