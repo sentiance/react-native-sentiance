@@ -336,13 +336,14 @@ public class SentianceConverter {
     String details = "";
     switch (reason) {
       case NO_USER:
-        details = "No user present on device";
+        details = "No Sentiance user is present on device.";
         break;
       case NETWORK_ERROR:
-        details = "This can happen if both of the following conditions are met: " +
-          "1. The token has expired; 2. There is no network connection that can be used to get a new " +
-          "token from " +
-          "the Sentiance API.";
+        details = "A network error occurred. This can happen when the existing token is expired, " +
+          "and it was not possible to contact the Sentiance Platform to refresh it.";
+        break;
+      case USER_DISABLED_REMOTELY:
+        details = "The user is disabled remotely.";
         break;
     }
     return String.format("Reason: %s - %s", reason.name(), details);
