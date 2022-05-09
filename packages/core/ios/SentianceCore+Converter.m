@@ -12,7 +12,7 @@
 
 - (NSString*)convertTimelineEventTypeToString:(SENTTimelineEventType)type;
 - (NSDictionary*)convertGeolocation:(SENTGeolocation*)location;
-- (NSString*)convertVenueType:(SENTStationaryVenueType)type;
+- (NSString*)convertVenueType:(SENTVenueSignificance)type;
 - (NSDictionary*)convertVisit:(SENTVisit*)visit;
 - (NSDictionary*)convertVenue:(SENTVenue*)venue;
 - (NSDictionary*)convertVenueCandidate:(SENTVenueCandidate*)candidate;
@@ -51,15 +51,15 @@
     };
 }
 
-- (NSString*)convertVenueType:(SENTStationaryVenueType)type {
+- (NSString*)convertVenueType:(SENTVenueSignificance)type {
     switch (type) {
-        case SENTStationaryVenueTypeHome:
+        case SENTVenueSignificanceHome:
             return @"HOME";
-        case SENTStationaryVenueTypeWork:
+        case SENTVenueSignificanceWork:
             return @"WORK";
-        case SENTStationaryVenueTypePointOfInterest:
+        case SENTVenueSignificancePointOfInterest:
             return @"POINT_OF_INTEREST";
-        case SENTStationaryVenueTypeUnknown:
+        case SENTVenueSignificanceUnknown:
         default:
             return @"UNKNOWN";
     }
@@ -112,7 +112,7 @@
         dict[@"location"] = [self convertGeolocation:event.location];
     }
     
-    dict[@"venueType"] = [self convertVenueType:event.venueType];
+    dict[@"venueType"] = [self convertVenueType:event.venueSignificance];
     
     NSMutableArray* venueCandidates = [[NSMutableArray alloc] init];
     for (SENTVenueCandidate* candidate in event.venueCandidates) {
@@ -484,6 +484,490 @@
     }
     
     return criteria;
+}
+
+- (NSDictionary*)convertUserActivityToDict:(SENTUserActivity*)userActivity {
+    if(userActivity == nil) {
+        return @{};
+    }
+
+    //SENTUserActivity
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+
+    //SENTUserActivityType
+    NSString *userActivityType = [self convertUserActivityTypeToString:userActivity.type];
+    [dict setObject:userActivityType forKey:@"type"];
+
+
+    //SENTTripInfo
+    if(userActivity.type == SENTUserActivityTypeTRIP ) {
+        NSMutableDictionary *tripInfoDict = [[NSMutableDictionary alloc] init];
+        NSString *tripInfo = [self convertTripTypeToString:userActivity.tripInfo.type];
+
+        if(tripInfo.length > 0) {
+            [tripInfoDict setObject:tripInfo forKey:@"type"];
+        }
+
+        if(tripInfoDict.allKeys.count > 0) {
+            [dict setObject:tripInfoDict forKey:@"tripInfo"];
+        }
+    }
+
+    //SENTStationaryInfo
+    if(userActivity.type == SENTUserActivityTypeSTATIONARY) {
+        NSMutableDictionary *stationaryInfoDict = [[NSMutableDictionary alloc] init];
+
+        if(userActivity.stationaryInfo.location) {
+            NSDictionary *location = @{
+                                       @"latitude": @(userActivity.stationaryInfo.location.coordinate.latitude),
+                                       @"longitude": @(userActivity.stationaryInfo.location.coordinate.longitude)
+                                       };
+            [stationaryInfoDict setObject:location forKey:@"location"];
+        }
+
+        if(stationaryInfoDict.allKeys.count > 0) {
+            [dict setObject:stationaryInfoDict forKey:@"stationaryInfo"];
+        }
+
+    }
+
+    return [dict copy];
+
+}
+
+- (NSDictionary*)convertSdkStatusToDict:(SENTSDKStatus*) status {
+    if (status == nil) {
+        return @{};
+    }
+
+    NSDictionary *dict = @{
+                           @"startStatus":[self convertStartStatusToString:status.startStatus],
+                           @"detectionStatus":[self convertDetectionStatusToString:status.detectionStatus],
+                           @"canDetect":@(status.canDetect),
+                           @"isRemoteEnabled":@(status.isRemoteEnabled),
+                           @"locationPermission":[self convertLocationPermissionToString:status.locationPermission],
+                           @"isPreciseLocationAuthorizationGranted":@(status.isPreciseLocationAuthorizationGranted),
+                           @"isAccelPresent":@(status.isAccelPresent),
+                           @"isGyroPresent":@(status.isGyroPresent),
+                           @"isGpsPresent":@(status.isGpsPresent),
+                           @"wifiQuotaStatus":[self convertQuotaStatusToString:status.wifiQuotaStatus],
+                           @"mobileQuotaStatus":[self convertQuotaStatusToString:status.mobileQuotaStatus],
+                           @"diskQuotaStatus":[self convertQuotaStatusToString:status.diskQuotaStatus]
+                           };
+
+    return dict;
+}
+
+- (NSDictionary*)convertInstallIdToDict:(NSString*) installId {
+    return @{ @"installId":installId };
+}
+
+
+- (NSDictionary*)convertTokenToDict:(NSString*) token {
+    if (token.length == 0) {
+        return @{};
+    }
+    return @{ @"tokenId":token };
+}
+
+- (NSString*)convertInitIssueToString:(SENTInitIssue) issue {
+    if (issue == SENTInitIssueInvalidCredentials) {
+        return @"INVALID_CREDENTIALS";
+    } else if (issue == SENTInitIssueChangedCredentials) {
+        return @"CHANGED_CREDENTIALS";
+    } else if (issue == SENTInitIssueServiceUnreachable) {
+        return @"SERVICE_UNREACHABLE";
+    } else if (issue == SENTInitIssueLinkFailed) {
+        return @"LINK_FAILED";
+    } else if (issue == SENTInitIssueResetInProgress) {
+        return @"SDK_RESET_IN_PROGRESS";
+    } else
+        return @"INITIALIZATION_ERROR";
+}
+
+- (NSString*)convertQuotaStatusToString:(SENTQuotaStatus) status {
+    switch (status) {
+        case SENTQuotaStatusOK:
+            return @"OK";
+        case SENTQuotaStatusWarning:
+            return @"WARNING";
+        case SENTQuotaStatusExceeded:
+            return @"EXCEEDED";
+        default:
+            return @"UNRECOGNIZED_STATUS";
+    }
+}
+
+- (NSString*)convertLocationPermissionToString:(SENTLocationPermission) status {
+    switch (status) {
+        case SENTLocationPermissionAlways:
+            return @"ALWAYS";
+        case SENTLocationPermissionWhileInUse:
+            return @"ONLY_WHILE_IN_USE";
+        case SENTLocationPermissionNever:
+        default:
+            return @"NEVER";
+    }
+}
+
+- (NSString*)convertInitStateToString:(SENTSDKInitState) state {
+    switch (state) {
+        case SENTNotInitialized:
+            return @"NOT_INITIALIZED";
+        case SENTInitInProgress:
+            return @"INIT_IN_PROGRESS";
+        case SENTInitialized:
+            return @"INITIALIZED";
+        case SENTResetting:
+            return @"RESETTING";
+        default:
+            return @"UNRECOGNIZED_STATE";
+    }
+}
+
+- (NSString*)convertUserActivityTypeToString:(SENTUserActivityType) activityType {
+    switch (activityType) {
+        case SENTUserActivityTypeTRIP:
+            return @"USER_ACTIVITY_TYPE_TRIP";
+        case SENTUserActivityTypeSTATIONARY:
+            return @"USER_ACTIVITY_TYPE_STATIONARY";
+        case SENTUserActivityTypeUNKNOWN:
+            return @"USER_ACTIVITY_TYPE_UNKNOWN";
+        default:
+            return @"USER_ACTIVITY_TYPE_UNRECOGNIZED";
+    }
+}
+
+- (NSString*)convertTripTypeToString:(SENTTripType) tripType {
+    switch (tripType) {
+        case SENTTripTypeSDK:
+            return @"TRIP_TYPE_SDK";
+        case SENTTripTypeExternal:
+            return @"TRIP_TYPE_EXTERNAL";
+        default:
+            return @"TRIP_TYPE_UNRECOGNIZED";
+    }
+}
+
+- (NSDictionary*)convertVehicleCrashEventToDict:(SENTVehicleCrashEvent*) crashEvent {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    double time = [crashEvent.date timeIntervalSince1970] * 1000;
+    dict[@"time"] = @(time);
+
+
+    if(crashEvent.location != nil) {
+        NSDictionary *location = @{
+                                   @"latitude": @(crashEvent.location.coordinate.latitude),
+                                   @"longitude": @(crashEvent.location.coordinate.longitude)
+                                   };
+        dict[@"location"] = location;
+    }
+
+    dict[@"magnitude"] = @(crashEvent.magnitude);
+    dict[@"speedAtImpact"] = @(crashEvent.speedAtImpact);
+    dict[@"deltaV"] = @(crashEvent.deltaV);
+    dict[@"confidence"] = @(crashEvent.confidence);
+    return [dict copy];
+}
+
+- (NSDictionary *)convertUserCreationResult:(SENTUserCreationResult *)userCreationResult {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    
+    dict[@"userId"] = userCreationResult.userInfo.installId;
+    dict[@"tokenId"] = userCreationResult.userInfo.token.tokenId;
+    dict[@"tokenExpiryDate"] = userCreationResult.userInfo.token.expiryDate;
+    dict[@"isTokenExpired"] = @(NO);
+
+    return dict;
+}
+
+- (NSString *)stringifyUserCreationError:(SENTUserCreationError *)userCreationError {
+    NSString *reason;
+    switch (userCreationError.failureReason) {
+        case SENTUserCreationFailureReasonSdkResetInProgress:
+            reason = @"SDK_RESET_IN_PROGRESS";
+            break;
+        case SENTUserCreationFailureReasonUserCreationInProgress:
+            reason = @"USER_CREATION_IN_PROGRESS";
+        case SENTUserCreationFailureReasonUserAlreadyExists:
+            reason = @"USER_ALREADY_EXISTS";
+            break;
+        case SENTUserCreationFailureReasonNetworkError:
+            reason = @"USER_CREATION_IN_PROGRESS";
+            break;
+        case SENTUserCreationFailureReasonServerError:
+            reason = @"SERVER_ERROR";
+            break;
+        case SENTUserCreationFailureReasonUnexpectedError:
+            reason = @"UNEXPECTED_ERROR";
+            break;
+        case SENTUserCreationFailureReasonAppSideLinkingFailed:
+            reason = @"APP_SIDE_LINKING_FAILED";
+            break;
+    }
+    return [NSString stringWithFormat:@"Reason: %@ - %@", reason, userCreationError.details];
+}
+
+- (NSString*)convertStartStatusToString:(SENTStartStatus) status {
+    switch (status) {
+        case SENTStartStatusNotStarted:
+            return @"NOT_STARTED";
+        case SENTStartStatusPending:
+            return @"PENDING";
+        case SENTStartStatusStarted:
+            return @"STARTED";
+        case SENTStartStatusExpired:
+            return @"EXPIRED";
+        default:
+            return @"UNRECOGNIZED_STATUS";
+    }
+}
+
+- (NSString*)convertDetectionStatusToString:(SENTDetectionStatus) detectionStatus {
+    switch (detectionStatus) {
+
+        case SENTDetectionStatusDisabled:
+            return @"DISABLED";
+        case SENTDetectionStatusExpired:
+            return @"EXPIRED";
+        case SENTDetectionStatusEnabledButBlocked:
+            return @"ENABLED_BUT_BLOCKED";
+        case SENTDetectionStatusEnabledAndDetecting:
+            return @"ENABLED_AND_DETECTING";
+    }
+}
+
+- (NSDictionary *)convertUserLinkingResult:(SENTUserLinkingResult *)userLinkingResult {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    
+    dict[@"userId"] = userLinkingResult.userInfo.installId;
+    dict[@"tokenId"] = userLinkingResult.userInfo.token.tokenId;
+    dict[@"tokenExpiryDate"] = userLinkingResult.userInfo.token.expiryDate;
+    dict[@"isTokenExpired"] = @(NO);
+
+    return dict;
+}
+
+- (NSString *)stringifyUserLinkingError:(SENTUserLinkingError *)userLinkingError {
+    NSString *reason;
+    switch (userLinkingError.failureReason) {
+        case SENTUserLinkingFailureReasonNoUser:
+            reason = @"NO_USER";
+            break;
+        case SENTUserLinkingFailureReasonUserAlreadyLinked:
+            reason = @"USER_ALREADY_LINKED";
+            break;
+        case SENTUserLinkingFailureReasonNetworkError:
+            reason = @"NETWORK_ERROR";
+            break;
+        case SENTUserLinkingFailureReasonServerError:
+            reason = @"SERVER_ERROR";
+            break;
+        case SENTUserLinkingFailureReasonUserDisabledRemotely:
+            reason = @"USER_DISABLED_REMOTELY";
+            break;
+        case SENTUserLinkingFailureReasonUnexpectedError:
+            reason = @"UNEXPECTED_ERROR";
+            break;
+        case SENTUserLinkingFailureReasonAppSideLinkingFailed:
+            reason = @"APP_SIDE_LINKING_FAILED";
+            break;
+    }
+    return [NSString stringWithFormat:@"Reason: %@ - %@", reason, userLinkingError.details];
+}
+
+- (NSDictionary *)convertResetResult:(SENTResetResult *)resetResult {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    // empty object
+    
+    return dict;
+}
+
+- (NSString *)stringifyResetError:(SENTResetError *)resetError {
+    NSString *reason;
+    NSString *details;
+    switch (resetError.failureReason) {
+        case SENTResetFailureReasonInitInProgress:
+            reason = @"SDK_INIT_IN_PROGRESS";
+            details = @"SDK initialization is in progress. Resetting at this time is not allowed.";
+            break;
+        case SENTResetFailureReasonResetting:
+            reason = @"SDK_RESET_IN_PROGRESS";
+            details = @"SDK initialization is in progress. Resetting at this time is not allowed.";
+            break;
+    }
+    return [NSString stringWithFormat:@"Reason: %@ - %@", reason, details];
+}
+
+- (NSDictionary *)convertStartTripResult:(SENTStartTripResult *)startTripResult {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    // empty object
+    
+    return dict;
+}
+
+- (NSString *)stringifyStartTripError:(SENTStartTripError *)startTripError {
+    NSString *reason;
+    NSString *details;
+    switch (startTripError.failureReason) {
+        case SENTStartTripFailureReasonNoUser:
+            reason = @"NO_USER";
+            details = @"No Sentiance user is present on device. Call 'createUser' to create a user.";
+            break;
+        case SENTStartTripFailureReasonDetectionsDisabled:
+            reason = @"DETECTIONS_DISABLED";
+            details = @"Detections are disabled. Enable them first before starting a trip.";
+            break;
+        case SENTStartTripFailureReasonDetectionsBlocked:
+            reason = @"DETECTIONS_BLOCKED";
+            details = @"Detections are enabled but not running. Check the SDK's status to find out why.";
+            break;
+        case SENTStartTripFailureReasonTripAlreadyStarted:
+            reason = @"TRIP_ALREADY_STARTED";
+            details = @"An external trip is already started. To start a new trip, call `stopTrip()` first.";
+            break;
+        case SENTStartTripFailureReasonUserDisabledRemotely:
+            reason = @"USER_DISABLED_REMOTELY";
+            details = @"The user is disabled remotely.";
+            break;
+    }
+    return [NSString stringWithFormat:@"Reason: %@ - %@", reason, details];
+}
+
+- (NSDictionary *)convertStopTripResult:(SENTStopTripResult *)stopTripResult {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    // empty object
+    
+    return dict;
+}
+
+- (NSString *)stringifyStopTripError:(SENTStopTripError *)stopTripError {
+    NSString *reason;
+    NSString *details;
+    switch (stopTripError.failureReason) {
+        case SENTStartTripFailureReasonNoUser:
+            reason = @"NO_USER";
+            details = @"No Sentiance user is present on device. Call 'createUser' to create a user.";
+            break;
+        case SENTStartTripFailureReasonDetectionsDisabled:
+            reason = @"DETECTIONS_DISABLED";
+            details = @"Detections are disabled. Enable them first before starting a trip.";
+            break;
+        case SENTStartTripFailureReasonDetectionsBlocked:
+            reason = @"DETECTIONS_BLOCKED";
+            details = @"Detections are enabled but not running. Check the SDK's status to find out why.";
+            break;
+        case SENTStartTripFailureReasonTripAlreadyStarted:
+            reason = @"TRIP_ALREADY_STARTED";
+            details = @"An external trip is already started. To start a new trip, call `stopTrip()` first.";
+            break;
+        case SENTStartTripFailureReasonUserDisabledRemotely:
+            reason = @"USER_DISABLED_REMOTELY";
+            details = @"The user is disabled remotely.";
+            break;
+    }
+    return [NSString stringWithFormat:@"Reason: %@ - %@", reason, details];
+
+}
+
+- (NSDictionary *)convertRequestUserAccessTokenResult:(SENTUserAccessTokenResult *)userAccessTokenResult {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    
+    dict[@"tokenId"] = userAccessTokenResult.token.tokenId;
+    dict[@"expiryDate"] = userAccessTokenResult.token.expiryDate;
+
+    return dict;
+}
+
+- (NSString *)stringifyRequestUserAccessTokenError:(SENTUserAccessTokenError *)userAccessTokenError {
+    NSString *reason;
+    NSString *details;
+    switch (userAccessTokenError.failureReason) {
+        case SENTUserAccessTokenFailureReasonNoUser:
+            reason = @"NO_USER";
+            details = @"No Sentiance user is present on device. Call 'createUser' to create a user.";
+            break;
+        case SENTUserAccessTokenFailureReasonNetworkError:
+            reason = @"NETWORK_ERROR";
+            details = @"A network error occurred. This can happen when the existing token is expired, and it was not possible to contact the Sentiance Platform to refresh it.";
+            break;
+        case SENTUserAccessTokenFailureReasonUserDisabledRemotely:
+            reason = @"USER_DISABLED_REMOTELY";
+            details = @"The user is disabled remotely.";
+            break;
+    }
+    return [NSString stringWithFormat:@"Reason: %@ - %@", reason, details];
+}
+
+- (NSDictionary *)convertSubmitDetectionsResult:(SENTSubmitDetectionsResult *)submitDetectionsResult {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    // empty object
+    
+    return dict;
+}
+
+- (NSString *)stringifySubmitDetectionsError:(SENTSubmitDetectionsError *)submitDetectionsError {
+    NSString *reason;
+    NSString *details;
+    switch (submitDetectionsError.failureReason) {
+
+        case SENTSubmitDetectionsFailureReasonNoUser:
+            reason = @"NO_USER";
+            details = @"No Sentiance user is present on device. Call 'createUser' to create a user.";
+            break;
+        case SENTSubmitDetectionsFailureReasonNetworkError:
+            reason = @"NETWORK_ERROR";
+            details = @"A network error occurred.";
+            break;
+        case SENTSubmitDetectionsFailureReasonUserDisabledRemotely:
+            reason = @"USER_DISABLED_REMOTELY";
+            details = @"The user is disabled remotely.";
+            break;
+    }
+    return [NSString stringWithFormat:@"Reason: %@ - %@", reason, details];
+}
+
+- (NSDictionary *)convertEnableDetectionsResult:(SENTEnableDetectionsResult *)enableDetectionsResult {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    
+    dict[@"sdkStatus"] = [self convertSdkStatusToDict:enableDetectionsResult.sdkStatus];
+    dict[@"detectionStatus"] = [self convertDetectionStatusToString:enableDetectionsResult.detectionStatus];
+
+    return dict;
+}
+
+- (NSString *)stringifyEnableDetectionsError:(SENTEnableDetectionsError *)enableDetectionsError {
+    NSString *reason;
+    NSString *details;
+    switch (enableDetectionsError.failureReason) {
+
+        case SENTEnableDetectionsFailureReasonNoUser:
+            reason = @"NO_USER";
+            details = @"No Sentiance user is present on device. Call 'createUser' to create a user.";
+            break;
+        case SENTEnableDetectionsFailureReasonPastExpiryDate:
+            reason = @"PAST_EXPIRY_DATE";
+            details = @"Expiry date is in past.";
+            break;
+        case SENTEnableDetectionsFailureReasonUserDisabledRemotely:
+            reason = @"USER_DISABLED_REMOTELY";
+            details = @"The user is disabled remotely.";
+            break;
+    }
+    return [NSString stringWithFormat:@"Reason: %@ - %@", reason, details];
+}
+
+- (NSDictionary *)convertDisableDetectionsResult:(SENTDisableDetectionsResult *)disableDetectionsResult {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    
+    dict[@"sdkStatus"] = [self convertSdkStatusToDict:disableDetectionsResult.sdkStatus];
+    dict[@"detectionStatus"] = [self convertDetectionStatusToString:disableDetectionsResult.detectionStatus];
+
+    return dict;
+}
+- (NSString *)stringifyDisableDetectionsError:(SENTDisableDetectionsError *)disableDetectionsError {
+    // Disable detections always succeed
+    return @"";
 }
 
 @end

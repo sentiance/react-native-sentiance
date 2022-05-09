@@ -309,7 +309,7 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     sdk.addUserMetadataField(label, value);
-    promise.resolve(true);
+    promise.resolve(null);
   }
 
   @ReactMethod
@@ -338,7 +338,7 @@ public class SentianceModule extends AbstractSentianceModule {
 
     final Map<String, String> metadata = SentianceConverter.convertReadableMapToMap(inputMetadata);
     sdk.addUserMetadataFields(metadata);
-    promise.resolve(true);
+    promise.resolve(null);
   }
 
   @ReactMethod
@@ -354,7 +354,7 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     sdk.removeUserMetadataField(label);
-    promise.resolve(true);
+    promise.resolve(null);
   }
 
   @ReactMethod
@@ -453,7 +453,7 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     sdk.disableBatteryOptimization();
-    promise.resolve(true);
+    promise.resolve(null);
   }
 
   @ReactMethod
@@ -470,7 +470,7 @@ public class SentianceModule extends AbstractSentianceModule {
         emitter.sendUserActivityUpdate(activity);
       }
     });
-    promise.resolve(true);
+    promise.resolve(null);
   }
 
   @ReactMethod
@@ -497,7 +497,7 @@ public class SentianceModule extends AbstractSentianceModule {
           new WeakReference<>(reactContext.getApplicationContext()),
           title,
           message));
-    promise.resolve(true);
+    promise.resolve(null);
   }
 
   @ReactMethod
@@ -508,7 +508,7 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     Sentiance.getInstance(reactContext).setAppSessionDataCollectionEnabled(enabled);
-    promise.resolve(true);
+    promise.resolve(null);
   }
 
   @ReactMethod
@@ -519,6 +519,17 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     promise.resolve(Sentiance.getInstance(reactContext).isAppSessionDataCollectionEnabled());
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void listenSdkStatusUpdates(Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    Sentiance.getInstance(reactContext).setSdkStatusUpdateListener(sentianceHelper.getOnSdkStatusUpdateListener());
+    promise.resolve(null);
   }
 }
 

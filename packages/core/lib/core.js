@@ -16,6 +16,7 @@ if (!SentianceCore) {
 const SENTIANCE_EMITTER = new NativeEventEmitter(SentianceCore);
 
 const _addSdkStatusUpdateListener = (onSdkStatusUpdated) => {
+  SentianceCore.listenSdkStatusUpdates();
   return SENTIANCE_EMITTER.addListener(SDK_STATUS_UPDATE_EVENT, async (sdkStatus) => {
     await onSdkStatusUpdated(sdkStatus);
   });

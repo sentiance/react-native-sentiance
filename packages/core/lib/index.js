@@ -1,4 +1,5 @@
 import core from './core';
+import Platform from 'react-native';
 
 const enableDetections = () => core.enableDetections();
 const enableDetectionsWithExpiryDate = (expiryTime) => core.enableDetectionsWithExpiryDate(expiryTime);
@@ -6,7 +7,6 @@ const disableDetections = () => core.disableDetections();
 const getInitState = () => core.getInitState();
 const userLinkCallback = (userLinkResult) => core.userLinkCallback(userLinkResult);
 const userExists = () => core.userExists();
-const reset = () => core.reset();
 const isUserLinked = () => core.isUserLinked();
 const getVersion = () => core.getVersion();
 const getUserId = () => core.getUserId();
@@ -16,10 +16,7 @@ const addUserMetadataFields = (metadata) => core.addUserMetadataFields(metadata)
 const removeUserMetadataField = (label) => core.removeUserMetadataField(label);
 const getUserActivity = () => core.getUserActivity();
 const listenUserActivityUpdates = () => core.listenUserActivityUpdates();
-const startTrip = (metadata, hint) => core.startTrip(metadata, hint);
-const stopTrip = () => core.stopTrip();
 const isTripOngoing = (tripType) => core.isTripOngoing(tripType);
-const submitDetections = () => core.submitDetections();
 const updateSdkNotification = (title, message) => core.updateSdkNotification(title, message);
 const addTripMetadata = (metadata) => core.addTripMetadata(metadata);
 const setAppSessionDataCollectionEnabled = (enabled) => core.setAppSessionDataCollectionEnabled(enabled);
@@ -33,6 +30,25 @@ const getMobileQuotaUsage = () => core.getMobileQuotaUsage();
 const getWiFiQuotaLimit = () => core.getWiFiQuotaLimit();
 const getWiFiQuotaUsage = () => core.getWiFiQuotaUsage();
 const linkUserWithAuthCode = (authCode) => core.linkUserWithAuthCode(authCode);
+
+
+var startTrip
+var stopTrip
+var submitDetections
+var reset
+
+if (Platform.OS === 'ios') {
+  startTrip = (metadata, hint) => core.startTripNewApi(metadata, hint);
+  stopTrip = () => core.stopTripNewApi();
+  submitDetections = () => core.submitDetectionsNewApi();
+  reset = () => core.resetNewApi();
+}
+else {
+  startTripN = (metadata, hint) => core.startTrip(metadata, hint);
+  stopTrip = () => core.stopTrip();
+  submitDetections = () => core.submitDetections();
+  reset = () => core.reset();
+}
 
 const linkUser = async (linker) => {
   core._addUserLinkListener(linker);

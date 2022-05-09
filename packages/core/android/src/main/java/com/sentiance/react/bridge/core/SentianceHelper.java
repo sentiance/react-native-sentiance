@@ -49,19 +49,13 @@ public class SentianceHelper {
   private Boolean userLinkResult = false;
   private volatile CountDownLatch userLinkLatch;
 
-  private final OnSdkStatusUpdateHandler onSdkStatusUpdateHandler = new OnSdkStatusUpdateHandler() {
-    @Override
-    public void onSdkStatusUpdate(@NonNull SdkStatus status) {
-      onSdkStatusUpdated(status);
-    }
-  };
+  private final OnSdkStatusUpdateHandler onSdkStatusUpdateHandler = status -> onSdkStatusUpdated(status);
 
-  private final SdkStatusUpdateListener onSdkStatusUpdateListener = new SdkStatusUpdateListener() {
-    @Override
-    public void onSdkStatusUpdate(@NonNull SdkStatus status) {
-      onSdkStatusUpdated(status);
-    }
-  };
+  private final SdkStatusUpdateListener onSdkStatusUpdateListener = status -> onSdkStatusUpdated(status);
+
+  SdkStatusUpdateListener getOnSdkStatusUpdateListener() {
+    return onSdkStatusUpdateListener;
+  }
 
   private final UserLinker userLinker = new UserLinker() {
     @Override
