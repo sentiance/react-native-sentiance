@@ -36,6 +36,10 @@ import java.util.Map;
 
 public class SentianceConverter {
 
+  public static WritableMap createEmptyResult() {
+    return Arguments.createMap();
+  }
+
   public static Map<String, String> convertReadableMapToMap(ReadableMap inputMap) {
     Map<String, String> map = new HashMap<String, String>();
     ReadableMapKeySetIterator iterator = inputMap.keySetIterator();

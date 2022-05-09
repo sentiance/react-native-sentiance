@@ -369,7 +369,7 @@ public class SentianceModule extends AbstractSentianceModule {
         @Override
         public void onComplete(@NonNull PendingOperation<SubmitDetectionsResult, SubmitDetectionsError> pendingOperation) {
           if (pendingOperation.isSuccessful()) {
-            promise.resolve(true);
+            promise.resolve(SentianceConverter.createEmptyResult());
           } else {
             SubmitDetectionsError error = pendingOperation.getError();
             promise.reject(E_SDK_SUBMIT_DETECTIONS_ERROR, error.getReason().name());
