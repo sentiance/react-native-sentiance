@@ -307,6 +307,7 @@ declare module "react-native-sentiance" {
     startTrip(metadata: MetadataObject|null, hint: TransportMode): Promise<boolean>;
     stopTrip(): Promise<boolean>;
     isTripOngoing(type: TripType): Promise<boolean>;
+    submitDetections(): Promise<boolean>;
     submitDetections(): Promise<SubmitDetectionsResult>;
     updateSdkNotification(title: string, message: string): Promise<boolean>;
     addTripMetadata(metadata: MetadataObject): Promise<boolean>;

@@ -2,6 +2,7 @@ package com.sentiance.react.bridge.legacy;
 
 import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_START_TRIP_ERROR;
 import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_STOP_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -20,6 +21,11 @@ import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.ResetCallback;
 import com.sentiance.sdk.SdkStatus;
+import com.sentiance.sdk.SubmitDetectionsCallback;
+import com.sentiance.sdk.SubmitDetectionsError;
+import com.sentiance.sdk.SubmitDetectionsResult;
+import com.sentiance.sdk.pendingoperation.OnCompleteListener;
+import com.sentiance.sdk.pendingoperation.PendingOperation;
 import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TransportMode;
@@ -258,6 +264,26 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
   public void disableNativeInitialization(Promise promise) {
     legacySentianceHelper.disableNativeInitialization();
     promise.resolve(true);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void submitDetections(final Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    sdk.submitDetections(new SubmitDetectionsCallback() {
+      @Override
+      public void onSuccess() {
+        promise.resolve(true);
+      }
+
+      @Override
+      public void onFailure() {
+        promise.reject(E_SDK_SUBMIT_DETECTIONS_ERROR, "Submission failed");
+      }
+    });
   }
 
   @Override

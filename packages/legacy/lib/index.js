@@ -32,7 +32,6 @@ const {
   getUserActivity,
   listenUserActivityUpdates,
   isTripOngoing,
-  submitDetections,
   updateSdkNotification,
   addTripMetadata,
   getInitState,
@@ -67,6 +66,7 @@ const {
   isNativeInitializationEnabled,
   enableNativeInitialization,
   disableNativeInitialization,
+  submitDetections,
   addListener,
   removeListeners
 } = legacy;
