@@ -273,11 +273,16 @@ declare module "react-native-sentiance" {
 
   export interface SubmitDetectionsResult {}
 
+  export interface ResetResult {
+    initState: string
+  }
+
   export interface RNSentianceConstructor extends EventSubscriptionVendor {
     userExists(): Promise<boolean>;
     enableDetections(): Promise<EnableDisableDetectionsResult>;
     enableDetectionsWithExpiryDate(expiryEpochTimeMs: number): Promise<EnableDisableDetectionsResult>;
     reset(): Promise<boolean>;
+    reset(): Promise<ResetResult>;
     createUser(userCreationOptions: UserCreationOptions): Promise<CreateUserResult>;
     linkUser(): Promise<UserLinkingResult>;
     isUserLinked(): Promise<boolean>;

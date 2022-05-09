@@ -164,7 +164,7 @@ public class SentianceModule extends AbstractSentianceModule {
         @Override
         public void onComplete(@NonNull PendingOperation<ResetResult, ResetError> pendingOperation) {
           if (pendingOperation.isSuccessful()) {
-            promise.resolve(true);
+            promise.resolve(SentianceConverter.convertResetResult(pendingOperation.getResult()));
           } else {
             ResetError error = pendingOperation.getError();
             promise.reject(E_SDK_RESET_ERROR, SentianceConverter.stringifyResetError(error));

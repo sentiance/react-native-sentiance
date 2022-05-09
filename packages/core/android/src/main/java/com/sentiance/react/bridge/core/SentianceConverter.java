@@ -21,6 +21,7 @@ import com.sentiance.sdk.authentication.UserLinkingResult;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.detectionupdates.UserActivityType;
 import com.sentiance.sdk.reset.ResetError;
+import com.sentiance.sdk.reset.ResetResult;
 import com.sentiance.sdk.trip.StartTripError;
 import com.sentiance.sdk.trip.StartTripFailureReason;
 import com.sentiance.sdk.trip.StopTripError;
@@ -260,6 +261,12 @@ public class SentianceConverter {
   public static WritableMap convertDisableDetectionsResult(DisableDetectionsResult disableDetectionsResult) {
     return convertDetectionsResult(disableDetectionsResult.getSdkStatus(),
       disableDetectionsResult.getDetectionStatus());
+  }
+
+  public static WritableMap convertResetResult(ResetResult resetResult) {
+    WritableMap result = Arguments.createMap();
+    result.putString("initState", resetResult.getInitState().name());
+    return result;
   }
 
   private static WritableMap convertDetectionsResult(SdkStatus sdkStatus, DetectionStatus detectionStatus) {
