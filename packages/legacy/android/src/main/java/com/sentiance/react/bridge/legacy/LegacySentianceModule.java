@@ -187,7 +187,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void startTrip(@Nullable ReadableMap metadata, int hint, final Promise promise) {
+  public void startTrip(@Nullable ReadableMap metadata, @Nullable Integer hint, final Promise promise) {
     if (rejectIfNotInitialized(promise)) {
       return;
     }
@@ -196,7 +196,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
     if (metadata != null) {
       metadataMap = metadata.toHashMap();
     }
-    final TransportMode transportModeHint = SentianceConverter.toTransportMode(hint);
+    final TransportMode transportModeHint = hint == null ? null : SentianceConverter.toTransportMode(hint);
     sdk.startTrip(metadataMap, transportModeHint, new StartTripCallback() {
       @Override
       public void onSuccess() {
