@@ -182,7 +182,7 @@ public class SentianceModule extends AbstractSentianceModule {
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void startTrip(@Nullable ReadableMap metadata, @Nullable Integer hint, final Promise promise) {
+  public void startTrip(@Nullable ReadableMap metadata, int hint, final Promise promise) {
     if (rejectIfNotInitialized(promise)) {
       return;
     }
@@ -191,7 +191,7 @@ public class SentianceModule extends AbstractSentianceModule {
     if (metadata != null) {
       metadataMap = metadata.toHashMap();
     }
-    final TransportMode transportModeHint = hint == null ? null : SentianceConverter.toTransportMode(hint);
+    final TransportMode transportModeHint = SentianceConverter.toTransportMode(hint);
     sdk.startTrip(metadataMap, transportModeHint)
       .addOnCompleteListener(new OnCompleteListener<StartTripResult, StartTripError>() {
         @Override
@@ -218,7 +218,7 @@ public class SentianceModule extends AbstractSentianceModule {
         @Override
         public void onComplete(@NonNull PendingOperation<StopTripResult, StopTripError> pendingOperation) {
           if (pendingOperation.isSuccessful()) {
-            promise.resolve(true);
+            promise.resolve(SentianceConverter.createEmptyResult());
           } else {
             StopTripError error = pendingOperation.getError();
             promise.reject(E_SDK_STOP_TRIP_ERROR,
