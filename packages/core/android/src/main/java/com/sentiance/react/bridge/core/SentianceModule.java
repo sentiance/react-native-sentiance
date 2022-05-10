@@ -182,7 +182,7 @@ public class SentianceModule extends AbstractSentianceModule {
 
   @ReactMethod
   @SuppressWarnings("unused")
-  public void startTrip(@Nullable ReadableMap metadata, int hint, final Promise promise) {
+  public void startTrip(@Nullable ReadableMap metadata, @Nullable Integer hint, final Promise promise) {
     if (rejectIfNotInitialized(promise)) {
       return;
     }
@@ -191,7 +191,7 @@ public class SentianceModule extends AbstractSentianceModule {
     if (metadata != null) {
       metadataMap = metadata.toHashMap();
     }
-    final TransportMode transportModeHint = SentianceConverter.toTransportMode(hint);
+    final TransportMode transportModeHint = hint == null ? null : SentianceConverter.toTransportMode(hint);
     sdk.startTrip(metadataMap, transportModeHint)
       .addOnCompleteListener(new OnCompleteListener<StartTripResult, StartTripError>() {
         @Override
