@@ -277,6 +277,8 @@ declare module "react-native-sentiance" {
     initState: string
   }
 
+  export interface StartTripResult {}
+
   export interface RNSentianceConstructor extends EventSubscriptionVendor {
     userExists(): Promise<boolean>;
     enableDetections(): Promise<EnableDisableDetectionsResult>;
@@ -304,7 +306,8 @@ declare module "react-native-sentiance" {
     disableBatteryOptimization(): Promise<boolean>;
     getUserActivity(): Promise<UserActivity>;
     listenUserActivityUpdates(): Promise<boolean>;
-    startTrip(metadata: MetadataObject|null, hint: TransportMode): Promise<boolean>;
+    startTrip(metadata: MetadataObject|null, hint: TransportMode|null): Promise<boolean>;
+    startTrip(metadata: MetadataObject|null, hint: TransportMode|null): Promise<StartTripResult>;
     stopTrip(): Promise<boolean>;
     isTripOngoing(type: TripType): Promise<boolean>;
     submitDetections(): Promise<boolean>;

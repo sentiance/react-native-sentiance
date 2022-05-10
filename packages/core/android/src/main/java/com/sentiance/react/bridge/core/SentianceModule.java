@@ -197,7 +197,7 @@ public class SentianceModule extends AbstractSentianceModule {
         @Override
         public void onComplete(@NonNull PendingOperation<StartTripResult, StartTripError> pendingOperation) {
           if (pendingOperation.isSuccessful()) {
-            promise.resolve(true);
+            promise.resolve(SentianceConverter.createEmptyResult());
           } else {
             StartTripError error = pendingOperation.getError();
             promise.reject(E_SDK_START_TRIP_ERROR,
