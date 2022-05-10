@@ -17,7 +17,7 @@ const SENTIANCE_EMITTER = new NativeEventEmitter(SentianceCore);
 
 const _addSdkStatusUpdateListener = (onSdkStatusUpdated) => {
   return SENTIANCE_EMITTER.addListener(SDK_STATUS_UPDATE_EVENT, async (sdkStatus) => {
-    onSdkStatusUpdated(sdkStatus);
+    await onSdkStatusUpdated(sdkStatus);
   });
 };
 
@@ -37,13 +37,13 @@ const _addUserLinkListener = (linker) => {
 
 const _addOnDetectionsEnabledListener = (onDetectionsEnabled) => {
   return SENTIANCE_EMITTER.addListener(SDK_ON_DETECTIONS_ENABLED_EVENT, async (data) => {
-    onDetectionsEnabled(data);
+    await onDetectionsEnabled(data);
   });
 };
 
 const _addSdkUserActivityUpdateListener = (onUserActivityUpdated) => {
   return SENTIANCE_EMITTER.addListener(SDK_USER_ACTIVITY_UPDATE_EVENT, async (data) => {
-    onUserActivityUpdated(data);
+    await onUserActivityUpdated(data);
   });
 };
 
