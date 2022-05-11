@@ -44,7 +44,7 @@ if (Platform.OS === 'ios') {
   reset = () => core.resetNewApi();
 }
 else {
-  startTripN = (metadata, hint) => core.startTrip(metadata, hint);
+  startTrip = (metadata, hint) => core.startTrip(metadata, hint);
   stopTrip = () => core.stopTrip();
   submitDetections = () => core.submitDetections();
   reset = () => core.reset();
