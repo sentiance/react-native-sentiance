@@ -75,21 +75,39 @@ const {
 RNSentiance.userLinkCallback = userLinkCallback;
 RNSentiance.getUserId = getUserId;
 RNSentiance.getUserAccessToken = getUserAccessToken;
-RNSentiance.addUserMetadataField = addUserMetadataField;
-RNSentiance.addUserMetadataFields = addUserMetadataFields;
-RNSentiance.removeUserMetadataField = removeUserMetadataField;
+RNSentiance.addUserMetadataField = async (label, value) => {
+  await addUserMetadataField(label, value);
+  return Promise.resolve(true);
+};
+RNSentiance.addUserMetadataFields = async (metadata) => {
+  await addUserMetadataFields(metadata);
+  return Promise.resolve(true);
+};
+RNSentiance.removeUserMetadataField = async (label) => {
+  await removeUserMetadataField(label);
+  return Promise.resolve(true);
+};
 RNSentiance.getVersion = getVersion;
 RNSentiance.getUserActivity = getUserActivity;
-RNSentiance.listenUserActivityUpdates = listenUserActivityUpdates;
+RNSentiance.listenUserActivityUpdates = async () => {
+  await listenUserActivityUpdates();
+  return Promise.resolve(true);
+};
 RNSentiance.isTripOngoing = isTripOngoing;
 RNSentiance.submitDetections = submitDetections;
-RNSentiance.updateSdkNotification = updateSdkNotification;
+RNSentiance.updateSdkNotification = async (title, message) => {
+  await updateSdkNotification(title, message);
+  return Promise.resolve(true);
+};
 RNSentiance.addTripMetadata = addTripMetadata;
 RNSentiance.getInitState = getInitState;
 RNSentiance.getSdkStatus = getSdkStatus;
 RNSentiance.getDiskQuotaLimit = getDiskQuotaLimit;
 RNSentiance.getDiskQuotaUsage = getDiskQuotaUsage;
-RNSentiance.disableBatteryOptimization = disableBatteryOptimization;
+RNSentiance.disableBatteryOptimization = async () => {
+  await disableBatteryOptimization();
+  return Promise.resolve(true);
+};
 RNSentiance.getMobileQuotaLimit = getMobileQuotaLimit;
 RNSentiance.getMobileQuotaUsage = getMobileQuotaUsage;
 RNSentiance.getWiFiQuotaLimit = getWiFiQuotaLimit;
