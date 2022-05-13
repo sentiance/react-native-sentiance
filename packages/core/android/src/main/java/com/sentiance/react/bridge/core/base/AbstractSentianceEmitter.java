@@ -49,7 +49,7 @@ public abstract class AbstractSentianceEmitter {
     }
   }
 
-  private class Counter {
+  private static class Counter {
     Counter(int count) {
       this.count = count;
     }

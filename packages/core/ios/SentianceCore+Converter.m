@@ -693,7 +693,7 @@
             reason = @"USER_ALREADY_EXISTS";
             break;
         case SENTUserCreationFailureReasonNetworkError:
-            reason = @"USER_CREATION_IN_PROGRESS";
+            reason = @"NETWORK_ERROR";
             break;
         case SENTUserCreationFailureReasonServerError:
             reason = @"SERVER_ERROR";
@@ -778,7 +778,7 @@
 
 - (NSDictionary *)convertResetResult:(SENTResetResult *)resetResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    // empty object
+    dict[@"initState"] = [self convertInitStateToString:resetResult.initState];
     
     return dict;
 }
@@ -845,25 +845,9 @@
     NSString *reason;
     NSString *details;
     switch (stopTripError.failureReason) {
-        case SENTStartTripFailureReasonNoUser:
-            reason = @"NO_USER";
-            details = @"No Sentiance user is present on device. Call 'createUser' to create a user.";
-            break;
-        case SENTStartTripFailureReasonDetectionsDisabled:
-            reason = @"DETECTIONS_DISABLED";
-            details = @"Detections are disabled. Enable them first before starting a trip.";
-            break;
-        case SENTStartTripFailureReasonDetectionsBlocked:
-            reason = @"DETECTIONS_BLOCKED";
-            details = @"Detections are enabled but not running. Check the SDK's status to find out why.";
-            break;
-        case SENTStartTripFailureReasonTripAlreadyStarted:
-            reason = @"TRIP_ALREADY_STARTED";
-            details = @"An external trip is already started. To start a new trip, call `stopTrip()` first.";
-            break;
-        case SENTStartTripFailureReasonUserDisabledRemotely:
-            reason = @"USER_DISABLED_REMOTELY";
-            details = @"The user is disabled remotely.";
+        case SENTStopTripFailureReasonNoOngoingTrip:
+            reason = @"NO_ONGOING_TRIP";
+            details = @"There is no ongoing external trip.";
             break;
     }
     return [NSString stringWithFormat:@"Reason: %@ - %@", reason, details];

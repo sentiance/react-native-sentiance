@@ -380,7 +380,7 @@ RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
         }
 
         [[Sentiance sharedInstance] addUserMetadataField:label value:value];
-        resolve(@(YES));
+        resolve(nil);
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
@@ -397,7 +397,7 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
         }
 
         [[Sentiance sharedInstance] removeUserMetadataField:label];
-        resolve(@(YES));
+        resolve(nil);
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
@@ -595,7 +595,7 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 RCT_EXPORT_METHOD(disableBatteryOptimization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     NSLog(@"This is an Android only method.");
-    resolve(@(YES));
+    resolve(nil);
 }
 
 RCT_EXPORT_METHOD(updateSdkNotification:(NSString *)title
@@ -604,7 +604,7 @@ RCT_EXPORT_METHOD(updateSdkNotification:(NSString *)title
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
     NSLog(@"This is an Android only method.");
-    resolve(@(YES));
+    resolve(nil);
 }
 
 RCT_EXPORT_METHOD(addTripMetadata:(NSDictionary *)metadata
@@ -612,7 +612,7 @@ RCT_EXPORT_METHOD(addTripMetadata:(NSDictionary *)metadata
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
     NSLog(@"This is an Android only method.");
-    resolve(@(YES));
+    resolve(nil);
 }
 
 RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -634,7 +634,7 @@ RCT_EXPORT_METHOD(listenUserActivityUpdates:(RCTPromiseResolveBlock)resolve reje
                 [weakSelf sendEventWithName:@"SENTIANCE_USER_ACTIVITY_UPDATE_EVENT" body:userActivityDict];
             }
         }];
-        resolve(@(YES));
+        resolve(nil);
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
@@ -724,7 +724,7 @@ RCT_EXPORT_METHOD(listenUserContextUpdates:(RCTPromiseResolveBlock)resolve rejec
                                                                             SENTUserContextUpdateCriteriaActiveSegments |
                                                                             SENTUserContextUpdateCriteriaActiveMoments |
                                                                             SENTUserContextUpdateCriteriaVisitedVenues;
-    resolve(@(YES));
+    resolve(nil);
 }
 
 RCT_EXPORT_METHOD(setAppSessionDataCollectionEnabled:(BOOL)enabled
@@ -732,7 +732,7 @@ RCT_EXPORT_METHOD(setAppSessionDataCollectionEnabled:(BOOL)enabled
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
     // TODO
-    resolve(@(YES));
+    resolve(nil);
 }
 
 RCT_EXPORT_METHOD(isAppSessionDataCollectionEnabled:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
@@ -824,6 +824,7 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
 {
     [[Sentiance sharedInstance] reset:^{
         [self disableSDKNativeInitialization:resolve rejecter:reject];
+        resolve(nil);
     } failure:^(SENTResetFailureReason reason) {
         NSString *message = @"Resetting the SDK failed";
         switch(reason) {
@@ -846,6 +847,7 @@ RCT_EXPORT_METHOD(resetNewApi:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromi
             reject(ESDKResetError, [self stringifyResetError:error], nil);
         }
         else {
+            [self disableSDKNativeInitialization:resolve rejecter:reject];
             resolve([self convertResetResult: result]);
         }
     }];
@@ -862,7 +864,7 @@ RCT_EXPORT_METHOD(listenSdkStatusUpdates:(RCTPromiseResolveBlock)resolve rejecte
         @"userContext": [self convertUserContextToDict:userContext],
         @"criteria": [self convertUserContextCriteriaToArray:criteriaMask]
     };
-    [self sendEventWithName:@"SENTIANCE_VEHICLE_CRASH_EVENT" body:dict];
+    [self sendEventWithName:@"SENTIANCE_USER_CONTEXT_UPDATE_EVENT" body:dict];
 }
 
 - (BOOL)isNativeInitializationEnabled {
