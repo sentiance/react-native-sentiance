@@ -1,8 +1,8 @@
 import Platform from 'react-native';
+
 const {NativeModules, NativeEventEmitter} = require("react-native");
 const {varToString} = require("@react-native-sentiance/core/lib/utils")
 const {SentianceUserContext} = NativeModules;
-
 
 const SDK_USER_CONTEXT_UPDATE_EVENT = "SENTIANCE_USER_CONTEXT_UPDATE_EVENT";
 
@@ -26,6 +26,7 @@ if (Platform.OS === 'android') {
 const SENTIANCE_EMITTER = new NativeEventEmitter(userContextModule);
 
 const _addUserContextUpdateListener = (onUserContextUpdated) => {
+  userContextModule.listenUserContextUpdates();
   return SENTIANCE_EMITTER.addListener(SDK_USER_CONTEXT_UPDATE_EVENT, async (data) => {
     onUserContextUpdated(data);
   });
