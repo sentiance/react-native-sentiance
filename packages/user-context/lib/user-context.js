@@ -1,6 +1,4 @@
-import Platform from 'react-native';
-
-const {NativeModules, NativeEventEmitter} = require("react-native");
+const {NativeModules, NativeEventEmitter, Platform} = require("react-native");
 const {varToString} = require("@react-native-sentiance/core/lib/utils")
 const {SentianceUserContext, SentianceCore} = NativeModules;
 

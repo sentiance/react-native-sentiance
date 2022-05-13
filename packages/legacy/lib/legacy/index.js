@@ -1,8 +1,7 @@
-import { Platform } from 'react-native';
-import {NativeModules} from 'react-native'
+import {NativeModules, Platform} from 'react-native'
 import {varToString} from '@react-native-sentiance/core/lib/utils'
 
-const {RNSentiance,SentianceCore} = NativeModules;
+const {RNSentiance, SentianceCore} = NativeModules;
 
 var legacyModule
 if (Platform.OS === 'ios') {
@@ -12,8 +11,7 @@ if (Platform.OS === 'ios') {
     Make sure that your native code is properly linked, and that the module name you specified is correct.`;
   }
   legacyModule = SentianceCore
-}
-else {
+} else {
   if (!RNSentiance) {
     const nativeModuleName = varToString({RNSentiance});
     throw `Could not locate the native ${nativeModuleName} module.
