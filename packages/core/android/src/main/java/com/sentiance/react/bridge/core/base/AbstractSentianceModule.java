@@ -38,7 +38,7 @@ public abstract class AbstractSentianceModule extends ReactContextBaseJavaModule
     return false;
   }
 
-  protected boolean isSdkInitialized() {
+  private boolean isSdkInitialized() {
     return sdk.getInitState() == InitState.INITIALIZED;
   }
 }

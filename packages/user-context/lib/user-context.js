@@ -2,7 +2,7 @@ import Platform from 'react-native';
 
 const {NativeModules, NativeEventEmitter} = require("react-native");
 const {varToString} = require("@react-native-sentiance/core/lib/utils")
-const {SentianceUserContext} = NativeModules;
+const {SentianceUserContext, SentianceCore} = NativeModules;
 
 const SDK_USER_CONTEXT_UPDATE_EVENT = "SENTIANCE_USER_CONTEXT_UPDATE_EVENT";
 
