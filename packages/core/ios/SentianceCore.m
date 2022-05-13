@@ -824,7 +824,6 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
 {
     [[Sentiance sharedInstance] reset:^{
         [self disableSDKNativeInitialization:resolve rejecter:reject];
-        resolve(nil);
     } failure:^(SENTResetFailureReason reason) {
         NSString *message = @"Resetting the SDK failed";
         switch(reason) {
@@ -847,8 +846,8 @@ RCT_EXPORT_METHOD(resetNewApi:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromi
             reject(ESDKResetError, [self stringifyResetError:error], nil);
         }
         else {
-            [self disableSDKNativeInitialization:resolve rejecter:reject];
             resolve([self convertResetResult: result]);
+            [self disableSDKNativeInitialization:nil rejecter:nil];
         }
     }];
 }
