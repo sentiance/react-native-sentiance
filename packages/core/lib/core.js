@@ -43,6 +43,7 @@ const _addOnDetectionsEnabledListener = (onDetectionsEnabled) => {
 };
 
 const _addSdkUserActivityUpdateListener = (onUserActivityUpdated) => {
+  SentianceCore.listenUserActivityUpdates();
   return SENTIANCE_EMITTER.addListener(SDK_USER_ACTIVITY_UPDATE_EVENT, async (data) => {
     await onUserActivityUpdated(data);
   });
