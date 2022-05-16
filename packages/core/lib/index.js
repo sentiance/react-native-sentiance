@@ -51,7 +51,7 @@ else {
 }
 
 const linkUser = async (linker) => {
-  core._addUserLinkListener(linker);
+  await core._addUserLinkListener(linker);
   return core.linkUser();
 };
 
@@ -122,7 +122,7 @@ const createUser = async (userCreationOptions) => {
   if (authCode) {
     return core.createLinkedUserWithAuthCode(authCode, platformUrl);
   } else if (linker) {
-    core._addUserLinkListener(linker);
+    await core._addUserLinkListener(linker);
     return core.createLinkedUser(appId, appSecret, platformUrl);
   } else {
     return core.createUnlinkedUser(appId, appSecret, platformUrl);

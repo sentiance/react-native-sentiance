@@ -23,9 +23,9 @@ if (Platform.OS === 'android') {
 
 const SENTIANCE_EMITTER = new NativeEventEmitter(userContextModule);
 
-const _addUserContextUpdateListener = (onUserContextUpdated) => {
-  userContextModule.listenUserContextUpdates();
-  return SENTIANCE_EMITTER.addListener(SDK_USER_CONTEXT_UPDATE_EVENT, async (data) => {
+const _addUserContextUpdateListener = async (onUserContextUpdated) => {
+  await userContextModule.listenUserContextUpdates();
+  return SENTIANCE_EMITTER.addListener(SDK_USER_CONTEXT_UPDATE_EVENT, (data) => {
     onUserContextUpdated(data);
   });
 };

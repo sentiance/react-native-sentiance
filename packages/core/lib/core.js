@@ -15,14 +15,14 @@ if (!SentianceCore) {
 
 const SENTIANCE_EMITTER = new NativeEventEmitter(SentianceCore);
 
-const _addSdkStatusUpdateListener = (onSdkStatusUpdated) => {
-  SentianceCore.listenSdkStatusUpdates();
-  return SENTIANCE_EMITTER.addListener(SDK_STATUS_UPDATE_EVENT, async (sdkStatus) => {
-    await onSdkStatusUpdated(sdkStatus);
+const _addSdkStatusUpdateListener = async (onSdkStatusUpdated) => {
+  await SentianceCore.listenSdkStatusUpdates();
+  return SENTIANCE_EMITTER.addListener(SDK_STATUS_UPDATE_EVENT, (sdkStatus) => {
+    onSdkStatusUpdated(sdkStatus);
   });
 };
 
-const _addUserLinkListener = (linker) => {
+const _addUserLinkListener = async (linker) => {
   const subscription = SENTIANCE_EMITTER.addListener(SDK_USER_LINK_EVENT, async (data) => {
     const {installId} = data;
     const linkingResult = await linker(installId);
@@ -36,16 +36,16 @@ const _addUserLinkListener = (linker) => {
   });
 };
 
-const _addOnDetectionsEnabledListener = (onDetectionsEnabled) => {
-  return SENTIANCE_EMITTER.addListener(SDK_ON_DETECTIONS_ENABLED_EVENT, async (data) => {
-    await onDetectionsEnabled(data);
+const _addOnDetectionsEnabledListener = async (onDetectionsEnabled) => {
+  return SENTIANCE_EMITTER.addListener(SDK_ON_DETECTIONS_ENABLED_EVENT, (data) => {
+    onDetectionsEnabled(data);
   });
 };
 
-const _addSdkUserActivityUpdateListener = (onUserActivityUpdated) => {
-  SentianceCore.listenUserActivityUpdates();
-  return SENTIANCE_EMITTER.addListener(SDK_USER_ACTIVITY_UPDATE_EVENT, async (data) => {
-    await onUserActivityUpdated(data);
+const _addSdkUserActivityUpdateListener = async (onUserActivityUpdated) => {
+  await SentianceCore.listenUserActivityUpdates();
+  return SENTIANCE_EMITTER.addListener(SDK_USER_ACTIVITY_UPDATE_EVENT, (data) => {
+    onUserActivityUpdated(data);
   });
 };
 
