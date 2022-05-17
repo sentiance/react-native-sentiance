@@ -706,14 +706,14 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
     return [[Sentiance sharedInstance] isUserLinked];
 }
 
-RCT_EXPORT_METHOD(getUserContext:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(requestUserContext:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     __weak typeof(self) weakSelf = self;
     
     [[Sentiance sharedInstance] requestUserContext:^(SENTUserContext * _Nonnull userContext) {
         resolve([weakSelf convertUserContextToDict:userContext]);
     } failure:^(NSError * _Nonnull error) {
-        reject(@"E_SDK_GET_USER_CONTEXT_ERROR", @"Failed to retreive user context", nil);
+        reject(ESDKRequestUserContextError, @"Failed to retreive user context", nil);
     }];
 }
 
@@ -855,6 +855,7 @@ RCT_EXPORT_METHOD(resetNewApi:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromi
 RCT_EXPORT_METHOD(listenSdkStatusUpdates:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     [[Sentiance sharedInstance] setDidReceiveSdkStatusUpdateHandler: [self getSdkStatusUpdateHandler]];
+    resolve(nil);
 }
 
 - (void)didUpdateUserContext:(SENTUserContext *)userContext

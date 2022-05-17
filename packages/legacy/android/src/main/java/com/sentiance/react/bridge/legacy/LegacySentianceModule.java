@@ -29,6 +29,7 @@ import com.sentiance.sdk.trip.StartTripCallback;
 import com.sentiance.sdk.trip.StopTripCallback;
 import com.sentiance.sdk.trip.TransportMode;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class LegacySentianceModule extends AbstractSentianceModule implements LifecycleEventListener {
@@ -64,7 +65,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       }
 
       @Override
-      public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
+      public void onInitFailure(@NonNull InitIssue issue, @Nullable Throwable throwable) {
         if (throwable != null) {
           promise.reject(issue.name(), throwable);
         } else {
@@ -73,18 +74,13 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       }
     };
 
-    new Handler(Looper.getMainLooper()).post(new Runnable() {
-      @Override
-      public void run() {
-        legacySentianceHelper.initializeSentianceSDK(
-          appId, appSecret,
-          shouldStart,
-          baseURL,
-          initCallback,
-          startFinishedHandlerCreator.createNewStartFinishedHandler(promise)
-        );
-      }
-    });
+    new Handler(Looper.getMainLooper()).post(() -> legacySentianceHelper.initializeSentianceSDK(
+      appId, appSecret,
+      shouldStart,
+      baseURL,
+      initCallback,
+      startFinishedHandlerCreator.createNewStartFinishedHandler(promise)
+    ));
 
   }
 
@@ -103,7 +99,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       }
 
       @Override
-      public void onInitFailure(InitIssue issue, @Nullable Throwable throwable) {
+      public void onInitFailure(@NonNull InitIssue issue, @Nullable Throwable throwable) {
         Log.v(NATIVE_MODULE_NAME, "onInitFailure");
         if (throwable != null) {
           promise.reject(issue.name(), throwable);
@@ -113,19 +109,16 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       }
     };
 
-    new Handler(Looper.getMainLooper()).post(new Runnable() {
-      @Override
-      public void run() {
-        Log.v(NATIVE_MODULE_NAME, "legacySentianceHelper.initializeSentianceSDKWithUserLinking()");
-        Log.v(NATIVE_MODULE_NAME, "baseURL: " + baseURL);
-        legacySentianceHelper.initializeSentianceSDKWithUserLinking(
-          appId, appSecret,
-          shouldStart,
-          baseURL,
-          initCallback,
-          startFinishedHandlerCreator.createNewStartFinishedHandler(promise)
-        );
-      }
+    new Handler(Looper.getMainLooper()).post(() -> {
+      Log.v(NATIVE_MODULE_NAME, "legacySentianceHelper.initializeSentianceSDKWithUserLinking()");
+      Log.v(NATIVE_MODULE_NAME, "baseURL: " + baseURL);
+      legacySentianceHelper.initializeSentianceSDKWithUserLinking(
+        appId, appSecret,
+        shouldStart,
+        baseURL,
+        initCallback,
+        startFinishedHandlerCreator.createNewStartFinishedHandler(promise)
+      );
     });
   }
 
@@ -140,7 +133,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       }
 
       @Override
-      public void onResetFailure(ResetFailureReason reason) {
+      public void onResetFailure(@NonNull ResetFailureReason reason) {
         promise.reject(reason.name(), "Resetting the SDK failed");
       }
     });
@@ -159,14 +152,11 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       return;
     }
 
-    mHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        Long stopTime = stopEpochTimeMs == null ? null : stopEpochTimeMs.longValue();
-        legacySentianceHelper.startSentianceSDK(stopTime,
-          startFinishedHandlerCreator.createNewStartFinishedHandler(promise)
-        );
-      }
+    mHandler.post(() -> {
+      Long stopTime = stopEpochTimeMs == null ? null : stopEpochTimeMs.longValue();
+      legacySentianceHelper.startSentianceSDK(stopTime,
+        startFinishedHandlerCreator.createNewStartFinishedHandler(promise)
+      );
     });
   }
 
@@ -188,9 +178,11 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       return;
     }
 
-    Map metadataMap = null;
+    Map<String, String> metadataMap = new HashMap<>();
     if (metadata != null) {
-      metadataMap = metadata.toHashMap();
+      for (Map.Entry<String, Object> entry : metadata.toHashMap().entrySet()) {
+        metadataMap.put(entry.getKey(), entry.getValue().toString());
+      }
     }
     final TransportMode transportModeHint = SentianceConverter.toTransportMode(hint);
     sdk.startTrip(metadataMap, transportModeHint, new StartTripCallback() {
@@ -274,7 +266,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
 
     sdk.getUserAccessToken(new TokenResultCallback() {
       @Override
-      public void onSuccess(Token token) {
+      public void onSuccess(@NonNull Token token) {
         promise.resolve(SentianceConverter.convertToken(token));
       }
 

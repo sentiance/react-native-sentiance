@@ -1,5 +1,7 @@
 package com.sentiance.react.bridge.legacy;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.Promise;
 import com.sentiance.react.bridge.core.SentianceConverter;
 import com.sentiance.sdk.OnStartFinishedHandler;
@@ -19,7 +21,7 @@ public class StartFinishedHandlerCreator {
   OnStartFinishedHandler createNewStartFinishedHandler(final Promise promise) {
     final OnStartFinishedHandler startFinishedHandler = new OnStartFinishedHandler() {
       @Override
-      public void onStartFinished(SdkStatus sdkStatus) {
+      public void onStartFinished(@NonNull SdkStatus sdkStatus) {
         promise.resolve(SentianceConverter.convertSdkStatus(sdkStatus));
         removeStartFinishHandler(this);
       }

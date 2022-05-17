@@ -7,8 +7,6 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.sdk.crashdetection.api.CrashDetectionApi;
-import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
-import com.sentiance.sdk.crashdetection.api.VehicleCrashListener;
 
 public class SentianceCrashDetectionModule extends AbstractSentianceModule {
 
@@ -33,12 +31,7 @@ public class SentianceCrashDetectionModule extends AbstractSentianceModule {
       return;
     }
 
-    CrashDetectionApi.getInstance(reactContext).setVehicleCrashListener(new VehicleCrashListener() {
-      @Override
-      public void onVehicleCrash(@NonNull VehicleCrashEvent crashEvent) {
-        emitter.sendVehicleCrashEvent(crashEvent);
-      }
-    });
+    CrashDetectionApi.getInstance(reactContext).setVehicleCrashListener(emitter::sendVehicleCrashEvent);
     promise.resolve(true);
   }
 

@@ -12,7 +12,7 @@
 
 - (NSString*)convertTimelineEventTypeToString:(SENTTimelineEventType)type;
 - (NSDictionary*)convertGeolocation:(SENTGeolocation*)location;
-- (NSString*)convertVenueType:(SENTVenueSignificance)type;
+- (NSString*)convertVenueSignificance:(SENTVenueSignificance)type;
 - (NSDictionary*)convertVisit:(SENTVisit*)visit;
 - (NSDictionary*)convertVenue:(SENTVenue*)venue;
 - (NSDictionary*)convertVenueCandidate:(SENTVenueCandidate*)candidate;
@@ -51,7 +51,7 @@
     };
 }
 
-- (NSString*)convertVenueType:(SENTVenueSignificance)type {
+- (NSString*)VenueSignificance:(SENTVenueSignificance)type {
     switch (type) {
         case SENTVenueSignificanceHome:
             return @"HOME";
@@ -68,7 +68,9 @@
 - (NSDictionary*)convertVisit:(SENTVisit*)visit {
     return @{
         @"startTime": [visit.startDate description],
+        @"startTimeEpoch": [NSString stringWithFormat:@"%d",visit.startDate.timeIntervalSince1970],
         @"endTime": [visit.endDate description],
+        @"endTimeEpoch": [NSString stringWithFormat:@"%d",visit.startDate.timeIntervalSince1970],
         @"durationInSeconds": [NSNumber numberWithInt:(int)visit.durationInSeconds],
     };
 }
@@ -112,7 +114,7 @@
         dict[@"location"] = [self convertGeolocation:event.location];
     }
     
-    dict[@"venueType"] = [self convertVenueType:event.venueSignificance];
+    dict[@"venueSignificance"] = [self convertVenueSignificance:event.venueSignificance];
     
     NSMutableArray* venueCandidates = [[NSMutableArray alloc] init];
     for (SENTVenueCandidate* candidate in event.venueCandidates) {
@@ -419,14 +421,21 @@
         return nil;
     }
     
-    return @{
-        @"category": category,
-        @"subcategory": subcategory,
-        @"type": type,
-        @"id": @(segment.uniqueId),
-        @"startTime": [segment.startDate description],
-        @"attributes": [self convertSegmentAttributesToDict:segment.attributes],
-    };
+    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+    dict[@"category"] = category;
+    dict[@"subcategory"] = subcategory;
+    dict[@"type"] = type;
+    dict[@"id"] = @(segment.uniqueId);
+    dict[@"startTime"] = [segment.startDate description];
+    dict[@"startTimeEpoch"] = [NSString stringWithFormat:@"%d",segment.startDate.timeIntervalSince1970];
+
+    if (segment.endDate != nil) {
+        dict[@"endTime"] = [segment.endDate description];
+        dict[@"endTimeEpoch"] = [NSString stringWithFormat:@"%d",segment.endDate.timeIntervalSince1970];
+    }
+    dict[@"attributes"] = [self convertSegmentAttributesToDict:segment.attributes];
+    
+    return dict;
 }
 
 - (NSDictionary*)convertUserContextToDict:(SENTUserContext*)userContext {

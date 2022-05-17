@@ -7,7 +7,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.sentiance.react.bridge.core.SentianceHelper;
+import com.sentiance.react.bridge.core.SentianceEmitter;
+import com.sentiance.react.bridge.core.UserLinker;
 import com.sentiance.react.bridge.core.utils.SentianceUtils;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.OnStartFinishedHandler;
@@ -24,19 +25,14 @@ public class RNSentianceHelper {
   private static final String MY_PREFS_NAME = "RNSentianceHelper";
   private static final String TAG = "RNSentianceHelper";
   private static RNSentianceHelper rnSentianceHelper;
-  private static SentianceHelper sentianceHelper;
 
+  private final SentianceEmitter sentianceEmitter;
   private final WeakReference<Context> weakContext;
 
   public static RNSentianceHelper getInstance(Context context) {
     if (rnSentianceHelper == null) {
       synchronized (RNSentianceHelper.class) {
         rnSentianceHelper = new RNSentianceHelper(context);
-        if (sentianceHelper == null) {
-          synchronized (SentianceHelper.class) {
-            sentianceHelper = SentianceHelper.getInstance(context);
-          }
-        }
       }
     }
     return rnSentianceHelper;
@@ -45,6 +41,7 @@ public class RNSentianceHelper {
 
   private RNSentianceHelper(Context context) {
     weakContext = new WeakReference<>(context);
+    sentianceEmitter = new SentianceEmitter(weakContext.get());
   }
 
   /**
@@ -118,9 +115,9 @@ public class RNSentianceHelper {
 
     // Create the config.
     SdkConfig.Builder builder = new SdkConfig.Builder(appId, appSecret, notification)
-      .setOnSdkStatusUpdateHandler(sentianceHelper.getOnSdkStatusUpdateHandler());
+      .setOnSdkStatusUpdateHandler(sentianceEmitter::sendStatusUpdateEvent);
     if (userLinkingEnabled)
-      builder.setUserLinker(sentianceHelper.getUserLinker());
+      builder.setUserLinker(new UserLinker(sentianceEmitter));
     if (baseUrl != null)
       builder.baseURL(baseUrl);
 

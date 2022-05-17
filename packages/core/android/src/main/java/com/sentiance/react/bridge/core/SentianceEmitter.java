@@ -24,7 +24,7 @@ public class SentianceEmitter extends AbstractSentianceEmitter {
     sendEvent(USER_LINK, convertInstallId(installId));
   }
 
-  void sendStatusUpdateEvent(SdkStatus status) {
+  public void sendStatusUpdateEvent(SdkStatus status) {
     sendEvent(STATUS_UPDATE, convertSdkStatus(status));
   }
 

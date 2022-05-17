@@ -8,6 +8,7 @@ import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_STOP_TRIP_E
 import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -26,23 +27,17 @@ import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.SubmitDetectionsError;
-import com.sentiance.sdk.SubmitDetectionsResult;
 import com.sentiance.sdk.Token;
 import com.sentiance.sdk.UserAccessTokenError;
 import com.sentiance.sdk.detectionupdates.UserActivity;
-import com.sentiance.sdk.detectionupdates.UserActivityListener;
-import com.sentiance.sdk.pendingoperation.OnCompleteListener;
-import com.sentiance.sdk.pendingoperation.PendingOperation;
 import com.sentiance.sdk.reset.ResetError;
-import com.sentiance.sdk.reset.ResetResult;
 import com.sentiance.sdk.trip.StartTripError;
-import com.sentiance.sdk.trip.StartTripResult;
 import com.sentiance.sdk.trip.StopTripError;
-import com.sentiance.sdk.trip.StopTripResult;
 import com.sentiance.sdk.trip.TransportMode;
 import com.sentiance.sdk.trip.TripType;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SentianceModule extends AbstractSentianceModule {
@@ -67,12 +62,7 @@ public class SentianceModule extends AbstractSentianceModule {
   @ReactMethod
   @SuppressWarnings("unused")
   public void userLinkCallback(final Boolean linkResult) {
-    mHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        sentianceHelper.userLinkCallback(linkResult);
-      }
-    });
+    mHandler.post(() -> sentianceHelper.userLinkCallback(linkResult));
   }
 
   @ReactMethod
@@ -106,6 +96,9 @@ public class SentianceModule extends AbstractSentianceModule {
   @ReactMethod
   @SuppressWarnings("unused")
   public void createUnlinkedUser(String appId, String secret, @Nullable String platformUrl, final Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
     sentianceHelper.createUnlinkedUser(appId, secret, platformUrl)
       .addOnCompleteListener(new UserCreationCompletionHandler(promise));
   }
@@ -113,6 +106,9 @@ public class SentianceModule extends AbstractSentianceModule {
   @ReactMethod
   @SuppressWarnings("unused")
   public void createLinkedUser(String appId, String secret, @Nullable String platformUrl, final Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
     sentianceHelper.createLinkedUser(appId, secret, platformUrl)
       .addOnCompleteListener(new UserCreationCompletionHandler(promise));
   }
@@ -120,6 +116,9 @@ public class SentianceModule extends AbstractSentianceModule {
   @ReactMethod
   @SuppressWarnings("unused")
   public void createLinkedUserWithAuthCode(String authCode, @Nullable String platformUrl, final Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
     sentianceHelper.createLinkedUser(authCode, platformUrl)
       .addOnCompleteListener(new UserCreationCompletionHandler(promise));
   }
@@ -127,32 +126,30 @@ public class SentianceModule extends AbstractSentianceModule {
   @ReactMethod
   @SuppressWarnings("unused")
   public void linkUser(final Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
     sentianceHelper.linkUser(promise);
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
   public void linkUserWithAuthCode(String authCode, final Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
     sentianceHelper.linkUser(authCode, promise);
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
   public void userExists(final Promise promise) {
-    if (rejectIfNotInitialized(promise)) {
-      return;
-    }
-
     promise.resolve(sdk.userExists());
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
   public void isUserLinked(final Promise promise) {
-    if (rejectIfNotInitialized(promise)) {
-      return;
-    }
-
     promise.resolve(sdk.isUserLinked());
   }
 
@@ -160,15 +157,12 @@ public class SentianceModule extends AbstractSentianceModule {
   @SuppressWarnings("unused")
   public void reset(final Promise promise) {
     sdk.reset()
-      .addOnCompleteListener(new OnCompleteListener<ResetResult, ResetError>() {
-        @Override
-        public void onComplete(@NonNull PendingOperation<ResetResult, ResetError> pendingOperation) {
-          if (pendingOperation.isSuccessful()) {
-            promise.resolve(SentianceConverter.convertResetResult(pendingOperation.getResult()));
-          } else {
-            ResetError error = pendingOperation.getError();
-            promise.reject(E_SDK_RESET_ERROR, SentianceConverter.stringifyResetError(error));
-          }
+      .addOnCompleteListener(pendingOperation -> {
+        if (pendingOperation.isSuccessful()) {
+          promise.resolve(SentianceConverter.convertResetResult(pendingOperation.getResult()));
+        } else {
+          ResetError error = pendingOperation.getError();
+          promise.reject(E_SDK_RESET_ERROR, SentianceConverter.stringifyResetError(error));
         }
       });
   }
@@ -187,22 +181,21 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Map metadataMap = null;
+    Map<String, String> metadataMap = new HashMap<>();
     if (metadata != null) {
-      metadataMap = metadata.toHashMap();
+      for (Map.Entry<String, Object> entry : metadata.toHashMap().entrySet()) {
+        metadataMap.put(entry.getKey(), entry.getValue().toString());
+      }
     }
     final TransportMode transportModeHint = SentianceConverter.toTransportMode(hint);
     sdk.startTrip(metadataMap, transportModeHint)
-      .addOnCompleteListener(new OnCompleteListener<StartTripResult, StartTripError>() {
-        @Override
-        public void onComplete(@NonNull PendingOperation<StartTripResult, StartTripError> pendingOperation) {
-          if (pendingOperation.isSuccessful()) {
-            promise.resolve(SentianceConverter.createEmptyResult());
-          } else {
-            StartTripError error = pendingOperation.getError();
-            promise.reject(E_SDK_START_TRIP_ERROR,
-              SentianceConverter.stringifyStartTripError(error));
-          }
+      .addOnCompleteListener(pendingOperation -> {
+        if (pendingOperation.isSuccessful()) {
+          promise.resolve(SentianceConverter.createEmptyResult());
+        } else {
+          StartTripError error = pendingOperation.getError();
+          promise.reject(E_SDK_START_TRIP_ERROR,
+            SentianceConverter.stringifyStartTripError(error));
         }
       });
   }
@@ -214,16 +207,13 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
     sdk.stopTrip()
-      .addOnCompleteListener(new OnCompleteListener<StopTripResult, StopTripError>() {
-        @Override
-        public void onComplete(@NonNull PendingOperation<StopTripResult, StopTripError> pendingOperation) {
-          if (pendingOperation.isSuccessful()) {
-            promise.resolve(SentianceConverter.createEmptyResult());
-          } else {
-            StopTripError error = pendingOperation.getError();
-            promise.reject(E_SDK_STOP_TRIP_ERROR,
-              SentianceConverter.stringifyStopTripError(error));
-          }
+      .addOnCompleteListener(pendingOperation -> {
+        if (pendingOperation.isSuccessful()) {
+          promise.resolve(SentianceConverter.createEmptyResult());
+        } else {
+          StopTripError error = pendingOperation.getError();
+          promise.reject(E_SDK_STOP_TRIP_ERROR,
+            SentianceConverter.stringifyStopTripError(error));
         }
       });
   }
@@ -270,17 +260,14 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     sdk.requestUserAccessToken()
-      .addOnCompleteListener(new OnCompleteListener<Token, UserAccessTokenError>() {
-        @Override
-        public void onComplete(@NonNull PendingOperation<Token, UserAccessTokenError> pendingOperation) {
-          if (pendingOperation.isSuccessful()) {
-            Token token = pendingOperation.getResult();
-            promise.resolve(SentianceConverter.convertToken(token));
-          } else {
-            UserAccessTokenError error = pendingOperation.getError();
-            promise.reject(E_SDK_GET_TOKEN_ERROR,
-              SentianceConverter.stringifyUserAccessTokenError(error));
-          }
+      .addOnCompleteListener(pendingOperation -> {
+        if (pendingOperation.isSuccessful()) {
+          Token token = pendingOperation.getResult();
+          promise.resolve(SentianceConverter.convertToken(token));
+        } else {
+          UserAccessTokenError error = pendingOperation.getError();
+          promise.reject(E_SDK_GET_TOKEN_ERROR,
+            SentianceConverter.stringifyUserAccessTokenError(error));
         }
       });
   }
@@ -365,15 +352,12 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     sdk.submitDetections()
-      .addOnCompleteListener(new OnCompleteListener<SubmitDetectionsResult, SubmitDetectionsError>() {
-        @Override
-        public void onComplete(@NonNull PendingOperation<SubmitDetectionsResult, SubmitDetectionsError> pendingOperation) {
-          if (pendingOperation.isSuccessful()) {
-            promise.resolve(SentianceConverter.createEmptyResult());
-          } else {
-            SubmitDetectionsError error = pendingOperation.getError();
-            promise.reject(E_SDK_SUBMIT_DETECTIONS_ERROR, error.getReason().name());
-          }
+      .addOnCompleteListener(pendingOperation -> {
+        if (pendingOperation.isSuccessful()) {
+          promise.resolve(SentianceConverter.createEmptyResult());
+        } else {
+          SubmitDetectionsError error = pendingOperation.getError();
+          promise.reject(E_SDK_SUBMIT_DETECTIONS_ERROR, error.getReason().name());
         }
       });
   }
@@ -385,8 +369,8 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Long wifiQuotaLimit = sdk.getWiFiQuotaLimit();
-    promise.resolve(wifiQuotaLimit.toString());
+    long wifiQuotaLimit = sdk.getWiFiQuotaLimit();
+    promise.resolve(Long.toString(wifiQuotaLimit));
   }
 
   @ReactMethod
@@ -396,8 +380,8 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Long wifiQuotaUsage = sdk.getWiFiQuotaUsage();
-    promise.resolve(wifiQuotaUsage.toString());
+    long wifiQuotaUsage = sdk.getWiFiQuotaUsage();
+    promise.resolve(Long.toString(wifiQuotaUsage));
   }
 
   @ReactMethod
@@ -407,8 +391,8 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Long mobileQuotaLimit = sdk.getMobileQuotaLimit();
-    promise.resolve(mobileQuotaLimit.toString());
+    long mobileQuotaLimit = sdk.getMobileQuotaLimit();
+    promise.resolve(Long.toString(mobileQuotaLimit));
   }
 
   @ReactMethod
@@ -418,8 +402,8 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Long mobileQuotaUsage = sdk.getMobileQuotaUsage();
-    promise.resolve(mobileQuotaUsage.toString());
+    long mobileQuotaUsage = sdk.getMobileQuotaUsage();
+    promise.resolve(Long.toString(mobileQuotaUsage));
   }
 
   @ReactMethod
@@ -429,8 +413,8 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Long diskQuotaLimit = sdk.getDiskQuotaLimit();
-    promise.resolve(diskQuotaLimit.toString());
+    long diskQuotaLimit = sdk.getDiskQuotaLimit();
+    promise.resolve(Long.toString(diskQuotaLimit));
   }
 
   @ReactMethod
@@ -440,8 +424,8 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Long diskQuotaUsage = sdk.getDiskQuotaUsage();
-    promise.resolve(diskQuotaUsage.toString());
+    long diskQuotaUsage = sdk.getDiskQuotaUsage();
+    promise.resolve(Long.toString(diskQuotaUsage));
   }
 
   @SuppressLint("MissingPermission")
@@ -463,12 +447,9 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Sentiance.getInstance(reactContext).setUserActivityListener(new UserActivityListener() {
-      @Override
-      public void onUserActivityChange(@NonNull UserActivity activity) {
-        Log.d(NATIVE_MODULE_NAME, activity.toString());
-        emitter.sendUserActivityUpdate(activity);
-      }
+    Sentiance.getInstance(reactContext).setUserActivityListener(activity -> {
+      Log.d(NATIVE_MODULE_NAME, activity.toString());
+      emitter.sendUserActivityUpdate(activity);
     });
     promise.resolve(null);
   }
@@ -491,12 +472,15 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Sentiance.getInstance(reactContext)
-      .updateSdkNotification(
-        SentianceUtils.createNotificationFromManifestData(
-          new WeakReference<>(reactContext.getApplicationContext()),
-          title,
-          message));
+    Notification notification = SentianceUtils.createNotificationFromManifestData(
+            new WeakReference<>(reactContext.getApplicationContext()),
+            title,
+            message);
+    if (notification != null) {
+      Sentiance.getInstance(reactContext)
+               .updateSdkNotification(notification);
+    }
+
     promise.resolve(null);
   }
 

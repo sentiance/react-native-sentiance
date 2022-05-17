@@ -7,14 +7,12 @@ import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_USER_LINK_E
 
 import android.app.Notification;
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Promise;
 import com.sentiance.react.bridge.core.utils.SentianceUtils;
-import com.sentiance.sdk.DisableDetectionsError;
 import com.sentiance.sdk.DisableDetectionsResult;
 import com.sentiance.sdk.EnableDetectionsError;
 import com.sentiance.sdk.EnableDetectionsResult;
@@ -22,13 +20,10 @@ import com.sentiance.sdk.OnSdkStatusUpdateHandler;
 import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.SdkStatusUpdateListener;
 import com.sentiance.sdk.Sentiance;
-import com.sentiance.sdk.UserLinker;
 import com.sentiance.sdk.authentication.UserLinkingError;
-import com.sentiance.sdk.authentication.UserLinkingResult;
 import com.sentiance.sdk.init.InitializationFailureReason;
 import com.sentiance.sdk.init.InitializationResult;
 import com.sentiance.sdk.init.SentianceOptions;
-import com.sentiance.sdk.pendingoperation.OnCompleteListener;
 import com.sentiance.sdk.pendingoperation.PendingOperation;
 import com.sentiance.sdk.usercreation.UserCreationError;
 import com.sentiance.sdk.usercreation.UserCreationOptions;
@@ -36,46 +31,28 @@ import com.sentiance.sdk.usercreation.UserCreationResult;
 
 import java.lang.ref.WeakReference;
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
 
 public class SentianceHelper {
-  private static final String TAG = "SentianceHelper";
   private static final int NOTIFICATION_ID = 1001;
   private static SentianceHelper sentianceHelper;
 
   private final SentianceEmitter emitter;
   private final WeakReference<Context> weakContext;
+  private final UserLinker userLinker;
 
-  private Boolean userLinkResult = false;
-  private volatile CountDownLatch userLinkLatch;
+  private final OnSdkStatusUpdateHandler onSdkStatusUpdateHandler = this::onSdkStatusUpdated;
 
-  private final OnSdkStatusUpdateHandler onSdkStatusUpdateHandler = status -> onSdkStatusUpdated(status);
-
-  private final SdkStatusUpdateListener onSdkStatusUpdateListener = status -> onSdkStatusUpdated(status);
+  private final SdkStatusUpdateListener onSdkStatusUpdateListener = this::onSdkStatusUpdated;
 
   SdkStatusUpdateListener getOnSdkStatusUpdateListener() {
     return onSdkStatusUpdateListener;
   }
 
-  private final UserLinker userLinker = new UserLinker() {
-    @Override
-    public boolean link(String installId) {
-      Log.d(TAG, "User Link");
-      userLinkLatch = new CountDownLatch(1);
-      emitter.sendUserLinkEvent(installId);
-      try {
-        userLinkLatch.await();
 
-        return userLinkResult;
-      } catch (InterruptedException e) {
-        return false;
-      }
-    }
-  };
-
-  private SentianceHelper(Context context) {
+  protected SentianceHelper(Context context) {
     emitter = new SentianceEmitter(context);
     weakContext = new WeakReference<>(context);
+    userLinker = new UserLinker(emitter);
   }
 
   public static SentianceHelper getInstance(Context context) {
@@ -88,30 +65,29 @@ public class SentianceHelper {
   }
 
   private void onSdkStatusUpdated(@NonNull SdkStatus status) {
-    Log.d(TAG, "status update");
     emitter.sendStatusUpdateEvent(status);
   }
 
   void userLinkCallback(final Boolean linkResult) {
-    userLinkResult = linkResult;
-
-    CountDownLatch latch = userLinkLatch;
-    if (latch != null) {
-      latch.countDown();
-    }
+    userLinker.setUserLinkResult(linkResult);
   }
 
-  public InitializationResult initializeSDK() {
+  public InitializationResult initializeSDK(boolean mIsAppSessionDataCollectionEnabled) {
     Context context = weakContext.get();
     if (context == null) {
       return new InitializationResult(
-        false, InitializationFailureReason.EXCEPTION_OR_ERROR, new Throwable("Context is null"));
+        false, InitializationFailureReason.EXCEPTION_OR_ERROR, new Exception("Context is null"));
     }
     Notification notification = SentianceUtils.createNotificationFromManifestData(weakContext);
+    if (notification == null) {
+      return new InitializationResult(false, InitializationFailureReason.EXCEPTION_OR_ERROR,
+              new Throwable("null context while creating notification"));
+    }
     Sentiance sentiance = Sentiance.getInstance(context);
 
     SentianceOptions options = new SentianceOptions.Builder(context)
       .setNotification(notification, NOTIFICATION_ID)
+      .collectAppSessionData(mIsAppSessionDataCollectionEnabled)
       .build();
     InitializationResult result = sentiance.initialize(options);
     sentiance.setSdkStatusUpdateListener(onSdkStatusUpdateListener);
@@ -138,7 +114,7 @@ public class SentianceHelper {
 
   PendingOperation<UserCreationResult, UserCreationError> createLinkedUser(String appId, String secret,
                                                                            String platformUrl) {
-    UserCreationOptions.Builder builder = new UserCreationOptions.Builder(appId, secret, userLinker);
+    UserCreationOptions.Builder builder = new UserCreationOptions.Builder(appId, secret, userLinker   );
     if (platformUrl != null) {
       builder.setPlatformUrl(platformUrl);
     }
@@ -150,11 +126,7 @@ public class SentianceHelper {
   }
 
   void enableDetections(@Nullable Long stopTime, @Nullable final Promise promise) {
-    Context context = weakContext.get();
-    if (context == null) {
-      throw new IllegalStateException("Context is null.");
-    }
-    Sentiance sentiance = Sentiance.getInstance(context);
+    Sentiance sentiance = getSentiance();
     Date stopDate = null;
 
     if (stopTime != null) {
@@ -162,102 +134,62 @@ public class SentianceHelper {
     }
 
     sentiance.enableDetections(stopDate)
-      .addOnCompleteListener(new OnCompleteListener<EnableDetectionsResult, EnableDetectionsError>() {
-        @Override
-        public void onComplete(@NonNull PendingOperation<EnableDetectionsResult, EnableDetectionsError> pendingOperation) {
-          if (pendingOperation.isSuccessful()) {
-            EnableDetectionsResult result = pendingOperation.getResult();
-            emitter.sendOnDetectionsEnabledEvent(result.getSdkStatus());
-            if (promise != null) {
-              promise.resolve(SentianceConverter.convertEnableDetectionsResult(result));
-            }
-          } else {
-            EnableDetectionsError error = pendingOperation.getError();
-            if (promise != null) {
-              promise.reject(E_SDK_ENABLE_DETECTIONS_ERROR,
-                SentianceConverter.stringifyEnableDetectionsError(error));
-            }
+      .addOnCompleteListener(pendingOperation -> {
+        if (pendingOperation.isSuccessful()) {
+          EnableDetectionsResult result = pendingOperation.getResult();
+          emitter.sendOnDetectionsEnabledEvent(result.getSdkStatus());
+          if (promise != null) {
+            promise.resolve(SentianceConverter.convertEnableDetectionsResult(result));
+          }
+        } else {
+          EnableDetectionsError error = pendingOperation.getError();
+          if (promise != null) {
+            promise.reject(E_SDK_ENABLE_DETECTIONS_ERROR,
+              SentianceConverter.stringifyEnableDetectionsError(error));
           }
         }
       });
   }
 
   void disableDetections(final Promise promise) {
-    Context context = weakContext.get();
-    if (context == null) {
-      throw new IllegalStateException("Context is null.");
-    }
-    Sentiance.getInstance(context)
-      .disableDetections()
-      .addOnCompleteListener(new OnCompleteListener<DisableDetectionsResult, DisableDetectionsError>() {
-        @Override
-        public void onComplete(@NonNull PendingOperation<DisableDetectionsResult, DisableDetectionsError> pendingOperation) {
-          if (pendingOperation.isSuccessful()) {
-            DisableDetectionsResult result = pendingOperation.getResult();
-            promise.resolve(SentianceConverter.convertDisableDetectionsResult(result));
-          } else {
-            promise.reject(E_SDK_DISABLE_DETECTIONS_ERROR);
-          }
-        }
-      });
-  }
-
-  PendingOperation<UserCreationResult, UserCreationError> createUser(String appId, String secret) {
-    Context context = weakContext.get();
-    if (context == null) {
-      throw new IllegalStateException("Context is null.");
-    }
-
-    return Sentiance.getInstance(context)
-      .createUser(new UserCreationOptions.Builder(appId, secret, userLinker).build());
+    Sentiance sentiance = getSentiance();
+    sentiance.disableDetections()
+            .addOnCompleteListener(pendingOperation -> {
+              if (pendingOperation.isSuccessful()) {
+                DisableDetectionsResult result = pendingOperation.getResult();
+                promise.resolve(SentianceConverter.convertDisableDetectionsResult(result));
+              } else {
+                promise.reject(E_SDK_DISABLE_DETECTIONS_ERROR, "");
+              }
+            });
   }
 
   void linkUser(final Promise promise) {
-    Context context = weakContext.get();
-    if (context == null) return;
-    Sentiance sentiance = Sentiance.getInstance(context);
-
+    Sentiance sentiance = getSentiance();
     sentiance.linkUser(userLinker)
-      .addOnCompleteListener(new OnCompleteListener<UserLinkingResult, UserLinkingError>() {
-        @Override
-        public void onComplete(@NonNull PendingOperation<UserLinkingResult, UserLinkingError> pendingOperation) {
-          if (pendingOperation.isSuccessful()) {
-            promise.resolve(SentianceConverter.convertUserLinkingResult(pendingOperation.getResult()));
-          } else {
-            UserLinkingError error = pendingOperation.getError();
-            promise.reject(E_SDK_USER_LINK_ERROR,
-              SentianceConverter.stringifyUserLinkingError(error));
-          }
+      .addOnCompleteListener(pendingOperation -> {
+        if (pendingOperation.isSuccessful()) {
+          promise.resolve(SentianceConverter.convertUserLinkingResult(pendingOperation.getResult()));
+        } else {
+          UserLinkingError error = pendingOperation.getError();
+          promise.reject(E_SDK_USER_LINK_ERROR,
+            SentianceConverter.stringifyUserLinkingError(error));
         }
       });
   }
 
   void linkUser(String authCode, final Promise promise) {
-    Context context = weakContext.get();
-    if (context == null) return;
-    Sentiance sentiance = Sentiance.getInstance(context);
-
+    Sentiance sentiance = getSentiance();
     sentiance.linkUser(authCode)
-      .addOnCompleteListener(new OnCompleteListener<UserLinkingResult, UserLinkingError>() {
-        @Override
-        public void onComplete(@NonNull PendingOperation<UserLinkingResult, UserLinkingError> pendingOperation) {
-          if (pendingOperation.isSuccessful()) {
-            promise.resolve(SentianceConverter.convertUserLinkingResult(pendingOperation.getResult()));
-          } else {
-            UserLinkingError error = pendingOperation.getError();
-            promise.reject(E_SDK_USER_LINK_AUTH_CODE_ERROR,
-              SentianceConverter.stringifyUserLinkingError(error));
-          }
+      .addOnCompleteListener(pendingOperation -> {
+        if (pendingOperation.isSuccessful()) {
+          promise.resolve(SentianceConverter.convertUserLinkingResult(pendingOperation.getResult()));
+        } else {
+          UserLinkingError error = pendingOperation.getError();
+          promise.reject(E_SDK_USER_LINK_AUTH_CODE_ERROR,
+            SentianceConverter.stringifyUserLinkingError(error));
         }
       });
-  }
-
-  public UserLinker getUserLinker() {
-    return userLinker;
-  }
-
-  public OnSdkStatusUpdateHandler getOnSdkStatusUpdateHandler() {
-    return onSdkStatusUpdateHandler;
   }
 
   private Sentiance getSentiance() {

@@ -41,10 +41,12 @@ public class SentianceUserContextConverter {
     map.putString("type", segment.getType().name());
     map.putInt("id", segment.getType().getUniqueId());
     map.putString("startTime", segment.getStartTime().toString());
+    map.putString("startTimeEpoch", "" + segment.getStartTime().getEpochTime() / 1000);
 
     DateTime endTime = segment.getEndTime();
     if (endTime != null) {
       map.putString("endTime", endTime.toString());
+      map.putString("endTimeEpoch", "" + segment.getEndTime().getEpochTime() / 1000);
     }
 
     WritableArray attributes = Arguments.createArray();
@@ -146,7 +148,7 @@ public class SentianceUserContextConverter {
       map.putMap("location", convertGeoLocation(event.getLocation()));
     }
 
-    map.putString("venueType", event.getVenueSignificance().toString());
+    map.putString("venueSignificance", event.getVenueSignificance().toString());
 
     WritableArray venueCandidatesArray = Arguments.createArray();
     for (VenueCandidate candidate : event.getVenueCandidates()) {
@@ -190,7 +192,11 @@ public class SentianceUserContextConverter {
   private static WritableMap convertVisit(Visit visit) {
     WritableMap visitMap = Arguments.createMap();
     visitMap.putString("startTime", visit.getStartTime().toString());
+    visitMap.putString("startTimeEpoch", "" + visit.getStartTime().getEpochTime());
+
     visitMap.putString("endTime", visit.getEndTime().toString());
+    visitMap.putString("endTimeEpoch", "" + visit.getEndTime().getEpochTime());
+
     visitMap.putInt("durationInSeconds", (int) visit.getDurationInSeconds());
 
     return visitMap;

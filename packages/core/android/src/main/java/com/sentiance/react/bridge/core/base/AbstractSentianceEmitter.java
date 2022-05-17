@@ -16,7 +16,7 @@ public abstract class AbstractSentianceEmitter {
   protected ReactContext reactContext;
   protected ReactNativeHost reactNativeHost;
 
-  public AbstractSentianceEmitter(Context context) {
+  protected AbstractSentianceEmitter(Context context) {
     ReactApplication reactApplication = ((ReactApplication) context.getApplicationContext());
     reactNativeHost = reactApplication.getReactNativeHost();
     reactContext = createReactContext();
@@ -28,7 +28,7 @@ public abstract class AbstractSentianceEmitter {
     return reactNativeHost.getReactInstanceManager().getCurrentReactContext();
   }
 
-  public void sendEvent(final String key, final WritableMap map) {
+  protected void sendEvent(final String key, final WritableMap map) {
     if (reactContext != null && reactContext.hasActiveCatalystInstance()) {
       this.reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit(key, map);
     } else {
@@ -50,10 +50,10 @@ public abstract class AbstractSentianceEmitter {
   }
 
   private static class Counter {
+    int count;
+
     Counter(int count) {
       this.count = count;
     }
-
-    int count;
   }
 }

@@ -19,3 +19,4 @@ NSString * const ESDKUserLinkError = @"E_SDK_USER_LINK_ERROR";
 NSString * const ESDKUSERLinkAuthCodeError = @"E_SDK_USER_LINK_AUTH_CODE_ERROR";
 NSString * const ESDKCreateUserError = @"E_SDK_CREATE_USER_ERROR";
 NSString * const ESDKResetError = @"E_SDK_RESET_ERROR";
+NSString * const ESDKRequestUserContextError = @"E_SDK_REQUEST_USER_CONTEXT_ERROR";
