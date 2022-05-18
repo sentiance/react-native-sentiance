@@ -130,16 +130,6 @@ const createUser = async (userCreationOptions) => {
 }
 
 const addSdkStatusUpdateListener = core._addSdkStatusUpdateListener;
-
-/**
- This helper function allows the consumers of this module to add user linking listeners in a simpler fashion
- without having to :
- 1. Specify the exact corresponding native event name that gets published by native code to let the JS side know
- that it's time to perform user linking
- 2. Call userLinkCallback at the end of the process to publish user linking results back to the SDK.
- @see {@link userLinkCallback}
- */
-const addUserLinkListener = core._addUserLinkListener;
 const addOnDetectionsEnabledListener = core._addOnDetectionsEnabledListener;
 const addSdkUserActivityUpdateListener = core._addSdkUserActivityUpdateListener;
 
@@ -186,16 +176,15 @@ module.exports = {
   getSdkStatus,
   getDiskQuotaLimit,
   getDiskQuotaUsage,
-  disableBatteryOptimization,
   getMobileQuotaLimit,
   getMobileQuotaUsage,
   getWiFiQuotaLimit,
   getWiFiQuotaUsage,
+  disableBatteryOptimization,
   createUser,
   linkUser,
   linkUserWithAuthCode,
   addSdkStatusUpdateListener,
-  addUserLinkListener,
   addOnDetectionsEnabledListener,
   addSdkUserActivityUpdateListener,
   transportModes

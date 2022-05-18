@@ -74,7 +74,18 @@ const {
 // Core bindings
 RNSentiance.userLinkCallback = userLinkCallback;
 RNSentiance.getUserId = getUserId;
-RNSentiance.getUserAccessToken = getUserAccessToken;
+RNSentiance.getVersion = getVersion;
+RNSentiance.getUserActivity = getUserActivity;
+RNSentiance.isTripOngoing = isTripOngoing;
+RNSentiance.addTripMetadata = addTripMetadata;
+RNSentiance.getInitState = getInitState;
+RNSentiance.getSdkStatus = getSdkStatus;
+RNSentiance.getDiskQuotaLimit = getDiskQuotaLimit;
+RNSentiance.getDiskQuotaUsage = getDiskQuotaUsage;
+RNSentiance.getMobileQuotaLimit = getMobileQuotaLimit;
+RNSentiance.getMobileQuotaUsage = getMobileQuotaUsage;
+RNSentiance.getWiFiQuotaLimit = getWiFiQuotaLimit;
+RNSentiance.getWiFiQuotaUsage = getWiFiQuotaUsage;
 RNSentiance.addUserMetadataField = async (label, value) => {
   await addUserMetadataField(label, value);
   return Promise.resolve(true);
@@ -87,31 +98,18 @@ RNSentiance.removeUserMetadataField = async (label) => {
   await removeUserMetadataField(label);
   return Promise.resolve(true);
 };
-RNSentiance.getVersion = getVersion;
-RNSentiance.getUserActivity = getUserActivity;
 RNSentiance.listenUserActivityUpdates = async () => {
   await listenUserActivityUpdates();
   return Promise.resolve(true);
 };
-RNSentiance.isTripOngoing = isTripOngoing;
-RNSentiance.submitDetections = submitDetections;
 RNSentiance.updateSdkNotification = async (title, message) => {
   await updateSdkNotification(title, message);
   return Promise.resolve(true);
 };
-RNSentiance.addTripMetadata = addTripMetadata;
-RNSentiance.getInitState = getInitState;
-RNSentiance.getSdkStatus = getSdkStatus;
-RNSentiance.getDiskQuotaLimit = getDiskQuotaLimit;
-RNSentiance.getDiskQuotaUsage = getDiskQuotaUsage;
 RNSentiance.disableBatteryOptimization = async () => {
   await disableBatteryOptimization();
   return Promise.resolve(true);
 };
-RNSentiance.getMobileQuotaLimit = getMobileQuotaLimit;
-RNSentiance.getMobileQuotaUsage = getMobileQuotaUsage;
-RNSentiance.getWiFiQuotaLimit = getWiFiQuotaLimit;
-RNSentiance.getWiFiQuotaUsage = getWiFiQuotaUsage;
 
 // Crash detection bindings
 RNSentiance.listenVehicleCrashEvents = listenVehicleCrashEvents;
@@ -130,6 +128,8 @@ RNSentiance.stopTrip = stopTrip;
 RNSentiance.setValueForKey = setValueForKey;
 RNSentiance.getValueForKey = getValueForKey;
 RNSentiance.isThirdPartyLinked = isThirdPartyLinked;
+RNSentiance.submitDetections = submitDetections;
+RNSentiance.getUserAccessToken = getUserAccessToken;
 RNSentiance.isNativeInitializationEnabled = isNativeInitializationEnabled;
 RNSentiance.enableNativeInitialization = enableNativeInitialization;
 RNSentiance.disableNativeInitialization = disableNativeInitialization;

@@ -6,7 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "fetch:npm_tag": "node ./scripts/determine-version-tag.js",
-    "lint": "npx eslint index.d.ts"
   },
   "keywords": [
     "react-native"

@@ -22,10 +22,10 @@ if (Platform.OS === 'android') {
 
 const SENTIANCE_EMITTER = new NativeEventEmitter(crashDetectionModule);
 
-const _addVehicleCrashEventListener = async (onVehicleCrashEvent) => {
+const _addVehicleCrashEventListener = async (onVehicleCrash) => {
   await crashDetectionModule.listenVehicleCrashEvents();
   return SENTIANCE_EMITTER.addListener(SDK_VEHICLE_CRASH_EVENT, (data) => {
-    onVehicleCrashEvent(data);
+    onVehicleCrash(data);
   });
 };
 
