@@ -34,6 +34,7 @@ import com.sentiance.sdk.reset.ResetError;
 import com.sentiance.sdk.trip.StartTripError;
 import com.sentiance.sdk.trip.StopTripError;
 import com.sentiance.sdk.trip.TransportMode;
+import com.sentiance.sdk.trip.TripTimeoutListener;
 import com.sentiance.sdk.trip.TripType;
 
 import java.lang.ref.WeakReference;
@@ -513,6 +514,18 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     Sentiance.getInstance(reactContext).setSdkStatusUpdateListener(sentianceHelper.getOnSdkStatusUpdateListener());
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
+  public void listenTripTimeout(Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    Sentiance.getInstance(reactContext)
+      .setTripTimeoutListener(emitter::sendOnTripTimedOutEvent);
     promise.resolve(null);
   }
 }

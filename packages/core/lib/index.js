@@ -132,6 +132,7 @@ const createUser = async (userCreationOptions) => {
 const addSdkStatusUpdateListener = core._addSdkStatusUpdateListener;
 const addOnDetectionsEnabledListener = core._addOnDetectionsEnabledListener;
 const addSdkUserActivityUpdateListener = core._addSdkUserActivityUpdateListener;
+const addTripTimeoutListener = core._addTripTimeoutListener;
 
 const transportModes = {};
 (function (transportModes) {
@@ -187,5 +188,6 @@ module.exports = {
   addSdkStatusUpdateListener,
   addOnDetectionsEnabledListener,
   addSdkUserActivityUpdateListener,
+  addTripTimeoutListener,
   transportModes
 };
