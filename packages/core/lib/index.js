@@ -16,6 +16,7 @@ const addUserMetadataFields = (metadata) => core.addUserMetadataFields(metadata)
 const removeUserMetadataField = (label) => core.removeUserMetadataField(label);
 const getUserActivity = () => core.getUserActivity();
 const listenUserActivityUpdates = () => core.listenUserActivityUpdates();
+const listenTripTimeout = () => core.listenTripTimeout();
 const isTripOngoing = (tripType) => core.isTripOngoing(tripType);
 const updateSdkNotification = (title, message) => core.updateSdkNotification(title, message);
 const addTripMetadata = (metadata) => core.addTripMetadata(metadata);
@@ -30,7 +31,6 @@ const getMobileQuotaUsage = () => core.getMobileQuotaUsage();
 const getWiFiQuotaLimit = () => core.getWiFiQuotaLimit();
 const getWiFiQuotaUsage = () => core.getWiFiQuotaUsage();
 const linkUserWithAuthCode = (authCode) => core.linkUserWithAuthCode(authCode);
-
 
 var startTrip
 var stopTrip
@@ -189,5 +189,6 @@ module.exports = {
   addOnDetectionsEnabledListener,
   addSdkUserActivityUpdateListener,
   addTripTimeoutListener,
+  listenTripTimeout,
   transportModes
 };

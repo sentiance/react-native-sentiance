@@ -192,6 +192,8 @@ declare module "react-native-sentiance" {
 
     listenUserActivityUpdates(): Promise<boolean>;
 
+    listenTripTimeout(): Promise<void>;
+
     userLinkCallback(success: boolean): void;
 
     getValueForKey(key: string, defaultValue: string): Promise<string>;

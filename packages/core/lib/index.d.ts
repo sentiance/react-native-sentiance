@@ -141,6 +141,8 @@ declare module "react-native-sentiance-core" {
 
     listenUserActivityUpdates(): Promise<void>;
 
+    listenTripTimeout(): Promise<void>;
+
     startTrip(metadata: MetadataObject | null, hint: TransportMode): Promise<void>;
 
     stopTrip(): Promise<void>;

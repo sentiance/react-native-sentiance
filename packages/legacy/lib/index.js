@@ -41,7 +41,8 @@ const {
   getMobileQuotaLimit,
   getMobileQuotaUsage,
   getWiFiQuotaLimit,
-  getWiFiQuotaUsage
+  getWiFiQuotaUsage,
+  listenTripTimeout
 } = core;
 
 const {
@@ -86,6 +87,7 @@ RNSentiance.getMobileQuotaLimit = getMobileQuotaLimit;
 RNSentiance.getMobileQuotaUsage = getMobileQuotaUsage;
 RNSentiance.getWiFiQuotaLimit = getWiFiQuotaLimit;
 RNSentiance.getWiFiQuotaUsage = getWiFiQuotaUsage;
+RNSentiance.listenTripTimeout = listenTripTimeout;
 RNSentiance.addUserMetadataField = async (label, value) => {
   await addUserMetadataField(label, value);
   return Promise.resolve(true);
