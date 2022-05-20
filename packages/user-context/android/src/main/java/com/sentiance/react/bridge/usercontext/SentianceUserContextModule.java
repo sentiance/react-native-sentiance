@@ -8,15 +8,10 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.usercontext.utils.ErrorCodes;
-import com.sentiance.sdk.pendingoperation.OnCompleteListener;
-import com.sentiance.sdk.pendingoperation.PendingOperation;
 import com.sentiance.sdk.usercontext.api.RequestUserContextError;
 import com.sentiance.sdk.usercontext.api.UserContext;
 import com.sentiance.sdk.usercontext.api.UserContextApi;
-import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 import com.sentiance.sdk.usercontext.api.UserContextUpdateListener;
-
-import java.util.List;
 
 public class SentianceUserContextModule extends AbstractSentianceModule {
 
@@ -71,13 +66,7 @@ public class SentianceUserContextModule extends AbstractSentianceModule {
       userContextApi.removeUserContextUpdateListener(mUserContextUpdateListener);
     }
 
-    mUserContextUpdateListener = new UserContextUpdateListener() {
-      @Override
-      public void onUserContextUpdated(@NonNull List<UserContextUpdateCriteria> criteria,
-                                       @NonNull UserContext userContext) {
-        emitter.sendUserContext(criteria, userContext);
-      }
-    };
+    mUserContextUpdateListener = emitter::sendUserContext;
 
     userContextApi.addUserContextUpdateListener(mUserContextUpdateListener);
     promise.resolve(true);
