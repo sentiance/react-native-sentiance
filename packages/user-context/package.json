@@ -10,7 +10,8 @@
   },
   "keywords": [
     "react-native",
-    "crash-detection"
+    "user-context",
+    "sentiance"
   ],
   "peerDependencies": {
     "@react-native-sentiance/core": "1.5.6"

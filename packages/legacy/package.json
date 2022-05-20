@@ -10,7 +10,8 @@
   },
   "keywords": [
     "react-native",
-    "legacy"
+    "legacy",
+    "sentiance"
   ],
   "peerDependencies": {
     "@react-native-sentiance/crash-detection": "1.5.6"

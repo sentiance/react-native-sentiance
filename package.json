@@ -1,8 +1,7 @@
 {
   "name": "react-native-sentiance",
   "version": "6.0.0-beta.5",
-  "description": "React Native library for the Sentiance SDK",
-  "main": "index.js",
+  "description": "React Native libraries for the Sentiance SDK",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "fetch:npm_tag": "node ./scripts/determine-version-tag.js",
@@ -13,7 +12,12 @@
     "lint": "npm run lint-core && npm run lint-crash-detection && npm run lint-user-context && npm run lint-legacy"
   },
   "keywords": [
-    "react-native"
+    "react-native",
+    "sentiance",
+    "core",
+    "crash-detection",
+    "user-context",
+    "legacy"
   ],
   "author": "",
   "license": "",
