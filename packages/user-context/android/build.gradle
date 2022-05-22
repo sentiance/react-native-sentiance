@@ -19,9 +19,13 @@ apply from: "$coreProj.projectDir/package-json-reader.gradle"
 
 def corePackageJson = PackageJson.of(coreProj)
 applyAndroidVersionsFrom(corePackageJson)
+def sentianceSdkVersion = getSentianceSdkVersion(corePackageJson)
 
 dependencies {
   api coreProj
+
+  implementation(platform("com.sentiance:sdk-bom:${sentianceSdkVersion}"))
+  api("com.sentiance:sdk-user-context") { transitive = true }
 }
 
 applyReactNativeDependency()
