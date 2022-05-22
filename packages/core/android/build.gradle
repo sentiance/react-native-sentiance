@@ -10,7 +10,7 @@ def sentianceSdkVersion = getSentianceSdkVersion(packageJson)
 
 dependencies {
   implementation(platform("com.sentiance:sdk-bom:${sentianceSdkVersion}"))
-  api("com.sentiance:sdk-lifestyle") { transitive = true }
+  api("com.sentiance:sdk") { transitive = true }
 }
 
 applyReactNativeDependency()
