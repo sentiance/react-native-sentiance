@@ -1,5 +1,4 @@
 import groovy.json.JsonSlurper
-import org.gradle.api.Project
 
 class PackageJsonReader {
   Object of(Project project) {
@@ -23,7 +22,8 @@ class PackageJsonReader {
 
       try {
         json = new JsonSlurper().parseText(packageJson.text)
-      } catch (Exception ignored) {}
+      } catch (Exception ignored) {
+      }
 
       if (json == null) {
         project.logger.warn ":${project.name} failed to parse package.json found at ${packageJson.toString()}"
@@ -54,9 +54,6 @@ ext.applyAndroidVersionsFrom = { packageJson ->
       targetSdkVersion defaultTargetSdkVersion
     }
   }
-}
-ext.getSentianceSdkVersion = { packageJson ->
-  return packageJson['sdkVersions']['android']['sentiance']
 }
 ext.applyReactNativeDependency = {
   dependencies {

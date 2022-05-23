@@ -3,10 +3,11 @@ plugins {
 }
 
 apply from: "$project.projectDir/package-json-reader.gradle"
+apply from: "$project.projectDir/sentiance-version-finder.gradle"
 
 def packageJson = PackageJson.of(project)
 applyAndroidVersionsFrom(packageJson)
-def sentianceSdkVersion = getSentianceSdkVersion(packageJson)
+def sentianceSdkVersion = getSentianceSdkVersion()
 
 dependencies {
   implementation(platform("com.sentiance:sdk-bom:${sentianceSdkVersion}"))

@@ -16,10 +16,11 @@ if (findProject(':core')) {
 }
 
 apply from: "$coreProj.projectDir/package-json-reader.gradle"
+apply from: "$coreProj.projectDir/sentiance-version-finder.gradle"
 
 def corePackageJson = PackageJson.of(coreProj)
 applyAndroidVersionsFrom(corePackageJson)
-def sentianceSdkVersion = getSentianceSdkVersion(corePackageJson)
+def sentianceSdkVersion = getSentianceSdkVersion()
 
 dependencies {
   api coreProj
