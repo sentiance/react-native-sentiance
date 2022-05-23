@@ -89,7 +89,9 @@ public class SentianceHelper {
       .collectAppSessionData(mIsAppSessionDataCollectionEnabled)
       .build();
     InitializationResult result = sentiance.initialize(options);
-    sentiance.setSdkStatusUpdateListener(onSdkStatusUpdateListener);
+    if (result.isSuccessful()) {
+      sentiance.setSdkStatusUpdateListener(onSdkStatusUpdateListener);
+    }
     return result;
   }
 
