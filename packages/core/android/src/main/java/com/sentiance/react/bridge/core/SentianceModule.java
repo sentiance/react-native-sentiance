@@ -448,10 +448,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Sentiance.getInstance(reactContext).setUserActivityListener(activity -> {
-      Log.d(NATIVE_MODULE_NAME, activity.toString());
-      emitter.sendUserActivityUpdate(activity);
-    });
+    Sentiance.getInstance(reactContext).setUserActivityListener(emitter::sendUserActivityUpdate);
     promise.resolve(null);
   }
 
