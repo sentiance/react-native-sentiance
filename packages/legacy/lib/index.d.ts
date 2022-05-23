@@ -27,7 +27,7 @@ declare module "react-native-sentiance" {
     "SENTIANCE_STATUS_UPDATE_EVENT"
     | "SENTIANCE_USER_LINK_EVENT"
     | "SENTIANCE_USER_ACTIVITY_UPDATE_EVENT"
-    | "SDKTripTimeout" // TODO: should be removed ?
+    | "SENTIANCE_ON_TRIP_TIMED_OUT_EVENT"
     | "SENTIANCE_VEHICLE_CRASH_EVENT";
 
   export type SDKStatusUpdateListener = (sdkStatus: SdkStatus) => void;
