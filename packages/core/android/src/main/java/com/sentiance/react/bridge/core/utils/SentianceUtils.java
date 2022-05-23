@@ -15,6 +15,9 @@ import androidx.core.app.NotificationCompat;
 import java.lang.ref.WeakReference;
 
 public class SentianceUtils {
+
+  public static final int SENTIANCE_FALLBACK_NOTIFICATION_ID = 2123874432;
+
   public static Notification createNotificationFromManifestData(WeakReference<Context> weakContext,
                                                                 String title, String message) {
     Context context = weakContext.get();
@@ -74,6 +77,24 @@ public class SentianceUtils {
 
     return createNotification(weakContext, getLaunchActivityPendingIntent(context), title, message, channelName,
       channelId, icon);
+  }
+
+  public static int getSentianceNotificationId(WeakReference<Context> weakContext) {
+    Context context = weakContext.get();
+    if (context == null) {
+      return SENTIANCE_FALLBACK_NOTIFICATION_ID;
+    }
+
+    try {
+      ApplicationInfo info = context.getPackageManager().getApplicationInfo(
+        context.getPackageName(), PackageManager.GET_META_DATA);
+      return getIntMetadataFromManifest(info, "com.sentiance.react.bridge.notification_id",
+        SENTIANCE_FALLBACK_NOTIFICATION_ID);
+    } catch (PackageManager.NameNotFoundException e) {
+      e.printStackTrace();
+    }
+
+    return SENTIANCE_FALLBACK_NOTIFICATION_ID;
   }
 
   private static Notification createNotification(WeakReference<Context> weakContext, PendingIntent pendingIntent,

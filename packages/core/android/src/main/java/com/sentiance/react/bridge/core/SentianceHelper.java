@@ -33,7 +33,6 @@ import java.lang.ref.WeakReference;
 import java.util.Date;
 
 public class SentianceHelper {
-  private static final int NOTIFICATION_ID = 1001;
   private static SentianceHelper sentianceHelper;
 
   private final SentianceEmitter emitter;
@@ -86,7 +85,7 @@ public class SentianceHelper {
     Sentiance sentiance = Sentiance.getInstance(context);
 
     SentianceOptions options = new SentianceOptions.Builder(context)
-      .setNotification(notification, NOTIFICATION_ID)
+      .setNotification(notification, SentianceUtils.getSentianceNotificationId(weakContext))
       .collectAppSessionData(mIsAppSessionDataCollectionEnabled)
       .build();
     InitializationResult result = sentiance.initialize(options);
