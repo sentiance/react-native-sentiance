@@ -1,6 +1,6 @@
 {
   "name": "@react-native-sentiance/legacy",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "description": "React Native Sentiance - This module provides a legacy API.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -14,7 +14,7 @@
     "sentiance"
   ],
   "peerDependencies": {
-    "@react-native-sentiance/crash-detection": "1.5.6"
+    "@react-native-sentiance/crash-detection": "1.5.7"
   },
   "author": "",
   "license": "",
