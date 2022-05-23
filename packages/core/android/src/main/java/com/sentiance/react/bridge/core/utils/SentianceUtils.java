@@ -17,33 +17,40 @@ import java.lang.ref.WeakReference;
 public class SentianceUtils {
 
   public static final int SENTIANCE_FALLBACK_NOTIFICATION_ID = 2123874432;
+  public static final String SENTIANCE_FALLBACK_NOTIFICATION_CHANNEL_NAME = "Sentiance";
+  public static final String SENTIANCE_FALLBACK_NOTIFICATION_CHANNEL_ID = "Sentiance";
+
+  public static final String SENTIANCE_NOTIFICATION_ID = "com.sentiance.react.bridge.notification_id";
+  public static final String SENTIANCE_NOTIFICATION_TITLE = "com.sentiance.react.bridge.notification_title";
+  public static final String SENTIANCE_NOTIFICATION_ICON = "com.sentiance.react.bridge.notification_icon";
+  public static final String SENTIANCE_NOTIFICATION_CHANNEL_ID = "com.sentiance.react.bridge.channel_id";
+  public static final String SENTIANCE_NOTIFICATION_CHANNEL_NAME = "com.sentiance.react.bridge.notification_channel_name";
+  public static final String SENTIANCE_NOTIFICATION_NOTIFICATION_TEXT = "com.sentiance.react.bridge.notification_text";
 
   public static Notification createNotificationFromManifestData(WeakReference<Context> weakContext,
                                                                 String title, String message) {
     Context context = weakContext.get();
     if (context == null) return null;
 
-    String channelName = "Sentiance";
+    String channelName = SENTIANCE_FALLBACK_NOTIFICATION_CHANNEL_NAME;
+    String channelId = SENTIANCE_FALLBACK_NOTIFICATION_CHANNEL_ID;
     int icon = context.getApplicationInfo().icon;
-    String channelId = "Sentiance";
-
 
     ApplicationInfo info;
     try {
       info = context.getPackageManager().getApplicationInfo(
         context.getPackageName(), PackageManager.GET_META_DATA);
       channelName = getStringMetadataFromManifest(weakContext, info,
-        "com.sentiance.react.bridge.notification_channel_name",
-        channelName);
-      icon = getIntMetadataFromManifest(info, "com.sentiance.react.bridge.notification_icon", icon);
+        SENTIANCE_NOTIFICATION_CHANNEL_NAME, SENTIANCE_FALLBACK_NOTIFICATION_CHANNEL_NAME);
+      icon = getIntMetadataFromManifest(info, SENTIANCE_NOTIFICATION_ICON, icon);
       channelId = getStringMetadataFromManifest(weakContext, info,
-        "com.sentiance.react.bridge.channel_id", channelId);
+        SENTIANCE_NOTIFICATION_CHANNEL_ID, SENTIANCE_FALLBACK_NOTIFICATION_CHANNEL_ID);
     } catch (PackageManager.NameNotFoundException e) {
       e.printStackTrace();
     }
 
-    return createNotification(weakContext, getLaunchActivityPendingIntent(context), title, message, channelName,
-      channelId, icon);
+    return createNotification(weakContext, getLaunchActivityPendingIntent(context),
+      title, message, channelName, channelId, icon);
   }
 
   @SuppressWarnings({"unused", "WeakerAccess"})
@@ -62,15 +69,12 @@ public class SentianceUtils {
     try {
       info = context.getPackageManager().getApplicationInfo(
         context.getPackageName(), PackageManager.GET_META_DATA);
-      title = getStringMetadataFromManifest(weakContext, info, "com.sentiance.react.bridge.notification_title",
-        title);
-      message = getStringMetadataFromManifest(weakContext, info, "com.sentiance.react.bridge.notification_text",
-        message);
-      channelName = getStringMetadataFromManifest(weakContext, info, "com.sentiance.react.bridge" +
-        ".notification_channel_name", channelName);
-      icon = getIntMetadataFromManifest(info, "com.sentiance.react.bridge.notification_icon", icon);
-      channelId = getStringMetadataFromManifest(weakContext, info, "com.sentiance.react.bridge.channel_id",
-        channelId);
+      title = getStringMetadataFromManifest(weakContext, info,
+        SENTIANCE_NOTIFICATION_TITLE, title);
+      message = getStringMetadataFromManifest(weakContext, info, SENTIANCE_NOTIFICATION_NOTIFICATION_TEXT, message);
+      channelName = getStringMetadataFromManifest(weakContext, info, SENTIANCE_NOTIFICATION_CHANNEL_NAME, channelName);
+      icon = getIntMetadataFromManifest(info, SENTIANCE_NOTIFICATION_ICON, icon);
+      channelId = getStringMetadataFromManifest(weakContext, info, SENTIANCE_NOTIFICATION_CHANNEL_ID, channelId);
     } catch (PackageManager.NameNotFoundException e) {
       e.printStackTrace();
     }
@@ -88,8 +92,7 @@ public class SentianceUtils {
     try {
       ApplicationInfo info = context.getPackageManager().getApplicationInfo(
         context.getPackageName(), PackageManager.GET_META_DATA);
-      return getIntMetadataFromManifest(info, "com.sentiance.react.bridge.notification_id",
-        SENTIANCE_FALLBACK_NOTIFICATION_ID);
+      return getIntMetadataFromManifest(info, SENTIANCE_NOTIFICATION_ID, SENTIANCE_FALLBACK_NOTIFICATION_ID);
     } catch (PackageManager.NameNotFoundException e) {
       e.printStackTrace();
     }
