@@ -286,13 +286,13 @@ public class SentianceConverter {
     String details = "";
     switch (reason) {
       case NO_USER:
-        details = "No user present on device";
+        details = "No Sentiance user present on the device.";
         break;
       case PAST_EXPIRY_DATE:
         details = "Expiry date is in past.";
         break;
       case USER_DISABLED_REMOTELY:
-        details = "User is disabled remotely.";
+        details = "The user is disabled remotely.";
         break;
     }
     return String.format("Reason: %s - %s", reason.name(), details);
@@ -315,16 +315,16 @@ public class SentianceConverter {
     String details = "";
     switch (reason) {
       case NO_USER:
-        details = "No user present on device";
+        details = "No Sentiance user present on the device.";
         break;
       case DETECTIONS_DISABLED:
-        details = "Enable detections first before starting a trip.";
+        details = "Detections are disabled. Enable them first before starting a trip.";
         break;
       case DETECTIONS_BLOCKED:
         details = "Detections are enabled but not running. Check the SDK's status to find out why.";
         break;
       case TRIP_ALREADY_STARTED:
-        details = "Trip is already started.";
+        details = "An external trip is already started. To start a new trip, call `stopTrip()` first.";
         break;
       case USER_DISABLED_REMOTELY:
         details = "The user is disabled remotely.";

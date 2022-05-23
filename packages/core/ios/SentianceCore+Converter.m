@@ -77,22 +77,22 @@
 
 - (NSDictionary*)convertVenue:(SENTVenue*)venue {
     NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
-    
+
     if (venue.name != nil) {
         dict[@"name"] = venue.name;
     }
-    
+
     if (venue.location != nil) {
         dict[@"location"] = [self convertGeolocation:venue.location];
     }
-    
+
     NSMutableDictionary* labels = [[NSMutableDictionary alloc] init];
     [venue.labels enumerateKeysAndObjectsUsingBlock:
         ^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
             labels[key] = obj;
     }];
     dict[@"venueLabels"] = labels;
-    
+
     return dict;
 }
 
@@ -101,7 +101,7 @@
     for (SENTVisit* visit in candidate.visits) {
         [visits addObject:[self convertVisit:visit]];
     }
-    
+
     return @{
         @"venue": [self convertVenue:candidate.venue],
         @"likelihood": @(candidate.likelihood),
@@ -113,9 +113,9 @@
     if (event.location != nil) {
         dict[@"location"] = [self convertGeolocation:event.location];
     }
-    
+
     dict[@"venueSignificance"] = [self convertVenueSignificance:event.venueSignificance];
-    
+
     NSMutableArray* venueCandidates = [[NSMutableArray alloc] init];
     for (SENTVenueCandidate* candidate in event.venueCandidates) {
         [venueCandidates addObject:[self convertVenueCandidate:candidate]];
@@ -150,22 +150,22 @@
     eventDict[@"startTime"] = [event.startDate description];
     if (event.endDate != nil) {
         eventDict[@"endTime"] = [event.endDate description];
-        
+
         NSInteger durationInSeconds = event.durationInSeconds;
         if (durationInSeconds != SENTDurationUnknown) {
             eventDict[@"durationInSeconds"] = [NSNumber numberWithInt:(int)durationInSeconds];
         }
     }
-    
+
     eventDict[@"type"] = [self convertTimelineEventTypeToString:event.type];
-    
+
     if (event.type == SENTTimelineEventTypeStationary) {
         [self addStationaryEventInfoToDict:eventDict event:(SENTStationaryEvent*)event];
     }
     else if (event.type == SENTTimelineEventTypeInTransport) {
         [self addTransportEventInfoToDict:eventDict event:(SENTTransportEvent*)event];
     }
-    
+
     return eventDict;
 }
 
@@ -404,11 +404,11 @@
 
 - (NSMutableDictionary*)convertSegmentAttributesToDict:(NSArray<SENTAttribute *>*)attributes {
     NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
-    
+
     for (SENTAttribute* attribute in attributes) {
         dict[attribute.name] = @(attribute.value);
     }
-    
+
     return dict;
 }
 
@@ -416,11 +416,11 @@
     NSString* category = [self convertSegmentCategoryToString:segment.category];
     NSString* subcategory = [self convertSegmentSubcategoryToString:segment.subcategory];
     NSString* type = [self convertSegmentTypeToString:segment.type];
-    
+
     if (category == nil || subcategory == nil || type == nil) {
         return nil;
     }
-    
+
     NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
     dict[@"category"] = category;
     dict[@"subcategory"] = subcategory;
@@ -434,20 +434,20 @@
         dict[@"endTimeEpoch"] = [NSString stringWithFormat:@"%d",segment.endDate.timeIntervalSince1970];
     }
     dict[@"attributes"] = [self convertSegmentAttributesToDict:segment.attributes];
-    
+
     return dict;
 }
 
 - (NSDictionary*)convertUserContextToDict:(SENTUserContext*)userContext {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    
+
     // Events
     NSMutableArray *events = [[NSMutableArray alloc] init];
     for (SENTTimelineEvent* event in userContext.events) {
         [events addObject:[self convertEvent:event]];
     }
     dict[@"events"] = events;
-    
+
     // Segments
     NSMutableArray *segments = [[NSMutableArray alloc] init];
     for (SENTSegment* segment in userContext.activeSegments) {
@@ -459,12 +459,12 @@
     if (userContext.lastKnownLocation != nil) {
         dict[@"lastKnownLocation"] = [self convertGeolocation:userContext.lastKnownLocation];
     }
-    
+
     // Home
     if (userContext.home != nil) {
         dict[@"home"] = [self convertVenue:userContext.home];
     }
-    
+
     // Home
     if (userContext.work != nil) {
         dict[@"work"] = [self convertVenue:userContext.work];
@@ -475,23 +475,23 @@
 
 - (NSMutableArray*)convertUserContextCriteriaToArray:(SENTUserContextUpdateCriteria)criteriaMask {
     NSMutableArray* criteria = [[NSMutableArray alloc] init];
-    
+
     if (criteriaMask & SENTUserContextUpdateCriteriaCurrentEvent) {
         [criteria addObject:@"CURRENT_EVENT"];
     }
-    
+
     if (criteriaMask & SENTUserContextUpdateCriteriaActiveMoments) {
         [criteria addObject:@"ACTIVE_MOMENTS"];
     }
-    
+
     if (criteriaMask & SENTUserContextUpdateCriteriaVisitedVenues) {
         [criteria addObject:@"VISITED_VENUES"];
     }
-    
+
     if (criteriaMask & SENTUserContextUpdateCriteriaActiveSegments) {
         [criteria addObject:@"ACTIVE_SEGMENTS"];
     }
-    
+
     return criteria;
 }
 
@@ -681,7 +681,7 @@
 
 - (NSDictionary *)convertUserCreationResult:(SENTUserCreationResult *)userCreationResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    
+
     dict[@"userId"] = userCreationResult.userInfo.installId;
     dict[@"tokenId"] = userCreationResult.userInfo.token.tokenId;
     dict[@"tokenExpiryDate"] = userCreationResult.userInfo.token.expiryDate;
@@ -748,7 +748,7 @@
 
 - (NSDictionary *)convertUserLinkingResult:(SENTUserLinkingResult *)userLinkingResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    
+
     dict[@"userId"] = userLinkingResult.userInfo.installId;
     dict[@"tokenId"] = userLinkingResult.userInfo.token.tokenId;
     dict[@"tokenExpiryDate"] = userLinkingResult.userInfo.token.expiryDate;
@@ -788,7 +788,7 @@
 - (NSDictionary *)convertResetResult:(SENTResetResult *)resetResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     dict[@"initState"] = [self convertInitStateToString:resetResult.initState];
-    
+
     return dict;
 }
 
@@ -811,7 +811,7 @@
 - (NSDictionary *)convertStartTripResult:(SENTStartTripResult *)startTripResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     // empty object
-    
+
     return dict;
 }
 
@@ -821,7 +821,7 @@
     switch (startTripError.failureReason) {
         case SENTStartTripFailureReasonNoUser:
             reason = @"NO_USER";
-            details = @"No Sentiance user is present on device. Call 'createUser' to create a user.";
+            details = @"No Sentiance user present on the device.";
             break;
         case SENTStartTripFailureReasonDetectionsDisabled:
             reason = @"DETECTIONS_DISABLED";
@@ -846,7 +846,7 @@
 - (NSDictionary *)convertStopTripResult:(SENTStopTripResult *)stopTripResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     // empty object
-    
+
     return dict;
 }
 
@@ -865,7 +865,7 @@
 
 - (NSDictionary *)convertRequestUserAccessTokenResult:(SENTUserAccessTokenResult *)userAccessTokenResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    
+
     dict[@"tokenId"] = userAccessTokenResult.token.tokenId;
     dict[@"expiryDate"] = userAccessTokenResult.token.expiryDate;
 
@@ -878,7 +878,7 @@
     switch (userAccessTokenError.failureReason) {
         case SENTUserAccessTokenFailureReasonNoUser:
             reason = @"NO_USER";
-            details = @"No Sentiance user is present on device. Call 'createUser' to create a user.";
+            details = @"No Sentiance user present on the device.";
             break;
         case SENTUserAccessTokenFailureReasonNetworkError:
             reason = @"NETWORK_ERROR";
@@ -895,7 +895,7 @@
 - (NSDictionary *)convertSubmitDetectionsResult:(SENTSubmitDetectionsResult *)submitDetectionsResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     // empty object
-    
+
     return dict;
 }
 
@@ -906,7 +906,7 @@
 
         case SENTSubmitDetectionsFailureReasonNoUser:
             reason = @"NO_USER";
-            details = @"No Sentiance user is present on device. Call 'createUser' to create a user.";
+            details = @"No Sentiance user present on the device.";
             break;
         case SENTSubmitDetectionsFailureReasonNetworkError:
             reason = @"NETWORK_ERROR";
@@ -922,7 +922,7 @@
 
 - (NSDictionary *)convertEnableDetectionsResult:(SENTEnableDetectionsResult *)enableDetectionsResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    
+
     dict[@"sdkStatus"] = [self convertSdkStatusToDict:enableDetectionsResult.sdkStatus];
     dict[@"detectionStatus"] = [self convertDetectionStatusToString:enableDetectionsResult.detectionStatus];
 
@@ -936,7 +936,7 @@
 
         case SENTEnableDetectionsFailureReasonNoUser:
             reason = @"NO_USER";
-            details = @"No Sentiance user is present on device. Call 'createUser' to create a user.";
+            details = @"No Sentiance user present on the device.";
             break;
         case SENTEnableDetectionsFailureReasonPastExpiryDate:
             reason = @"PAST_EXPIRY_DATE";
@@ -952,7 +952,7 @@
 
 - (NSDictionary *)convertDisableDetectionsResult:(SENTDisableDetectionsResult *)disableDetectionsResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-    
+
     dict[@"sdkStatus"] = [self convertSdkStatusToDict:disableDetectionsResult.sdkStatus];
     dict[@"detectionStatus"] = [self convertDetectionStatusToString:disableDetectionsResult.detectionStatus];
 

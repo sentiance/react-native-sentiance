@@ -133,7 +133,7 @@ public class SentianceUserContextConverter {
     String details = "";
     switch (reason) {
       case NO_USER:
-        details = "No user present on device";
+        details = "No Sentiance user present on the device.";
         break;
       case FEATURE_NOT_ENABLED:
         details = "Feature not enabled, make sure you have enabled the feature at " +
