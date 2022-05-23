@@ -51,7 +51,7 @@
     };
 }
 
-- (NSString*)VenueSignificance:(SENTVenueSignificance)type {
+- (NSString*)convertVenueSignificance:(SENTVenueSignificance)type {
     switch (type) {
         case SENTVenueSignificanceHome:
             return @"HOME";
