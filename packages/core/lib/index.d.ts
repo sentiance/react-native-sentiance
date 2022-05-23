@@ -102,7 +102,8 @@ declare module "react-native-sentiance-core" {
     isBatteryOptimizationEnabled?: boolean; // Android only
     isBatterySavingEnabled?: boolean; // Android only
     isBackgroundProcessingRestricted?: boolean; // Android only
-    isPreciseLocationAuthorizationGranted?: boolean; // iOS only
+    isPreciseLocationAuthorizationGranted: boolean;
+    isSchedulingExactAlarmsPermitted?: boolean; // Android only
   }
 
   export interface EnableDisableDetectionsResult {

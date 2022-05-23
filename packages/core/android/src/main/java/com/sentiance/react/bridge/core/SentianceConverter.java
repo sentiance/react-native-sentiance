@@ -176,6 +176,8 @@ public class SentianceConverter {
       map.putBoolean("isBatteryOptimizationEnabled", status.isBatteryOptimizationEnabled);
       map.putBoolean("isBatterySavingEnabled", status.isBatterySavingEnabled);
       map.putBoolean("isBackgroundProcessingRestricted", status.isBackgroundProcessingRestricted);
+      map.putBoolean("isPreciseLocationAuthorizationGranted", status.isPreciseLocationPermGranted);
+      map.putBoolean("isSchedulingExactAlarmsPermitted", status.isSchedulingExactAlarmsPermitted);
       map.putString("wifiQuotaStatus", status.wifiQuotaStatus.toString());
       map.putString("mobileQuotaStatus", status.mobileQuotaStatus.toString());
       map.putString("diskQuotaStatus", status.diskQuotaStatus.toString());
