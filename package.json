@@ -6,11 +6,7 @@
     "publishLocal": "cd packages && cd crash-detection && npm publish --registry http://localhost:4873/ && cd .. && cd legacy && npm publish --registry http://localhost:4873/ && cd .. && cd core && npm publish --registry http://localhost:4873/ && cd .. && cd user-context && npm publish --registry http://localhost:4873/ && cd .. && cd ..",
     "test": "echo \"Error: no test specified\" && exit 1",
     "fetch:npm_tag": "node ./scripts/determine-version-tag.js",
-    "lint-core": "npm run lint --prefix packages/core",
-    "lint-crash-detection": "npm run lint --prefix packages/crash-detection",
-    "lint-user-context": "npm run lint --prefix packages/user-context",
-    "lint-legacy": "npm run lint --prefix packages/legacy",
-    "lint": "npm run lint-core && npm run lint-crash-detection && npm run lint-user-context && npm run lint-legacy"
+    "lint": "npm run lint --workspaces"
   },
   "keywords": [
     "react-native",
@@ -19,6 +15,12 @@
     "crash-detection",
     "user-context",
     "legacy"
+  ],
+  "workspaces": [
+    "packages/core",
+    "packages/crash-detection",
+    "packages/user-context",
+    "packages/legacy"
   ],
   "author": "",
   "license": "",
