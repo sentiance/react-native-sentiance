@@ -682,7 +682,7 @@
 - (NSDictionary *)convertUserCreationResult:(SENTUserCreationResult *)userCreationResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 
-    dict[@"userId"] = userCreationResult.userInfo.installId;
+    dict[@"userId"] = userCreationResult.userInfo.userId;
     dict[@"tokenId"] = userCreationResult.userInfo.token.tokenId;
     dict[@"tokenExpiryDate"] = userCreationResult.userInfo.token.expiryDate;
     dict[@"isTokenExpired"] = @(NO);
@@ -749,7 +749,7 @@
 - (NSDictionary *)convertUserLinkingResult:(SENTUserLinkingResult *)userLinkingResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 
-    dict[@"userId"] = userLinkingResult.userInfo.installId;
+    dict[@"userId"] = userLinkingResult.userInfo.userId;
     dict[@"tokenId"] = userLinkingResult.userInfo.token.tokenId;
     dict[@"tokenExpiryDate"] = userLinkingResult.userInfo.token.expiryDate;
     dict[@"isTokenExpired"] = @(NO);
@@ -963,4 +963,24 @@
     return @"";
 }
 
+- (NSString *)stringifyUserContextError:(SENTRequestUserContextError *)userContextError {
+    NSString *reason;
+    NSString *details;
+    
+    switch (userContextError.failureReason) {
+        case SENTRequestUserContextFailureReasonNoUser:
+            reason = @"NO_USER";
+            details = @"No Sentiance user present on the device.";
+            break;
+        case SENTRequestUserContextFailureReasonFeatureNotEnabled:
+            reason = @"FEATURE_NOT_ENABLED";
+            details = @"Feature not enabled. Contact Sentiance support to enable it.";
+            break;
+        case SENTRequestUserContextFailureReasonUserDisabledRemotely:
+            reason = @"USER_DISABLED_REMOTELY";
+            details = @"The user is disabled remotely.";
+            break;
+    }
+    return [NSString stringWithFormat:@"Reason: %@ - %@", reason, details];
+}
 @end

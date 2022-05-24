@@ -15,13 +15,24 @@
 
 @implementation SentianceHelper
 
+- (SENTInitializationResult *)initializeSDKWithLaunchOptions:(nullable NSDictionary *)launchOptions {
+    return [self initializeSDKWithPlatformUrl:nil isAppSessionDataCollectionAllowed:NO launchOptions:nil];
+}
 
-- (SENTInitializationResult *)initializeSDK:(NSString * _Nullable)platformUrl  isAppSessionDataCollectionAllowed:(BOOL * _Nullable)isAppSessionDataCollectionAllowed {
-    
+- (SENTInitializationResult *)initializeSDKWithPlatformUrl:(NSString *)platformUrl 
+                                             launchOptions:(nullable NSDictionary *)launchOptions {
+    return [self initializeSDKWithPlatformUrl:platformUrl isAppSessionDataCollectionAllowed:NO launchOptions:launchOptions];
+}
+
+
+- (SENTInitializationResult *)initializeSDKWithPlatformUrl:(NSString *)platformUrl
+                         isAppSessionDataCollectionAllowed:(BOOL *)isAppSessionDataCollectionAllowed
+                                             launchOptions:(nullable NSDictionary *)launchOptions {
     SENTOptions *options = [[SENTOptions alloc] init];
     options.platformUrl = platformUrl;
     options.isAppSessionDataCollectionAllowed = isAppSessionDataCollectionAllowed;
-    return [[Sentiance sharedInstance] initializeWithSENTOptions:options];
+    return [[Sentiance sharedInstance] initializeWithOptions:options launchOptions:launchOptions];
 }
 
 @end
+

@@ -42,4 +42,5 @@
 - (NSString *)stringifyEnableDetectionsError:(SENTEnableDetectionsError *)enableDetectionsError;
 - (NSDictionary *)convertDisableDetectionsResult:(SENTDisableDetectionsResult *)disableDetectionsResult;
 - (NSString *)stringifyDisableDetectionsError:(SENTDisableDetectionsError *)disableDetectionsError;
+- (NSString *)stringifyUserContextError:(SENTRequestUserContextError *)userContextError;
 @end

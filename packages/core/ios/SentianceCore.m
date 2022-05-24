@@ -6,9 +6,9 @@
 #import "SentianceCore+Converter.h"
 #import "ErrorCodes.h"
 
-#define REJECT_IF_SDK_NOT_INITIALIZED(reject) if ([self isSdkNotInitialized]) {                      \
-                                                  reject(ESDKNotInitialized, "Sdk not initialized"); \
-                                                  return;                                            \
+#define REJECT_IF_SDK_NOT_INITIALIZED(reject) if ([self isSdkNotInitialized]) {                            \
+                                                  reject(ESDKNotInitialized, @"Sdk not initialized", nil); \
+                                                  return;                                                  \
                                               }
 
 @interface SentianceCore()
@@ -534,7 +534,7 @@ RCT_EXPORT_METHOD(isTripOngoing:(NSString *)type
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
 
     if (type.length == 0) {
-        reject(ESDKMissingParams, "trip type is required");
+        reject(ESDKMissingParams, @"trip type is required", nil);
         return;
     }
 
@@ -794,10 +794,13 @@ RCT_EXPORT_METHOD(requestUserContext:(RCTPromiseResolveBlock)resolve rejecter:(R
 
     __weak typeof(self) weakSelf = self;
 
-    [[Sentiance sharedInstance] requestUserContext:^(SENTUserContext * _Nonnull userContext) {
-        resolve([weakSelf convertUserContextToDict:userContext]);
-    } failure:^(NSError * _Nonnull error) {
-        reject(ESDKRequestUserContextError, @"Failed to retreive user context", nil);
+    [[Sentiance sharedInstance] requestUserContextWithCompletionHandler:^(SENTUserContext * _Nullable userContext, SENTRequestUserContextError * _Nullable error) {
+        if (error) {
+            reject(ESDKRequestUserContextError, [self stringifyUserContextError:error], nil);
+        }
+        else {
+            resolve([weakSelf convertUserContextToDict:userContext]);
+        }
     }];
 }
 
@@ -1018,7 +1021,7 @@ RCT_EXPORT_METHOD(listenSdkStatusUpdates:(RCTPromiseResolveBlock)resolve rejecte
 - (void)tripTimeoutReceived
 {
     __weak typeof(self) weakSelf = self;
-    [[Sentiance sharedInstance] setTripTimeOutListener:^ {
+    [[Sentiance sharedInstance] setTripTimeoutListener:^ {
         if (weakSelf.hasListeners) {
             [weakSelf sendEventWithName:@"SENTIANCE_TRIP_TIMEOUT" body:nil];
         }

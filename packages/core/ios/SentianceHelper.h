@@ -15,6 +15,17 @@
 
 @interface SentianceHelper: NSObject
 
-- (SENTInitializationResult *)initializeSDK:(NSString *)platformUrl  isAppSessionDataCollectionAllowed:(BOOL *)isAppSessionDataCollectionAllowed;
+- (SENTInitializationResult *)initializeSDKWithLaunchOptions:(nullable NSDictionary *)launchOptions
+  NS_SWIFT_NAME(initializeSDK(launchOptions:));
+
+- (SENTInitializationResult *)initializeSDKWithPlatformUrl:(NSString *)platformUrl 
+                  							 launchOptions:(nullable NSDictionary *)launchOptions
+  NS_SWIFT_NAME(initializeSDK(platformUrl:launchOptions:));
+
+- (SENTInitializationResult *)initializeSDKWithPlatformUrl:(NSString *)platformUrl
+					     isAppSessionDataCollectionAllowed:(BOOL *)isAppSessionDataCollectionAllowed
+                  							 launchOptions:(nullable NSDictionary *)launchOptions
+  NS_SWIFT_NAME(initializeSDK(platformUrl:isAppSessionDataCollectionAllowed:launchOptions:));
 
 @end
+

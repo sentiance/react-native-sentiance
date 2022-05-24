@@ -136,8 +136,10 @@ public class SentianceUserContextConverter {
         details = "No Sentiance user present on the device.";
         break;
       case FEATURE_NOT_ENABLED:
-        details = "Feature not enabled, make sure you have enabled the feature at " +
-          "initialization and it is also enabled for your app from Sentiance backend.";
+        details = "Feature not enabled. Contact Sentiance support to enable it.";
+        break;
+      case USER_DISABLED_REMOTELY:
+        details = "The user is disabled remotely.";
         break;
     }
     return String.format("Reason: %s - %s", reason.name(), details);
