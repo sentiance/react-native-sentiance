@@ -1,6 +1,6 @@
 {
   "name": "react-native-sentiance",
-  "version": "6.0.0-beta.5",
+  "version": "1.0.0",
   "description": "React Native libraries for the Sentiance SDK",
   "scripts": {
     "publishLocal": "cd packages && cd crash-detection && npm publish --registry http://localhost:4873/ && cd .. && cd legacy && npm publish --registry http://localhost:4873/ && cd .. && cd core && npm publish --registry http://localhost:4873/ && cd .. && cd user-context && npm publish --registry http://localhost:4873/ && cd .. && cd ..",
