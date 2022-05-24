@@ -14,7 +14,7 @@ extern NSString * const ESDKSubmitDetectionsError;
 extern NSString * const ESDKEnableDetectionsError;
 extern NSString * const ESDKDisableDetectionsError;
 extern NSString * const ESDKUserLinkError;
-extern NSString * const ESDKUSERLinkAuthCodeError;
+extern NSString * const ESDKUserLinkAuthCodeError;
 extern NSString * const ESDKCreateUserError;
 extern NSString * const ESDKResetError;
 extern NSString * const ESDKRequestUserContextError;

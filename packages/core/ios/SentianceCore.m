@@ -6,6 +6,11 @@
 #import "SentianceCore+Converter.h"
 #import "ErrorCodes.h"
 
+#define REJECT_IF_SDK_NOT_INITIALIZED(reject) if ([self isSdkNotInitialized]) {                      \
+                                                  reject(ESDKNotInitialized, "Sdk not initialized"); \
+                                                  return;                                            \
+                                              }
+
 @interface SentianceCore()
 
 @property (nonatomic, strong) void (^userLinkSuccess)(void);
@@ -134,7 +139,9 @@ RCT_EXPORT_MODULE(SentianceCore)
 }
 
 - (SENTUserLinker) getUserLinker {
-    if(self.userLinker != nil) return self.userLinker;
+    if (self.userLinker != nil) {
+        return self.userLinker;
+    }
 
     __weak typeof(self) weakSelf = self;
 
@@ -222,11 +229,15 @@ RCT_EXPORT_METHOD(initWithUserLinkingEnabled:(NSString *)appId
 
 RCT_EXPORT_METHOD(start:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     [self startSDK:resolve rejecter:reject];
 }
 
 RCT_EXPORT_METHOD(enableDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     [[Sentiance sharedInstance] enableDetectionsWithCompletionHandler:^(SENTEnableDetectionsResult * _Nullable result, SENTEnableDetectionsError * _Nullable error) {
         if (error != nil) {
             reject(ESDKEnableDetectionsError, [self stringifyEnableDetectionsError:error], nil);
@@ -241,13 +252,17 @@ RCT_EXPORT_METHOD(startWithStopDate:(nonnull NSNumber *)stopEpochTimeMs
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     [self startSDKWithStopEpochTimeMs:stopEpochTimeMs resolver:resolve rejecter:reject];
 }
 
 RCT_EXPORT_METHOD(enableDetectionsWithExpiryDate:(nonnull NSNumber *)expiryEpochTimeMs
-                  resolver:(RCTPromiseResolveBlock)resolve
-                  rejecter:(RCTPromiseRejectBlock)reject){
-    
+                                        resolver:(RCTPromiseResolveBlock)resolve
+                                        rejecter:(RCTPromiseRejectBlock)reject)
+{
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     if (expiryEpochTimeMs == nil) {
         [self enableDetections:resolve rejecter:reject];
     }
@@ -267,6 +282,8 @@ RCT_EXPORT_METHOD(enableDetectionsWithExpiryDate:(nonnull NSNumber *)expiryEpoch
 
 RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         Sentiance* sdk = [Sentiance sharedInstance];
         [sdk stop];
@@ -278,6 +295,8 @@ RCT_EXPORT_METHOD(stop:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejec
 
 RCT_EXPORT_METHOD(disableDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         [[Sentiance sharedInstance] disableDetectionsWithCompletionHandler:^(SENTDisableDetectionsResult * _Nullable result, SENTDisableDetectionsError * _Nullable error) {
             if (error != nil) {
@@ -294,6 +313,8 @@ RCT_EXPORT_METHOD(disableDetections:(RCTPromiseResolveBlock)resolve rejecter:(RC
 
 RCT_EXPORT_METHOD(getInitState:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         SENTSDKInitState initState = [[Sentiance sharedInstance] getInitState];
         resolve([self convertInitStateToString:initState]);
@@ -305,6 +326,8 @@ RCT_EXPORT_METHOD(getInitState:(RCTPromiseResolveBlock)resolve rejecter:(RCTProm
 
 RCT_EXPORT_METHOD(getSdkStatus:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         NSDictionary* dict = [self convertSdkStatusToDict:[[Sentiance sharedInstance] getSdkStatus]];
         resolve(dict);
@@ -325,6 +348,8 @@ RCT_EXPORT_METHOD(getVersion:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromis
 
 RCT_EXPORT_METHOD(getUserId:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         NSString *userId = [[Sentiance sharedInstance] getUserId];
         resolve(userId);
@@ -335,6 +360,8 @@ RCT_EXPORT_METHOD(getUserId:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
 
 RCT_EXPORT_METHOD(getUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     __block BOOL hasReceivedToken = NO;
     @try {
         __weak typeof(self) weakSelf = self;
@@ -355,6 +382,8 @@ RCT_EXPORT_METHOD(getUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(R
 
 RCT_EXPORT_METHOD(requestUserAccessToken:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         [[Sentiance sharedInstance] requestUserAccessTokenWithCompletionHandler:^(SENTUserAccessTokenResult * _Nullable result, SENTUserAccessTokenError * _Nullable error) {
             if (error != nil) {
@@ -373,9 +402,11 @@ RCT_EXPORT_METHOD(addUserMetadataField:(NSString *)label
                   value:(NSString *)value
                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         if (label == nil || value == nil) {
-            reject(@"E_SDK_MISSING_PARAMS", @"label and value are required", nil);
+            reject(ESDKMissingParams, @"label and value are required", nil);
             return;
         }
 
@@ -390,9 +421,11 @@ RCT_EXPORT_METHOD(removeUserMetadataField:(NSString *)label
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         if (label == nil) {
-            reject(@"E_SDK_MISSING_PARAMS", @"label is required", nil);
+            reject(ESDKMissingParams, @"label is required", nil);
             return;
         }
 
@@ -407,9 +440,11 @@ RCT_EXPORT_METHOD(addUserMetadataFields:(NSDictionary *)metadata
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         if (metadata == nil) {
-            reject(@"E_SDK_MISSING_PARAMS", @"metadata object is required", nil);
+            reject(ESDKMissingParams, @"metadata object is required", nil);
             return;
         }
 
@@ -424,6 +459,8 @@ RCT_EXPORT_METHOD(startTrip:(NSDictionary *)metadata
                   hint:(nonnull NSNumber *)hint
                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         SENTTransportMode mode = [hint intValue] == -1 ? SENTTransportModeUnknown : (SENTTransportMode)hint;
         [[Sentiance sharedInstance] startTrip:metadata transportModeHint:mode success:^ {
@@ -440,6 +477,8 @@ RCT_EXPORT_METHOD(startTripNewAPI:(NSDictionary *)metadata
                   hint:(nonnull NSNumber *)hint
                   resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         SENTTransportMode mode = [hint intValue] == -1 ? SENTTransportModeUnknown : (SENTTransportMode)hint;
         [[Sentiance sharedInstance] startTripWithMetadata:metadata transportModeHint:mode completionHandler:^(SENTStartTripResult * _Nullable result, SENTStartTripError * _Nullable error) {
@@ -457,6 +496,8 @@ RCT_EXPORT_METHOD(startTripNewAPI:(NSDictionary *)metadata
 
 RCT_EXPORT_METHOD(stopTrip:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         [[Sentiance sharedInstance] stopTrip:^{
             resolve(@(YES));
@@ -470,6 +511,8 @@ RCT_EXPORT_METHOD(stopTrip:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseR
 
 RCT_EXPORT_METHOD(stopTripNewAPI:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         [[Sentiance sharedInstance] stopTripWithCompletionHandler:^(SENTStopTripResult * _Nullable result, SENTStopTripError * _Nullable error) {
             if (error != nil) {
@@ -488,6 +531,13 @@ RCT_EXPORT_METHOD(isTripOngoing:(NSString *)type
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    if (type.length == 0) {
+        reject(ESDKMissingParams, "trip type is required");
+        return;
+    }
+
     @try {
         SENTTripType tripType;
         if ([type isEqualToString:@"TRIP_TYPE_SDK"]) {
@@ -505,6 +555,8 @@ RCT_EXPORT_METHOD(isTripOngoing:(NSString *)type
 
 RCT_EXPORT_METHOD(submitDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         [[Sentiance sharedInstance] submitDetections:^ {
             resolve(@(YES));
@@ -518,6 +570,8 @@ RCT_EXPORT_METHOD(submitDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCT
 
 RCT_EXPORT_METHOD(submitDetectionsNewApi:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         [[Sentiance sharedInstance] submitDetectionsWithCompletionHandler:^(SENTSubmitDetectionsResult * _Nullable result, SENTSubmitDetectionsError * _Nullable error) {
             if (error != nil) {
@@ -534,6 +588,8 @@ RCT_EXPORT_METHOD(submitDetectionsNewApi:(RCTPromiseResolveBlock)resolve rejecte
 
 RCT_EXPORT_METHOD(getWiFiQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         long long wifiQuotaLimit = [[Sentiance sharedInstance] getWifiQuotaLimit];
         resolve(@(wifiQuotaLimit));
@@ -544,6 +600,8 @@ RCT_EXPORT_METHOD(getWiFiQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RC
 
 RCT_EXPORT_METHOD(getWiFiQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         long long wifiQuotaUsage = [[Sentiance sharedInstance] getWiFiQuotaUsage];
         resolve(@(wifiQuotaUsage));
@@ -554,6 +612,8 @@ RCT_EXPORT_METHOD(getWiFiQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 
 RCT_EXPORT_METHOD(getMobileQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         long long mobileQuotaLimit = [[Sentiance sharedInstance] getMobileQuotaLimit];
         resolve(@(mobileQuotaLimit));
@@ -564,6 +624,8 @@ RCT_EXPORT_METHOD(getMobileQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(
 
 RCT_EXPORT_METHOD(getMobileQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         long long mobileQuotaUsage = [[Sentiance sharedInstance] getMobileQuotaUsage];
         resolve(@(mobileQuotaUsage));
@@ -574,6 +636,8 @@ RCT_EXPORT_METHOD(getMobileQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(
 
 RCT_EXPORT_METHOD(getDiskQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         long long diskQuotaLimit = [[Sentiance sharedInstance] getDiskQuotaLimit];
         resolve(@(diskQuotaLimit));
@@ -584,6 +648,8 @@ RCT_EXPORT_METHOD(getDiskQuotaLimit:(RCTPromiseResolveBlock)resolve rejecter:(RC
 
 RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         long long diskQuotaUsage = [[Sentiance sharedInstance] getDiskQuotaUsage];
         resolve(@(diskQuotaUsage));
@@ -594,6 +660,8 @@ RCT_EXPORT_METHOD(getDiskQuotaUsage:(RCTPromiseResolveBlock)resolve rejecter:(RC
 
 RCT_EXPORT_METHOD(disableBatteryOptimization:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     NSLog(@"This is an Android only method.");
     resolve(nil);
 }
@@ -603,6 +671,8 @@ RCT_EXPORT_METHOD(updateSdkNotification:(NSString *)title
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     NSLog(@"This is an Android only method.");
     resolve(nil);
 }
@@ -611,6 +681,8 @@ RCT_EXPORT_METHOD(addTripMetadata:(NSDictionary *)metadata
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     NSLog(@"This is an Android only method.");
     resolve(nil);
 }
@@ -626,6 +698,8 @@ RCT_EXPORT_METHOD(deleteKeychainEntries:(RCTPromiseResolveBlock)resolve rejecter
 
 RCT_EXPORT_METHOD(listenUserActivityUpdates:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         __weak typeof(self) weakSelf = self;
         [[Sentiance sharedInstance] setUserActivityListener:^(SENTUserActivity *userActivity) {
@@ -642,6 +716,8 @@ RCT_EXPORT_METHOD(listenUserActivityUpdates:(RCTPromiseResolveBlock)resolve reje
 
 RCT_EXPORT_METHOD(getUserActivity:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         SENTUserActivity *userActivity = [[Sentiance sharedInstance] getUserActivity];
         NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
@@ -669,6 +745,8 @@ RCT_EXPORT_METHOD(disableNativeInitialization:(RCTPromiseResolveBlock)resolve re
 
 RCT_EXPORT_METHOD(listenVehicleCrashEvents:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     @try {
         __weak typeof(self) weakSelf = self;
 
@@ -686,12 +764,16 @@ RCT_EXPORT_METHOD(listenVehicleCrashEvents:(RCTPromiseResolveBlock)resolve rejec
 
 RCT_EXPORT_METHOD(invokeDummyVehicleCrash:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     [[Sentiance sharedInstance] invokeDummyVehicleCrash];
     resolve(@(YES));
 }
 
 RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     BOOL supported = [[Sentiance sharedInstance] isVehicleCrashDetectionSupported];
     resolve(supported ? @(YES) : @(NO));
 }
@@ -708,8 +790,10 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
 
 RCT_EXPORT_METHOD(requestUserContext:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     __weak typeof(self) weakSelf = self;
-    
+
     [[Sentiance sharedInstance] requestUserContext:^(SENTUserContext * _Nonnull userContext) {
         resolve([weakSelf convertUserContextToDict:userContext]);
     } failure:^(NSError * _Nonnull error) {
@@ -719,6 +803,8 @@ RCT_EXPORT_METHOD(requestUserContext:(RCTPromiseResolveBlock)resolve rejecter:(R
 
 RCT_EXPORT_METHOD(listenUserContextUpdates:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     [Sentiance sharedInstance].userContextDelegate = self;
     [Sentiance sharedInstance].criteriaMaskForUserContextUpdates = SENTUserContextUpdateCriteriaCurrentEvent |
                                                                             SENTUserContextUpdateCriteriaActiveSegments |
@@ -731,18 +817,24 @@ RCT_EXPORT_METHOD(setAppSessionDataCollectionEnabled:(BOOL)enabled
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     // TODO
     resolve(nil);
 }
 
 RCT_EXPORT_METHOD(isAppSessionDataCollectionEnabled:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     // TODO
     resolve(@(NO));
 }
 
 RCT_EXPORT_METHOD(createUnlinkedUser:(NSString *)appId secret:(NSString *)secret platformUrl:(NSString *)platformUrl resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     SENTUserCreationOptions *options = [[SENTUserCreationOptions alloc] initWithAppId:appId secret:secret linker: SENTNoOpUserLinker];
     options.platformUrl = platformUrl;
     [[Sentiance sharedInstance] createUserWithOptions:options completionHandler:^(SENTUserCreationResult * _Nullable result, SENTUserCreationError * _Nullable error) {
@@ -757,6 +849,8 @@ RCT_EXPORT_METHOD(createUnlinkedUser:(NSString *)appId secret:(NSString *)secret
 
 RCT_EXPORT_METHOD(createLinkedUser:(NSString *)appId secret:(NSString *)secret platformUrl:(NSString *)platformUrl resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     SENTUserCreationOptions *options = [[SENTUserCreationOptions alloc] initWithAppId:appId secret:secret linker: self.getUserLinker];
     options.platformUrl = platformUrl;
     [[Sentiance sharedInstance] createUserWithOptions:options completionHandler:^(SENTUserCreationResult * _Nullable result, SENTUserCreationError * _Nullable error) {
@@ -771,6 +865,8 @@ RCT_EXPORT_METHOD(createLinkedUser:(NSString *)appId secret:(NSString *)secret p
 
 RCT_EXPORT_METHOD(createLinkedUserWithAuthCode:(NSString *)authCode platformUrl:(NSString *)platformUrl resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     SENTUserCreationOptions *options = [[SENTUserCreationOptions alloc] initWithAuthenticationCode: authCode];
     options.platformUrl = platformUrl;
     [[Sentiance sharedInstance] createUserWithOptions:options completionHandler:^(SENTUserCreationResult * _Nullable result, SENTUserCreationError * _Nullable error) {
@@ -785,9 +881,11 @@ RCT_EXPORT_METHOD(createLinkedUserWithAuthCode:(NSString *)authCode platformUrl:
 
 RCT_EXPORT_METHOD(linkUserWithAuthCode:(NSString *)authCode resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     [[Sentiance sharedInstance] linkUserWithAuthCode:authCode completionHandler:^(SENTUserLinkingResult * _Nullable result, SENTUserLinkingError * _Nullable error) {
         if (error != nil) {
-            reject(ESDKUserLinkError, [self stringifyUserLinkingError:error], nil);
+            reject(ESDKUserLinkAuthCodeError, [self stringifyUserLinkingError:error], nil);
         }
         else {
             resolve([self convertUserLinkingResult: result]);
@@ -797,6 +895,8 @@ RCT_EXPORT_METHOD(linkUserWithAuthCode:(NSString *)authCode resolver:(RCTPromise
 
 RCT_EXPORT_METHOD(linkUser:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     [[Sentiance sharedInstance] linkUserWithLinker:[self getUserLinker] completionHandler:^(SENTUserLinkingResult * _Nullable result, SENTUserLinkingError * _Nullable error) {
         if (error != nil) {
             reject(ESDKUserLinkError, [self stringifyUserLinkingError:error], nil);
@@ -854,6 +954,8 @@ RCT_EXPORT_METHOD(resetNewApi:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromi
 
 RCT_EXPORT_METHOD(listenSdkStatusUpdates:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
     [[Sentiance sharedInstance] setDidReceiveSdkStatusUpdateHandler: [self getSdkStatusUpdateHandler]];
     resolve(nil);
 }
@@ -921,6 +1023,10 @@ RCT_EXPORT_METHOD(listenSdkStatusUpdates:(RCTPromiseResolveBlock)resolve rejecte
             [weakSelf sendEventWithName:@"SENTIANCE_TRIP_TIMEOUT" body:nil];
         }
     }];
+}
+
+- (BOOL)isSdkNotInitialized {
+    return [Sentiance sharedInstance].initState != SENTInitialized;
 }
 
 @end
