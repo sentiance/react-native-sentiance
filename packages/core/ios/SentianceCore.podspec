@@ -1,3 +1,7 @@
+require 'json'
+package = JSON.parse(File.read(File.join(__dir__, '../package.json')))
+sentiance_sdk_version = package['sdkVersions']['ios']['sentiance']
+
 Pod::Spec.new do |s|
   s.name         = "RNSentiance"
   s.version      = "6.0.0"
@@ -16,6 +20,6 @@ Pod::Spec.new do |s|
   s.xcconfig     = { 'FRAMEWORK_SEARCH_PATHS' => '${PODS_ROOT}/SENTSDK' }
 
   s.dependency "React"
-  s.dependency "SENTSDK", "6.0.0-local"
+  s.dependency "SENTSDK", sentiance_sdk_version
   s.dependency 'TensorFlowLiteC', '2.4.0'
 end
