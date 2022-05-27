@@ -3,7 +3,7 @@ version: 2
 defaults: &defaults
   working_directory: ~/repo
   docker:
-    - image: circleci/node:15.0.0
+    - image: circleci/node:16.10.0
 
 jobs:
   test:
@@ -11,6 +11,7 @@ jobs:
     steps:
       - checkout
       - run: npm install
+      - run: echo "ls -a"
       - attach_workspace:
           at: ~/repo
       - run: npm run lint
