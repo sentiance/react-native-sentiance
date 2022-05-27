@@ -11,6 +11,8 @@ jobs:
     steps:
       - checkout
       - run: npm install
+      - attach_workspace:
+          at: ~/repo
       - run: npm run lint
   deploy:
     <<: *defaults
