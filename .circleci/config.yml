@@ -5,6 +5,15 @@ defaults: &defaults
   docker:
     - image: circleci/node:16.10.0
 
+commands:
+  publish-all-packages:
+    description: "A command that tags and publishes all subpackages"
+    steps:
+      - run:
+          command: |
+            NPMTAG=$(npm run fetch:npm_tag --silent)
+            npm publish --workspaces --tag $NPMTAG
+
 jobs:
   test:
     <<: *defaults
@@ -23,10 +32,7 @@ jobs:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
-          name: Publish package
-          command: |
-            NPMTAG=$(npm run fetch:npm_tag --silent)
-            npm publish --tag $NPMTAG
+          publish-all-packages:
 
 workflows:
   version: 2
