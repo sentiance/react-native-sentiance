@@ -33,7 +33,7 @@ RCT_EXPORT_MODULE(SentianceCore)
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"SENTIANCE_STATUS_UPDATE_EVENT", @"SENTIANCE_TRIP_TIMEOUT", @"SENTIANCE_USER_LINK_EVENT", @"SENTIANCE_USER_ACTIVITY_UPDATE_EVENT", @"SENTIANCE_VEHICLE_CRASH_EVENT", @"SENTIANCE_USER_CONTEXT_UPDATE_EVENT", @"SENTIANCE_ON_DETECTIONS_ENABLED_EVENT"];
+    return @[SdkStatusUpdateEvent, TripTimeoutEvent, UserLinkEvent, UserActivityUpdateEvent, VehicleCrashEvent, UserLinkEvent, UserContextUpdateEvent, @"SENTIANCE_ON_DETECTIONS_ENABLED_EVENT"];
 }
 
 // Will be called when this module's first listener is added.
@@ -149,7 +149,7 @@ RCT_EXPORT_MODULE(SentianceCore)
                         void (^linkFailed)(void)) {
         weakSelf.userLinkSuccess = linkSuccess;
         weakSelf.userLinkFailed = linkFailed;
-        [weakSelf sendEventWithName:@"SENTIANCE_USER_LINK_EVENT" body:[weakSelf convertInstallIdToDict:installId]];
+        [weakSelf sendEventWithName:UserLinkEvent body:[weakSelf convertInstallIdToDict:installId]];
     };
 
     return self.userLinker;
@@ -163,7 +163,7 @@ RCT_EXPORT_MODULE(SentianceCore)
 
     [self setSdkStatusHandler:^(SENTSDKStatus *status) {
         if (weakSelf.hasListeners) {
-            [weakSelf sendEventWithName:@"SENTIANCE_STATUS_UPDATE_EVENT" body:[weakSelf convertSdkStatusToDict:status]];
+            [weakSelf sendEventWithName:SdkStatusUpdateEvent body:[weakSelf convertSdkStatusToDict:status]];
         }
     }];
     return self.sdkStatusHandler;
@@ -705,7 +705,7 @@ RCT_EXPORT_METHOD(listenUserActivityUpdates:(RCTPromiseResolveBlock)resolve reje
         [[Sentiance sharedInstance] setUserActivityListener:^(SENTUserActivity *userActivity) {
             NSDictionary *userActivityDict = [self convertUserActivityToDict:userActivity];
             if(weakSelf.hasListeners) {
-                [weakSelf sendEventWithName:@"SENTIANCE_USER_ACTIVITY_UPDATE_EVENT" body:userActivityDict];
+                [weakSelf sendEventWithName:UserActivityUpdateEvent body:userActivityDict];
             }
         }];
         resolve(nil);
@@ -753,7 +753,7 @@ RCT_EXPORT_METHOD(listenVehicleCrashEvents:(RCTPromiseResolveBlock)resolve rejec
         [[Sentiance sharedInstance] setVehicleCrashHandler:^(SENTVehicleCrashEvent *crashEvent) {
             if(weakSelf.hasListeners) {
                 NSDictionary *crashEventDict = [self convertVehicleCrashEventToDict:crashEvent];
-                [weakSelf sendEventWithName:@"SENTIANCE_VEHICLE_CRASH_EVENT" body:crashEventDict];
+                [weakSelf sendEventWithName:VehicleCrashEvent body:crashEventDict];
             }
         }];
         resolve(@(YES));
@@ -963,13 +963,24 @@ RCT_EXPORT_METHOD(listenSdkStatusUpdates:(RCTPromiseResolveBlock)resolve rejecte
     resolve(nil);
 }
 
+RCT_EXPORT_METHOD(listenTripTimeout:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    __weak typeof(self) weakSelf = self;
+    [[Sentiance sharedInstance] setTripTimeoutListener:^ {
+        if (weakSelf.hasListeners) {
+            [weakSelf sendEventWithName:TripTimeoutEvent body:nil];
+        }
+    }];
+    resolve(nil);
+}
+
 - (void)didUpdateUserContext:(SENTUserContext *)userContext
              forCriteriaMask:(SENTUserContextUpdateCriteria)criteriaMask {
     NSDictionary *dict = @{
         @"userContext": [self convertUserContextToDict:userContext],
         @"criteria": [self convertUserContextCriteriaToArray:criteriaMask]
     };
-    [self sendEventWithName:@"SENTIANCE_USER_CONTEXT_UPDATE_EVENT" body:dict];
+    [self sendEventWithName:UserContextUpdateEvent body:dict];
 }
 
 - (BOOL)isNativeInitializationEnabled {
@@ -1016,16 +1027,6 @@ RCT_EXPORT_METHOD(listenSdkStatusUpdates:(RCTPromiseResolveBlock)resolve rejecte
     NSMutableDictionary* dict = [NSMutableDictionary dictionary];
     [dict setObject:(__bridge id)secClass forKey:(__bridge id)kSecClass];
     SecItemDelete((__bridge CFDictionaryRef) dict);
-}
-
-- (void)tripTimeoutReceived
-{
-    __weak typeof(self) weakSelf = self;
-    [[Sentiance sharedInstance] setTripTimeoutListener:^ {
-        if (weakSelf.hasListeners) {
-            [weakSelf sendEventWithName:@"SENTIANCE_TRIP_TIMEOUT" body:nil];
-        }
-    }];
 }
 
 - (BOOL)isSdkNotInitialized {

@@ -3,6 +3,14 @@
 #import <React/RCTEventEmitter.h>
 #import <SENTSDK/SENTSDK.h>
 
+static NSString * _Nonnull const UserLinkEvent = @"SENTIANCE_USER_LINK_EVENT";
+static NSString * _Nonnull const SdkStatusUpdateEvent = @"SENTIANCE_STATUS_UPDATE_EVENT";
+static NSString * _Nonnull const UserActivityUpdateEvent = @"SENTIANCE_USER_ACTIVITY_UPDATE_EVENT";
+static NSString * _Nonnull const ON_DETECTIONS_ENABLED = @"SENTIANCE_ON_DETECTIONS_ENABLED_EVENT";
+static NSString * _Nonnull const TripTimeoutEvent = @"SENTIANCE_ON_TRIP_TIMED_OUT_EVENT";
+static NSString * _Nonnull const VehicleCrashEvent = @"SENTIANCE_VEHICLE_CRASH_EVENT";
+static NSString * _Nonnull const UserContextUpdateEvent = @"SENTIANCE_USER_CONTEXT_UPDATE_EVENT";
+
 @interface SentianceCore : RCTEventEmitter <RCTBridgeModule, SENTUserContextDelegate>
 typedef void (^SdkStatusHandler)(SENTSDKStatus * _Nonnull status);
 - (SENTUserLinker _Nonnull ) getUserLinker;
