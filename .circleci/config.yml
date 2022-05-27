@@ -32,6 +32,9 @@ jobs:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
+          name: Sync package versions for all modules
+          command: npm run sync:package_versions
+      - run:
           publish-all-packages:
 
 workflows:
