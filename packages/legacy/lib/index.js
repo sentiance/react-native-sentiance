@@ -1,24 +1,8 @@
-import {Platform} from 'react-native';
 import legacy from './legacy';
 import core from '@react-native-sentiance/core';
 import crashDetection from '@react-native-sentiance/crash-detection';
 
 var RNSentiance = {};
-
-var coreModule
-if (Platform.OS === 'android') {
-  coreModule = core;
-} else {
-  coreModule = legacy;
-}
-
-var crashDetectionModule
-if (Platform.OS === 'android') {
-  crashDetectionModule = crashDetection;
-} else {
-  crashDetectionModule = legacy;
-}
-
 RNSentiance.TransportMode = core.transportModes;
 
 const {
