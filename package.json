@@ -17,10 +17,10 @@
     "legacy"
   ],
   "workspaces": [
-    "./packages/core",
-    "./packages/crash-detection",
-    "./packages/user-context",
-    "./packages/legacy"
+    "packages/core",
+    "packages/crash-detection",
+    "packages/user-context",
+    "packages/legacy"
   ],
   "author": "",
   "license": "",
