@@ -1,12 +1,15 @@
 {
   "name": "react-native-sentiance",
-  "version": "6.0.0-beta.5",
+  "version": "0.0.5",
   "description": "React Native libraries for the Sentiance SDK",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "fetch:npm_tag": "node ./scripts/determine-version-tag.js",
+    "sync:package_versions": "node ./scripts/sync-package-versions.js",
     "lint": "npm run lint --workspaces",
-    "publishLocal": "npm publish --workspaces --registry http://localhost:4873/"
+    "prepublishLocal": "npm run sync:package_versions",
+    "publishLocal": "npm publish --workspaces --registry http://localhost:4873/ --tag $(npm run fetch:npm_tag --silent)",
+    "publishLocal:overwrite": "npm unpublish --force --workspaces --registry http://localhost:4873/ && npm publish --workspaces --registry http://localhost:4873/ --tag $(npm run fetch:npm_tag --silent)"
   },
   "keywords": [
     "react-native",
