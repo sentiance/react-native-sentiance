@@ -71,7 +71,11 @@ public class SentianceHelper {
     userLinker.setUserLinkResult(linkResult);
   }
 
-  public InitializationResult initializeSDK(boolean mIsAppSessionDataCollectionEnabled) {
+  public InitializationResult initializeSDK() {
+    return initializeSDK(false);
+  }
+
+  public InitializationResult initializeSDK(boolean isAppSessionDataCollectionEnabled) {
     Context context = weakContext.get();
     if (context == null) {
       return new InitializationResult(
@@ -86,7 +90,7 @@ public class SentianceHelper {
 
     SentianceOptions options = new SentianceOptions.Builder(context)
       .setNotification(notification, SentianceUtils.getSentianceNotificationId(weakContext))
-      .collectAppSessionData(mIsAppSessionDataCollectionEnabled)
+      .collectAppSessionData(isAppSessionDataCollectionEnabled)
       .build();
     InitializationResult result = sentiance.initialize(options);
     if (result.isSuccessful()) {
