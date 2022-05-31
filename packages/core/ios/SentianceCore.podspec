@@ -21,5 +21,4 @@ Pod::Spec.new do |s|
 
   s.dependency "React"
   s.dependency "SENTSDK", sentiance_sdk_version
-  s.dependency 'TensorFlowLiteC', '2.4.0'
 end
