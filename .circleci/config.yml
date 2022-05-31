@@ -5,15 +5,6 @@ defaults: &defaults
   docker:
     - image: circleci/node:16.10.0
 
-commands:
-  publish-all-packages:
-    description: "A command that tags and publishes all subpackages"
-    steps:
-      - run:
-          command: |
-            NPMTAG=$(npm run fetch:npm_tag --silent)
-            npm publish --workspaces --tag $NPMTAG
-
 jobs:
   test:
     <<: *defaults
@@ -35,7 +26,10 @@ jobs:
           name: Sync package versions for all modules
           command: npm run sync:package_versions
       - run:
-          publish-all-packages:
+          name: Tag and publish all subpackages
+          command: |
+            NPMTAG=$(npm run fetch:npm_tag --silent)
+            npm publish --workspaces --tag $NPMTAG
 
 workflows:
   version: 2
