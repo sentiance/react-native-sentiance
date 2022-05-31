@@ -15,7 +15,6 @@ public class SentianceEmitter extends AbstractSentianceEmitter {
   private static final String USER_LINK = "SENTIANCE_USER_LINK_EVENT";
   private static final String STATUS_UPDATE = "SENTIANCE_STATUS_UPDATE_EVENT";
   private static final String USER_ACTIVITY_UPDATE = "SENTIANCE_USER_ACTIVITY_UPDATE_EVENT";
-  private static final String ON_DETECTIONS_ENABLED = "SENTIANCE_ON_DETECTIONS_ENABLED_EVENT";
   private static final String ON_TRIP_TIMED_OUT = "SENTIANCE_ON_TRIP_TIMED_OUT_EVENT";
 
   public SentianceEmitter(Context context) {
@@ -32,10 +31,6 @@ public class SentianceEmitter extends AbstractSentianceEmitter {
 
   void sendUserActivityUpdate(UserActivity userActivity) {
     sendEvent(USER_ACTIVITY_UPDATE, convertUserActivity(userActivity));
-  }
-
-  void sendOnDetectionsEnabledEvent(SdkStatus status) {
-    sendEvent(ON_DETECTIONS_ENABLED, convertSdkStatus(status));
   }
 
   void sendOnTripTimedOutEvent() {

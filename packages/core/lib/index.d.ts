@@ -188,8 +188,6 @@ declare module "sentiance-react-native-core" {
 
     addTripTimeoutListener(onTripTimedOut: () => void): Promise<EmitterSubscription>;
 
-    addOnDetectionsEnabledListener(onDetectionsEnabled: (sdkStatus: SdkStatus) => void): Promise<EmitterSubscription>;
-
     addSdkUserActivityUpdateListener(onUserActivityUpdated: (userActivity: UserActivity) => void): Promise<EmitterSubscription>;
   }
 

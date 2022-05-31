@@ -33,7 +33,7 @@ RCT_EXPORT_MODULE(SentianceCore)
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[SdkStatusUpdateEvent, TripTimeoutEvent, UserLinkEvent, UserActivityUpdateEvent, VehicleCrashEvent, UserLinkEvent, UserContextUpdateEvent, @"SENTIANCE_ON_DETECTIONS_ENABLED_EVENT"];
+    return @[SdkStatusUpdateEvent, TripTimeoutEvent, UserLinkEvent, UserActivityUpdateEvent, VehicleCrashEvent, UserLinkEvent, UserContextUpdateEvent];
 }
 
 // Will be called when this module's first listener is added.

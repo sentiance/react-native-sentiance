@@ -142,7 +142,6 @@ public class SentianceHelper {
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
           EnableDetectionsResult result = pendingOperation.getResult();
-          emitter.sendOnDetectionsEnabledEvent(result.getSdkStatus());
           if (promise != null) {
             promise.resolve(SentianceConverter.convertEnableDetectionsResult(result));
           }

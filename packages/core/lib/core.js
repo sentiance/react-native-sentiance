@@ -4,9 +4,7 @@ const {SentianceCore} = NativeModules;
 
 const SDK_STATUS_UPDATE_EVENT = "SENTIANCE_STATUS_UPDATE_EVENT";
 const SDK_USER_LINK_EVENT = "SENTIANCE_USER_LINK_EVENT";
-const SDK_ON_DETECTIONS_ENABLED_EVENT = "SENTIANCE_ON_DETECTIONS_ENABLED_EVENT";
 const SDK_USER_ACTIVITY_UPDATE_EVENT = "SENTIANCE_USER_ACTIVITY_UPDATE_EVENT";
-const SDK_ON_TRIP_TIMED_OUT_EVENT = "SENTIANCE_ON_TRIP_TIMED_OUT_EVENT";
 
 if (!SentianceCore) {
   const nativeModuleName = varToString({SentianceCore});
@@ -37,12 +35,6 @@ const _addUserLinkListener = async (linker) => {
   });
 };
 
-const _addOnDetectionsEnabledListener = async (onDetectionsEnabled) => {
-  return SENTIANCE_EMITTER.addListener(SDK_ON_DETECTIONS_ENABLED_EVENT, (data) => {
-    onDetectionsEnabled(data);
-  });
-};
-
 const _addSdkUserActivityUpdateListener = async (onUserActivityUpdated) => {
   await SentianceCore.listenUserActivityUpdates();
   return SENTIANCE_EMITTER.addListener(SDK_USER_ACTIVITY_UPDATE_EVENT, (data) => {
@@ -57,7 +49,6 @@ const _addTripTimeoutListener = async (onTripTimedOut) => {
 
 SentianceCore._addSdkStatusUpdateListener = _addSdkStatusUpdateListener;
 SentianceCore._addUserLinkListener = _addUserLinkListener;
-SentianceCore._addOnDetectionsEnabledListener = _addOnDetectionsEnabledListener;
 SentianceCore._addSdkUserActivityUpdateListener = _addSdkUserActivityUpdateListener;
 SentianceCore._addTripTimeoutListener = _addTripTimeoutListener;
 
