@@ -11,14 +11,6 @@
     "publishLocal": "npm publish --workspaces --registry http://localhost:4873/ --tag $(npm run fetch:npm_tag --silent)",
     "publishLocal:overwrite": "npm unpublish --force --workspaces --registry http://localhost:4873/ && npm publish --workspaces --registry http://localhost:4873/ --tag $(npm run fetch:npm_tag --silent)"
   },
-  "keywords": [
-    "react-native",
-    "sentiance",
-    "core",
-    "crash-detection",
-    "user-context",
-    "legacy"
-  ],
   "workspaces": [
     "packages/core",
     "packages/crash-detection",
