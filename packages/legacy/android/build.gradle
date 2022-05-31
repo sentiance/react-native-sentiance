@@ -5,6 +5,8 @@ plugins {
 def coreProj
 if (findProject(':core')) {
   coreProj = project(':core')
+} else if (findProject(':react-native-sentiance-core')) {
+  coreProj = project(':react-native-sentiance-core')
 } else if (findProject(':react-native-sentiance_core')) {
   // Starting from RN 0.61, the @ sign is stripped from project names
   coreProj = project(':react-native-sentiance_core')
@@ -12,12 +14,14 @@ if (findProject(':core')) {
   // On RN 0.60, the @ sign is not stripped from project names
   coreProj = project(':@react-native-sentiance_core')
 } else {
-  throw new GradleException('Could not find the react-native-sentiance/core package, have you installed it?')
+  throw new GradleException('Could not find the react-native-sentiance-core package, have you installed it?')
 }
 
 def crashDetectionProj
 if (findProject(':crash-detection')) {
   crashDetectionProj = project(':crash-detection')
+} else if (findProject(':react-native-sentiance-crash-detection')) {
+  crashDetectionProj = project(':react-native-sentiance-crash-detection')
 } else if (findProject(':react-native-sentiance_crash-detection')) {
   // Starting from RN 0.61, the @ sign is stripped from project names
   crashDetectionProj = project(':react-native-sentiance_crash-detection')
@@ -25,7 +29,7 @@ if (findProject(':crash-detection')) {
   // On RN 0.60, the @ sign is not stripped from project names
   crashDetectionProj = project(':@react-native-sentiance_crash-detection')
 } else {
-  throw new GradleException('Could not find the react-native-sentiance/crash-detection package, have you installed it?')
+  throw new GradleException('Could not find the react-native-sentiance-crash-detection package, have you installed it?')
 }
 
 apply from: "$coreProj.projectDir/package-json-reader.gradle"

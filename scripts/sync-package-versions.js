@@ -1,4 +1,4 @@
-const SENTIANCE_ORG_NAME = "@react-native-sentiance";
+const SENTIANCE_ORG_NAME = "react-native-sentiance";
 const SENTIANCE_MODULES = ['core', 'crash-detection', 'user-context', 'legacy'];
 
 let newVersion = process.env.npm_config_newversion;

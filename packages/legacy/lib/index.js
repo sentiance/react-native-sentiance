@@ -1,6 +1,6 @@
 import legacy from './legacy';
-import core from '@react-native-sentiance/core';
-import crashDetection from '@react-native-sentiance/crash-detection';
+import core from 'react-native-sentiance-core';
+import crashDetection from 'react-native-sentiance-crash-detection';
 
 var RNSentiance = {};
 RNSentiance.TransportMode = core.transportModes;

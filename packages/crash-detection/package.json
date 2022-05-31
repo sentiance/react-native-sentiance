@@ -1,6 +1,6 @@
 {
-  "name": "@react-native-sentiance/crash-detection",
-  "version": "1.5.9",
+  "name": "react-native-sentiance-crash-detection",
+  "version": "0.1.0",
   "description": "React Native Sentiance Crash Detection - This module provides an easy API to integrate crash detection into your apps.",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -14,7 +14,7 @@
     "sentiance"
   ],
   "peerDependencies": {
-    "@react-native-sentiance/core": "1.5.9"
+    "react-native-sentiance-core": "0.1.0"
   },
   "author": "",
   "license": "",
