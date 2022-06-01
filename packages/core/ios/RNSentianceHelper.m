@@ -6,14 +6,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SentianceHelper.h"
+#import "RNSentianceHelper.h"
 #import <SENTSDK/SENTSDK.h>
 #import <React/RCTBridge.h>
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
-#import "SentianceCore+Converter.h"
+#import "RNSentianceCore+Converter.h"
 
-@implementation SentianceHelper
+@implementation RNSentianceHelper
 
 - (SENTInitializationResult *)initializeSDKWithLaunchOptions:(nullable NSDictionary *)launchOptions {
     return [self initializeSDKWithPlatformUrl:nil isAppSessionDataCollectionAllowed:NO launchOptions:nil];

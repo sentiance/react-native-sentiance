@@ -6,14 +6,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SentianceCore.h"
+#import "RNSentianceCore.h"
 #import <SENTSDK/SENTSDK.h>
 #import <React/RCTBridge.h>
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
-#import "SentianceCore+Converter.h"
+#import "RNSentianceCore+Converter.h"
 
-@interface SentianceHelper: NSObject
+@interface RNSentianceHelper: NSObject
 
 - (SENTInitializationResult *)initializeSDKWithLaunchOptions:(nullable NSDictionary *)launchOptions
   NS_SWIFT_NAME(initializeSDK(launchOptions:));

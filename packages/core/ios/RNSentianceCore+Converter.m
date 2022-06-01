@@ -6,9 +6,9 @@
 //  Copyright © 2021 Facebook. All rights reserved.
 //
 
-#import "SentianceCore+Converter.h"
+#import "RNSentianceCore+Converter.h"
 
-@interface SentianceCore (Private)
+@interface RNSentianceCore (Private)
 
 - (NSString*)convertTimelineEventTypeToString:(SENTTimelineEventType)type;
 - (NSDictionary*)convertGeolocation:(SENTGeolocation*)location;
@@ -27,7 +27,7 @@
 - (nullable NSDictionary*)convertSegment:(SENTSegment*)segment;
 @end
 
-@implementation SentianceCore (Converter)
+@implementation RNSentianceCore (Converter)
 
 - (NSString*)convertTimelineEventTypeToString:(SENTTimelineEventType)type {
     switch (type) {

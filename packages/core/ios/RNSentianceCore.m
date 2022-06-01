@@ -1,17 +1,17 @@
-#import "SentianceCore.h"
+#import "RNSentianceCore.h"
 #import <SENTSDK/SENTSDK.h>
 #import <SENTSDK/SENTSDKStatus.h>
 #import <SENTSDK/SENTPublicDefinitions.h>
 #import "RNSentianceNativeInitialization.h"
-#import "SentianceCore+Converter.h"
-#import "ErrorCodes.h"
+#import "RNSentianceCore+Converter.h"
+#import "RNSentianceErrorCodes.h"
 
 #define REJECT_IF_SDK_NOT_INITIALIZED(reject) if ([self isSdkNotInitialized]) {                            \
                                                   reject(ESDKNotInitialized, @"Sdk not initialized", nil); \
                                                   return;                                                  \
                                               }
 
-@interface SentianceCore()
+@interface RNSentianceCore()
 
 @property (nonatomic, strong) void (^userLinkSuccess)(void);
 @property (nonatomic, strong) void (^userLinkFailed)(void);
@@ -22,7 +22,7 @@
 
 @end
 
-@implementation SentianceCore
+@implementation RNSentianceCore
 
 - (dispatch_queue_t)methodQueue
 {

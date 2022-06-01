@@ -3,11 +3,11 @@ package = JSON.parse(File.read(File.join(__dir__, '../package.json')))
 sentiance_sdk_version = package['sdkVersions']['ios']['sentiance']
 
 Pod::Spec.new do |s|
-  s.name         = "RNSentiance"
+  s.name         = "RNSentianceCore"
   s.version      = "6.0.0"
-  s.summary      = "RNSentiance"
+  s.summary      = "RNSentianceCore"
   s.description  = <<-DESC
-                   RNSentiance
+                   RNSentianceCore
                    DESC
   s.homepage     = "https://developers.sentiance.com/docs"
   s.license      = "MIT"

@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03AE26FE282A80E90085E48F /* SentianceHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 03AE26FC282A80E90085E48F /* SentianceHelper.m */; };
-		03AE2705282A80FE0085E48F /* ErrorCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = 03AE26FF282A80FD0085E48F /* ErrorCodes.m */; };
-		03AE2706282A80FE0085E48F /* SentianceCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 03AE2701282A80FD0085E48F /* SentianceCore.m */; };
-		03AE2707282A80FE0085E48F /* SentianceCore+Converter.m in Sources */ = {isa = PBXBuildFile; fileRef = 03AE2704282A80FD0085E48F /* SentianceCore+Converter.m */; };
+		03AE26FE282A80E90085E48F /* RNSentianceHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 03AE26FC282A80E90085E48F /* RNSentianceHelper.m */; };
+		03AE2705282A80FE0085E48F /* RNSentianceErrorCodes.m in Sources */ = {isa = PBXBuildFile; fileRef = 03AE26FF282A80FD0085E48F /* RNSentianceErrorCodes.m */; };
+		03AE2706282A80FE0085E48F /* RNSentianceCore.m in Sources */ = {isa = PBXBuildFile; fileRef = 03AE2701282A80FD0085E48F /* RNSentianceCore.m */; };
+		03AE2707282A80FE0085E48F /* RNSentianceCore+Converter.m in Sources */ = {isa = PBXBuildFile; fileRef = 03AE2704282A80FD0085E48F /* RNSentianceCore+Converter.m */; };
 		9AE9AE342527BDFA0070A307 /* RNSentianceNativeInitialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AE9AE332527BDFA0070A307 /* RNSentianceNativeInitialization.m */; };
 /* End PBXBuildFile section */
 
@@ -27,15 +27,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		03AE26FC282A80E90085E48F /* SentianceHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentianceHelper.m; sourceTree = "<group>"; };
-		03AE26FD282A80E90085E48F /* SentianceHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentianceHelper.h; sourceTree = "<group>"; };
-		03AE26FF282A80FD0085E48F /* ErrorCodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ErrorCodes.m; sourceTree = "<group>"; };
-		03AE2700282A80FD0085E48F /* SentianceCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SentianceCore.h; sourceTree = "<group>"; };
-		03AE2701282A80FD0085E48F /* SentianceCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SentianceCore.m; sourceTree = "<group>"; };
-		03AE2702282A80FD0085E48F /* ErrorCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ErrorCodes.h; sourceTree = "<group>"; };
-		03AE2703282A80FD0085E48F /* SentianceCore+Converter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SentianceCore+Converter.h"; sourceTree = "<group>"; };
-		03AE2704282A80FD0085E48F /* SentianceCore+Converter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SentianceCore+Converter.m"; sourceTree = "<group>"; };
-		134814201AA4EA6300B7C361 /* libRNSentiance.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNSentiance.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		03AE26FC282A80E90085E48F /* RNSentianceHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSentianceHelper.m; sourceTree = "<group>"; };
+		03AE26FD282A80E90085E48F /* RNSentianceHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSentianceHelper.h; sourceTree = "<group>"; };
+		03AE26FF282A80FD0085E48F /* RNSentianceErrorCodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSentianceErrorCodes.m; sourceTree = "<group>"; };
+		03AE2700282A80FD0085E48F /* RNSentianceCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSentianceCore.h; sourceTree = "<group>"; };
+		03AE2701282A80FD0085E48F /* RNSentianceCore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSentianceCore.m; sourceTree = "<group>"; };
+		03AE2702282A80FD0085E48F /* RNSentianceErrorCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSentianceErrorCodes.h; sourceTree = "<group>"; };
+		03AE2703282A80FD0085E48F /* RNSentianceCore+Converter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RNSentianceCore+Converter.h"; sourceTree = "<group>"; };
+		03AE2704282A80FD0085E48F /* RNSentianceCore+Converter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RNSentianceCore+Converter.m"; sourceTree = "<group>"; };
+		134814201AA4EA6300B7C361 /* libRNSentianceCore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNSentianceCore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AE9AE322527BDD90070A307 /* RNSentianceNativeInitialization.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNSentianceNativeInitialization.h; sourceTree = "<group>"; };
 		9AE9AE332527BDFA0070A307 /* RNSentianceNativeInitialization.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNSentianceNativeInitialization.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -54,7 +54,7 @@
 		134814211AA4EA7D00B7C361 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				134814201AA4EA6300B7C361 /* libRNSentiance.a */,
+				134814201AA4EA6300B7C361 /* libRNSentianceCore.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -62,14 +62,14 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-				03AE2702282A80FD0085E48F /* ErrorCodes.h */,
-				03AE26FF282A80FD0085E48F /* ErrorCodes.m */,
-				03AE2700282A80FD0085E48F /* SentianceCore.h */,
-				03AE2701282A80FD0085E48F /* SentianceCore.m */,
-				03AE2703282A80FD0085E48F /* SentianceCore+Converter.h */,
-				03AE2704282A80FD0085E48F /* SentianceCore+Converter.m */,
-				03AE26FD282A80E90085E48F /* SentianceHelper.h */,
-				03AE26FC282A80E90085E48F /* SentianceHelper.m */,
+				03AE2702282A80FD0085E48F /* RNSentianceErrorCodes.h */,
+				03AE26FF282A80FD0085E48F /* RNSentianceErrorCodes.m */,
+				03AE2700282A80FD0085E48F /* RNSentianceCore.h */,
+				03AE2701282A80FD0085E48F /* RNSentianceCore.m */,
+				03AE2703282A80FD0085E48F /* RNSentianceCore+Converter.h */,
+				03AE2704282A80FD0085E48F /* RNSentianceCore+Converter.m */,
+				03AE26FD282A80E90085E48F /* RNSentianceHelper.h */,
+				03AE26FC282A80E90085E48F /* RNSentianceHelper.m */,
 				9AE9AE332527BDFA0070A307 /* RNSentianceNativeInitialization.m */,
 				9AE9AE322527BDD90070A307 /* RNSentianceNativeInitialization.h */,
 				134814211AA4EA7D00B7C361 /* Products */,
@@ -79,9 +79,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		58B511DA1A9E6C8500147676 /* RNSentiance */ = {
+		58B511DA1A9E6C8500147676 /* RNSentianceCore */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNSentiance" */;
+			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNSentianceCore" */;
 			buildPhases = (
 				58B511D71A9E6C8500147676 /* Sources */,
 				58B511D81A9E6C8500147676 /* Frameworks */,
@@ -91,9 +91,9 @@
 			);
 			dependencies = (
 			);
-			name = RNSentiance;
+			name = RNSentianceCore;
 			productName = RCTDataManager;
-			productReference = 134814201AA4EA6300B7C361 /* libRNSentiance.a */;
+			productReference = 134814201AA4EA6300B7C361 /* libRNSentianceCore.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -110,7 +110,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNSentiance" */;
+			buildConfigurationList = 58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNSentianceCore" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -123,7 +123,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				58B511DA1A9E6C8500147676 /* RNSentiance */,
+				58B511DA1A9E6C8500147676 /* RNSentianceCore */,
 			);
 		};
 /* End PBXProject section */
@@ -133,11 +133,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03AE2707282A80FE0085E48F /* SentianceCore+Converter.m in Sources */,
-				03AE26FE282A80E90085E48F /* SentianceHelper.m in Sources */,
-				03AE2706282A80FE0085E48F /* SentianceCore.m in Sources */,
+				03AE2707282A80FE0085E48F /* RNSentianceCore+Converter.m in Sources */,
+				03AE26FE282A80E90085E48F /* RNSentianceHelper.m in Sources */,
+				03AE2706282A80FE0085E48F /* RNSentianceCore.m in Sources */,
 				9AE9AE342527BDFA0070A307 /* RNSentianceNativeInitialization.m in Sources */,
-				03AE2705282A80FE0085E48F /* ErrorCodes.m in Sources */,
+				03AE2705282A80FE0085E48F /* RNSentianceErrorCodes.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,7 +239,7 @@
 					"-ObjC",
 					"-all_load",
 				);
-				PRODUCT_NAME = RNSentiance;
+				PRODUCT_NAME = RNSentianceCore;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -258,7 +258,7 @@
 					"-ObjC",
 					"-all_load",
 				);
-				PRODUCT_NAME = RNSentiance;
+				PRODUCT_NAME = RNSentianceCore;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -266,7 +266,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNSentiance" */ = {
+		58B511D61A9E6C8500147676 /* Build configuration list for PBXProject "RNSentianceCore" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B511ED1A9E6C8500147676 /* Debug */,
@@ -275,7 +275,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNSentiance" */ = {
+		58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "RNSentianceCore" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				58B511F01A9E6C8500147676 /* Debug */,

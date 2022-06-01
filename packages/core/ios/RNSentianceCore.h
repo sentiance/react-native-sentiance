@@ -11,7 +11,7 @@ static NSString * _Nonnull const TripTimeoutEvent = @"SENTIANCE_ON_TRIP_TIMED_OU
 static NSString * _Nonnull const VehicleCrashEvent = @"SENTIANCE_VEHICLE_CRASH_EVENT";
 static NSString * _Nonnull const UserContextUpdateEvent = @"SENTIANCE_USER_CONTEXT_UPDATE_EVENT";
 
-@interface SentianceCore : RCTEventEmitter <RCTBridgeModule, SENTUserContextDelegate>
+@interface RNSentianceCore : RCTEventEmitter <RCTBridgeModule, SENTUserContextDelegate>
 typedef void (^SdkStatusHandler)(SENTSDKStatus * _Nonnull status);
 - (SENTUserLinker _Nonnull ) getUserLinker;
 - (SdkStatusHandler _Nonnull) getSdkStatusUpdateHandler;

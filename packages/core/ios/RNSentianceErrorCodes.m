@@ -5,7 +5,7 @@
 //  Created by Hassan Shakeel on 05/05/2022.
 //
 
-#import "ErrorCodes.h"
+#import "RNSentianceErrorCodes.h"
 
 NSString * const ESDKMissingParams = @"E_SDK_MISSING_PARAMS";
 NSString * const ESDKGetTokenError = @"E_SDK_GET_TOKEN_ERROR";
