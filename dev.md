@@ -24,7 +24,7 @@ A typical, minimalistic SDK module's `package.json` file looks like this:
 
 ```json
 {
-  "name": "@react-native-sentiance/newModule",
+  "name": "@sentiance-react-native/newModule",
   "version": "0.0.1",
   "description": "Type module description here",
   "main": "lib/index.js",
@@ -48,7 +48,7 @@ A typical, minimalistic SDK module's `package.json` file looks like this:
 
 The key fields to note here are:
 
-* **name**: the "fully qualified" name of the module. Notice the use of the Sentiance organisation name (`@react-native-sentiance/`)
+* **name**: the "fully qualified" name of the module. Notice the use of the Sentiance organisation name (`@sentiance-react-native/`)
 * **version**: the version of the module.
 * **description**: a human friendly description of the module to help people discover this module.
 * **main**: the entry point of this module and our public Javascript interface.

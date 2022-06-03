@@ -1,5 +1,5 @@
 const {NativeModules, NativeEventEmitter, Platform} = require("react-native");
-const {varToString} = require("react-native-sentiance-core/lib/utils")
+const {varToString} = require("@sentiance-react-native/core/lib/utils")
 const {SentianceCrashDetection, SentianceCore} = NativeModules;
 const SDK_VEHICLE_CRASH_EVENT = "SENTIANCE_VEHICLE_CRASH_EVENT";
 

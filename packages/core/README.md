@@ -1,7 +1,7 @@
 ## Installation
 
 ```bash
-npm i @react-native-sentiance/core
+npm i @sentiance-react-native/core
 ```
 
 ## Usage
@@ -11,7 +11,7 @@ npm i @react-native-sentiance/core
 You can import the entire contents of the package for use under a namespace of your choosing:
 
 ```javascript
-import * as SentianceCore from "@react-native-sentiance/core";
+import * as SentianceCore from "@sentiance-react-native/core";
 ```
 
 or you can require specific functionality using named imports:
@@ -20,5 +20,5 @@ or you can require specific functionality using named imports:
 import {
     enableDetections, 
     createUser
-} from "@react-native-sentiance/core";
+} from "@sentiance-react-native/core";
 ```

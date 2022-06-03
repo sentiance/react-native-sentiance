@@ -1,14 +1,12 @@
 def coreProj
 if (findProject(':core')) {
   coreProj = project(':core')
-} else if (findProject(':react-native-sentiance-core')) {
-  coreProj = project(':react-native-sentiance-core')
-} else if (findProject(':react-native-sentiance_core')) {
-  coreProj = project(':react-native-sentiance_core')
-} else if (findProject(':@react-native-sentiance_core')) {
-  coreProj = project(':@react-native-sentiance_core')
+} else if (findProject(':sentiance-react-native_core')) {
+  coreProj = project(':sentiance-react-native_core')
+} else if (findProject(':@sentiance-react-native_core')) {
+  coreProj = project(':@sentiance-react-native_core')
 } else {
-  throw new GradleException('Could not find the react-native-sentiance-core package, have you installed it?')
+  throw new GradleException('Could not find the @sentiance-react-native/core package, have you installed it?')
 }
 
 apply from: "$coreProj.projectDir/package-json-reader.gradle"

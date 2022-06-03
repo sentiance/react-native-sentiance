@@ -1,4 +1,4 @@
-declare module "react-native-sentiance-crash-detection" {
+declare module "sentiance-react-native-crash-detection" {
   import {EmitterSubscription} from "react-native";
 
   export interface Location {

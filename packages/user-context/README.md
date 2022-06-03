@@ -1,7 +1,9 @@
 ## Installation
 
 ```bash
-npm i @react-native-sentiance/user-context
+npm i @sentiance-react-native/core
+
+npm i @sentiance-react-native/user-context
 ```
 
 ## Usage
@@ -11,7 +13,7 @@ npm i @react-native-sentiance/user-context
 You can import the entire contents of the package for use under a namespace of your choosing:
 
 ```javascript
-import * as SentianceUserContext from "@react-native-sentiance/user-context";
+import * as SentianceUserContext from "@sentiance-react-native/user-context";
 ```
 
 or you can require specific functionality using named imports:
@@ -20,5 +22,5 @@ or you can require specific functionality using named imports:
 import {
     getUserContext,
     listenUserContextUpdates
-} from "@react-native-sentiance/user-context";
+} from "@sentiance-react-native/user-context";
 ```

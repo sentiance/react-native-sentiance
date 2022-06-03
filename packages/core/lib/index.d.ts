@@ -1,4 +1,4 @@
-declare module "react-native-sentiance-core" {
+declare module "sentiance-react-native-core" {
   import {EmitterSubscription} from "react-native";
 
   export type LocationPermission = "ALWAYS" | "ONLY_WHILE_IN_USE" | "NEVER";

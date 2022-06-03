@@ -1,5 +1,5 @@
 import {NativeModules, Platform} from 'react-native'
-import {varToString} from 'react-native-sentiance-core/lib/utils'
+import {varToString} from '@sentiance-react-native/core/lib/utils'
 
 const {RNSentiance, SentianceCore} = NativeModules;
 

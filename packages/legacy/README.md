@@ -1,16 +1,16 @@
 ## Installation
 
-This module requires that the `@react-native-sentiance/crash-detection` and `@react-native-sentiance/core` modules are already setup and installed.
+This module requires that the `@sentiance-react-native/crash-detection` and `@sentiance-react-native/core` modules are already setup and installed.
 
 ```bash
 # Install & setup the core module
-npm i @react-native-sentiance/core
+npm i @sentiance-react-native/core
 
 # Install & setup the crash detection module
-npm i @react-native-sentiance/crash-detection
+npm i @sentiance-react-native/crash-detection
 
 # Install the legacy module
-npm i @react-native-sentiance/legacy
+npm i @sentiance-react-native/legacy
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ npm i @react-native-sentiance/legacy
 You can import the entire contents of the package for use under a namespace of your choosing:
 
 ```javascript
-import * as SentianceLegacy from "@react-native-sentiance/legacy";
+import * as SentianceLegacy from "@sentiance-react-native/legacy";
 ```
 
 or you can require specific functionality using named imports:
@@ -30,5 +30,5 @@ import {
     enableDetections,
     invokeDummyVehicleCrash,
     createUser
-} from "@react-native-sentiance/legacy";
+} from "@sentiance-react-native/legacy";
 ```
