@@ -28,6 +28,13 @@ if (findProject(':crash-detection')) {
   throw new GradleException('Could not find the @sentiance-react-native/crash-detection package, have you installed it?')
 }
 
+android {
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+}
+
 apply from: "$coreProj.projectDir/package-json-reader.gradle"
 
 def corePackageJson = PackageJson.of(coreProj)

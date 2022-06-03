@@ -15,6 +15,13 @@ if (findProject(':core')) {
   throw new GradleException('Could not find the @sentiance-react-native/core package, have you installed it?')
 }
 
+android {
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+}
+
 apply from: "$coreProj.projectDir/package-json-reader.gradle"
 apply from: "$coreProj.projectDir/sentiance-version-finder.gradle"
 
