@@ -93,6 +93,7 @@ declare module "sentiance-react-native-core" {
     mobileQuotaStatus: string;
     diskQuotaStatus: string;
     locationPermission: LocationPermission;
+    userExists: boolean;
     isBgAccessPermGranted?: boolean; // iOS only
     isActivityRecognitionPermGranted?: boolean; // Android only
     locationSetting?: string; // Android only

@@ -182,6 +182,7 @@ public class SentianceConverter {
       map.putString("wifiQuotaStatus", status.wifiQuotaStatus.toString());
       map.putString("mobileQuotaStatus", status.mobileQuotaStatus.toString());
       map.putString("diskQuotaStatus", status.diskQuotaStatus.toString());
+      map.putBoolean("userExists", status.userExists);
     } catch (Exception ignored) {
     }
 

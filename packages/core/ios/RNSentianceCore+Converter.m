@@ -561,7 +561,8 @@
                            @"isGpsPresent":@(status.isGpsPresent),
                            @"wifiQuotaStatus":[self convertQuotaStatusToString:status.wifiQuotaStatus],
                            @"mobileQuotaStatus":[self convertQuotaStatusToString:status.mobileQuotaStatus],
-                           @"diskQuotaStatus":[self convertQuotaStatusToString:status.diskQuotaStatus]
+                           @"diskQuotaStatus":[self convertQuotaStatusToString:status.diskQuotaStatus],
+                           @"userExists":@(status.userExists)
                            };
 
     return dict;
