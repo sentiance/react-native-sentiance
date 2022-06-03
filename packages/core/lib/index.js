@@ -31,6 +31,7 @@ const getMobileQuotaUsage = () => core.getMobileQuotaUsage();
 const getWiFiQuotaLimit = () => core.getWiFiQuotaLimit();
 const getWiFiQuotaUsage = () => core.getWiFiQuotaUsage();
 const linkUserWithAuthCode = (authCode) => core.linkUserWithAuthCode(authCode);
+const NO_OP_LINKER = {}
 
 var startTrip
 var stopTrip
@@ -80,6 +81,16 @@ const linkUser = async (linker) => {
  *  }
  *
  *  createUser(userCreationOptions);
+ * 
+ * Or unlinked user with appId / appSecret (Not recommended)
+ *
+ * const userCreationOptions = {
+ *    linker : NO_OP_LINKER,
+ *    appId : "<APP_ID>",
+ *    appSecret: "<APP_SECRET>"
+ *  }
+ *
+ * createUser(userCreationOptions);
  */
 
 
@@ -106,9 +117,20 @@ const linkUser = async (linker) => {
  *    appSecret: "<APP_SECRET>"
  *  }
  *
- *  createUser(userCreationOptions);
+ * createUser(userCreationOptions);
+ * 
+ * Or unlinked user with appId / appSecret (Not recommended)
+ *
+ * const userCreationOptions = {
+ *    linker : NO_OP_LINKER,
+ *    appId : "<APP_ID>",
+ *    appSecret: "<APP_SECRET>"
+ *  }
+ *
+ * createUser(userCreationOptions);
  */
 const createUser = async (userCreationOptions) => {
+
   const appId = userCreationOptions.appId;
   const appSecret = userCreationOptions.appSecret;
   const authCode = userCreationOptions.authCode;
@@ -116,21 +138,26 @@ const createUser = async (userCreationOptions) => {
   const linker = userCreationOptions.linker;
 
   if (!appId && !appSecret && !authCode) {
-    return Promise.reject('Invalid userCreationOptions passed, please set authCode or  appId/appSecret with a linker to create user');
+    return Promise.reject('Invalid userCreationOptions passed, please set authCode or appId/appSecret with a linker to create user');
   }
 
   if (authCode) {
     return core.createLinkedUserWithAuthCode(authCode, platformUrl);
-  } else if (linker) {
-    await core._addUserLinkListener(linker);
-    return core.createLinkedUser(appId, appSecret, platformUrl);
-  } else {
-    return core.createUnlinkedUser(appId, appSecret, platformUrl);
+  } 
+  else if (linker) {
+    if (linker === NO_OP_LINKER) {
+      return core.createUnlinkedUser(appId, appSecret, platformUrl);
+    } else {
+      await core._addUserLinkListener(linker);
+      return core.createLinkedUser(appId, appSecret, platformUrl);
+    }
+  }
+  else {
+    return Promise.reject('Invalid userCreationOptions passed, no authcode or linker specified.');
   }
 }
 
 const addSdkStatusUpdateListener = core._addSdkStatusUpdateListener;
-const addOnDetectionsEnabledListener = core._addOnDetectionsEnabledListener;
 const addSdkUserActivityUpdateListener = core._addSdkUserActivityUpdateListener;
 const addTripTimeoutListener = core._addTripTimeoutListener;
 
@@ -186,9 +213,9 @@ module.exports = {
   linkUser,
   linkUserWithAuthCode,
   addSdkStatusUpdateListener,
-  addOnDetectionsEnabledListener,
   addSdkUserActivityUpdateListener,
   addTripTimeoutListener,
   listenTripTimeout,
-  transportModes
+  transportModes,
+  NO_OP_LINKER
 };
