@@ -5,6 +5,7 @@ const {SentianceCore} = NativeModules;
 const SDK_STATUS_UPDATE_EVENT = "SENTIANCE_STATUS_UPDATE_EVENT";
 const SDK_USER_LINK_EVENT = "SENTIANCE_USER_LINK_EVENT";
 const SDK_USER_ACTIVITY_UPDATE_EVENT = "SENTIANCE_USER_ACTIVITY_UPDATE_EVENT";
+const SDK_ON_TRIP_TIMED_OUT_EVENT = "SENTIANCE_ON_TRIP_TIMED_OUT_EVENT";
 
 if (!SentianceCore) {
   const nativeModuleName = varToString({SentianceCore});

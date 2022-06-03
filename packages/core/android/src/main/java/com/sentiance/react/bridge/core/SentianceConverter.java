@@ -6,6 +6,7 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.WritableMap;
+import com.sentiance.react.bridge.core.utils.SentianceUtils;
 import com.sentiance.sdk.DetectionStatus;
 import com.sentiance.sdk.DisableDetectionsResult;
 import com.sentiance.sdk.EnableDetectionsError;
@@ -111,7 +112,7 @@ public class SentianceConverter {
     WritableMap map = Arguments.createMap();
     try {
       map.putString("tokenId", token.getTokenId());
-      map.putString("expiryDate", String.valueOf(token.getExpiryDate()));
+      map.putString("expiryDate", SentianceUtils.toDateString(token.getExpiryDate()));
     } catch (Exception ignored) {
     }
 
@@ -125,7 +126,7 @@ public class SentianceConverter {
       Token token = userInfo.getToken();
       map.putString("userId", userInfo.getUserId());
       map.putString("tokenId", token.getTokenId());
-      map.putString("tokenExpiryDate", token.getExpiryDate().toString());
+      map.putString("tokenExpiryDate", SentianceUtils.toDateString(token.getExpiryDate()));
       map.putBoolean("isTokenExpired", token.isExpired());
     } catch (Exception ignored) {
     }
@@ -140,7 +141,7 @@ public class SentianceConverter {
       Token token = userInfo.getToken();
       map.putString("userId", userInfo.getUserId());
       map.putString("tokenId", token.getTokenId());
-      map.putString("tokenExpiryDate", token.getExpiryDate().toString());
+      map.putString("tokenExpiryDate", SentianceUtils.toDateString(token.getExpiryDate()));
       map.putBoolean("isTokenExpired", token.isExpired());
     } catch (Exception ignored) {
     }

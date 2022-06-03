@@ -684,8 +684,10 @@
 
     dict[@"userId"] = userCreationResult.userInfo.userId;
     dict[@"tokenId"] = userCreationResult.userInfo.token.tokenId;
-    dict[@"tokenExpiryDate"] = userCreationResult.userInfo.token.expiryDate;
-    dict[@"isTokenExpired"] = @(NO);
+
+    NSString *tokenExpiryDate = [[SENTDate alloc]initWithNSDate: userCreationResult.userInfo.token.expiryDate].description;
+    dict[@"tokenExpiryDate"] = tokenExpiryDate;
+    dict[@"isTokenExpired"] = @(userCreationResult.userInfo.token.isExpired);
 
     return dict;
 }
@@ -748,11 +750,13 @@
 
 - (NSDictionary *)convertUserLinkingResult:(SENTUserLinkingResult *)userLinkingResult {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-
+    
     dict[@"userId"] = userLinkingResult.userInfo.userId;
     dict[@"tokenId"] = userLinkingResult.userInfo.token.tokenId;
-    dict[@"tokenExpiryDate"] = userLinkingResult.userInfo.token.expiryDate;
-    dict[@"isTokenExpired"] = @(NO);
+    
+    NSString *tokenExpiryDate = [[SENTDate alloc]initWithNSDate: userLinkingResult.userInfo.token.expiryDate].description;
+    dict[@"tokenExpiryDate"] = tokenExpiryDate;
+    dict[@"isTokenExpired"] = @(userLinkingResult.userInfo.token.isExpired);
 
     return dict;
 }
@@ -867,8 +871,10 @@
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 
     dict[@"tokenId"] = userAccessTokenResult.token.tokenId;
-    dict[@"expiryDate"] = userAccessTokenResult.token.expiryDate;
-
+    
+    NSString *tokenExpiryDate = [[SENTDate alloc]initWithNSDate: userAccessTokenResult.token.expiryDate].description;
+    dict[@"expiryDate"] = tokenExpiryDate;
+    
     return dict;
 }
 

@@ -10,9 +10,13 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class SentianceUtils {
 
@@ -26,6 +30,8 @@ public class SentianceUtils {
   public static final String SENTIANCE_NOTIFICATION_CHANNEL_ID = "com.sentiance.react.bridge.channel_id";
   public static final String SENTIANCE_NOTIFICATION_CHANNEL_NAME = "com.sentiance.react.bridge.notification_channel_name";
   public static final String SENTIANCE_NOTIFICATION_NOTIFICATION_TEXT = "com.sentiance.react.bridge.notification_text";
+
+  private static final String DATE_TIME_PATTERN_M = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";  // ISO_8601
 
   public static Notification createNotificationFromManifestData(WeakReference<Context> weakContext,
                                                                 String title, String message) {
@@ -98,6 +104,12 @@ public class SentianceUtils {
     }
 
     return SENTIANCE_FALLBACK_NOTIFICATION_ID;
+  }
+
+  @NonNull
+  public static String toDateString(Date date) {
+    SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_PATTERN_M, Locale.ENGLISH);
+    return formatter.format(date.getTime());
   }
 
   private static Notification createNotification(WeakReference<Context> weakContext, PendingIntent pendingIntent,
