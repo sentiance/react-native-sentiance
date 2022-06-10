@@ -1,6 +1,7 @@
 declare module "sentiance-react-native-core" {
   import {EmitterSubscription} from "react-native";
 
+  export type DetectionStatus = "DISABLED" | "EXPIRED" | "ENABLED_BUT_BLOCKED" | "ENABLED_AND_DETECTING";
   export type LocationPermission = "ALWAYS" | "ONLY_WHILE_IN_USE" | "NEVER";
   export type SdkInitState =
     "NOT_INITIALIZED"
@@ -84,6 +85,7 @@ declare module "sentiance-react-native-core" {
 
   export interface SdkStatus {
     startStatus: string;
+    detectionStatus: DetectionStatus;
     canDetect: boolean;
     isRemoteEnabled: boolean;
     isAccelPresent: boolean;
@@ -109,7 +111,7 @@ declare module "sentiance-react-native-core" {
 
   export interface EnableDisableDetectionsResult {
     sdkStatus: SdkStatus,
-    detectionStatus: string
+    detectionStatus: DetectionStatus
   }
 
   export interface SentianceCore {
