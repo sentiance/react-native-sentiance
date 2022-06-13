@@ -3,32 +3,35 @@ const {varToString} = require("@sentiance-react-native/core/lib/utils")
 const {SentianceCrashDetection, SentianceCore} = NativeModules;
 const SDK_VEHICLE_CRASH_EVENT = "SENTIANCE_VEHICLE_CRASH_EVENT";
 
+let didLocateNativeModule = true;
 var crashDetectionModule
 if (Platform.OS === 'android') {
   if (!SentianceCrashDetection) {
+    didLocateNativeModule = false;
     const nativeModuleName = varToString({SentianceCrashDetection});
-    throw `Could not locate the native ${nativeModuleName} module.
-    Make sure that your native code is properly linked, and that the module name you specified is correct.`;
+    console.error(`Could not locate the native ${nativeModuleName} module.
+    Make sure that your native code is properly linked, and that the module name you specified is correct.`);
   }
   crashDetectionModule = SentianceCrashDetection
 } else {
   if (!SentianceCore) {
+    didLocateNativeModule = false;
     const nativeModuleName = varToString({SentianceCore});
-    throw `Could not locate the native ${nativeModuleName} module.
-    Make sure that your native code is properly linked, and that the module name you specified is correct.`;
+    console.error(`Could not locate the native ${nativeModuleName} module.
+    Make sure that your native code is properly linked, and that the module name you specified is correct.`);
   }
   crashDetectionModule = SentianceCore
 }
 
-const SENTIANCE_EMITTER = new NativeEventEmitter(crashDetectionModule);
+if (didLocateNativeModule) {
+  const SENTIANCE_EMITTER = new NativeEventEmitter(crashDetectionModule);
 
-const _addVehicleCrashEventListener = async (onVehicleCrash) => {
-  await crashDetectionModule.listenVehicleCrashEvents();
-  return SENTIANCE_EMITTER.addListener(SDK_VEHICLE_CRASH_EVENT, (data) => {
-    onVehicleCrash(data);
-  });
-};
-
-crashDetectionModule._addVehicleCrashEventListener = _addVehicleCrashEventListener;
+  crashDetectionModule._addVehicleCrashEventListener = async (onVehicleCrash) => {
+    await crashDetectionModule.listenVehicleCrashEvents();
+    return SENTIANCE_EMITTER.addListener(SDK_VEHICLE_CRASH_EVENT, (data) => {
+      onVehicleCrash(data);
+    });
+  };
+}
 
 export default crashDetectionModule;
