@@ -3,7 +3,9 @@ import core from '@sentiance-react-native/core';
 import crashDetection from '@sentiance-react-native/crash-detection';
 
 var RNSentiance = {};
-RNSentiance.TransportMode = core.transportModes;
+if (core) {
+  RNSentiance.TransportMode = core.transportModes;
+}
 
 const {
   userLinkCallback,

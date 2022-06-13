@@ -43,8 +43,7 @@ if (Platform.OS === 'ios') {
   stopTrip = () => core.stopTripNewApi();
   submitDetections = () => core.submitDetectionsNewApi();
   reset = () => core.resetNewApi();
-}
-else {
+} else {
   startTrip = (metadata, hint) => core.startTrip(metadata, hint);
   stopTrip = () => core.stopTrip();
   submitDetections = () => core.submitDetections();
@@ -81,7 +80,7 @@ const linkUser = async (linker) => {
  *  }
  *
  *  createUser(userCreationOptions);
- * 
+ *
  * Or unlinked user with appId / appSecret (Not recommended)
  *
  * const userCreationOptions = {
@@ -118,7 +117,7 @@ const linkUser = async (linker) => {
  *  }
  *
  * createUser(userCreationOptions);
- * 
+ *
  * Or unlinked user with appId / appSecret (Not recommended)
  *
  * const userCreationOptions = {
@@ -143,23 +142,21 @@ const createUser = async (userCreationOptions) => {
 
   if (authCode) {
     return core.createLinkedUserWithAuthCode(authCode, platformUrl);
-  } 
-  else if (linker) {
+  } else if (linker) {
     if (linker === NO_OP_LINKER) {
       return core.createUnlinkedUser(appId, appSecret, platformUrl);
     } else {
       await core._addUserLinkListener(linker);
       return core.createLinkedUser(appId, appSecret, platformUrl);
     }
-  }
-  else {
+  } else {
     return Promise.reject('Invalid userCreationOptions passed, no authcode or linker specified.');
   }
 }
 
-const addSdkStatusUpdateListener = core._addSdkStatusUpdateListener;
-const addSdkUserActivityUpdateListener = core._addSdkUserActivityUpdateListener;
-const addTripTimeoutListener = core._addTripTimeoutListener;
+const addSdkStatusUpdateListener = core ? core._addSdkStatusUpdateListener : null;
+const addSdkUserActivityUpdateListener = core ? core._addSdkUserActivityUpdateListener : null;
+const addTripTimeoutListener = core ? core._addTripTimeoutListener : null;
 
 const transportModes = {};
 (function (transportModes) {
