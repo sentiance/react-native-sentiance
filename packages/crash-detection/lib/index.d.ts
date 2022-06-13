@@ -11,7 +11,11 @@ declare module "sentiance-react-native-crash-detection" {
 
   export interface CrashEvent {
     time: number;
-    lastKnownLocation?: Location;
+    location: Location;
+    magnitude: number;
+    speedAtImpact: number;
+    deltaV: number;
+    confidence: number;
   }
 
   export interface SentianceCrashDetection {

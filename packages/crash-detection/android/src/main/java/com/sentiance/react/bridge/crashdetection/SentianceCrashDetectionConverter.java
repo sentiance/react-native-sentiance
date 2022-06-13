@@ -24,27 +24,14 @@ public class SentianceCrashDetectionConverter {
     WritableMap map = Arguments.createMap();
 
     map.putDouble("time", (double) crashEvent.getTime());
+      
+    WritableMap locationMap = convertLocation(crashEvent.getLocation());
+    map.putMap("location", locationMap);
 
-    if (crashEvent.getLocation() != null) {
-      WritableMap locationMap = convertLocation(crashEvent.getLocation());
-      map.putMap("location", locationMap);
-    }
-
-    if (crashEvent.getMagnitude() != null) {
-      map.putDouble("magnitude", crashEvent.getMagnitude());
-    }
-
-    if (crashEvent.getSpeedAtImpact() != null) {
-      map.putDouble("speedAtImpact", crashEvent.getSpeedAtImpact());
-    }
-
-    if (crashEvent.getDeltaV() != null) {
-      map.putDouble("deltaV", crashEvent.getDeltaV());
-    }
-
-    if (crashEvent.getConfidence() != null) {
-      map.putInt("confidence", crashEvent.getConfidence());
-    }
+    map.putDouble("magnitude", crashEvent.getMagnitude());
+    map.putDouble("speedAtImpact", crashEvent.getSpeedAtImpact());
+    map.putDouble("deltaV", crashEvent.getDeltaV());
+    map.putInt("confidence", crashEvent.getConfidence());
 
     return map;
   }
