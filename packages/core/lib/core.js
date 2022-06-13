@@ -7,6 +7,7 @@ const SDK_USER_LINK_EVENT = "SENTIANCE_USER_LINK_EVENT";
 const SDK_USER_ACTIVITY_UPDATE_EVENT = "SENTIANCE_USER_ACTIVITY_UPDATE_EVENT";
 const SDK_ON_TRIP_TIMED_OUT_EVENT = "SENTIANCE_ON_TRIP_TIMED_OUT_EVENT";
 
+let coreModule = {};
 if (!SentianceCore) {
   const nativeModuleName = varToString({SentianceCore});
   console.error(`Could not locate the native ${nativeModuleName} module.
@@ -51,6 +52,7 @@ if (!SentianceCore) {
   SentianceCore._addUserLinkListener = _addUserLinkListener;
   SentianceCore._addSdkUserActivityUpdateListener = _addSdkUserActivityUpdateListener;
   SentianceCore._addTripTimeoutListener = _addTripTimeoutListener;
+  coreModule = SentianceCore;
 }
 
-export default SentianceCore;
+export default coreModule;

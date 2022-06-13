@@ -154,9 +154,9 @@ const createUser = async (userCreationOptions) => {
   }
 }
 
-const addSdkStatusUpdateListener = core ? core._addSdkStatusUpdateListener : null;
-const addSdkUserActivityUpdateListener = core ? core._addSdkUserActivityUpdateListener : null;
-const addTripTimeoutListener = core ? core._addTripTimeoutListener : null;
+const addSdkStatusUpdateListener = core._addSdkStatusUpdateListener;
+const addSdkUserActivityUpdateListener = core._addSdkUserActivityUpdateListener;
+const addTripTimeoutListener = core._addTripTimeoutListener;
 
 const transportModes = {};
 (function (transportModes) {
