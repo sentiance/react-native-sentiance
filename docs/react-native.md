@@ -1,146 +1,3 @@
-# react-native-sentiance
-
-## Demo Application
-
-https://github.com/sentiance/react-native-sentiance-example
-
-## Getting started
-
-```
-$ npm install react-native-sentiance --save
-```
-
-### iOS
-
-#### iOS Configuration
-
-1. Go to the **Capabilities** tab of your target settings
-1. Turn on **Background Modes** and enable **Location updates**
-1. Turn off **Data protection**
-
-![iOS Background Modes](./assets/ios-background-modes.png)
-
-#### iOS Initialization
-
-The correct way to natively initialize on iOS is to do it inside the `didFinishLaunchingWithOptions` method of the `AppDelegate` class.
-
-```objective-c
-#import <RNSentiance.h> // Import Sentiance React Native bridge module
-...
-
-@implementation AppDelegate
-
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
-{
-  ...
-
-  [[bridge moduleForName: @"RNSentiance"] initializeWithSuccess:^ nil failure:nil];
-
-  ...
-}
-```
-
-### Android
-
-#### Android Installation
-
-Add the following lines to the settings.gradle file in your project's android directory:
-
-```
-# android/settings.gradle
-
-include ':react-native-sentiance'
-project(':react-native-sentiance').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sentiance/android')
-```
-
-Add the Sentiance repository to the build.gradle file in your project's android directory:
-
-```
-# android/build.gradle
-
-allprojects {
-    repositories {
-        ...
-        maven { url "http://repository.sentiance.com" }
-    }
-}
-```
-
-Finally, add a dependency to the React Native project to your app's build.gradle:
-
-```
-# android/app/build.gradle
-
-dependencies {
-    ...
-    implementation project(':react-native-sentiance')
-}
-```
-
-#### Android Configuration
-
-When targeting API level 29 (Android 10), you must add the following permissions to your app's AndroidManifest.xml file.
-
-```xml
-AndroidManifest.xml
-
-<manifest ...>
-  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
-  <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
-  ...
-
-</manifest>
-```
-
-**Customize the Notification**
-
-The Sentiance SDK needs to provide a notification to Android, which gets shown to the user when a foreground service is running. You can customize this notification via the **AndroidManifest.xml** file.
-
-```xml
-<application ...>
-    <meta-data android:name="com.sentiance.react.bridge.notification_title" android:resource="@string/app_name"/>
-    <meta-data android:name="com.sentiance.react.bridge.notification_text" android:value="Touch to open."/>
-    <meta-data android:name="com.sentiance.react.bridge.notification_icon" android:resource="@mipmap/ic_launcher"/>
-    <meta-data android:name="com.sentiance.react.bridge.notification_channel_name" android:value="Sentiance"/>
-    <meta-data android:name="com.sentiance.react.bridge.notification_channel_id" android:value="sentiance"/>
-
-    ...
-</application>
-```
-
-#### Android Initialization
-
-The correct way to natively initialize on Android is to do it inside the onCreate() method of the Application class.
-
-```java
-<<<<<<< HEAD
-@Override
-public void onCreate() {
-  super.onCreate();
-  SoLoader.init(this, /* native exopackage */ false);
-  RNSentianceHelper rnSentianceHelper = RNSentianceHelper.getInstance(getApplicationContext());
-  InitOptions initOptions = new InitOptions.Builder(SENTIANCE_APP_ID, SENTIANCE_SECRET)
-    .autoStart(true)
-    .build();
-
-  rnSentianceHelper.initializeSentianceSDK(initOptions);
-  ...
-=======
-import com.sentiance.react.bridge.RNSentianceHelper;
-
-public class MainApplication extends Application implements ReactApplication {
-
-  @Override
-  public void onCreate() {
-      super.onCreate();
-      ...
-      RNSentianceHelper.getInstance(getApplicationContext()).initialize();
-  }
->>>>>>> main
-}
-
-```
-
 ## Usage
 
 ```javascript
@@ -447,6 +304,31 @@ try {
 }
 ```
 
+#### Crash Event Detection(deprecated)
+
+Subscribe to vehicle crash events.
+
+```javascript
+import { NativeEventEmitter } from "react-native";
+
+const sentianceEmitter = new NativeEventEmitter(RNSentiance);
+const sdkCrashEventSubscription = sentianceEmitter.addListener(
+  "SDKCrashEvent",
+  ({ time, lastKnownLocation }) => {
+    // parameter time is in milliseconds
+    // parameter lastKnownLocation is nullable
+    if (lastKnownLocation) {
+      const { latitude, longitude } = lastKnownLocation;
+    }
+  }
+);
+
+RNSentiance.listenCrashEvents();
+
+// To unsubscribe
+sdkCrashEventSubscription.remove();
+```
+
 #### Trip Profiling
 
 ##### Handle on-device trip profiling
@@ -542,41 +424,4 @@ RNSentiance.listenVehicleCrashEvents();
 
 // To unsubscribe
 vehicleCrashEventSubscription.remove();
-```
-
-#### User Context Data
-
-Get the user's context.
-
-```javascript
-await RNSentiance.getUserContext();
-```
-
-Listen for user context updates.
-
-```javascript
-import { NativeEventEmitter } from "react-native";
-
-const sentianceEmitter = new NativeEventEmitter(RNSentiance);
-const userContextUpdateEventSubscription = sentianceEmitter.addListener(
-  "UserContextUpdateEvent",
-  (event: UserContextUpdateEvent) => {}
-);
-
-// To unsubscribe
-userContextUpdateEventSubscription.remove();
-```
-
-#### App Foreground Session Data
-
-Control whether the SDK can collect "app session" data (e.g. sensor and location) whenever the app comes to the foreground.
-
-```javascript
-await RNSentiance.setAppSessionDataCollectionEnabled(enabled);
-```
-
-Check whether app session data collection is enabled.
-
-```javascript
-await RNSentinace.isAppSessionDataCollectionEnabled();
 ```

@@ -1,9 +1,27 @@
-version: 2
+version: 2.1
 
 defaults: &defaults
   working_directory: ~/repo
   docker:
     - image: circleci/node:16.10.0
+
+commands:
+  generate_github_pr_for_docs:
+    parameters:
+      checkout:
+        default: true
+        description: Boolean value used for whether or not to checkout bitbucket repo as a first step. Default is true.
+        type: boolean
+    steps:
+      - add_ssh_keys
+      - when:
+          condition: <<parameters.checkout>>
+          steps:
+            - checkout
+      - run:
+          name: Docs PR Generating
+          command: |
+            . ./.sentiance/doc-pr-gen.sh
 
 jobs:
   test:
@@ -30,6 +48,13 @@ jobs:
           command: |
             NPMTAG=$(npm run fetch:npm_tag --silent)
             npm publish --workspaces --tag $NPMTAG
+  publish_docs:
+    environment:
+      DOCKER_BUILDKIT: "1"
+    machine:
+      image: ubuntu-2004:202201-02
+    steps:
+      - generate_github_pr_for_docs
 
 workflows:
   version: 2
@@ -40,9 +65,16 @@ workflows:
             tags:
               only: /^v.*/
       - deploy:
-          requires: [ test ]
+          requires: [test]
           filters:
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
+      - publish_docs:
+          context: default
+          requires: [test]
+          filters:
+            branches:
+              only:
+                - main
