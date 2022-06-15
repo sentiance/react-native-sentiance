@@ -1,5 +1,5 @@
-import {NativeModules, Platform} from 'react-native'
-import {varToString} from '@sentiance-react-native/core/lib/utils'
+const {NativeModules, Platform} = require('react-native');
+const {varToString} = require('@sentiance-react-native/core/lib/utils');
 
 const {RNSentiance, SentianceCore} = NativeModules;
 
@@ -22,4 +22,4 @@ if (Platform.OS === 'ios') {
   }
 }
 
-export default legacyModule;
+module.exports = legacyModule;

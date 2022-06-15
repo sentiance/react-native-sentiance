@@ -36,4 +36,4 @@ if (didLocateNativeModule) {
   };
 }
 
-export default crashDetectionModule;
+module.exports = crashDetectionModule;

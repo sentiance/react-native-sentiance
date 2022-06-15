@@ -1,6 +1,6 @@
-import legacy from './legacy';
-import core from '@sentiance-react-native/core';
-import crashDetection from '@sentiance-react-native/crash-detection';
+const legacy = require('./legacy');
+const core = require('@sentiance-react-native/core');
+const crashDetection = require('@sentiance-react-native/crash-detection');
 
 var RNSentiance = {};
 if (core) {
@@ -124,4 +124,4 @@ RNSentiance.disableNativeInitialization = disableNativeInitialization;
 RNSentiance.addListener = addListener
 RNSentiance.removeListeners = removeListeners
 
-export default RNSentiance;
+module.exports = RNSentiance;

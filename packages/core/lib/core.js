@@ -55,4 +55,4 @@ if (!SentianceCore) {
   coreModule = SentianceCore;
 }
 
-export default coreModule;
+module.exports = coreModule;

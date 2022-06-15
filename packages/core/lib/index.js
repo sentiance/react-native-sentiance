@@ -1,5 +1,5 @@
-import core from './core';
-import Platform from 'react-native';
+const core = require('./core');
+const {Platform} = require('react-native');
 
 const enableDetections = () => core.enableDetections();
 const enableDetectionsWithExpiryDate = (expiryTime) => core.enableDetectionsWithExpiryDate(expiryTime);

@@ -1,4 +1,4 @@
-import crashDetection from './crash-detection';
+const crashDetection = require('./crash-detection');
 
 const listenVehicleCrashEvents = () => crashDetection.listenVehicleCrashEvents();
 const invokeDummyVehicleCrash = () => crashDetection.invokeDummyVehicleCrash();

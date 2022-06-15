@@ -1,1 +1,3 @@
-export const varToString = varObj => Object.keys(varObj)[0];
+module.exports.varToString = function (varObj) {
+  return Object.keys(varObj)[0];
+}

@@ -37,4 +37,4 @@ if (didLocateNativeModule) {
   };
 }
 
-export default userContextModule;
+module.exports = userContextModule;
