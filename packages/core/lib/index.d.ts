@@ -3,6 +3,7 @@ declare module "sentiance-react-native-core" {
 
   export type DetectionStatus = "DISABLED" | "EXPIRED" | "ENABLED_BUT_BLOCKED" | "ENABLED_AND_DETECTING";
   export type LocationPermission = "ALWAYS" | "ONLY_WHILE_IN_USE" | "NEVER";
+  export type BackgroundRefreshStatus = "AVAILABLE" | "DENIED" | "RESTRICTED";
   export type SdkInitState =
     "NOT_INITIALIZED"
     | "INIT_IN_PROGRESS"
@@ -107,6 +108,7 @@ declare module "sentiance-react-native-core" {
     isBackgroundProcessingRestricted?: boolean; // Android only
     isPreciseLocationAuthorizationGranted: boolean;
     isSchedulingExactAlarmsPermitted?: boolean; // Android only
+    backgroundRefreshStatus: BackgroundRefreshStatus; // iOS only
   }
 
   export interface EnableDisableDetectionsResult {

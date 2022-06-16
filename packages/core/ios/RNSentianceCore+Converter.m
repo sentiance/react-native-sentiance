@@ -7,6 +7,7 @@
 //
 
 #import "RNSentianceCore+Converter.h"
+@import UIKit.UIApplication;
 
 @interface RNSentianceCore (Private)
 
@@ -25,6 +26,8 @@
 - (nullable NSString*)convertSegmentTypeToString:(SENTSegmentType)type;
 - (NSMutableDictionary*)convertSegmentAttributesToDict:(NSArray<SENTAttribute *>*)attributes;
 - (nullable NSDictionary*)convertSegment:(SENTSegment*)segment;
+- (NSString*)convertBackgroundRefreshStatus:(UIBackgroundRefreshStatus)backgroundRefreshStatus;
+
 @end
 
 @implementation RNSentianceCore (Converter)
@@ -562,7 +565,8 @@
                            @"wifiQuotaStatus":[self convertQuotaStatusToString:status.wifiQuotaStatus],
                            @"mobileQuotaStatus":[self convertQuotaStatusToString:status.mobileQuotaStatus],
                            @"diskQuotaStatus":[self convertQuotaStatusToString:status.diskQuotaStatus],
-                           @"userExists":@(status.userExists)
+                           @"userExists":@(status.userExists),
+                           @"backgroundRefreshStatus":[self convertBackgroundRefreshStatus:status.backgroundRefreshStatus]
                            };
 
     return dict;
@@ -990,4 +994,16 @@
     }
     return [NSString stringWithFormat:@"Reason: %@ - %@", reason, details];
 }
+
+- (NSString *)convertBackgroundRefreshStatus:(UIBackgroundRefreshStatus)backgroundRefreshStatus {
+    if (backgroundRefreshStatus == UIBackgroundRefreshStatusAvailable) {
+        return @"AVAILABLE";
+    } else if(backgroundRefreshStatus == UIBackgroundRefreshStatusDenied) {
+        return @"DENIED";
+    } else if(backgroundRefreshStatus == UIBackgroundRefreshStatusRestricted) {
+        return @"RESTRICTED";
+    }
+    return @"";
+}
+
 @end

@@ -7,6 +7,8 @@
 //
 #import "RNSentianceCore.h"
 
+typedef NS_ENUM(NSInteger, UIBackgroundRefreshStatus);
+
 @interface RNSentianceCore (Converter)
 
 - (NSDictionary*) convertUserContextToDict:(SENTUserContext*) userContext;
@@ -43,4 +45,6 @@
 - (NSDictionary *)convertDisableDetectionsResult:(SENTDisableDetectionsResult *)disableDetectionsResult;
 - (NSString *)stringifyDisableDetectionsError:(SENTDisableDetectionsError *)disableDetectionsError;
 - (NSString *)stringifyUserContextError:(SENTRequestUserContextError *)userContextError;
+- (NSString*)convertBackgroundRefreshStatus:(UIBackgroundRefreshStatus)backgroundRefreshStatus;
+
 @end
