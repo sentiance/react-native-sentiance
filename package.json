@@ -3,6 +3,7 @@
   "version": "6.0.0-beta.16",
   "description": "React Native libraries for the Sentiance SDK",
   "scripts": {
+    "docs": "npx jsdoc2md index.d.ts > types.md",
     "test": "echo \"Error: no test specified\" && exit 1",
     "fetch:npm_tag": "node ./scripts/determine-version-tag.js",
     "sync:package_versions": "node ./scripts/sync-package-versions.js",
