@@ -313,8 +313,6 @@ RCT_EXPORT_METHOD(disableDetections:(RCTPromiseResolveBlock)resolve rejecter:(RC
 
 RCT_EXPORT_METHOD(getInitState:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
-    REJECT_IF_SDK_NOT_INITIALIZED(reject);
-
     @try {
         SENTSDKInitState initState = [[Sentiance sharedInstance] getInitState];
         resolve([self convertInitStateToString:initState]);
