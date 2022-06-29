@@ -185,7 +185,7 @@ declare module "sentiance-react-native-core" {
 
     createUser(options: UserCreationOptions): Promise<CreateUserResult>;
 
-    linkUser(): Promise<UserLinkingResult>;
+    linkUser(linker: (installId) => boolean): Promise<UserLinkingResult>;
 
     linkUserWithAuthCode(authCode: string): Promise<UserLinkingResult>;
 

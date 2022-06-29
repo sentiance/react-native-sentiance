@@ -24,12 +24,12 @@ public class SentianceUtils {
   public static final String SENTIANCE_FALLBACK_NOTIFICATION_CHANNEL_NAME = "Sentiance";
   public static final String SENTIANCE_FALLBACK_NOTIFICATION_CHANNEL_ID = "Sentiance";
 
-  public static final String SENTIANCE_NOTIFICATION_ID = "com.sentiance.react.bridge.notification_id";
-  public static final String SENTIANCE_NOTIFICATION_TITLE = "com.sentiance.react.bridge.notification_title";
-  public static final String SENTIANCE_NOTIFICATION_ICON = "com.sentiance.react.bridge.notification_icon";
-  public static final String SENTIANCE_NOTIFICATION_CHANNEL_ID = "com.sentiance.react.bridge.channel_id";
-  public static final String SENTIANCE_NOTIFICATION_CHANNEL_NAME = "com.sentiance.react.bridge.notification_channel_name";
-  public static final String SENTIANCE_NOTIFICATION_NOTIFICATION_TEXT = "com.sentiance.react.bridge.notification_text";
+  public static final String SENTIANCE_NOTIFICATION_ID = "com.sentiance.react.bridge.core.notification_id";
+  public static final String SENTIANCE_NOTIFICATION_TITLE = "com.sentiance.react.bridge.core.notification_title";
+  public static final String SENTIANCE_NOTIFICATION_ICON = "com.sentiance.react.bridge.core.notification_icon";
+  public static final String SENTIANCE_NOTIFICATION_CHANNEL_ID = "com.sentiance.react.bridge.core.channel_id";
+  public static final String SENTIANCE_NOTIFICATION_CHANNEL_NAME = "com.sentiance.react.bridge.core.notification_channel_name";
+  public static final String SENTIANCE_NOTIFICATION_NOTIFICATION_TEXT = "com.sentiance.react.bridge.core.notification_text";
 
   private static final String DATE_TIME_PATTERN_M = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";  // ISO_8601
 
