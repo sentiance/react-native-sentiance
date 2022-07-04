@@ -28,7 +28,7 @@
 - (SENTInitializationResult *)initializeSDKWithPlatformUrl:(NSString *)platformUrl
                          isAppSessionDataCollectionAllowed:(BOOL *)isAppSessionDataCollectionAllowed
                                              launchOptions:(nullable NSDictionary *)launchOptions {
-    SENTOptions *options = [[SENTOptions alloc] init];
+    SENTOptions *options = [[SENTOptions alloc] initForAppLaunch];
     options.platformUrl = platformUrl;
     options.isAppSessionDataCollectionAllowed = isAppSessionDataCollectionAllowed;
     return [[Sentiance sharedInstance] initializeWithOptions:options launchOptions:launchOptions];
