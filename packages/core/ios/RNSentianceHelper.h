@@ -27,5 +27,7 @@
                   							 launchOptions:(nullable NSDictionary *)launchOptions
   NS_SWIFT_NAME(initializeSDK(platformUrl:isAppSessionDataCollectionAllowed:launchOptions:));
 
+- (void)enableDetectionsIfUserExists;
+
 @end
 

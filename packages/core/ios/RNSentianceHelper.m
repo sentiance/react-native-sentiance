@@ -34,5 +34,11 @@
     return [[Sentiance sharedInstance] initializeWithOptions:options launchOptions:launchOptions];
 }
 
+- (void)enableDetectionsIfUserExists {
+    if ([Sentiance sharedInstance].userExists) {
+        [[Sentiance sharedInstance] enableDetectionsWithCompletionHandler:nil];
+    }
+}
+
 @end
 
