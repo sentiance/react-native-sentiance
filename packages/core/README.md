@@ -1,24 +1,9 @@
-## Installation
+# Sentiance Core module for React Native
 
-```bash
-npm i @sentiance-react-native/core
-```
+## Demo Application
+
+https://github.com/sentiance/sample-apps-react-native
 
 ## Usage
 
-### Importing the package
-
-You can import the entire contents of the package for use under a namespace of your choosing:
-
-```javascript
-import * as SentianceCore from "@sentiance-react-native/core";
-```
-
-or you can require specific functionality using named imports:
-
-```javascript
-import {
-    enableDetections, 
-    createUser
-} from "@sentiance-react-native/core";
-```
+To use the core SDK module, please visit the corresponding [API reference page.](https://docs.sentiance.com/sdk/api-reference/react-native/core)

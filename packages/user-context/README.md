@@ -1,26 +1,9 @@
-## Installation
+# Sentiance User Context module for React Native
 
-```bash
-npm i @sentiance-react-native/core
+## Demo Application
 
-npm i @sentiance-react-native/user-context
-```
+https://github.com/sentiance/sample-apps-react-native
 
 ## Usage
 
-### Importing the package
-
-You can import the entire contents of the package for use under a namespace of your choosing:
-
-```javascript
-import * as SentianceUserContext from "@sentiance-react-native/user-context";
-```
-
-or you can require specific functionality using named imports:
-
-```javascript
-import {
-    getUserContext,
-    listenUserContextUpdates
-} from "@sentiance-react-native/user-context";
-```
+To use the user context SDK module, please visit the corresponding [API reference page.](https://docs.sentiance.com/sdk/api-reference/react-native/user-context)
