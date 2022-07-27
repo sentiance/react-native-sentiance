@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.8.4] - 2022-07-27
 
+### Changed
+
 - Upgrade iOS SDK to [5.15.0](https://docs.sentiance.com/sdk/changelog/ios#5.14.0-30-may-2022)
 
 ## [4.8.3] - 2022-05-30
