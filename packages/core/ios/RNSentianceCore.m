@@ -836,7 +836,7 @@ RCT_EXPORT_METHOD(createUnlinkedUser:(NSString *)appId secret:(NSString *)secret
 {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
 
-    SENTUserCreationOptions *options = [[SENTUserCreationOptions alloc] initWithAppId:appId secret:secret linker: SENTNoOpUserLinker];
+    SENTUserCreationOptions *options = [[SENTUserCreationOptions alloc] initWithAppId:appId secret:secret linker: nil];
     options.platformUrl = platformUrl;
     [[Sentiance sharedInstance] createUserWithOptions:options completionHandler:^(SENTUserCreationResult * _Nullable result, SENTUserCreationError * _Nullable error) {
         if (error != nil) {
