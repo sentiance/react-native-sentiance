@@ -566,7 +566,7 @@ RCT_EXPORT_METHOD(submitDetections:(RCTPromiseResolveBlock)resolve rejecter:(RCT
     }
 }
 
-RCT_EXPORT_METHOD(submitDetectionsNewApi:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(submitDetectionsNewAPI:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
 
@@ -940,7 +940,7 @@ RCT_EXPORT_METHOD(reset:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseReje
     }];
 }
 
-RCT_EXPORT_METHOD(resetNewApi:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(resetNewAPI:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     [[Sentiance sharedInstance] resetWithCompletionHandler:^(SENTResetResult * _Nullable result, SENTResetError * _Nullable error) {
         if (error != nil) {

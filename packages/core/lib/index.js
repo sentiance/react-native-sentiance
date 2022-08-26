@@ -39,10 +39,10 @@ var submitDetections
 var reset
 
 if (Platform.OS === 'ios') {
-  startTrip = (metadata, hint) => core.startTripNewApi(metadata, hint);
-  stopTrip = () => core.stopTripNewApi();
-  submitDetections = () => core.submitDetectionsNewApi();
-  reset = () => core.resetNewApi();
+  startTrip = (metadata, hint) => core.startTripNewAPI(metadata, hint);
+  stopTrip = () => core.stopTripNewAPI();
+  submitDetections = () => core.submitDetectionsNewAPI();
+  reset = () => core.resetNewAPI();
 } else {
   startTrip = (metadata, hint) => core.startTrip(metadata, hint);
   stopTrip = () => core.stopTrip();
