@@ -1,4 +1,4 @@
-declare module "sentiance-react-native-core" {
+declare module "@sentiance-react-native/core" {
   import {EmitterSubscription} from "react-native";
 
   export type DetectionStatus = "DISABLED" | "EXPIRED" | "ENABLED_BUT_BLOCKED" | "ENABLED_AND_DETECTING";

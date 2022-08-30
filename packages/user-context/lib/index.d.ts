@@ -1,4 +1,4 @@
-declare module "sentiance-react-native-user-context" {
+declare module "@sentiance-react-native/user-context" {
   import {EmitterSubscription} from "react-native";
 
   export type SegmentCategory = "LEISURE" | "MOBILITY" | "WORK_LIFE";

@@ -1,4 +1,4 @@
-declare module "react-native-sentiance" {
+declare module "@sentiance-react-native/legacy" {
   import {EmitterSubscription, EventSubscriptionVendor, NativeEventEmitter,} from "react-native";
 
   export type LocationPermission = "ALWAYS" | "ONLY_WHILE_IN_USE" | "NEVER";
