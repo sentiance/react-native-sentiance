@@ -684,6 +684,34 @@
     return [dict copy];
 }
 
+- (NSString *)_vehicleCrashDiagnosticStateName:(SENTVehicleCrashDetectionState)crashDetectionState {
+        switch (crashDetectionState) {
+        case 0:
+            return @"CANDIDATE_DETECTED";
+        case 1:
+            return @"CANDIDATE_DISCARDED_WEAK_IMPACT";
+        case 2:
+            return @"CANDIDATE_DISCARDED_NON_VEHICLE_TRANSPORT_MODE";
+        case 3:
+            return @"CANDIDATE_DISCARDED_PRE_IMPACT_NOISE";
+        case 4:
+            return @"CANDIDATE_DISCARDED_LOW_SPEED_BEFORE_IMPACT";
+        case 5:
+            return @"CANDIDATE_DISCARDED_POST_IMPACT_NOISE";
+        case 6:
+            return @"CANDIDATE_DISCARDED_HIGH_SPEED_AFTER_IMPACT";
+        default:
+            return @"CANDIDATE_NOT_DETECTED";
+    }
+}
+
+- (NSDictionary*)convertVehicleCrashDiagnosticToDict:(SENTVehicleCrashDiagnostic*) crashDiagnostic {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    dict[@"crashDetectionState"] = [self _vehicleCrashDiagnosticStateName: crashDiagnostic.crashDetectionState];
+    dict[@"crashDetectionStateDescription"] = crashDiagnostic.crashDetectionStateDescription;
+    return [dict copy];
+}
+
 - (NSDictionary *)convertUserCreationResult:(SENTUserCreationResult *)userCreationResult {
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
 

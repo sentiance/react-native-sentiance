@@ -33,7 +33,7 @@ RCT_EXPORT_MODULE(SentianceCore)
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[SdkStatusUpdateEvent, TripTimeoutEvent, UserLinkEvent, UserActivityUpdateEvent, VehicleCrashEvent, UserLinkEvent, UserContextUpdateEvent];
+    return @[SdkStatusUpdateEvent, TripTimeoutEvent, UserLinkEvent, UserActivityUpdateEvent, VehicleCrashEvent, VehicleCrashDiagnosticEvent, UserLinkEvent, UserContextUpdateEvent];
 }
 
 // Will be called when this module's first listener is added.
@@ -752,6 +752,25 @@ RCT_EXPORT_METHOD(listenVehicleCrashEvents:(RCTPromiseResolveBlock)resolve rejec
             if(weakSelf.hasListeners) {
                 NSDictionary *crashEventDict = [self convertVehicleCrashEventToDict:crashEvent];
                 [weakSelf sendEventWithName:VehicleCrashEvent body:crashEventDict];
+            }
+        }];
+        resolve(@(YES));
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
+}
+
+RCT_EXPORT_METHOD(listenVehicleCrashDiagnostic:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    @try {
+        __weak typeof(self) weakSelf = self;
+
+        [[Sentiance sharedInstance] setVehicleCrashDiagnosticHandler:^(SENTVehicleCrashDiagnostic *crashDiagnostic) {
+            if(weakSelf.hasListeners) {
+                NSDictionary *crashDiagnosticEventDict = [self convertVehicleCrashDiagnosticToDict:crashDiagnostic];
+                [weakSelf sendEventWithName:VehicleCrashDiagnosticEvent body:crashDiagnosticEventDict];
             }
         }];
         resolve(@(YES));

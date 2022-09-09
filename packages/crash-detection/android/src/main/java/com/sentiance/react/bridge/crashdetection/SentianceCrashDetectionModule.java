@@ -37,6 +37,17 @@ public class SentianceCrashDetectionModule extends AbstractSentianceModule {
 
   @ReactMethod
   @SuppressWarnings("unused")
+  public void listenVehicleCrashDiagnostic(final Promise promise) {
+    if (rejectIfNotInitialized(promise)){
+      return;
+    }
+
+    CrashDetectionApi.getInstance(reactContext).setVehicleCrashDiagnosticListener(emitter::sendVehicleCrashDiagnosticEvent);
+    promise.resolve(true);
+  }
+
+  @ReactMethod
+  @SuppressWarnings("unused")
   public void invokeDummyVehicleCrash(Promise promise) {
     CrashDetectionApi.getInstance(reactContext).invokeDummyVehicleCrash();
     promise.resolve(true);

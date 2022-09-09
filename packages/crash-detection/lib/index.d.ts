@@ -18,11 +18,26 @@ declare module "@sentiance-react-native/crash-detection" {
     confidence: number;
   }
 
+  export type VehicleCrashDetectionState = 
+  "CANDIDATE_DETECTED" 
+  | "CANDIDATE_DISCARDED_WEAK_IMPACT" 
+  | "CANDIDATE_DISCARDED_NON_VEHICLE_TRANSPORT_MODE" 
+  | "CANDIDATE_DISCARDED_PRE_IMPACT_NOISE"
+  | "CANDIDATE_DISCARDED_LOW_SPEED_BEFORE_IMPACT"  
+  | "CANDIDATE_DISCARDED_POST_IMPACT_NOISE"  
+  | "CANDIDATE_DISCARDED_HIGH_SPEED_AFTER_IMPACT"
+  | "CANDIDATE_NOT_DETECTED";
+
+  export interface VehicleCrashDiagnostic {
+    crashDetectionState: VehicleCrashDetectionState;
+    crashDetectionStateDescription: string;
+  }
   export interface SentianceCrashDetection {
     listenVehicleCrashEvents(): Promise<boolean>;
     invokeDummyVehicleCrash(): Promise<boolean>;
     isVehicleCrashDetectionSupported(): Promise<boolean>;
     addVehicleCrashEventListener(onVehicleCrash: (crashEvent: CrashEvent) => void): Promise<EmitterSubscription>;
+    addVehicleCrashDiagnosticListener(onVehicleCrashDiagnostic: (diagnostic: VehicleCrashDiagnostic) => void): Promise<EmitterSubscription>;
   }
 
   const SentianceCrashDetection: SentianceCrashDetection;

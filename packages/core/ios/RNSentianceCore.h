@@ -9,6 +9,7 @@ static NSString * _Nonnull const UserActivityUpdateEvent = @"SENTIANCE_USER_ACTI
 static NSString * _Nonnull const ON_DETECTIONS_ENABLED = @"SENTIANCE_ON_DETECTIONS_ENABLED_EVENT";
 static NSString * _Nonnull const TripTimeoutEvent = @"SENTIANCE_ON_TRIP_TIMED_OUT_EVENT";
 static NSString * _Nonnull const VehicleCrashEvent = @"SENTIANCE_VEHICLE_CRASH_EVENT";
+static NSString * _Nonnull const VehicleCrashDiagnosticEvent = @"SENTIANCE_VEHICLE_CRASH_DIAGNOSTIC_EVENT";
 static NSString * _Nonnull const UserContextUpdateEvent = @"SENTIANCE_USER_CONTEXT_UPDATE_EVENT";
 
 @interface RNSentianceCore : RCTEventEmitter <RCTBridgeModule, SENTUserContextDelegate>

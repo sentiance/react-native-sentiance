@@ -2,6 +2,7 @@ const {NativeModules, NativeEventEmitter, Platform} = require("react-native");
 const {varToString} = require("@sentiance-react-native/core/lib/utils")
 const {SentianceCrashDetection, SentianceCore} = NativeModules;
 const SDK_VEHICLE_CRASH_EVENT = "SENTIANCE_VEHICLE_CRASH_EVENT";
+const SDK_VEHICLE_CRASH_DIAGNOSTIC_EVENT = "SENTIANCE_VEHICLE_CRASH_DIAGNOSTIC_EVENT";
 
 let didLocateNativeModule = true;
 var crashDetectionModule = {};
@@ -32,6 +33,13 @@ if (didLocateNativeModule) {
     await crashDetectionModule.listenVehicleCrashEvents();
     return SENTIANCE_EMITTER.addListener(SDK_VEHICLE_CRASH_EVENT, (data) => {
       onVehicleCrash(data);
+    });
+  };
+
+  crashDetectionModule._addVehicleCrashDiagnosticListener = async (onVehicleCrashDiagnostic) => {
+    await crashDetectionModule.listenVehicleCrashDiagnostic();
+    return SENTIANCE_EMITTER.addListener(SDK_VEHICLE_CRASH_DIAGNOSTIC_EVENT, (data) => {
+      onVehicleCrashDiagnostic(data);
     });
   };
 }

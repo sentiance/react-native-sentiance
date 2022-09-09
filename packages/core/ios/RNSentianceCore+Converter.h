@@ -28,6 +28,7 @@ typedef NS_ENUM(NSInteger, UIBackgroundRefreshStatus);
 - (NSString*)convertUserActivityTypeToString:(SENTUserActivityType) activityType;
 - (NSString*)convertTripTypeToString:(SENTTripType) tripType;
 - (NSDictionary*)convertVehicleCrashEventToDict:(SENTVehicleCrashEvent*) crashEvent;
+- (NSDictionary*)convertVehicleCrashDiagnosticToDict:(SENTVehicleCrashDiagnostic*) crashDiagnostic;
 - (NSDictionary *)convertUserLinkingResult:(SENTUserLinkingResult *)userLinkingResult;
 - (NSString *)stringifyUserLinkingError:(SENTUserLinkingError *)userLinkingError;
 - (NSDictionary *)convertResetResult:(SENTResetResult *)resetResult;
