@@ -128,16 +128,22 @@
 
 - (NSString*)convertTransportModeToString:(SENTTimelineTransportMode)mode {
     switch (mode) {
+        case SENTTimelineTransportModeBicycle:
+            return @"BYCICLE";
         case SENTTimelineTransportModeWalking:
             return @"WALKING";
         case SENTTimelineTransportModeRunning:
             return @"RUNNING";
-        case SENTTimelineTransportModeBicycle:
-            return @"BYCICLE";
-        case SENTTimelineTransportModeVehicle:
-            return @"VEHICLE";
-        case SENTTimelineTransportModeRail:
-            return @"RAIL";
+        case SENTTimelineTransportModeTram:
+            return @"TRAM";
+        case SENTTimelineTransportModeTrain:
+            return @"TRAIN";
+        case SENTTimelineTransportModeCar:
+            return @"CAR";
+        case SENTTimelineTransportModeBus:
+            return @"BUS";
+        case SENTTimelineTransportModeMotorcycle:
+            return @"MOTORCYCLE";
         case SENTTimelineTransportModeUnknown:
         default:
             return @"UNKNOWN";

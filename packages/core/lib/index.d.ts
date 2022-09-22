@@ -1,11 +1,15 @@
 declare module "@sentiance-react-native/core" {
-  import {EmitterSubscription} from "react-native";
+  import { EmitterSubscription } from "react-native";
 
-  export type DetectionStatus = "DISABLED" | "EXPIRED" | "ENABLED_BUT_BLOCKED" | "ENABLED_AND_DETECTING";
+  export type DetectionStatus =
+    | "DISABLED"
+    | "EXPIRED"
+    | "ENABLED_BUT_BLOCKED"
+    | "ENABLED_AND_DETECTING";
   export type LocationPermission = "ALWAYS" | "ONLY_WHILE_IN_USE" | "NEVER";
   export type BackgroundRefreshStatus = "AVAILABLE" | "DENIED" | "RESTRICTED";
   export type SdkInitState =
-    "NOT_INITIALIZED"
+    | "NOT_INITIALIZED"
     | "INIT_IN_PROGRESS"
     | "INITIALIZED"
     | "RESETTING"
@@ -27,26 +31,26 @@ declare module "@sentiance-react-native/core" {
   }
 
   export interface UserInfo {
-    userId: string,
-    tokenId: string,
-    tokenExpiryDate: string,
-    isTokenExpired: boolean
+    userId: string;
+    tokenId: string;
+    tokenExpiryDate: string;
+    isTokenExpired: boolean;
   }
 
   export interface UserLinkingResult {
-    userInfo: UserInfo
+    userInfo: UserInfo;
   }
 
   export interface CreateUserResult {
-    userInfo: UserInfo
+    userInfo: UserInfo;
   }
 
   export interface UserCreationOptions {
-    appId: string,
-    appSecret: string,
-    authCode: string,
-    platformUrl: string,
-    linker: (installId: string) => boolean
+    appId: string;
+    appSecret: string;
+    authCode: string;
+    platformUrl: string;
+    linker: (installId: string) => boolean;
   }
 
   export interface Location {
@@ -62,11 +66,19 @@ declare module "@sentiance-react-native/core" {
   }
 
   export interface TripInfo {
-    type: "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL" | "TRIP_TYPE_UNRECOGNIZED" | "ANY";
+    type:
+      | "TRIP_TYPE_SDK"
+      | "TRIP_TYPE_EXTERNAL"
+      | "TRIP_TYPE_UNRECOGNIZED"
+      | "ANY";
   }
 
   export interface UserActivity {
-    type: "USER_ACTIVITY_TYPE_TRIP" | "USER_ACTIVITY_TYPE_STATIONARY" | "USER_ACTIVITY_TYPE_UNKNOWN" | "USER_ACTIVITY_TYPE_UNRECOGNIZED";
+    type:
+      | "USER_ACTIVITY_TYPE_TRIP"
+      | "USER_ACTIVITY_TYPE_STATIONARY"
+      | "USER_ACTIVITY_TYPE_UNKNOWN"
+      | "USER_ACTIVITY_TYPE_UNRECOGNIZED";
     tripInfo?: TripInfo;
     stationaryInfo?: StationaryInfo;
   }
@@ -81,7 +93,7 @@ declare module "@sentiance-react-native/core" {
   }
 
   export interface ResetResult {
-    initState: string
+    initState: string;
   }
 
   export interface SdkStatus {
@@ -112,13 +124,13 @@ declare module "@sentiance-react-native/core" {
   }
 
   export interface EnableDetectionsResult {
-    sdkStatus: SdkStatus,
-    detectionStatus: DetectionStatus
+    sdkStatus: SdkStatus;
+    detectionStatus: DetectionStatus;
   }
 
   export interface DisableDetectionsResult {
-    sdkStatus: SdkStatus,
-    detectionStatus: DetectionStatus
+    sdkStatus: SdkStatus;
+    detectionStatus: DetectionStatus;
   }
 
   export interface SentianceCore {
@@ -128,7 +140,9 @@ declare module "@sentiance-react-native/core" {
 
     enableDetections(): Promise<EnableDetectionsResult>;
 
-    enableDetectionsWithExpiryDate(expiryEpochTimeMs: number | null): Promise<EnableDetectionsResult>;
+    enableDetectionsWithExpiryDate(
+      expiryEpochTimeMs: number | null
+    ): Promise<EnableDetectionsResult>;
 
     disableDetections(): Promise<DisableDetectionsResult>;
 
@@ -154,7 +168,10 @@ declare module "@sentiance-react-native/core" {
 
     listenTripTimeout(): Promise<void>;
 
-    startTrip(metadata: MetadataObject | null, hint: TransportMode): Promise<void>;
+    startTrip(
+      metadata: MetadataObject | null,
+      hint: TransportMode
+    ): Promise<void>;
 
     stopTrip(): Promise<void>;
 
@@ -194,11 +211,17 @@ declare module "@sentiance-react-native/core" {
 
     linkUserWithAuthCode(authCode: string): Promise<UserLinkingResult>;
 
-    addSdkStatusUpdateListener(onSdkStatusUpdated: (sdkStatus: SdkStatus) => void): Promise<EmitterSubscription>;
+    addSdkStatusUpdateListener(
+      onSdkStatusUpdated: (sdkStatus: SdkStatus) => void
+    ): Promise<EmitterSubscription>;
 
-    addTripTimeoutListener(onTripTimedOut: () => void): Promise<EmitterSubscription>;
+    addTripTimeoutListener(
+      onTripTimedOut: () => void
+    ): Promise<EmitterSubscription>;
 
-    addSdkUserActivityUpdateListener(onUserActivityUpdated: (userActivity: UserActivity) => void): Promise<EmitterSubscription>;
+    addSdkUserActivityUpdateListener(
+      onUserActivityUpdated: (userActivity: UserActivity) => void
+    ): Promise<EmitterSubscription>;
   }
 
   const SentianceCore: SentianceCore;
