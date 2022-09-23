@@ -791,10 +791,10 @@
 
 - (NSDictionary *)convertUserLinkingResult:(SENTUserLinkingResult *)userLinkingResult {
     NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-    
+
     userInfo[@"userId"] = userLinkingResult.userInfo.userId;
     userInfo[@"tokenId"] = userLinkingResult.userInfo.token.tokenId;
-    
+
     NSString *tokenExpiryDate = [[SENTDate alloc]initWithNSDate: userLinkingResult.userInfo.token.expiryDate].description;
     userInfo[@"tokenExpiryDate"] = tokenExpiryDate;
     userInfo[@"isTokenExpired"] = @(userLinkingResult.userInfo.token.isExpired);
@@ -914,10 +914,10 @@
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
 
     dict[@"tokenId"] = userAccessTokenResult.token.tokenId;
-    
+
     NSString *tokenExpiryDate = [[SENTDate alloc]initWithNSDate: userAccessTokenResult.token.expiryDate].description;
     dict[@"expiryDate"] = tokenExpiryDate;
-    
+
     return dict;
 }
 
@@ -1015,7 +1015,7 @@
 - (NSString *)stringifyUserContextError:(SENTRequestUserContextError *)userContextError {
     NSString *reason;
     NSString *details;
-    
+
     switch (userContextError.failureReason) {
         case SENTRequestUserContextFailureReasonNoUser:
             reason = @"NO_USER";
@@ -1042,6 +1042,36 @@
         return @"RESTRICTED";
     }
     return @"";
+}
+
+- (NSSet<NSString*> *)convertIntegerTransmittableDataTypes:(NSArray<NSNumber*>*)intDataTypes {
+    NSMutableSet *typesSet = [[NSMutableSet alloc] init];
+    NSDictionary *dict = @{
+      @(SENTTransmittableDataTypeAll): @"ALL",
+      @(SENTTransmittableDataTypeSdkInfo): @"SDK_INFO",
+      @(SENTTransmittableDataTypeVehicleCrashInfo): @"VEHICLE_CRASH_INFO",
+      @(SENTTransmittableDataTypeGeneralDetections): @"GENERAL_DETECTIONS"
+    };
+
+    for(NSNumber* intDataType in intDataTypes) {
+      [typesSet addObject:dict[intDataType]];
+    }
+    return [typesSet copy];
+}
+
+- (NSSet<NSNumber*> *)convertStringTransmittableDataTypes:(NSArray<NSString*>*)stringDataTypes {
+    NSMutableSet *typesSet = [[NSMutableSet alloc] init];
+    NSDictionary *dict = @{
+      @"ALL": @(SENTTransmittableDataTypeAll),
+      @"SDK_INFO": @(SENTTransmittableDataTypeSdkInfo),
+      @"VEHICLE_CRASH_INFO": @(SENTTransmittableDataTypeVehicleCrashInfo),
+      @"GENERAL_DETECTIONS": @(SENTTransmittableDataTypeGeneralDetections)
+    };
+
+    for(NSString * strType in stringDataTypes) {
+      [typesSet addObject:dict[strType]];
+    }
+    return [typesSet copy];
 }
 
 @end

@@ -991,6 +991,25 @@ RCT_EXPORT_METHOD(listenTripTimeout:(RCTPromiseResolveBlock)resolve rejecter:(RC
     resolve(nil);
 }
 
+RCT_EXPORT_METHOD(setTransmittableDataTypes:(NSArray *)types (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+    
+    NSSet *typesSet = [NSSet setWithArray:types];
+    NSSet *convertedTypes = [self convertStringTransmittableDataTypes:types];
+    [[Sentiance sharedInstance] setTransmittableDataTypes:convertedTypes];
+}
+
+RCT_EXPORT_METHOD(getTransmittableDataTypes:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+    
+    NSSet *types = [[Sentiance sharedInstance] transmittableDataTypes];
+    NSSet *convertedTypes = [self convertIntegerTransmittableDataTypes:types];
+    NSArray *array = [convertedTypes allObjects];
+    resolve(array);
+}
+
 - (void)didUpdateUserContext:(SENTUserContext *)userContext
              forCriteriaMask:(SENTUserContextUpdateCriteria)criteriaMask {
     NSDictionary *dict = @{

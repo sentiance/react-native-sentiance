@@ -1,5 +1,6 @@
 const core = require('./core');
 const {Platform} = require('react-native');
+const VALID_TRANSMITTABLE_DATA_TYPES = ["ALL", "SDK_INFO", "VEHICLE_CRASH_INFO", "GENERAL_DETECTIONS"];
 
 const enableDetections = () => core.enableDetections();
 const enableDetectionsWithExpiryDate = (expiryTime) => core.enableDetectionsWithExpiryDate(expiryTime);
@@ -158,6 +159,27 @@ const addSdkStatusUpdateListener = core._addSdkStatusUpdateListener;
 const addSdkUserActivityUpdateListener = core._addSdkUserActivityUpdateListener;
 const addTripTimeoutListener = core._addTripTimeoutListener;
 
+const setTransmittableDataTypes = async (types: Array<String>) => {
+  if (!_areValidTransmittableDataTypes(types)) {
+    const invalidPayloadDataTypes = _extractInvalidPayloadDataTypes(types);
+    return Promise.reject(
+      "setTransmittableDataTypes was called with the following invalid data types: " + invalidPayloadDataTypes);
+  }
+  return core.setTransmittableDataTypes(types);
+};
+
+const _areValidTransmittableDataTypes = (types: Array<String>) => {
+  return types.every((type) => {
+    return VALID_TRANSMITTABLE_DATA_TYPES.includes(type);
+  });
+};
+
+const _extractInvalidPayloadDataTypes = (types: Array<String>) => {
+  return types.filter(type => !VALID_TRANSMITTABLE_DATA_TYPES.includes(type));
+};
+
+const getTransmittableDataTypes = () => core.getTransmittableDataTypes();
+
 const transportModes = {};
 (function (transportModes) {
   transportModes[transportModes["UNKNOWN"] = 1] = "UNKNOWN";
@@ -213,6 +235,8 @@ module.exports = {
   addSdkUserActivityUpdateListener,
   addTripTimeoutListener,
   listenTripTimeout,
+  setTransmittableDataTypes,
+  getTransmittableDataTypes,
   transportModes,
   NO_OP_LINKER
 };

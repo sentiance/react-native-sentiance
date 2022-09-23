@@ -16,10 +16,13 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.WritableArray;
 import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.core.utils.SentianceUtils;
 import com.sentiance.react.bridge.core.utils.UserCreationCompletionHandler;
@@ -28,6 +31,7 @@ import com.sentiance.sdk.SdkStatus;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.SubmitDetectionsError;
 import com.sentiance.sdk.Token;
+import com.sentiance.sdk.TransmittableDataType;
 import com.sentiance.sdk.UserAccessTokenError;
 import com.sentiance.sdk.detectionupdates.UserActivity;
 import com.sentiance.sdk.reset.ResetError;
@@ -38,8 +42,12 @@ import com.sentiance.sdk.trip.TripTimeoutListener;
 import com.sentiance.sdk.trip.TripType;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SentianceModule extends AbstractSentianceModule {
 
@@ -524,6 +532,35 @@ public class SentianceModule extends AbstractSentianceModule {
     Sentiance.getInstance(reactContext)
       .setTripTimeoutListener(emitter::sendOnTripTimedOutEvent);
     promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void setTransmittableDataTypes(ReadableArray types, Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    ArrayList<Object> rawTypes = types.toArrayList();
+    Set<TransmittableDataType> dataTypes = new HashSet<>();
+    for (Object rawType : rawTypes) {
+      dataTypes.add(TransmittableDataType.valueOf((String) rawType));
+    }
+    sdk.setTransmittableDataTypes(dataTypes);
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void getTransmittableDataTypes(Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    WritableArray args = Arguments.createArray();
+    Set<TransmittableDataType> transmittableDataTypes = sdk.getTransmittableDataTypes();
+    for (TransmittableDataType type : transmittableDataTypes) {
+      args.pushString(type.name());
+    }
+    promise.resolve(args);
   }
 
   @ReactMethod

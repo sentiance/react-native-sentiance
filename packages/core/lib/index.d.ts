@@ -9,12 +9,13 @@ declare module "@sentiance-react-native/core" {
   export type LocationPermission = "ALWAYS" | "ONLY_WHILE_IN_USE" | "NEVER";
   export type BackgroundRefreshStatus = "AVAILABLE" | "DENIED" | "RESTRICTED";
   export type SdkInitState =
-    | "NOT_INITIALIZED"
+    "NOT_INITIALIZED"
     | "INIT_IN_PROGRESS"
     | "INITIALIZED"
     | "RESETTING"
     | "UNRECOGNIZED_STATE";
   export type TripType = "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL";
+  export type TransmittableDataType = "ALL" | "SDK_INFO" | "VEHICLE_CRASH_INFO" | "GENERAL_DETECTIONS";
 
   export enum TransportMode {
     UNKNOWN = 1,
@@ -222,6 +223,10 @@ declare module "@sentiance-react-native/core" {
     addSdkUserActivityUpdateListener(
       onUserActivityUpdated: (userActivity: UserActivity) => void
     ): Promise<EmitterSubscription>;
+
+    setTransmittableDataTypes(types: Array<TransmittableDataType>): Promise<void>;
+
+    getTransmittableDataTypes(): Promise<Array<TransmittableDataType>>;
   }
 
   const SentianceCore: SentianceCore;

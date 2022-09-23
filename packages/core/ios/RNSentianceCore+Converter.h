@@ -47,5 +47,7 @@ typedef NS_ENUM(NSInteger, UIBackgroundRefreshStatus);
 - (NSString *)stringifyDisableDetectionsError:(SENTDisableDetectionsError *)disableDetectionsError;
 - (NSString *)stringifyUserContextError:(SENTRequestUserContextError *)userContextError;
 - (NSString*)convertBackgroundRefreshStatus:(UIBackgroundRefreshStatus)backgroundRefreshStatus;
+- (NSSet<NSString*> *)convertIntegerTransmittableDataTypes:(NSArray<NSNumber*>*)intDataTypes;
+- (NSSet<NSNumber*> *)convertStringTransmittableDataTypes:(NSArray<NSString*>*)stringDataTypes;
 
 @end

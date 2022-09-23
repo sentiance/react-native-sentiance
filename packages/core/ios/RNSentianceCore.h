@@ -26,5 +26,7 @@ typedef void (^SdkStatusHandler)(SENTSDKStatus * _Nonnull status);
 - (BOOL) isNativeInitializationEnabled;
 - (void) disableSDKNativeInitialization: (RCTPromiseResolveBlock _Nullable)resolve rejecter:(RCTPromiseRejectBlock _Nullable)reject;
 - (void) enableSDKNativeInitialization: (RCTPromiseResolveBlock _Nullable)resolve rejecter:(RCTPromiseRejectBlock _Nullable)reject;
+- (void) setTransmittableDataTypes: (NSArray *)types;
+- (NSArray*) getTransmittableDataTypes:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject;
 
 @end
