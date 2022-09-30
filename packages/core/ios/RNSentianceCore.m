@@ -991,7 +991,7 @@ RCT_EXPORT_METHOD(listenTripTimeout:(RCTPromiseResolveBlock)resolve rejecter:(RC
     resolve(nil);
 }
 
-RCT_EXPORT_METHOD(setTransmittableDataTypes:(NSArray *)types (RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(setTransmittableDataTypes:(NSArray *)types resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
     
