@@ -46,12 +46,14 @@ declare module "@sentiance-react-native/core" {
     userInfo: UserInfo;
   }
 
+  export type Linker = (installId: string) => Promise<boolean>
+  
   export interface UserCreationOptions {
-    appId: string;
-    appSecret: string;
-    authCode: string;
-    platformUrl: string;
-    linker: (installId: string) => boolean;
+    appId?: string;
+    appSecret?: string;
+    authCode?: string;
+    platformUrl?: string;
+    linker?: Linker;
   }
 
   export interface Location {
