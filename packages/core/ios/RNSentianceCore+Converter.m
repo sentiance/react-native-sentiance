@@ -71,9 +71,9 @@
 - (NSDictionary*)convertVisit:(SENTVisit*)visit {
     return @{
         @"startTime": [visit.startDate description],
-        @"startTimeEpoch": [NSString stringWithFormat:@"%d",visit.startDate.timeIntervalSince1970],
+        @"startTimeEpoch": @((long) (visit.startDate.timeIntervalSince1970 * 1000)),
         @"endTime": [visit.endDate description],
-        @"endTimeEpoch": [NSString stringWithFormat:@"%d",visit.startDate.timeIntervalSince1970],
+        @"endTimeEpoch": @((long) (visit.startDate.timeIntervalSince1970 * 1000)),
         @"durationInSeconds": [NSNumber numberWithInt:(int)visit.durationInSeconds],
     };
 }
@@ -157,8 +157,10 @@
 - (NSMutableDictionary*)convertEvent:(SENTTimelineEvent*)event {
     NSMutableDictionary *eventDict = [[NSMutableDictionary alloc] init];
     eventDict[@"startTime"] = [event.startDate description];
+    eventDict[@"startTimeEpoch"] = @((long) (event.startDate.timeIntervalSince1970 * 1000));
     if (event.endDate != nil) {
         eventDict[@"endTime"] = [event.endDate description];
+        eventDict[@"endTimeEpoch"] = @((long) (event.endDate.timeIntervalSince1970 * 1000));
 
         NSInteger durationInSeconds = event.durationInSeconds;
         if (durationInSeconds != SENTDurationUnknown) {
@@ -436,11 +438,11 @@
     dict[@"type"] = type;
     dict[@"id"] = @(segment.uniqueId);
     dict[@"startTime"] = [segment.startDate description];
-    dict[@"startTimeEpoch"] = [NSString stringWithFormat:@"%d",segment.startDate.timeIntervalSince1970];
-
+    dict[@"startTimeEpoch"] = @((long) (segment.startDate.timeIntervalSince1970 * 1000));
+    
     if (segment.endDate != nil) {
         dict[@"endTime"] = [segment.endDate description];
-        dict[@"endTimeEpoch"] = [NSString stringWithFormat:@"%d",segment.endDate.timeIntervalSince1970];
+        dict[@"endTimeEpoch"] = @((long) (segment.endDate.timeIntervalSince1970 * 1000));
     }
     dict[@"attributes"] = [self convertSegmentAttributesToDict:segment.attributes];
 

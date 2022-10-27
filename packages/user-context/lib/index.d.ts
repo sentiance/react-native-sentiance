@@ -121,7 +121,9 @@ declare module "@sentiance-react-native/user-context" {
 
   export interface Event {
     startTime: string;
+    startTimeEpoch: number; // in milliseconds
     endTime: string | null;
+    endTimeEpoch: number | null; // in milliseconds
     durationInSeconds: number | null;
     type: string;
     // stationary event fields
@@ -133,9 +135,9 @@ declare module "@sentiance-react-native/user-context" {
   }
 
   export interface EventLocation {
-    latitude: string;
-    longitude: string;
-    accuracy: string;
+    latitude: number;
+    longitude: number;
+    accuracy: number;
   }
 
   export interface VenueCandidate {
@@ -156,7 +158,9 @@ declare module "@sentiance-react-native/user-context" {
 
   export interface Visit {
     startTime: string;
+    startTimeEpoch: number; // in milliseconds
     endTime: string;
+    endTimeEpoch: number; // in milliseconds
     durationInSeconds: number;
   }
 
@@ -166,7 +170,9 @@ declare module "@sentiance-react-native/user-context" {
     type: SegmentType;
     id: number;
     startTime: string;
+    startTimeEpoch: number; // in milliseconds
     endTime: string | null;
+    endTimeEpoch: number | null; // in milliseconds
     attributes: SegmentAttribute[];
   }
 

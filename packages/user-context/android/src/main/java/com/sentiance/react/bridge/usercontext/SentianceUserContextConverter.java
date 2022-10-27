@@ -26,9 +26,9 @@ public class SentianceUserContextConverter {
   public static WritableMap convertGeoLocation(GeoLocation location) {
     WritableMap locationMap = Arguments.createMap();
 
-    locationMap.putString("latitude", String.valueOf(location.getLatitude()));
-    locationMap.putString("longitude", String.valueOf(location.getLongitude()));
-    locationMap.putString("accuracy", String.valueOf(location.getAccuracyInMeters()));
+    locationMap.putDouble("latitude", location.getLatitude());
+    locationMap.putDouble("longitude", location.getLongitude());
+    locationMap.putInt("accuracy", location.getAccuracyInMeters());
 
     return locationMap;
   }
@@ -41,12 +41,12 @@ public class SentianceUserContextConverter {
     map.putString("type", segment.getType().name());
     map.putInt("id", segment.getType().getUniqueId());
     map.putString("startTime", segment.getStartTime().toString());
-    map.putString("startTimeEpoch", "" + segment.getStartTime().getEpochTime() / 1000);
+    map.putDouble("startTimeEpoch", segment.getStartTime().getEpochTime());
 
     DateTime endTime = segment.getEndTime();
     if (endTime != null) {
       map.putString("endTime", endTime.toString());
-      map.putString("endTimeEpoch", "" + segment.getEndTime().getEpochTime() / 1000);
+      map.putDouble("endTimeEpoch", segment.getEndTime().getEpochTime());
     }
 
     WritableArray attributes = Arguments.createArray();
@@ -65,8 +65,10 @@ public class SentianceUserContextConverter {
     WritableMap map = Arguments.createMap();
 
     map.putString("startTime", event.getStartTime().toString());
+    map.putDouble("startTimeEpoch", event.getStartTime().getEpochTime());
     if (event.getEndTime() != null) {
       map.putString("endTime", event.getEndTime().toString());
+      map.putDouble("endTimeEpoch", event.getEndTime().getEpochTime());
 
       Long durationInSeconds = event.getDurationInSeconds();
       if (durationInSeconds != null) {
@@ -194,10 +196,10 @@ public class SentianceUserContextConverter {
   private static WritableMap convertVisit(Visit visit) {
     WritableMap visitMap = Arguments.createMap();
     visitMap.putString("startTime", visit.getStartTime().toString());
-    visitMap.putString("startTimeEpoch", "" + visit.getStartTime().getEpochTime());
+    visitMap.putDouble("startTimeEpoch", visit.getStartTime().getEpochTime());
 
     visitMap.putString("endTime", visit.getEndTime().toString());
-    visitMap.putString("endTimeEpoch", "" + visit.getEndTime().getEpochTime());
+    visitMap.putDouble("endTimeEpoch", visit.getEndTime().getEpochTime());
 
     visitMap.putInt("durationInSeconds", (int) visit.getDurationInSeconds());
 
