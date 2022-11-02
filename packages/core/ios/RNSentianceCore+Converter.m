@@ -152,6 +152,28 @@
 
 - (void)addTransportEventInfoToDict:(NSMutableDictionary*)dict event:(SENTTransportEvent*)event {
     dict[@"transportMode"] = [self convertTransportModeToString:event.transportMode];
+    dict[@"waypoints"] = [self convertWaypointArray:event.waypoints];
+
+    if (event.distanceInMeters != nil) {
+        dict[@"distance"] = event.distanceInMeters;
+    }
+}
+
+- (NSDictionary*)convertWaypoint:(SENTWaypoint*)waypoint {
+    return @{
+        @"latitude": @(waypoint.latitude),
+        @"longitude": @(waypoint.longitude),
+        @"accuracy": @(waypoint.accuracyInMeters),
+        @"timestamp": @(waypoint.timestamp * 1000)
+    };
+}
+
+- (NSArray<NSDictionary *> *)convertWaypointArray:(NSArray<SENTWaypoint *> *)waypoints {
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    for (SENTWaypoint *waypoint in waypoints) {
+        [array addObject:[self convertWaypoint:waypoint]];
+    }
+    return array;
 }
 
 - (NSMutableDictionary*)convertEvent:(SENTTimelineEvent*)event {

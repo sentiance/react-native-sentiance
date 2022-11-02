@@ -132,12 +132,21 @@ declare module "@sentiance-react-native/user-context" {
     venueCandidates: VenueCandidate[] | null;
     // transport event fields
     transportMode: TransportMode | null;
+    waypoints: Waypoint[];
+    distance?: number; // in meters
   }
 
   export interface EventLocation {
     latitude: number;
     longitude: number;
     accuracy: number;
+  }
+
+  export interface Waypoint {
+    latitude: number;
+    longitude: number;
+    accuracy: number;   // in meters
+    timestamp: number;  // UTC epoch time in milliseconds
   }
 
   export interface VenueCandidate {

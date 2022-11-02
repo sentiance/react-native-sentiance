@@ -5,6 +5,7 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.sentiance.sdk.ondevice.api.Attribute;
 import com.sentiance.sdk.ondevice.api.GeoLocation;
+import com.sentiance.sdk.ondevice.api.Waypoint;
 import com.sentiance.sdk.ondevice.api.event.Event;
 import com.sentiance.sdk.ondevice.api.event.StationaryEvent;
 import com.sentiance.sdk.ondevice.api.event.TransportEvent;
@@ -208,5 +209,30 @@ public class SentianceUserContextConverter {
 
   private static void addTransportEventInfo(WritableMap map, TransportEvent event) {
     map.putString("transportMode", event.getTransportMode().toString());
+    map.putArray("waypoints", convertWaypointList(event.getWaypoints()));
+
+    if (event.getDistanceInMeters() != null) {
+      map.putInt("distance", event.getDistanceInMeters());
+    }
   }
+
+  public static WritableMap convertWaypoint(Waypoint waypoint) {
+    WritableMap waypointMap = Arguments.createMap();
+
+    waypointMap.putDouble("latitude", waypoint.getLatitude());
+    waypointMap.putDouble("longitude", waypoint.getLongitude());
+    waypointMap.putInt("accuracy", waypoint.getAccuracyInMeters());
+    waypointMap.putDouble("timestamp", waypoint.getTimestamp());
+
+    return waypointMap;
+  }
+
+  private static WritableArray convertWaypointList(List<Waypoint> waypointList) {
+    WritableArray array = Arguments.createArray();
+    for (Waypoint waypoint: waypointList) {
+      array.pushMap(convertWaypoint(waypoint));
+    }
+    return array;
+  }
+
 }
