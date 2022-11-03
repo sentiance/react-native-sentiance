@@ -10,7 +10,7 @@
 const json = require('../package.json')
 
 const match = json.version.match(/^(\d*\.\d*\.\d*)\-([a-z]*)\.(\d*)$/)
-const tag = (match && match[2]) ?? 'stable'
+const tag = (match && match[2]) ?? 'latest'
 
 /** Logs the tag for it to be consumed by a different script as an input */
 console.log(tag)
