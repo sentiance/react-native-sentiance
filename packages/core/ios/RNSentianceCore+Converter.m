@@ -596,6 +596,8 @@
                            @"mobileQuotaStatus":[self convertQuotaStatusToString:status.mobileQuotaStatus],
                            @"diskQuotaStatus":[self convertQuotaStatusToString:status.diskQuotaStatus],
                            @"userExists":@(status.userExists),
+                           @"isBatterySavingEnabled":@(status.isDeviceLowPowerModeEnabled),
+                           @"isActivityRecognitionPermGranted":@(status.isMotionActivityPermissionGranted),
                            @"backgroundRefreshStatus":[self convertBackgroundRefreshStatus:status.backgroundRefreshStatus]
                            };
 

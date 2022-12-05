@@ -9,13 +9,17 @@ declare module "@sentiance-react-native/core" {
   export type LocationPermission = "ALWAYS" | "ONLY_WHILE_IN_USE" | "NEVER";
   export type BackgroundRefreshStatus = "AVAILABLE" | "DENIED" | "RESTRICTED";
   export type SdkInitState =
-    "NOT_INITIALIZED"
+    | "NOT_INITIALIZED"
     | "INIT_IN_PROGRESS"
     | "INITIALIZED"
     | "RESETTING"
     | "UNRECOGNIZED_STATE";
   export type TripType = "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL";
-  export type TransmittableDataType = "ALL" | "SDK_INFO" | "VEHICLE_CRASH_INFO" | "GENERAL_DETECTIONS";
+  export type TransmittableDataType =
+    | "ALL"
+    | "SDK_INFO"
+    | "VEHICLE_CRASH_INFO"
+    | "GENERAL_DETECTIONS";
 
   export enum TransportMode {
     UNKNOWN = 1,
@@ -46,8 +50,8 @@ declare module "@sentiance-react-native/core" {
     userInfo: UserInfo;
   }
 
-  export type Linker = (installId: string) => Promise<boolean>
-  
+  export type Linker = (installId: string) => Promise<boolean>;
+
   export interface UserCreationOptions {
     appId?: string;
     appSecret?: string;
@@ -112,16 +116,16 @@ declare module "@sentiance-react-native/core" {
     diskQuotaStatus: string;
     locationPermission: LocationPermission;
     userExists: boolean;
+    isBatterySavingEnabled?: boolean;
+    isActivityRecognitionPermGranted?: boolean;
+    isPreciseLocationAuthorizationGranted: boolean;
     isBgAccessPermGranted?: boolean; // iOS only
-    isActivityRecognitionPermGranted?: boolean; // Android only
     locationSetting?: string; // Android only
     isAirplaneModeEnabled?: boolean; // Android only
     isLocationAvailable?: boolean; // Android only
     isGooglePlayServicesMissing?: boolean; // Android only
     isBatteryOptimizationEnabled?: boolean; // Android only
-    isBatterySavingEnabled?: boolean; // Android only
     isBackgroundProcessingRestricted?: boolean; // Android only
-    isPreciseLocationAuthorizationGranted: boolean;
     isSchedulingExactAlarmsPermitted?: boolean; // Android only
     backgroundRefreshStatus: BackgroundRefreshStatus; // iOS only
   }
@@ -226,7 +230,9 @@ declare module "@sentiance-react-native/core" {
       onUserActivityUpdated: (userActivity: UserActivity) => void
     ): Promise<EmitterSubscription>;
 
-    setTransmittableDataTypes(types: Array<TransmittableDataType>): Promise<void>;
+    setTransmittableDataTypes(
+      types: Array<TransmittableDataType>
+    ): Promise<void>;
 
     getTransmittableDataTypes(): Promise<Array<TransmittableDataType>>;
   }

@@ -1,5 +1,9 @@
 declare module "@sentiance-react-native/legacy" {
-  import {EmitterSubscription, EventSubscriptionVendor, NativeEventEmitter,} from "react-native";
+  import {
+    EmitterSubscription,
+    EventSubscriptionVendor,
+    NativeEventEmitter,
+  } from "react-native";
 
   export type LocationPermission = "ALWAYS" | "ONLY_WHILE_IN_USE" | "NEVER";
   export type SdkInitState =
@@ -24,7 +28,7 @@ declare module "@sentiance-react-native/legacy" {
 
   export type TripType = "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL";
   export type SdkEvent =
-    "SENTIANCE_STATUS_UPDATE_EVENT"
+    | "SENTIANCE_STATUS_UPDATE_EVENT"
     | "SENTIANCE_USER_LINK_EVENT"
     | "SENTIANCE_USER_ACTIVITY_UPDATE_EVENT"
     | "SENTIANCE_ON_TRIP_TIMED_OUT_EVENT"
@@ -34,15 +38,17 @@ declare module "@sentiance-react-native/legacy" {
 
   export type SDKUserLinkListener = (param: { installId: string }) => void;
 
-  export type SDKUserActivityUpdateListener = (userActivity: UserActivity) => void;
+  export type SDKUserActivityUpdateListener = (
+    userActivity: UserActivity
+  ) => void;
 
   export type SDKCrashEventListener = (crashEvent: CrashEvent) => void;
 
   export type SdkEventListener =
-    SDKStatusUpdateListener |
-    SDKUserLinkListener |
-    SDKUserActivityUpdateListener |
-    SDKCrashEventListener;
+    | SDKStatusUpdateListener
+    | SDKUserLinkListener
+    | SDKUserActivityUpdateListener
+    | SDKCrashEventListener;
 
   export enum TransportMode {
     UNKNOWN = 1,
@@ -85,11 +91,19 @@ declare module "@sentiance-react-native/legacy" {
   }
 
   export interface TripInfo {
-    type: "TRIP_TYPE_SDK" | "TRIP_TYPE_EXTERNAL" | "TRIP_TYPE_UNRECOGNIZED" | "ANY";
+    type:
+      | "TRIP_TYPE_SDK"
+      | "TRIP_TYPE_EXTERNAL"
+      | "TRIP_TYPE_UNRECOGNIZED"
+      | "ANY";
   }
 
   export interface UserActivity {
-    type: "USER_ACTIVITY_TYPE_TRIP" | "USER_ACTIVITY_TYPE_STATIONARY" | "USER_ACTIVITY_TYPE_UNKNOWN" | "USER_ACTIVITY_TYPE_UNRECOGNIZED";
+    type:
+      | "USER_ACTIVITY_TYPE_TRIP"
+      | "USER_ACTIVITY_TYPE_STATIONARY"
+      | "USER_ACTIVITY_TYPE_UNKNOWN"
+      | "USER_ACTIVITY_TYPE_UNRECOGNIZED";
     tripInfo?: TripInfo;
     stationaryInfo?: StationaryInfo;
   }
@@ -114,14 +128,14 @@ declare module "@sentiance-react-native/legacy" {
     mobileQuotaStatus: string;
     diskQuotaStatus: string;
     locationPermission: LocationPermission;
+    isBatterySavingEnabled?: boolean;
+    isActivityRecognitionPermGranted?: boolean;
     isBgAccessPermGranted?: boolean; // iOS only
-    isActivityRecognitionPermGranted?: boolean; // Android only
     locationSetting?: string; // Android only
     isAirplaneModeEnabled?: boolean; // Android only
     isLocationAvailable?: boolean; // Android only
     isGooglePlayServicesMissing?: boolean; // Android only
     isBatteryOptimizationEnabled?: boolean; // Android only
-    isBatterySavingEnabled?: boolean; // Android only
     isBackgroundProcessingRestricted?: boolean; // Android only
     isPreciseLocationAuthorizationGranted: boolean;
     isSchedulingExactAlarmsPermitted?: boolean; // Android only
