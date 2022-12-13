@@ -14,9 +14,7 @@
 - (NSString*)convertTimelineEventTypeToString:(SENTTimelineEventType)type;
 - (NSDictionary*)convertGeolocation:(SENTGeolocation*)location;
 - (NSString*)convertVenueSignificance:(SENTVenueSignificance)type;
-- (NSDictionary*)convertVisit:(SENTVisit*)visit;
 - (NSDictionary*)convertVenue:(SENTVenue*)venue;
-- (NSDictionary*)convertVenueCandidate:(SENTVenueCandidate*)candidate;
 - (void)addStationaryEventInfoToDict:(NSMutableDictionary*)dict event:(SENTStationaryEvent*)event;
 - (NSString*)convertTransportModeToString:(SENTTimelineTransportMode) mode;
 - (void)addTransportEventInfoToDict:(NSMutableDictionary*)dict event:(SENTTransportEvent*)event;
@@ -68,48 +66,79 @@
     }
 }
 
-- (NSDictionary*)convertVisit:(SENTVisit*)visit {
-    return @{
-        @"startTime": [visit.startDate description],
-        @"startTimeEpoch": @((long) (visit.startDate.timeIntervalSince1970 * 1000)),
-        @"endTime": [visit.endDate description],
-        @"endTimeEpoch": @((long) (visit.startDate.timeIntervalSince1970 * 1000)),
-        @"durationInSeconds": [NSNumber numberWithInt:(int)visit.durationInSeconds],
-    };
+- (NSString*)convertVenueType:(SENTVenueType)type {
+    switch (type) {
+        case SENTVenueTypeDrinkDay:
+            return @"DRINK_DAY";
+        case SENTVenueTypeDrinkEvening:
+            return @"DRINK_EVENING";
+        case SENTVenueTypeEducationIndependent:
+            return @"EDUCATION_INDEPENDENT";
+        case SENTVenueTypeEducationParents:
+            return @"EDUCATION_PARENTS";
+        case SENTVenueTypeHealth:
+            return @"HEALTH";
+        case SENTVenueTypeIndustrial:
+            return @"INDUSTRIAL";
+        case SENTVenueTypeLeisureBeach:
+            return @"LEISURE_BEACH";
+        case SENTVenueTypeLeisureDay:
+            return @"LEISURE_DAY";
+        case SENTVenueTypeLeisureEvening:
+            return @"LEISURE_EVENING";
+        case SENTVenueTypeLeisureMuseum:
+            return @"LEISURE_MUSEUM";
+        case SENTVenueTypeLeisureNature:
+            return @"LEISURE_NATURE";
+        case SENTVenueTypeLeisurePark:
+            return @"LEISURE_PARK";
+        case SENTVenueTypeOffice:
+            return @"OFFICE";
+        case SENTVenueTypeReligion:
+            return @"RELIGION";
+        case SENTVenueTypeResidential:
+            return @"RESIDENTIAL";
+        case SENTVenueTypeRestoMid:
+            return @"RESTO_MID";
+        case SENTVenueTypeRestoShort:
+            return @"RESTO_SHORT";
+        case SENTVenueTypeShopLong:
+            return @"SHOP_LONG";
+        case SENTVenueTypeShopShort:
+            return @"SHOP_SHORT";
+        case SENTVenueTypeSport:
+            return @"SPORT";
+        case SENTVenueTypeSportAttend:
+            return @"SPORT_ATTEND";
+        case SENTVenueTypeTravelBus:
+            return @"TRAVEL_BUS";
+        case SENTVenueTypeTravelConference:
+            return @"TRAVEL_CONFERENCE";
+        case SENTVenueTypeTravelFill:
+            return @"TRAVEL_FILL";
+        case SENTVenueTypeTravelHotel:
+            return @"TRAVEL_HOTEL";
+        case SENTVenueTypeTravelLong:
+            return @"TRAVEL_LONG";
+        case SENTVenueTypeTravelShort:
+            return @"TRAVEL_SHORT";
+        case SENTVenueTypeUnknown:
+        default:
+            return @"UNKNOWN";
+    }
 }
 
 - (NSDictionary*)convertVenue:(SENTVenue*)venue {
     NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
 
-    if (venue.name != nil) {
-        dict[@"name"] = venue.name;
-    }
-
     if (venue.location != nil) {
         dict[@"location"] = [self convertGeolocation:venue.location];
     }
-
-    NSMutableDictionary* labels = [[NSMutableDictionary alloc] init];
-    [venue.labels enumerateKeysAndObjectsUsingBlock:
-        ^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-            labels[key] = obj;
-    }];
-    dict[@"venueLabels"] = labels;
+    
+    dict[@"significance"] = [self convertVenueSignificance:venue.significance];
+    dict[@"type"] = [self convertVenueType:venue.type];
 
     return dict;
-}
-
-- (NSDictionary*)convertVenueCandidate:(SENTVenueCandidate*)candidate {
-    NSMutableArray* visits = [[NSMutableArray alloc] init];
-    for (SENTVisit* visit in candidate.visits) {
-        [visits addObject:[self convertVisit:visit]];
-    }
-
-    return @{
-        @"venue": [self convertVenue:candidate.venue],
-        @"likelihood": @(candidate.likelihood),
-        @"visits": visits
-    };
 }
 
 - (void)addStationaryEventInfoToDict:(NSMutableDictionary*)dict event:(SENTStationaryEvent*)event {
@@ -117,13 +146,7 @@
         dict[@"location"] = [self convertGeolocation:event.location];
     }
 
-    dict[@"venueSignificance"] = [self convertVenueSignificance:event.venueSignificance];
-
-    NSMutableArray* venueCandidates = [[NSMutableArray alloc] init];
-    for (SENTVenueCandidate* candidate in event.venueCandidates) {
-        [venueCandidates addObject:[self convertVenueCandidate:candidate]];
-    }
-    dict[@"venueCandidates"] = venueCandidates;
+    dict[@"venue"] = [self convertVenue:event.venue];
 }
 
 - (NSString*)convertTransportModeToString:(SENTTimelineTransportMode)mode {
@@ -511,10 +534,6 @@
 
     if (criteriaMask & SENTUserContextUpdateCriteriaCurrentEvent) {
         [criteria addObject:@"CURRENT_EVENT"];
-    }
-
-    if (criteriaMask & SENTUserContextUpdateCriteriaActiveMoments) {
-        [criteria addObject:@"ACTIVE_MOMENTS"];
     }
 
     if (criteriaMask & SENTUserContextUpdateCriteriaVisitedVenues) {

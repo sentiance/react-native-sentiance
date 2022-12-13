@@ -828,7 +828,6 @@ RCT_EXPORT_METHOD(listenUserContextUpdates:(RCTPromiseResolveBlock)resolve rejec
     [Sentiance sharedInstance].userContextDelegate = self;
     [Sentiance sharedInstance].criteriaMaskForUserContextUpdates = SENTUserContextUpdateCriteriaCurrentEvent |
                                                                             SENTUserContextUpdateCriteriaActiveSegments |
-                                                                            SENTUserContextUpdateCriteriaActiveMoments |
                                                                             SENTUserContextUpdateCriteriaVisitedVenues;
     resolve(nil);
 }

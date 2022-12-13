@@ -11,8 +11,6 @@ import com.sentiance.sdk.ondevice.api.event.StationaryEvent;
 import com.sentiance.sdk.ondevice.api.event.TransportEvent;
 import com.sentiance.sdk.ondevice.api.segment.Segment;
 import com.sentiance.sdk.ondevice.api.venue.Venue;
-import com.sentiance.sdk.ondevice.api.venue.VenueCandidate;
-import com.sentiance.sdk.ondevice.api.venue.Visit;
 import com.sentiance.sdk.usercontext.api.RequestUserContextError;
 import com.sentiance.sdk.usercontext.api.RequestUserContextFailureReason;
 import com.sentiance.sdk.usercontext.api.UserContext;
@@ -20,7 +18,6 @@ import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 import com.sentiance.sdk.util.DateTime;
 
 import java.util.List;
-import java.util.Map;
 
 public class SentianceUserContextConverter {
 
@@ -152,59 +149,19 @@ public class SentianceUserContextConverter {
     if (event.getLocation() != null) {
       map.putMap("location", convertGeoLocation(event.getLocation()));
     }
-
-    map.putString("venueSignificance", event.getVenueSignificance().toString());
-
-    WritableArray venueCandidatesArray = Arguments.createArray();
-    for (VenueCandidate candidate : event.getVenueCandidates()) {
-      venueCandidatesArray.pushMap(convertVenueCandidate(candidate));
-    }
-
-    map.putArray("venueCandidates", venueCandidatesArray);
-  }
-
-  private static WritableMap convertVenueCandidate(VenueCandidate candidate) {
-    WritableMap venueCandidateMap = Arguments.createMap();
-    venueCandidateMap.putMap("venue", convertVenue(candidate.getVenue()));
-    venueCandidateMap.putDouble("likelihood", candidate.getLikelihood());
-
-    WritableArray visitsArray = Arguments.createArray();
-    for (Visit visit : candidate.getVisits()) {
-      visitsArray.pushMap(convertVisit(visit));
-    }
-    venueCandidateMap.putArray("visits", visitsArray);
-    return venueCandidateMap;
+    map.putMap("venue", convertVenue(event.getVenue()));
   }
 
   private static WritableMap convertVenue(Venue venue) {
     WritableMap venueMap = Arguments.createMap();
 
-    if (venue.getName() != null) {
-      venueMap.putString("name", venue.getName());
+    if (venue.getLocation() != null) {
+      venueMap.putMap("location", convertGeoLocation(venue.getLocation()));
     }
-
-    venueMap.putMap("location", convertGeoLocation(venue.getLocation()));
-
-    WritableMap venueLabelsMap = Arguments.createMap();
-    for (Map.Entry<String, String> entry : venue.getLabels().entrySet()) {
-      venueLabelsMap.putString(entry.getKey(), entry.getValue());
-    }
-    venueMap.putMap("venueLabels", venueLabelsMap);
+    venueMap.putString("significance", venue.getSignificance().name());
+    venueMap.putString("type", venue.getType().name());
 
     return venueMap;
-  }
-
-  private static WritableMap convertVisit(Visit visit) {
-    WritableMap visitMap = Arguments.createMap();
-    visitMap.putString("startTime", visit.getStartTime().toString());
-    visitMap.putDouble("startTimeEpoch", visit.getStartTime().getEpochTime());
-
-    visitMap.putString("endTime", visit.getEndTime().toString());
-    visitMap.putDouble("endTimeEpoch", visit.getEndTime().getEpochTime());
-
-    visitMap.putInt("durationInSeconds", (int) visit.getDurationInSeconds());
-
-    return visitMap;
   }
 
   private static void addTransportEventInfo(WritableMap map, TransportEvent event) {
@@ -229,7 +186,7 @@ public class SentianceUserContextConverter {
 
   private static WritableArray convertWaypointList(List<Waypoint> waypointList) {
     WritableArray array = Arguments.createArray();
-    for (Waypoint waypoint: waypointList) {
+    for (Waypoint waypoint : waypointList) {
       array.pushMap(convertWaypoint(waypoint));
     }
     return array;

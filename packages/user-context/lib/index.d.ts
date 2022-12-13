@@ -108,9 +108,9 @@ declare module "@sentiance-react-native/user-context" {
     | "WORK_TRAVELLER"
     | "WORKAHOLIC";
 
-  type TransportMode =
+  export type TransportMode =
     | "UNKNOWN"
-    | "BYCICLE"
+    | "BICYCLE"
     | "WALKING"
     | "RUNNING"
     | "TRAM"
@@ -118,6 +118,75 @@ declare module "@sentiance-react-native/user-context" {
     | "CAR"
     | "BUS"
     | "MOTORCYCLE";
+
+  export type VenueSignificance =
+    | "UNKNOWN"
+    | "HOME"
+    | "WORK"
+    | "POINT_OF_INTEREST"
+
+  /**
+   * The list of venue types that are currently supported by the venue-type mapping model:
+   *
+   * <ul>
+   *   <li><b>DRINK_DAY</b> - Cafes, coffee bars, tea rooms, etc</li>
+   *   <li><b>DRINK_EVENING</b> - Bars, pubs and in general places where one goes for drinks in evenings.</li>
+   *   <li><b>EDUCATION_INDEPENDENT</b> - Educational institutions visited by the user on his own for their own studies. High schools, universities, colleges, etc.</li>
+   *   <li><b>EDUCATION_PARENTS</b> - Schools and kindergartens visited by parents.</li>
+   *   <li><b>HEALTH</b> - Hospitals, clinics, emergency rooms.</li>
+   *   <li><b>INDUSTRIAL</b> - Buildings tagged as “industrial” on OSM, built for some manufacturing process.</li>
+   *   <li><b>LEISURE_BEACH</b> - Beaches, resorts and swimming areas.</li>
+   *   <li><b>LEISURE_DAY</b> - Bowling, billiards and other entertainment places.</li>
+   *   <li><b>LEISURE_EVENING</b> - Cinemas, theatres and music halls.</li>
+   *   <li><b>LEISURE_MUSEUM</b> - Museums.</li>
+   *   <li><b>LEISURE_NATURE</b> - Forests, lakes, national parks, etc.</li>
+   *   <li><b>LEISURE_PARK</b> - City parks, gardens, zoos.</li>
+   *   <li><b>OFFICE</b> - Office buildings. For example, of private lawyers, notaries or company representatives.</li>
+   *   <li><b>RELIGION</b> - Churches, mosques and other religion related buildings.</li>
+   *   <li><b>RESIDENTIAL</b> - Apartment blocks, houses.</li>
+   *   <li><b>RESTO_MID</b> - Food courts, restaurants, snack bars.</li>
+   *   <li><b>RESTO_SHORT</b> - Ice cream, fast food, donut stores.</li>
+   *   <li><b>SHOP_LONG</b> - Supermarkets, malls, wholesales, shopping centres.</li>
+   *   <li><b>SHOP_SHORT</b> - Small grocery stores, butchers, bakers.</li>
+   *   <li><b>SPORT</b> - Gyms, sport centres. Venues visited to exercise.</li>
+   *   <li><b>SPORT_ATTEND</b> - Stadiums. Venues visited to attend a sport event.</li>
+   *   <li><b>TRAVEL_BUS</b> - Bus stops.</li>
+   *   <li><b>TRAVEL_CONFERENCE</b> - Conference, convention, exhibition centres.</li>
+   *   <li><b>TRAVEL_FILL</b> - Gas stations.</li>
+   *   <li><b>TRAVEL_HOTEL</b> - Hotels, motels, guest rooms, etc.</li>
+   *   <li><b>TRAVEL_LONG</b> - Airports</li>
+   *   <li><b>TRAVEL_SHORT</b> - Public transport stations, railway stations.</li>
+   * </ul>
+   */
+  export type VenueType =
+    | "UNKNOWN"
+    | "DRINK_DAY"
+    | "DRINK_EVENING"
+    | "EDUCATION_INDEPENDENT"
+    | "EDUCATION_PARENTS"
+    | "HEALTH"
+    | "INDUSTRIAL"
+    | "LEISURE_BEACH"
+    | "LEISURE_DAY"
+    | "LEISURE_EVENING"
+    | "LEISURE_MUSEUM"
+    | "LEISURE_NATURE"
+    | "LEISURE_PARK"
+    | "OFFICE"
+    | "RELIGION"
+    | "RESIDENTIAL"
+    | "RESTO_MID"
+    | "RESTO_SHORT"
+    | "SHOP_LONG"
+    | "SHOP_SHORT"
+    | "SPORT"
+    | "SPORT_ATTEND"
+    | "TRAVEL_BUS"
+    | "TRAVEL_CONFERENCE"
+    | "TRAVEL_FILL"
+    | "TRAVEL_HOTEL"
+    | "TRAVEL_LONG"
+    | "TRAVEL_SHORT"
 
   export interface Event {
     startTime: string;
@@ -127,16 +196,15 @@ declare module "@sentiance-react-native/user-context" {
     durationInSeconds: number | null;
     type: string;
     // stationary event fields
-    location: EventLocation | null;
-    venueSignificance: string | null;
-    venueCandidates: VenueCandidate[] | null;
+    location: GeoLocation | null;
+    venue: Venue | null;
     // transport event fields
     transportMode: TransportMode | null;
     waypoints: Waypoint[];
     distance?: number; // in meters
   }
 
-  export interface EventLocation {
+  export interface GeoLocation {
     latitude: number;
     longitude: number;
     accuracy: number;
@@ -149,28 +217,10 @@ declare module "@sentiance-react-native/user-context" {
     timestamp: number;  // UTC epoch time in milliseconds
   }
 
-  export interface VenueCandidate {
-    venue: Venue;
-    likelihood: number;
-    visits: Visit[];
-  }
-
   export interface Venue {
-    name: string | null;
-    location: EventLocation | null;
-    venueLabels: VenueLabels;
-  }
-
-  export interface VenueLabels {
-    [label: string]: string;
-  }
-
-  export interface Visit {
-    startTime: string;
-    startTimeEpoch: number; // in milliseconds
-    endTime: string;
-    endTimeEpoch: number; // in milliseconds
-    durationInSeconds: number;
+    location: GeoLocation | null;
+    significance: VenueSignificance;
+    type: VenueType;
   }
 
   export interface Segment {
@@ -193,7 +243,7 @@ declare module "@sentiance-react-native/user-context" {
   export interface UserContext {
     events: Event[];
     activeSegments: Segment[];
-    lastKnownLocation: EventLocation | null;
+    lastKnownLocation: GeoLocation | null;
     home: Venue | null;
     work: Venue | null;
   }
