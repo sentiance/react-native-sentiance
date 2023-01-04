@@ -19,7 +19,7 @@
     return [self initializeSDKWithPlatformUrl:nil isAppSessionDataCollectionAllowed:NO launchOptions:nil];
 }
 
-- (SENTInitializationResult *)initializeSDKWithPlatformUrl:(NSString *)platformUrl 
+- (SENTInitializationResult *)initializeSDKWithPlatformUrl:(NSString *)platformUrl
                                              launchOptions:(nullable NSDictionary *)launchOptions {
     return [self initializeSDKWithPlatformUrl:platformUrl isAppSessionDataCollectionAllowed:NO launchOptions:launchOptions];
 }

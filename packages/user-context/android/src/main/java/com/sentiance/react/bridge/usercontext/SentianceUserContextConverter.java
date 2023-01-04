@@ -125,6 +125,9 @@ public class SentianceUserContextConverter {
       userContextMap.putMap("work", convertVenue(userContext.getWork()));
     }
 
+    // Semantic time
+    userContextMap.putString("semanticTime", userContext.getSemanticTime().name());
+
     return userContextMap;
   }
 

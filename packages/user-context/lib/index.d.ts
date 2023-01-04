@@ -188,6 +188,16 @@ declare module "@sentiance-react-native/user-context" {
     | "TRAVEL_LONG"
     | "TRAVEL_SHORT"
 
+  export type SemanticTime =
+    | "UNKNOWN"
+    | "MORNING"
+    | "LATE_MORNING"
+    | "LUNCH"
+    | "AFTERNOON"
+    | "EARLY_EVENING"
+    | "EVENING"
+    | "NIGHT";
+
   export interface Event {
     startTime: string;
     startTimeEpoch: number; // in milliseconds
@@ -246,6 +256,7 @@ declare module "@sentiance-react-native/user-context" {
     lastKnownLocation: GeoLocation | null;
     home: Venue | null;
     work: Venue | null;
+    semanticTime: SemanticTime;
   }
 
   export interface SentianceUserContext {

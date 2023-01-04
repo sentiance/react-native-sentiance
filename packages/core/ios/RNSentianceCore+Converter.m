@@ -52,6 +52,28 @@
     };
 }
 
+- (NSString*)convertSemanticTime:(SENTSemanticTime)semanticTime {
+    switch (semanticTime) {
+        case SENTSemanticTimeMorning:
+            return @"MORNING";
+        case SENTSemanticTimeLateMorning:
+            return @"LATE_MORNING";
+        case SENTSemanticTimeLunch:
+            return @"LUNCH";
+        case SENTSemanticTimeAfternoon:
+            return @"AFTERNOON";
+        case SENTSemanticTimeEarlyEvening:
+            return @"EARLY_EVENING";
+        case SENTSemanticTimeEvening:
+            return @"EVENING";
+        case SENTSemanticTimeNight:
+            return @"NIGHT";
+        case SENTSemanticTimeUnknown:
+        default:
+            return @"UNKNOWN";
+    }
+}
+
 - (NSString*)convertVenueSignificance:(SENTVenueSignificance)type {
     switch (type) {
         case SENTVenueSignificanceHome:
@@ -134,7 +156,7 @@
     if (venue.location != nil) {
         dict[@"location"] = [self convertGeolocation:venue.location];
     }
-    
+
     dict[@"significance"] = [self convertVenueSignificance:venue.significance];
     dict[@"type"] = [self convertVenueType:venue.type];
 
@@ -484,7 +506,7 @@
     dict[@"id"] = @(segment.uniqueId);
     dict[@"startTime"] = [segment.startDate description];
     dict[@"startTimeEpoch"] = @((long) (segment.startDate.timeIntervalSince1970 * 1000));
-    
+
     if (segment.endDate != nil) {
         dict[@"endTime"] = [segment.endDate description];
         dict[@"endTimeEpoch"] = @((long) (segment.endDate.timeIntervalSince1970 * 1000));
@@ -525,6 +547,8 @@
     if (userContext.work != nil) {
         dict[@"work"] = [self convertVenue:userContext.work];
     }
+
+    dict[@"semanticTime"] = [self convertSemanticTime:userContext.semanticTime];
 
     return [dict copy];
 }
