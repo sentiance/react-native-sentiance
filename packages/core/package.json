@@ -29,7 +29,7 @@
       "targetSdk": 31,
       "compileSdk": 31,
       "buildTools": "30.0.3",
-      "sentiance": "6.2.0"
+      "sentiance": "6.2+"
     },
     "ios": {
       "sentiance": "~> 6.2.0"
