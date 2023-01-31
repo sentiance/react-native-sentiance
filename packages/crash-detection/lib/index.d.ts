@@ -2,29 +2,31 @@ declare module "@sentiance-react-native/crash-detection" {
   import {EmitterSubscription} from "react-native";
 
   export interface Location {
-    latitude: string;
-    longitude: string;
-    accuracy?: string; // Android only
-    altitude?: string; // Android only
+    timestamp: number;
+    latitude: number;
+    longitude: number;
+    accuracy?: number;
+    altitude?: number;
     provider?: string; // Android only
   }
 
   export interface CrashEvent {
     time: number;
     location: Location;
+    precedingLocations: Location[];
     magnitude: number;
     speedAtImpact: number;
     deltaV: number;
     confidence: number;
   }
 
-  export type VehicleCrashDetectionState = 
-  "CANDIDATE_DETECTED" 
-  | "CANDIDATE_DISCARDED_WEAK_IMPACT" 
-  | "CANDIDATE_DISCARDED_NON_VEHICLE_TRANSPORT_MODE" 
+  export type VehicleCrashDetectionState =
+  "CANDIDATE_DETECTED"
+  | "CANDIDATE_DISCARDED_WEAK_IMPACT"
+  | "CANDIDATE_DISCARDED_NON_VEHICLE_TRANSPORT_MODE"
   | "CANDIDATE_DISCARDED_PRE_IMPACT_NOISE"
-  | "CANDIDATE_DISCARDED_LOW_SPEED_BEFORE_IMPACT"  
-  | "CANDIDATE_DISCARDED_POST_IMPACT_NOISE"  
+  | "CANDIDATE_DISCARDED_LOW_SPEED_BEFORE_IMPACT"
+  | "CANDIDATE_DISCARDED_POST_IMPACT_NOISE"
   | "CANDIDATE_DISCARDED_HIGH_SPEED_AFTER_IMPACT"
   | "CANDIDATE_NOT_DETECTED";
 

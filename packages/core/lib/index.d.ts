@@ -61,10 +61,10 @@ declare module "@sentiance-react-native/core" {
   }
 
   export interface Location {
-    latitude: string;
-    longitude: string;
-    accuracy?: string; // Android only
-    altitude?: string; // Android only
+    latitude: number;
+    longitude: number;
+    accuracy?: number;
+    altitude?: number;
     provider?: string; // Android only
   }
 

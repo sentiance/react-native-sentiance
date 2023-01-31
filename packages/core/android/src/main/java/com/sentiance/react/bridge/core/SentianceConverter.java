@@ -1,5 +1,7 @@
 package com.sentiance.react.bridge.core;
 
+import static com.sentiance.react.bridge.core.common.SentianceCommonConverter.convertLocation;
+
 import android.location.Location;
 
 import com.facebook.react.bridge.Arguments;
@@ -205,19 +207,6 @@ public class SentianceConverter {
     }
 
     return map;
-  }
-
-  public static WritableMap convertLocation(Location location) {
-    WritableMap locationMap = Arguments.createMap();
-
-    locationMap.putString("latitude", String.valueOf(location.getLatitude()));
-    locationMap.putString("longitude", String.valueOf(location.getLongitude()));
-    locationMap.putString("accuracy", String.valueOf(location.getAccuracy()));
-    locationMap.putString("altitude", String.valueOf(location.getAltitude()));
-    locationMap.putString("provider", location.getProvider());
-
-    return locationMap;
-
   }
 
   public static String convertTripType(TripType tripType) {

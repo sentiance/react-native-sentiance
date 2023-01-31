@@ -8,11 +8,13 @@
 
 #import "RNSentianceCore+Converter.h"
 @import UIKit.UIApplication;
+@import CoreLocation;
 
 @interface RNSentianceCore (Private)
 
 - (NSString*)convertTimelineEventTypeToString:(SENTTimelineEventType)type;
 - (NSDictionary*)convertGeolocation:(SENTGeolocation*)location;
+- (NSDictionary*)convertCllocation:(CLLocation*)location;
 - (NSString*)convertVenueSignificance:(SENTVenueSignificance)type;
 - (NSDictionary*)convertVenue:(SENTVenue*)venue;
 - (void)addStationaryEventInfoToDict:(NSMutableDictionary*)dict event:(SENTStationaryEvent*)event;
@@ -50,6 +52,22 @@
         @"longitude": @(location.longitude),
         @"accuracy": @(location.accuracyInMeters)
     };
+}
+
+- (NSDictionary*)convertCllocation:(CLLocation*)location {
+    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+    dict[@"timestamp"] = @((long) ([location.timestamp timeIntervalSince1970] * 1000));
+    dict[@"latitude"] = @(location.coordinate.latitude);
+    dict[@"longitude"] = @(location.coordinate.longitude);
+
+    if (location.horizontalAccuracy >= 0) {
+        dict[@"accuracy"] = @(location.horizontalAccuracy);
+    }
+    if (location.verticalAccuracy > 0) {
+        dict[@"altitude"] = @(location.altitude);
+    }
+
+    return dict;
 }
 
 - (NSString*)convertSemanticTime:(SENTSemanticTime)semanticTime {
@@ -756,6 +774,13 @@
     dict[@"speedAtImpact"] = @(crashEvent.speedAtImpact);
     dict[@"deltaV"] = @(crashEvent.deltaV);
     dict[@"confidence"] = @(crashEvent.confidence);
+
+    NSMutableArray *precedingLocations = [[NSMutableArray alloc] init];
+    for (CLLocation* location in crashEvent.precedingLocations) {
+        [precedingLocations addObject:[self convertCllocation:location]];
+    }
+    dict[@"precedingLocations"] = precedingLocations;
+
     return [dict copy];
 }
 
