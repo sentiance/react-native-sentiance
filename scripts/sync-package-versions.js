@@ -92,6 +92,9 @@ const TARGET_MODULES = [
   {
     name: 'legacy'
   },
+  {
+    name: 'driving-insights'
+  },
 ];
 
 if (isNewVersionSpecified) {

@@ -29,7 +29,7 @@ dependencyResolutionManagement {
   }
 }
 
-['core', 'crash-detection', 'user-context', 'legacy'].each { projectName ->
+['core', 'crash-detection', 'driving-insights', 'user-context', 'legacy'].each { projectName ->
   def module = ":$projectName"
   include(module)
   project(module).projectDir = new File(rootProject.projectDir, "./$projectName/android")

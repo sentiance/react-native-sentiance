@@ -313,14 +313,20 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
     // Activity `onDestroy`
   }
 
+  @Override
   @ReactMethod
-  public void addListener(String eventName) {
-    // Set up any upstream listeners or background tasks as necessary
+  protected void addListener(String eventName, int subscriptionId, Promise promise) {
+
   }
 
+  @Override
   @ReactMethod
-  public void removeListeners(Integer count) {
-    // Remove upstream listeners, stop unnecessary background tasks
+  protected void removeListener(String eventName, int subscriptionId, Promise promise) {
+
   }
+
+  @Override
+  @ReactMethod
+  public void removeListeners(Integer count) {}
 }
 

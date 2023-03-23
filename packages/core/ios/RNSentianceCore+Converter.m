@@ -241,6 +241,23 @@
 
 - (NSMutableDictionary*)convertEvent:(SENTTimelineEvent*)event {
     NSMutableDictionary *eventDict = [[NSMutableDictionary alloc] init];
+
+    [self _addBaseEventFields:eventDict event:event];
+
+    eventDict[@"type"] = [self convertTimelineEventTypeToString:event.type];
+
+    if (event.type == SENTTimelineEventTypeStationary) {
+        [self addStationaryEventInfoToDict:eventDict event:(SENTStationaryEvent*)event];
+    }
+    else if (event.type == SENTTimelineEventTypeInTransport) {
+        [self addTransportEventInfoToDict:eventDict event:(SENTTransportEvent*)event];
+    }
+
+    return eventDict;
+}
+
+- (NSMutableDictionary*) _addBaseEventFields:(NSMutableDictionary*) eventDict event: (SENTTimelineEvent*)event {
+    eventDict[@"id"] = [event eventId];
     eventDict[@"startTime"] = [event.startDate description];
     eventDict[@"startTimeEpoch"] = @((long) (event.startDate.timeIntervalSince1970 * 1000));
     if (event.endDate != nil) {
@@ -252,16 +269,6 @@
             eventDict[@"durationInSeconds"] = [NSNumber numberWithInt:(int)durationInSeconds];
         }
     }
-
-    eventDict[@"type"] = [self convertTimelineEventTypeToString:event.type];
-
-    if (event.type == SENTTimelineEventTypeStationary) {
-        [self addStationaryEventInfoToDict:eventDict event:(SENTStationaryEvent*)event];
-    }
-    else if (event.type == SENTTimelineEventTypeInTransport) {
-        [self addTransportEventInfoToDict:eventDict event:(SENTTransportEvent*)event];
-    }
-
     return eventDict;
 }
 
@@ -1112,6 +1119,37 @@
       [typesSet addObject:dict[strType]];
     }
     return [typesSet copy];
+}
+
+- (NSDictionary<NSString *, NSDictionary<NSString *, NSNumber *> *> *)convertDrivingInsights:(SENTDrivingInsights *)drivingInsights {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *transportEventDict = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *safetyScoresDict = [[NSMutableDictionary alloc] init];
+
+    [self _addBaseEventFields:transportEventDict event:drivingInsights.transportEvent];
+    [self addTransportEventInfoToDict:transportEventDict event:drivingInsights.transportEvent];
+    dict[@"transportEvent"] = transportEventDict;
+
+    safetyScoresDict[@"smoothScore"] = drivingInsights.safetyScores.smoothScore;
+    dict[@"safetyScores"] = safetyScoresDict;
+
+    return dict;
+}
+
+- (NSArray<NSDictionary<NSString *, NSNumber *> *> *)convertHarshDrivingEvents:(NSArray<SENTHarshDrivingEvent*> *)harshDrivingEvents {
+    NSMutableArray <NSDictionary<NSString *, NSNumber *> *> *array = [[NSMutableArray alloc] init];
+    for (SENTHarshDrivingEvent *event in harshDrivingEvents) {
+        [array addObject:[self convertHarshDrivingEvent:event]];
+    }
+    return array;
+}
+
+- (NSDictionary<NSString *, NSNumber *> *)convertHarshDrivingEvent:(SENTHarshDrivingEvent *)harshDrivingEvent {
+    NSMutableDictionary<NSString *, NSNumber *> *dict = [[NSMutableDictionary alloc] init];
+    dict[@"time"] = [harshDrivingEvent.date description];
+    dict[@"timeEpoch"] = @((long) (harshDrivingEvent.date.timeIntervalSince1970 * 1000));
+    dict[@"magnitude"] = @(harshDrivingEvent.magnitude);
+    return dict;
 }
 
 @end

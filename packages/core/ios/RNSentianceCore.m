@@ -5,6 +5,7 @@
 #import "RNSentianceNativeInitialization.h"
 #import "RNSentianceCore+Converter.h"
 #import "RNSentianceErrorCodes.h"
+#import "RNSentianceSubscriptionsManager.h"
 
 #define REJECT_IF_SDK_NOT_INITIALIZED(reject) if ([self isSdkNotInitialized]) {                            \
                                                   reject(ESDKNotInitialized, @"Sdk not initialized", nil); \
@@ -15,6 +16,7 @@
 
 @property (nonatomic, strong) void (^userLinkSuccess)(void);
 @property (nonatomic, strong) void (^userLinkFailed)(void);
+@property (nonatomic, strong) RNSentianceSubscriptionsManager* subscriptionsManager;
 @property (nonatomic, strong) SENTUserLinker userLinker;
 @property (nonatomic, strong) SdkStatusHandler sdkStatusHandler;
 @property (assign) BOOL userLinkingEnabled;
@@ -33,7 +35,7 @@ RCT_EXPORT_MODULE(SentianceCore)
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[SdkStatusUpdateEvent, TripTimeoutEvent, UserLinkEvent, UserActivityUpdateEvent, VehicleCrashEvent, VehicleCrashDiagnosticEvent, UserLinkEvent, UserContextUpdateEvent];
+    return @[SdkStatusUpdateEvent, TripTimeoutEvent, UserLinkEvent, UserActivityUpdateEvent, VehicleCrashEvent, VehicleCrashDiagnosticEvent, UserLinkEvent, UserContextUpdateEvent, DrivingInsightsReadyEvent];
 }
 
 // Will be called when this module's first listener is added.
@@ -46,6 +48,29 @@ RCT_EXPORT_MODULE(SentianceCore)
 - (void)stopObserving {
     self.hasListeners = NO;
     // Remove upstream listeners, stop unnecessary background tasks
+}
+
++ (BOOL)requiresMainQueueSetup {
+    return NO;
+}
+
+- (void)onDrivingInsightsReadyWithInsights:(SENTDrivingInsights *)insights {
+    [self sendEventWithName:DrivingInsightsReadyEvent body:[self convertDrivingInsights:insights]];
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    _subscriptionsManager = [RNSentianceSubscriptionsManager new];
+    __weak typeof(self) weakSelf = self;
+
+    [_subscriptionsManager addSupportedSubscriptionForEventType:DrivingInsightsReadyEvent nativeSubscribeLogic:^{
+        [[Sentiance sharedInstance] setDrivingInsightsReadyDelegate:weakSelf];
+    } nativeUnsubscribeLogic:^{
+        [[Sentiance sharedInstance] setDrivingInsightsReadyDelegate:nil];
+    } subscriptionType:SENTSubscriptionTypeSingle];
+
+    return self;
 }
 
 - (void) initSDK:(NSString *)appId
@@ -993,7 +1018,7 @@ RCT_EXPORT_METHOD(listenTripTimeout:(RCTPromiseResolveBlock)resolve rejecter:(RC
 RCT_EXPORT_METHOD(setTransmittableDataTypes:(NSArray *)types resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
-    
+
     NSSet *typesSet = [NSSet setWithArray:types];
     NSSet *convertedTypes = [self convertStringTransmittableDataTypes:types];
     [[Sentiance sharedInstance] setTransmittableDataTypes:convertedTypes];
@@ -1002,11 +1027,47 @@ RCT_EXPORT_METHOD(setTransmittableDataTypes:(NSArray *)types resolver:(RCTPromis
 RCT_EXPORT_METHOD(getTransmittableDataTypes:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
-    
+
     NSSet *types = [[Sentiance sharedInstance] transmittableDataTypes];
     NSSet *convertedTypes = [self convertIntegerTransmittableDataTypes:types];
     NSArray *array = [convertedTypes allObjects];
     resolve(array);
+}
+
+RCT_EXPORT_METHOD(getDrivingInsights:(NSString*)transportId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    SENTDrivingInsights *drivingInsights = [[Sentiance sharedInstance] getDrivingInsightsForTransportId:transportId];
+    if (drivingInsights == nil) {
+        resolve(nil);
+        return;
+    }
+    resolve([self convertDrivingInsights:drivingInsights]);
+}
+
+RCT_EXPORT_METHOD(getHarshDrivingEvents:(NSString*)transportId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    NSArray<SENTHarshDrivingEvent *> *harshDrivingEvents = [[Sentiance sharedInstance] getHarshDrivingEventsForTransportId:transportId];
+    resolve([self convertHarshDrivingEvents:harshDrivingEvents]);
+}
+
+RCT_EXPORT_METHOD(addNativeListener:(NSString *)eventName subscriptionId:(NSInteger)subscriptionId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    [_subscriptionsManager addSubscriptionForEventType:eventName subscriptionId:subscriptionId];
+
+    resolve(nil);
+}
+
+RCT_EXPORT_METHOD(removeNativeListener:(NSString *)eventName subscriptionId:(NSInteger)subscriptionId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    [_subscriptionsManager removeSubscriptionForId:subscriptionId eventType:eventName];
+
+    resolve(nil);
 }
 
 - (void)didUpdateUserContext:(SENTUserContext *)userContext

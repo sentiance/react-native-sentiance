@@ -172,6 +172,7 @@ declare module "@sentiance-react-native/user-context" {
     | "NIGHT";
 
   export interface Event {
+    id: string;
     startTime: string;
     startTimeEpoch: number; // in milliseconds
     endTime: string | null;

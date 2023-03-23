@@ -62,6 +62,7 @@ public class SentianceUserContextConverter {
   private static WritableMap convertEvent(Event event) {
     WritableMap map = Arguments.createMap();
 
+    map.putString("id", event.getId());
     map.putString("startTime", event.getStartTime().toString());
     map.putDouble("startTimeEpoch", event.getStartTime().getEpochTime());
     if (event.getEndTime() != null) {
@@ -70,7 +71,7 @@ public class SentianceUserContextConverter {
 
       Long durationInSeconds = event.getDurationInSeconds();
       if (durationInSeconds != null) {
-        map.putInt("durationInSeconds", (int) (long) durationInSeconds);
+        map.putDouble("durationInSeconds", durationInSeconds);
       }
     }
 

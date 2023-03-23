@@ -1,0 +1,21 @@
+{
+  "name": "@sentiance-react-native/driving-insights",
+  "version": "6.0.0",
+  "description": "Sentiance Driving Insights SDK",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint lib/index.d.ts"
+  },
+  "keywords": [
+    "react-native",
+    "driving-insights",
+    "sentiance"
+  ],
+  "peerDependencies": {
+    "@sentiance-react-native/core": "6.0.0"
+  },
+  "homepage": "https://github.com/sentiance/react-native-sentiance/packages/driving-insights#readme",
+  "repository": "github:sentiance/react-native-sentiance"
+}
