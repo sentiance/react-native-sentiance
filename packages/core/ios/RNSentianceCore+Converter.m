@@ -317,40 +317,18 @@
             return @"ANTICIPATIVE_DRIVER";
         case SENTSegmentTypeBarGoer:
             return @"BAR_GOER";
-        case SENTSegmentTypeBeautyQueen:
-            return @"BEAUTY_QUEEN";
-        case SENTSegmentTypeBrandLoyalBar:
-            return @"BRAND_LOYAL__BAR";
-        case SENTSegmentTypeBrandLoyalCafe:
-            return @"BRAND_LOYAL__CAFE";
-        case SENTSegmentTypeBrandLoyalRestaurant:
-            return @"BRAND_LOYAL__RESTAURANT";
-        case SENTSegmentTypeBrandLoyalRetail:
-            return @"BRAND_LOYAL__RETAIL";
-        case SENTSegmentTypeBrandLoyalty:
-            return @"BRAND_LOYALTY";
-        case SENTSegmentTypeBrandLoyaltyGasStations:
-            return @"BRAND_LOYALTY__GAS_STATIONS";
-        case SENTSegmentTypeBrandLoyaltyRestaurantBar:
-            return @"BRAND_LOYALTY__RESTAURANT_BAR";
-        case SENTSegmentTypeBrandLoyaltySupermarket:
-            return @"BRAND_LOYALTY__SUPERMARKET";
         case SENTSegmentTypeCityDriver:
             return @"CITY_DRIVER";
         case SENTSegmentTypeCityHome:
             return @"CITY_HOME";
         case SENTSegmentTypeCityWorker:
             return @"CITY_WORKER";
-        case SENTSegmentTypeClubber:
-            return @"CLUBBER";
         case SENTSegmentTypeCultureBuff:
             return @"CULTURE_BUFF";
         case SENTSegmentTypeDieHardDriver:
             return @"DIE_HARD_DRIVER";
         case SENTSegmentTypeDistractedDriver:
             return @"DISTRACTED_DRIVER";
-        case SENTSegmentTypeDoItYourselver:
-            return @"DO_IT_YOURSELVER";
         case SENTSegmentTypeDogWalker:
             return @"DOG_WALKER";
         case SENTSegmentTypeEarlyBird:
@@ -359,16 +337,12 @@
             return @"EASY_COMMUTER";
         case SENTSegmentTypeEfficientDriver:
             return @"EFFICIENT_DRIVER";
-        case SENTSegmentTypeFashionista:
-            return @"FASHIONISTA";
         case SENTSegmentTypeFoodie:
             return @"FOODIE";
         case SENTSegmentTypeFrequentFlyer:
             return @"FREQUENT_FLYER";
         case SENTSegmentTypeFulltimeWorker:
             return @"FULLTIME_WORKER";
-        case SENTSegmentTypeGamer:
-            return @"GAMER";
         case SENTSegmentTypeGreenCommuter:
             return @"GREEN_COMMUTER";
         case SENTSegmentTypeHealthyBiker:
@@ -431,34 +405,6 @@
             return @"RECENTLY_MOVED_HOME";
         case SENTSegmentTypeRestoLover:
             return @"RESTO_LOVER";
-        case SENTSegmentTypeRestoLoverAmerican:
-            return @"RESTO_LOVER__AMERICAN";
-        case SENTSegmentTypeRestoLoverAsian:
-            return @"RESTO_LOVER__ASIAN";
-        case SENTSegmentTypeRestoLoverBarbecue:
-            return @"RESTO_LOVER__BARBECUE";
-        case SENTSegmentTypeRestoLoverFastfood:
-            return @"RESTO_LOVER__FASTFOOD";
-        case SENTSegmentTypeRestoLoverFrench:
-            return @"RESTO_LOVER__FRENCH";
-        case SENTSegmentTypeRestoLoverGerman:
-            return @"RESTO_LOVER__GERMAN";
-        case SENTSegmentTypeRestoLoverGreek:
-            return @"RESTO_LOVER__GREEK";
-        case SENTSegmentTypeRestoLoverGrill:
-            return @"RESTO_LOVER__GRILL";
-        case SENTSegmentTypeRestoLoverInternational:
-            return @"RESTO_LOVER__INTERNATIONAL";
-        case SENTSegmentTypeRestoLoverItalian:
-            return @"RESTO_LOVER__ITALIAN";
-        case SENTSegmentTypeRestoLoverMediterranean:
-            return @"RESTO_LOVER__MEDITERRANEAN";
-        case SENTSegmentTypeRestoLoverMexican:
-            return @"RESTO_LOVER__MEXICAN";
-        case SENTSegmentTypeRestoLoverSeafood:
-            return @"RESTO_LOVER__SEAFOOD";
-        case SENTSegmentTypeRestoLoverSnack:
-            return @"RESTO_LOVER__SNACK";
         case SENTSegmentTypeRuralHome:
             return @"RURAL_HOME";
         case SENTSegmentTypeRuralWorker:
