@@ -16,6 +16,11 @@
   "peerDependencies": {
     "@sentiance-react-native/core": "6.0.0"
   },
-  "homepage": "https://github.com/sentiance/react-native-sentiance/packages/driving-insights#readme",
-  "repository": "github:sentiance/react-native-sentiance"
+  "author": "",
+  "license": "",
+  "homepage": "https://github.com/sentiance/react-native-sentiance/user-context#readme",
+  "repository": "github:sentiance/react-native-sentiance",
+  "publishConfig": {
+    "access": "public"
+  }
 }
