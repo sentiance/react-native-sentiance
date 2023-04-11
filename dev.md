@@ -53,7 +53,10 @@ A typical, minimalistic SDK module's `package.json` file looks like this:
     "@sentiance-react-native/core": "6.0.0"
   },
   "homepage": "https://github.com/sentiance/react-native-sentiance/packages/new-module#readme",
-  "repository": "github:sentiance/react-native-sentiance"
+  "repository": "github:sentiance/react-native-sentiance",
+  "publishConfig": {
+    "access": "public"
+  }
 }
 ```
 
