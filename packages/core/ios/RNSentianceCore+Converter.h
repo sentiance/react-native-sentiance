@@ -51,5 +51,6 @@ typedef NS_ENUM(NSInteger, UIBackgroundRefreshStatus);
 - (NSSet<NSNumber*> *)convertStringTransmittableDataTypes:(NSArray<NSString*>*)stringDataTypes;
 - (NSDictionary *)convertDrivingInsights:(SENTDrivingInsights *)drivingInsights;
 - (NSArray *)convertHarshDrivingEvents:(NSArray<SENTHarshDrivingEvent*> *)harshDrivingEvents;
+- (NSArray *)convertPhoneUsageEvents:(NSArray<SENTPhoneUsageEvent*> *)phoneUsageEvents;
 
 @end

@@ -10,13 +10,25 @@ declare module "@sentiance-react-native/driving-insights" {
     /**
      * Smooth driving score, between 0 and 1, where 1 is the perfect score.
      */
-    smoothScore?: number
+    smoothScore?: number;
+    /**
+     * Focused driving score, between 0 and 1, where 1 is the perfect score.
+     */
+    focusScore?: number;
   }
 
-  export interface HarshDrivingEvent {
-    time: string,
-    timeEpoch: number; // in milliseconds
+  export interface DrivingEvent {
+    startTime: string;
+    startTimeEpoch: number; // in milliseconds
+    endTime: string;
+    endTimeEpoch: number; // in milliseconds
+  }
+
+  export interface HarshDrivingEvent extends DrivingEvent {
     magnitude: number
+  }
+
+  export interface PhoneUsageEvent extends DrivingEvent {
   }
 
   export interface TransportEvent {
@@ -56,6 +68,8 @@ declare module "@sentiance-react-native/driving-insights" {
     getDrivingInsights(transportId: string): Promise<DrivingInsights>;
 
     getHarshDrivingEvents(transportId: string): Promise<HarshDrivingEvent[]>;
+
+    getPhoneUsageEvents(transportId: string): Promise<PhoneUsageEvent[]>;
   }
 
   const SentianceDrivingInsights: SentianceDrivingInsights;

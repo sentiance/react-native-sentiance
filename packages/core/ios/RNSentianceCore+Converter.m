@@ -1130,7 +1130,16 @@
     [self addTransportEventInfoToDict:transportEventDict event:drivingInsights.transportEvent];
     dict[@"transportEvent"] = transportEventDict;
 
-    safetyScoresDict[@"smoothScore"] = drivingInsights.safetyScores.smoothScore;
+    NSNumber* smoothScore = drivingInsights.safetyScores.smoothScore;
+    if (smoothScore != nil) {
+        safetyScoresDict[@"smoothScore"] = smoothScore;
+    }
+
+    NSNumber* focusScore = drivingInsights.safetyScores.focusScore;
+    if (focusScore != nil) {
+        safetyScoresDict[@"focusScore"] = focusScore;
+    }
+
     dict[@"safetyScores"] = safetyScoresDict;
 
     return dict;
@@ -1145,10 +1154,29 @@
 }
 
 - (NSDictionary<NSString *, NSNumber *> *)convertHarshDrivingEvent:(SENTHarshDrivingEvent *)harshDrivingEvent {
-    NSMutableDictionary<NSString *, NSNumber *> *dict = [[NSMutableDictionary alloc] init];
-    dict[@"time"] = [harshDrivingEvent.date description];
-    dict[@"timeEpoch"] = @((long) (harshDrivingEvent.date.timeIntervalSince1970 * 1000));
+    NSMutableDictionary<NSString *, NSNumber *> *dict = [self convertDrivingEvent:harshDrivingEvent];
     dict[@"magnitude"] = @(harshDrivingEvent.magnitude);
+    return dict;
+}
+
+- (NSArray<NSDictionary<NSString *, NSNumber *> *> *)convertPhoneUsageEvents:(NSArray<SENTPhoneUsageEvent*> *)phoneUsageEvents {
+    NSMutableArray <NSDictionary<NSString *, NSNumber *> *> *array = [[NSMutableArray alloc] init];
+    for (SENTPhoneUsageEvent *event in phoneUsageEvents) {
+        [array addObject:[self convertPhoneUsage:event]];
+    }
+    return array;
+}
+
+- (NSDictionary<NSString *, NSNumber *> *)convertPhoneUsageEvent:(SENTPhoneUsageEvent *)phoneUsageEvent {
+    return [self convertDrivingEvent:phoneUsageEvent];
+}
+
+- (NSMutableDictionary<NSString *, NSNumber *> *)convertDrivingEvent:(SENTDrivingEvent *)drivingEvent {
+    NSMutableDictionary<NSString *, NSNumber *> *dict = [[NSMutableDictionary alloc] init];
+    dict[@"startTime"] = [drivingEvent.startDate description];
+    dict[@"startTimeEpoch"] = @((long) (drivingEvent.startDate.timeIntervalSince1970 * 1000));
+    dict[@"endTime"] = [drivingEvent.endDate description];
+    dict[@"endTimeEpoch"] = @((long) (drivingEvent.endDate.timeIntervalSince1970 * 1000));
     return dict;
 }
 

@@ -18,6 +18,7 @@ import com.sentiance.sdk.drivinginsights.api.DrivingInsights;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsightsApi;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsightsReadyListener;
 import com.sentiance.sdk.drivinginsights.api.HarshDrivingEvent;
+import com.sentiance.sdk.drivinginsights.api.PhoneUsageEvent;
 
 import java.util.List;
 
@@ -63,6 +64,24 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
       WritableArray array = Arguments.createArray();
       for (HarshDrivingEvent event : harshDrivingEvents) {
         array.pushMap(DrivingInsightsConverter.convertHarshDrivingEvent(event));
+      }
+      promise.resolve(array);
+    } catch (Exception e) {
+      promise.reject(e);
+    }
+  }
+
+  @ReactMethod
+  public void getPhoneUsageEvents(String transportId, final Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    try {
+      List<PhoneUsageEvent> phoneUsageEvents = mDrivingInsightsApi.getPhoneUsageEvents(transportId);
+      WritableArray array = Arguments.createArray();
+      for (PhoneUsageEvent event : phoneUsageEvents) {
+        array.pushMap(DrivingInsightsConverter.convertPhoneUsageEvent(event));
       }
       promise.resolve(array);
     } catch (Exception e) {
