@@ -1162,7 +1162,7 @@
 - (NSArray<NSDictionary<NSString *, NSNumber *> *> *)convertPhoneUsageEvents:(NSArray<SENTPhoneUsageEvent*> *)phoneUsageEvents {
     NSMutableArray <NSDictionary<NSString *, NSNumber *> *> *array = [[NSMutableArray alloc] init];
     for (SENTPhoneUsageEvent *event in phoneUsageEvents) {
-        [array addObject:[self convertPhoneUsage:event]];
+        [array addObject:[self convertPhoneUsageEvent:event]];
     }
     return array;
 }
