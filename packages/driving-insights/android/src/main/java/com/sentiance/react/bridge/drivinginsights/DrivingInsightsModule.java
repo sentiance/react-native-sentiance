@@ -109,7 +109,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
 
   @Override
   @ReactMethod
-  public void addListener(String eventName, int subscriptionId, Promise promise) {
+  public void addNativeListener(String eventName, int subscriptionId, Promise promise) {
     if (rejectIfNotInitialized(promise)) {
       return;
     }
@@ -124,7 +124,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
 
   @Override
   @ReactMethod
-  protected void removeListener(String eventName, int subscriptionId, Promise promise) {
+  protected void removeNativeListener(String eventName, int subscriptionId, Promise promise) {
     if (rejectIfNotInitialized(promise)) {
       return;
     }
@@ -132,6 +132,10 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
     removeSubscription(subscriptionId, eventName);
     promise.resolve(null);
   }
+
+  @Override
+  @ReactMethod
+  protected void addListener(String eventName) {}
 
   @Override
   @ReactMethod

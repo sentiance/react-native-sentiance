@@ -14,39 +14,15 @@ class SentianceEventEmitter extends NativeEventEmitter {
     if (!nativeModule) {
       throw new Error('Native module cannot have a null value.');
     }
-    if (Platform.OS === 'android') {
-      return this.requireAndroidBindings(nativeModule);
-    } else {
-      return this.requireIosBindings(nativeModule);
-    }
-  }
 
-  requireAndroidBindings(nativeModule) {
-    const hasAddListener = typeof nativeModule.addListener === 'function';
-    const hasRemoveListener = typeof nativeModule.removeListener === 'function';
-
-    if (!hasAddListener) {
-      throw new Error('Native Android module does not expose an addListener function');
-    }
-    if (!hasRemoveListener) {
-      throw new Error('Native Android module does not expose a removeListener function');
-    }
-
-    return {
-      addNativeListener: nativeModule.addListener,
-      removeNativeListener: nativeModule.removeListener
-    };
-  }
-
-  requireIosBindings(nativeModule) {
     const hasAddListener = typeof nativeModule.addNativeListener === 'function';
     const hasRemoveListener = typeof nativeModule.removeNativeListener === 'function';
 
     if (!hasAddListener) {
-      throw new Error('Native iOS module does not expose an addNativeListener function');
+      throw new Error('Native module does not expose an addNativeListener function');
     }
     if (!hasRemoveListener) {
-      throw new Error('Native iOS module does not expose a removeNativeListener function');
+      throw new Error('Native module does not expose a removeNativeListener function');
     }
 
     return {
