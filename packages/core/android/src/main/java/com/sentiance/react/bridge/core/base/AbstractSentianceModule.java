@@ -54,9 +54,11 @@ public abstract class AbstractSentianceModule extends ReactContextBaseJavaModule
     subscriptionsManager.removeSubscription(subscriptionId, eventType);
   }
 
-  protected abstract void removeListener(String eventName, int subscriptionId, Promise promise);
+  protected abstract void removeNativeListener(String eventName, int subscriptionId, Promise promise);
 
-  protected abstract void addListener(String eventName, int subscriptionId, Promise promise);
+  protected abstract void addNativeListener(String eventName, int subscriptionId, Promise promise);
+
+  protected abstract void addListener(String eventName);
 
   protected abstract void removeListeners(Integer count);
 }

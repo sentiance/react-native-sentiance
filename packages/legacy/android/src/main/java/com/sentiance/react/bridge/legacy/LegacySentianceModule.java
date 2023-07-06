@@ -315,15 +315,19 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
 
   @Override
   @ReactMethod
-  protected void addListener(String eventName, int subscriptionId, Promise promise) {
+  protected void addNativeListener(String eventName, int subscriptionId, Promise promise) {
 
   }
 
   @Override
   @ReactMethod
-  protected void removeListener(String eventName, int subscriptionId, Promise promise) {
+  protected void removeNativeListener(String eventName, int subscriptionId, Promise promise) {
 
   }
+
+  @Override
+  @ReactMethod
+  protected void addListener(String eventName) {}
 
   @Override
   @ReactMethod
