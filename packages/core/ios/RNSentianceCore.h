@@ -2,6 +2,7 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
 #import <SENTSDK/SENTSDK.h>
+#import <SENTSDK/SENTSDK-Swift.h>
 
 static NSString * _Nonnull const UserLinkEvent = @"SENTIANCE_USER_LINK_EVENT";
 static NSString * _Nonnull const SdkStatusUpdateEvent = @"SENTIANCE_STATUS_UPDATE_EVENT";
