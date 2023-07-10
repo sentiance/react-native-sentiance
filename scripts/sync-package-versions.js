@@ -20,7 +20,7 @@ function updateVersionNumberForIosModule(module) {
   const iosModuleName = module.iosModuleName;
   const readFile = require('fs').readFile;
   const saveFile = require('fs').writeFileSync;
-  const modulePodspecPath = `${require.main.paths[0].split('node_modules')[0]}../packages/${jsModuleName}/ios/${iosModuleName}.podspec`;
+  const modulePodspecPath = `${require.main.paths[0].split('node_modules')[0]}../packages/${jsModuleName}/${iosModuleName}.podspec`;
   console.log('Found podspec file: ' + modulePodspecPath);
   readFile(modulePodspecPath, 'utf8', function (error, text) {
     const match = text.match('(?<prefix>s.version\\s+=\\s+)"(?<versionCode>.+)"');
