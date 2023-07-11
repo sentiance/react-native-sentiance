@@ -5,8 +5,9 @@ exports.createEventListener = async (eventName: String, emitter: SentianceEventE
     callback(data);
   };
   const subscription = await emitter.addListener(eventName, listener);
-  subscription.remove = async function () {
-    await emitter.clearSubscription(eventName, subscription);
-  }
-  return subscription;
+  return {
+    key: subscription.key,
+    eventName,
+    remove: () => emitter.clearSubscription(eventName, subscription)
+  };
 };

@@ -8,6 +8,7 @@ class SentianceEventEmitter extends NativeEventEmitter {
     const bindings = this.requireNativeBindings(nativeModule);
     this._addNativeListener = bindings.addNativeListener;
     this._removeNativeListener = bindings.removeNativeListener;
+    this._subscriptionsMap = {};
   }
 
   requireNativeBindings(nativeModule) {
@@ -32,16 +33,31 @@ class SentianceEventEmitter extends NativeEventEmitter {
   }
 
   async addListener(eventType, listener, context): EmitterSubscription {
+    if (!this._subscriptionsMap[eventType]) {
+      this._subscriptionsMap[eventType] = [];
+    }
+    const subscriptionsForType = this._subscriptionsMap[eventType];
+    const key = subscriptionsForType.length;
     const subscription = super.addListener(eventType, listener, context);
-    await this._addNativeListener(eventType, subscription.key);
+    subscription.key = key;
+    subscriptionsForType.push(subscription);
+    await this._addNativeListener(eventType, key);
     return subscription;
   }
 
   async clearSubscription(eventType, subscription) {
+    const key = subscription.key;
+    const subscriptionsForType = this._subscriptionsMap[eventType];
+    if (subscriptionsForType) {
+      const targetSubIndex = subscriptionsForType.findIndex(sub => sub.key === key);
+      if (targetSubIndex !== -1) {
+        subscriptionsForType.splice(targetSubIndex, 1);
+      }
+    }
     if (super.removeSubscription != null) {
       super.removeSubscription(subscription);
     } else {
-      // RN 0.64+ no longer provides a removeSubscription function
+      // RN 0.65+ no longer provides a removeSubscription function
       subscription.remove();
     }
     await this._removeNativeListener(eventType, subscription.key);
