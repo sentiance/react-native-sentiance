@@ -14,9 +14,30 @@ import com.sentiance.sdk.ondevice.api.event.TransportEvent;
 import java.util.List;
 
 public class DrivingInsightsConverter {
+
+  public static final String JS_KEY_ID = "id";
+  public static final String JS_KEY_TYPE = "type";
+  public static final String JS_KEY_END_TIME = "endTime";
+  public static final String JS_KEY_DISTANCE = "distance";
+  public static final String JS_KEY_LATITUDE = "latitude";
+  public static final String JS_KEY_ACCURACY = "accuracy";
+  public static final String JS_KEY_LONGITUDE = "longitude";
+  public static final String JS_KEY_WAYPOINTS = "waypoints";
+  public static final String JS_KEY_MAGNITUDE = "magnitude";
+  public static final String JS_KEY_TIMESTAMP = "timestamp";
+  public static final String JS_KEY_START_TIME = "startTime";
+  public static final String JS_KEY_FOCUS_SCORE = "focusScore";
+  public static final String JS_KEY_SMOOTH_SCORE = "smoothScore";
+  public static final String JS_KEY_SAFETY_SCORES = "safetyScores";
+  public static final String JS_KEY_END_TIME_EPOCH = "endTimeEpoch";
+  public static final String JS_KEY_TRANSPORT_MODE = "transportMode";
+  public static final String JS_KEY_TRANSPORT_EVENT = "transportEvent";
+  public static final String JS_KEY_START_TIME_EPOCH = "startTimeEpoch";
+  public static final String JS_KEY_DURATION_SECONDS = "durationInSeconds";
+
   public static WritableMap convertHarshDrivingEvent(HarshDrivingEvent event) {
     WritableMap map = convertDrivingEvent(event);
-    map.putDouble("magnitude", event.getMagnitude());
+    map.putDouble(JS_KEY_MAGNITUDE, event.getMagnitude());
 
     return map;
   }
@@ -28,10 +49,10 @@ public class DrivingInsightsConverter {
   private static WritableMap convertDrivingEvent(DrivingEvent event) {
     WritableMap map = Arguments.createMap();
 
-    map.putString("startTime", event.getStartTime().toString());
-    map.putDouble("startTimeEpoch", event.getStartTime().getEpochTime());
-    map.putString("endTime", event.getEndTime().toString());
-    map.putDouble("endTimeEpoch", event.getEndTime().getEpochTime());
+    map.putString(JS_KEY_START_TIME, event.getStartTime().toString());
+    map.putDouble(JS_KEY_START_TIME_EPOCH, event.getStartTime().getEpochTime());
+    map.putString(JS_KEY_END_TIME, event.getEndTime().toString());
+    map.putDouble(JS_KEY_END_TIME_EPOCH, event.getEndTime().getEpochTime());
 
     return map;
   }
@@ -39,8 +60,8 @@ public class DrivingInsightsConverter {
   public static WritableMap convertDrivingInsights(DrivingInsights drivingInsights) {
     WritableMap map = Arguments.createMap();
 
-    map.putMap("transportEvent", convertTransportEvent(drivingInsights.getTransportEvent()));
-    map.putMap("safetyScores", convertSafetyScores(drivingInsights.getSafetyScores()));
+    map.putMap(JS_KEY_TRANSPORT_EVENT, convertTransportEvent(drivingInsights.getTransportEvent()));
+    map.putMap(JS_KEY_SAFETY_SCORES, convertSafetyScores(drivingInsights.getSafetyScores()));
 
     return map;
   }
@@ -50,12 +71,12 @@ public class DrivingInsightsConverter {
 
     Float smoothScore = safetyScores.getSmoothScore();
     if (smoothScore != null) {
-      map.putDouble("smoothScore", smoothScore);
+      map.putDouble(JS_KEY_SMOOTH_SCORE, smoothScore);
     }
 
     Float focusScore = safetyScores.getFocusScore();
     if (focusScore != null) {
-      map.putDouble("focusScore", focusScore);
+      map.putDouble(JS_KEY_FOCUS_SCORE, focusScore);
     }
 
     return map;
@@ -64,25 +85,25 @@ public class DrivingInsightsConverter {
   private static WritableMap convertTransportEvent(TransportEvent event) {
     WritableMap map = Arguments.createMap();
 
-    map.putString("id", event.getId());
-    map.putString("startTime", event.getStartTime().toString());
-    map.putDouble("startTimeEpoch", event.getStartTime().getEpochTime());
+    map.putString(JS_KEY_ID, event.getId());
+    map.putString(JS_KEY_START_TIME, event.getStartTime().toString());
+    map.putDouble(JS_KEY_START_TIME_EPOCH, event.getStartTime().getEpochTime());
     if (event.getEndTime() != null) {
-      map.putString("endTime", event.getEndTime().toString());
-      map.putDouble("endTimeEpoch", event.getEndTime().getEpochTime());
+      map.putString(JS_KEY_END_TIME, event.getEndTime().toString());
+      map.putDouble(JS_KEY_END_TIME_EPOCH, event.getEndTime().getEpochTime());
 
       Long durationInSeconds = event.getDurationInSeconds();
       if (durationInSeconds != null) {
-        map.putDouble("durationInSeconds", durationInSeconds);
+        map.putDouble(JS_KEY_DURATION_SECONDS, durationInSeconds);
       }
     }
 
-    map.putString("type", event.getEventType().toString());
-    map.putString("transportMode", event.getTransportMode().toString());
-    map.putArray("waypoints", convertWaypointList(event.getWaypoints()));
+    map.putString(JS_KEY_TYPE, event.getEventType().toString());
+    map.putString(JS_KEY_TRANSPORT_MODE, event.getTransportMode().toString());
+    map.putArray(JS_KEY_WAYPOINTS, convertWaypointList(event.getWaypoints()));
 
     if (event.getDistanceInMeters() != null) {
-      map.putInt("distance", event.getDistanceInMeters());
+      map.putInt(JS_KEY_DISTANCE, event.getDistanceInMeters());
     }
 
     return map;
@@ -99,10 +120,10 @@ public class DrivingInsightsConverter {
   public static WritableMap convertWaypoint(Waypoint waypoint) {
     WritableMap waypointMap = Arguments.createMap();
 
-    waypointMap.putDouble("latitude", waypoint.getLatitude());
-    waypointMap.putDouble("longitude", waypoint.getLongitude());
-    waypointMap.putInt("accuracy", waypoint.getAccuracyInMeters());
-    waypointMap.putDouble("timestamp", waypoint.getTimestamp());
+    waypointMap.putDouble(JS_KEY_LATITUDE, waypoint.getLatitude());
+    waypointMap.putDouble(JS_KEY_LONGITUDE, waypoint.getLongitude());
+    waypointMap.putInt(JS_KEY_ACCURACY, waypoint.getAccuracyInMeters());
+    waypointMap.putDouble(JS_KEY_TIMESTAMP, waypoint.getTimestamp());
 
     return waypointMap;
   }

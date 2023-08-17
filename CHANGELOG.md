@@ -1,1 +1,5 @@
-For the full list of changes, check [docs.sentiance.com](https://docs.sentiance.com/sdk/changelog/react-native).
+# Change Log
+All notable changes to this project will be documented in this file.
+
+## Unreleased
+

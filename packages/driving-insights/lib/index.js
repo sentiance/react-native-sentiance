@@ -1,13 +1,15 @@
 const drivingInsights = require('./driving-insights');
 
-const getDrivingInsights = (transportId: String) => drivingInsights.getDrivingInsights(transportId);
-const getHarshDrivingEvents = (transportId: String) => drivingInsights.getHarshDrivingEvents(transportId);
-const getPhoneUsageEvents = (transportId: String) => drivingInsights.getPhoneUsageEvents(transportId);
+const getDrivingInsights = (transportId) => drivingInsights.getDrivingInsights(transportId);
+const getHarshDrivingEvents = (transportId) => drivingInsights.getHarshDrivingEvents(transportId);
+const getPhoneUsageEvents = (transportId) => drivingInsights.getPhoneUsageEvents(transportId);
 const addDrivingInsightsReadyListener = drivingInsights._addDrivingInsightsReadyListener;
+const events = drivingInsights.events;
 
 module.exports = {
   getDrivingInsights,
   getHarshDrivingEvents,
   getPhoneUsageEvents,
-  addDrivingInsightsReadyListener
+  addDrivingInsightsReadyListener,
+  events
 };

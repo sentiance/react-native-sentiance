@@ -7,27 +7,27 @@ import androidx.annotation.NonNull;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.Sentiance;
 
 public abstract class AbstractSentianceModule extends ReactContextBaseJavaModule {
 
-  protected final ReactApplicationContext reactContext;
-  protected final Sentiance sdk;
-  protected final SentianceSubscriptionsManager subscriptionsManager;
+  protected final ReactApplicationContext mReactContext;
+  protected final Sentiance mSdk;
+  protected final SentianceSubscriptionsManager mSubscriptionsManager;
 
-  public AbstractSentianceModule(ReactApplicationContext reactApplicationContext) {
+  public AbstractSentianceModule(ReactApplicationContext reactApplicationContext,
+                                 Sentiance sentiance, SentianceSubscriptionsManager subscriptionsManager) {
     super(reactApplicationContext);
-    reactContext = reactApplicationContext;
-    sdk = Sentiance.getInstance(reactContext);
-    subscriptionsManager = new SentianceSubscriptionsManager();
+    mReactContext = reactApplicationContext;
+    mSdk = sentiance;
+    mSubscriptionsManager = subscriptionsManager;
   }
 
   @Override
   public void initialize() {
-    addSupportedEventSubscriptions(subscriptionsManager);
+    addSupportedEventSubscriptions(mSubscriptionsManager);
   }
 
   protected boolean rejectIfNotInitialized(Promise promise) {
@@ -39,7 +39,7 @@ public abstract class AbstractSentianceModule extends ReactContextBaseJavaModule
   }
 
   private boolean isSdkInitialized() {
-    return sdk.getInitState() == InitState.INITIALIZED;
+    return mSdk.getInitState() == InitState.INITIALIZED;
   }
 
   protected void addSupportedEventSubscriptions(SentianceSubscriptionsManager subscriptionsManager) {
@@ -47,11 +47,11 @@ public abstract class AbstractSentianceModule extends ReactContextBaseJavaModule
   }
 
   protected <T> void addSubscription(@NonNull String eventType, int subscriptionId, @NonNull T eventEmitterLogic) {
-    subscriptionsManager.addSubscription(eventType, subscriptionId, eventEmitterLogic);
+    mSubscriptionsManager.addSubscription(eventType, subscriptionId, eventEmitterLogic);
   }
 
   protected <T> void removeSubscription(int subscriptionId, @NonNull String eventType) {
-    subscriptionsManager.removeSubscription(subscriptionId, eventType);
+    mSubscriptionsManager.removeSubscription(subscriptionId, eventType);
   }
 
   protected abstract void removeNativeListener(String eventName, int subscriptionId, Promise promise);

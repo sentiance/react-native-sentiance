@@ -32,7 +32,7 @@ class SentianceEventEmitter extends NativeEventEmitter {
     };
   }
 
-  async addListener(eventType, listener, context): EmitterSubscription {
+  async addListener(eventType, listener, context) {
     if (!this._subscriptionsMap[eventType]) {
       this._subscriptionsMap[eventType] = [];
     }
@@ -65,3 +65,4 @@ class SentianceEventEmitter extends NativeEventEmitter {
 }
 
 module.exports = SentianceEventEmitter;
+

@@ -11,7 +11,6 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +23,7 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
+import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
 import com.sentiance.react.bridge.core.utils.SentianceUtils;
 import com.sentiance.react.bridge.core.utils.UserCreationCompletionHandler;
 import com.sentiance.sdk.InitState;
@@ -38,14 +38,12 @@ import com.sentiance.sdk.reset.ResetError;
 import com.sentiance.sdk.trip.StartTripError;
 import com.sentiance.sdk.trip.StopTripError;
 import com.sentiance.sdk.trip.TransportMode;
-import com.sentiance.sdk.trip.TripTimeoutListener;
 import com.sentiance.sdk.trip.TripType;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,7 +55,7 @@ public class SentianceModule extends AbstractSentianceModule {
   private final SentianceEmitter emitter;
 
   public SentianceModule(ReactApplicationContext reactContext) {
-    super(reactContext);
+    super(reactContext, Sentiance.getInstance(reactContext), new SentianceSubscriptionsManager());
     sentianceHelper = SentianceHelper.getInstance(reactContext);
     emitter = new SentianceEmitter(reactContext);
   }
@@ -153,19 +151,19 @@ public class SentianceModule extends AbstractSentianceModule {
   @ReactMethod
   @SuppressWarnings("unused")
   public void userExists(final Promise promise) {
-    promise.resolve(sdk.userExists());
+    promise.resolve(mSdk.userExists());
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
   public void isUserLinked(final Promise promise) {
-    promise.resolve(sdk.isUserLinked());
+    promise.resolve(mSdk.isUserLinked());
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
   public void reset(final Promise promise) {
-    sdk.reset()
+    mSdk.reset()
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
           promise.resolve(SentianceConverter.convertResetResult(pendingOperation.getResult()));
@@ -179,7 +177,7 @@ public class SentianceModule extends AbstractSentianceModule {
   @ReactMethod
   @SuppressWarnings("unused")
   public void getInitState(final Promise promise) {
-    InitState initState = sdk.getInitState();
+    InitState initState = mSdk.getInitState();
     promise.resolve(SentianceConverter.convertInitState(initState));
   }
 
@@ -197,7 +195,7 @@ public class SentianceModule extends AbstractSentianceModule {
       }
     }
     final TransportMode transportModeHint = SentianceConverter.toTransportMode(hint);
-    sdk.startTrip(metadataMap, transportModeHint)
+    mSdk.startTrip(metadataMap, transportModeHint)
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
           promise.resolve(SentianceConverter.createEmptyResult());
@@ -215,7 +213,7 @@ public class SentianceModule extends AbstractSentianceModule {
     if (rejectIfNotInitialized(promise)) {
       return;
     }
-    sdk.stopTrip()
+    mSdk.stopTrip()
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
           promise.resolve(SentianceConverter.createEmptyResult());
@@ -234,14 +232,14 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    SdkStatus sdkStatus = sdk.getSdkStatus();
+    SdkStatus sdkStatus = mSdk.getSdkStatus();
     promise.resolve(SentianceConverter.convertSdkStatus(sdkStatus));
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
   public void getVersion(final Promise promise) {
-    String version = sdk.getVersion();
+    String version = mSdk.getVersion();
     promise.resolve(version);
   }
 
@@ -257,7 +255,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
     final TripType type = SentianceConverter.toTripType(typeParam);
-    Boolean isTripOngoing = sdk.isTripOngoing(type);
+    Boolean isTripOngoing = mSdk.isTripOngoing(type);
     promise.resolve(isTripOngoing);
   }
 
@@ -268,7 +266,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    sdk.requestUserAccessToken()
+    mSdk.requestUserAccessToken()
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
           Token token = pendingOperation.getResult();
@@ -288,7 +286,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    String userId = sdk.getUserId();
+    String userId = mSdk.getUserId();
     promise.resolve(userId);
   }
 
@@ -304,7 +302,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    sdk.addUserMetadataField(label, value);
+    mSdk.addUserMetadataField(label, value);
     promise.resolve(null);
   }
 
@@ -316,7 +314,7 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     final Map<String, String> metadata = SentianceConverter.convertReadableMapToMap(inputMetadata);
-    boolean result = sdk.addTripMetadata(metadata);
+    boolean result = mSdk.addTripMetadata(metadata);
     promise.resolve(result);
   }
 
@@ -333,7 +331,7 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     final Map<String, String> metadata = SentianceConverter.convertReadableMapToMap(inputMetadata);
-    sdk.addUserMetadataFields(metadata);
+    mSdk.addUserMetadataFields(metadata);
     promise.resolve(null);
   }
 
@@ -349,7 +347,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    sdk.removeUserMetadataField(label);
+    mSdk.removeUserMetadataField(label);
     promise.resolve(null);
   }
 
@@ -360,7 +358,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    sdk.submitDetections()
+    mSdk.submitDetections()
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
           promise.resolve(SentianceConverter.createEmptyResult());
@@ -378,7 +376,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    long wifiQuotaLimit = sdk.getWiFiQuotaLimit();
+    long wifiQuotaLimit = mSdk.getWiFiQuotaLimit();
     promise.resolve(Long.toString(wifiQuotaLimit));
   }
 
@@ -389,7 +387,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    long wifiQuotaUsage = sdk.getWiFiQuotaUsage();
+    long wifiQuotaUsage = mSdk.getWiFiQuotaUsage();
     promise.resolve(Long.toString(wifiQuotaUsage));
   }
 
@@ -400,7 +398,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    long mobileQuotaLimit = sdk.getMobileQuotaLimit();
+    long mobileQuotaLimit = mSdk.getMobileQuotaLimit();
     promise.resolve(Long.toString(mobileQuotaLimit));
   }
 
@@ -411,7 +409,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    long mobileQuotaUsage = sdk.getMobileQuotaUsage();
+    long mobileQuotaUsage = mSdk.getMobileQuotaUsage();
     promise.resolve(Long.toString(mobileQuotaUsage));
   }
 
@@ -422,7 +420,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    long diskQuotaLimit = sdk.getDiskQuotaLimit();
+    long diskQuotaLimit = mSdk.getDiskQuotaLimit();
     promise.resolve(Long.toString(diskQuotaLimit));
   }
 
@@ -433,7 +431,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    long diskQuotaUsage = sdk.getDiskQuotaUsage();
+    long diskQuotaUsage = mSdk.getDiskQuotaUsage();
     promise.resolve(Long.toString(diskQuotaUsage));
   }
 
@@ -445,7 +443,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    sdk.disableBatteryOptimization();
+    mSdk.disableBatteryOptimization();
     promise.resolve(null);
   }
 
@@ -456,7 +454,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Sentiance.getInstance(reactContext).setUserActivityListener(emitter::sendUserActivityUpdate);
+    Sentiance.getInstance(mReactContext).setUserActivityListener(emitter::sendUserActivityUpdate);
     promise.resolve(null);
   }
 
@@ -467,7 +465,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    UserActivity activity = Sentiance.getInstance(reactContext).getUserActivity();
+    UserActivity activity = Sentiance.getInstance(mReactContext).getUserActivity();
     promise.resolve(SentianceConverter.convertUserActivity(activity));
   }
 
@@ -479,11 +477,11 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     Notification notification = SentianceUtils.createNotificationFromManifestData(
-            new WeakReference<>(reactContext.getApplicationContext()),
+            new WeakReference<>(mReactContext.getApplicationContext()),
             title,
             message);
     if (notification != null) {
-      Sentiance.getInstance(reactContext)
+      Sentiance.getInstance(mReactContext)
                .updateSdkNotification(notification);
     }
 
@@ -497,7 +495,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Sentiance.getInstance(reactContext).setAppSessionDataCollectionEnabled(enabled);
+    Sentiance.getInstance(mReactContext).setAppSessionDataCollectionEnabled(enabled);
     promise.resolve(null);
   }
 
@@ -508,7 +506,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    promise.resolve(Sentiance.getInstance(reactContext).isAppSessionDataCollectionEnabled());
+    promise.resolve(Sentiance.getInstance(mReactContext).isAppSessionDataCollectionEnabled());
   }
 
   @ReactMethod
@@ -518,7 +516,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Sentiance.getInstance(reactContext).setSdkStatusUpdateListener(sentianceHelper.getOnSdkStatusUpdateListener());
+    Sentiance.getInstance(mReactContext).setSdkStatusUpdateListener(sentianceHelper.getOnSdkStatusUpdateListener());
     promise.resolve(null);
   }
 
@@ -529,7 +527,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    Sentiance.getInstance(reactContext)
+    Sentiance.getInstance(mReactContext)
       .setTripTimeoutListener(emitter::sendOnTripTimedOutEvent);
     promise.resolve(null);
   }
@@ -545,7 +543,7 @@ public class SentianceModule extends AbstractSentianceModule {
     for (Object rawType : rawTypes) {
       dataTypes.add(TransmittableDataType.valueOf((String) rawType));
     }
-    sdk.setTransmittableDataTypes(dataTypes);
+    mSdk.setTransmittableDataTypes(dataTypes);
     promise.resolve(null);
   }
 
@@ -556,7 +554,7 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     WritableArray args = Arguments.createArray();
-    Set<TransmittableDataType> transmittableDataTypes = sdk.getTransmittableDataTypes();
+    Set<TransmittableDataType> transmittableDataTypes = mSdk.getTransmittableDataTypes();
     for (TransmittableDataType type : transmittableDataTypes) {
       args.pushString(type.name());
     }

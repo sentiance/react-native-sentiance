@@ -30,6 +30,18 @@ jobs:
       - checkout
       - run: npm install
       - run: npm run lint
+      - run: npm run test
+  android_test:
+    docker:
+      - image: cimg/android:2022.01.1-node
+    environment:
+      BUNDLE_PATH: vendor/bundle
+      _JAVA_OPTIONS: -Xmx3g
+    steps:
+      - checkout
+      - run: java -version
+      - run: npm install
+      - run: npm run androidTest
   deploy:
     <<: *defaults
     steps:
@@ -61,6 +73,10 @@ workflows:
   workflow:
     jobs:
       - test:
+          filters:
+            tags:
+              only: /^v.*/
+      - android_test:
           filters:
             tags:
               only: /^v.*/
