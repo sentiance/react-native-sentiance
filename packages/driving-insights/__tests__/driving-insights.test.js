@@ -13,7 +13,10 @@ describe('Driving insights tests', () => {
     };
     const expectedSafetyScores = {
       smoothScore: 0.77,
-      focusScore: 0.66
+      focusScore: 0.66,
+      callWhileMovingScore: 0.55,
+      legalScore: 0.44,
+      overallScore: 0.33,
     };
 
     runOnEachPlatform(platform => {
@@ -23,8 +26,8 @@ describe('Driving insights tests', () => {
       });
 
       mockGetDrivingInsights.mockImplementation(transportId => ({
-        transportEvent: expectedTransportEvent,
-        safetyScores: expectedSafetyScores
+        transportEvent: JSON.parse(JSON.stringify(expectedTransportEvent)),
+        safetyScores: JSON.parse(JSON.stringify(expectedSafetyScores))
       }));
 
       const drivingInsightsApi = require('../lib');
@@ -52,7 +55,7 @@ describe('Driving insights tests', () => {
         getHarshDrivingEvents: mockGetHarshDrivingEvents,
       });
 
-      mockGetHarshDrivingEvents.mockImplementation(transportId => expectedHarshEvents);
+      mockGetHarshDrivingEvents.mockImplementation(transportId => JSON.parse(JSON.stringify(expectedHarshEvents)));
 
       const drivingInsightsApi = require('../lib');
       const transportId = 'transport_id';
@@ -65,7 +68,7 @@ describe('Driving insights tests', () => {
 
   describe("Get phone usage events returns expected results", () => {
 
-    const expectedPhoneUsageEvents = Array(3).map(() => ({
+    const expectedPhoneUsageEvents = [...Array(3)].map(() => ({
       startTime: Date(),
       endTime: Date()
     }));
@@ -76,7 +79,7 @@ describe('Driving insights tests', () => {
         getPhoneUsageEvents: mockGetPhoneUsageEvents,
       });
 
-      mockGetPhoneUsageEvents.mockImplementation(transportId => expectedPhoneUsageEvents);
+      mockGetPhoneUsageEvents.mockImplementation(transportId => JSON.parse(JSON.stringify(expectedPhoneUsageEvents)));
 
       const drivingInsightsApi = require('../lib');
       const transportId = 'transport_id';
@@ -84,6 +87,83 @@ describe('Driving insights tests', () => {
 
       expect(mockGetPhoneUsageEvents).toHaveBeenCalledWith(transportId);
       expect(phoneUsageEvents).toEqual(expectedPhoneUsageEvents);
+    });
+  });
+
+  describe("Get call while moving events returns expected results", () => {
+
+    const expectedCallWhileMovingEvents = [...Array(3)].map((value, index) => ({
+      startTime: Date(),
+      endTime: Date(),
+      maxTravelledSpeedInMps: 2.5 * (index + 1),
+      minTravelledSpeedInMps: 1.9 * (index + 1)
+    }));
+
+    runOnEachPlatform(platform => {
+      const mockGetCallWhileMovingEvents = jest.fn();
+      mockNativeDrivingInsightsModule(platform, {
+        getCallWhileMovingEvents: mockGetCallWhileMovingEvents,
+      });
+
+      mockGetCallWhileMovingEvents.mockImplementation(transportId => JSON.parse(JSON.stringify(expectedCallWhileMovingEvents)));
+
+      const drivingInsightsApi = require('../lib');
+      const transportId = 'transport_id';
+      const callWhileMovingEvents = drivingInsightsApi.getCallWhileMovingEvents(transportId);
+
+      expect(mockGetCallWhileMovingEvents).toHaveBeenCalledWith(transportId);
+      expect(callWhileMovingEvents).toEqual(expectedCallWhileMovingEvents);
+    });
+  });
+
+  describe("Get speeding events returns expected results", () => {
+
+    const expectedSpeedingEvents = [...Array(3)].map((value, index) => ({
+      startTime: Date(),
+      endTime: Date(),
+      waypoints: [
+        {
+          latitude: 12.5685,
+          longitude: 34.596758,
+          accuracy: 20.0,
+          timestamp: Date.now(),
+          speedInMps: 5.5,
+          speedLimitInMps: 5.5,
+          hasUnlimitedSpeedLimit: false
+        },
+        {
+          latitude: 12.5685,
+          longitude: 34.596758,
+          accuracy: 20.0,
+          timestamp: Date.now(),
+          speedInMps: 5.5,
+          hasUnlimitedSpeedLimit: false
+        },
+        {
+          latitude: 12.5685,
+          longitude: 34.596758,
+          accuracy: 20.0,
+          timestamp: Date.now(),
+          speedInMps: 5.5,
+          hasUnlimitedSpeedLimit: true
+        },
+      ]
+    }));
+
+    runOnEachPlatform(platform => {
+      const mockGetSpeedingEvents = jest.fn();
+      mockNativeDrivingInsightsModule(platform, {
+        getSpeedingEvents: mockGetSpeedingEvents,
+      });
+
+      mockGetSpeedingEvents.mockImplementation(transportId => JSON.parse(JSON.stringify(expectedSpeedingEvents)));
+
+      const drivingInsightsApi = require('../lib');
+      const transportId = 'transport_id';
+      const speedingEvents = drivingInsightsApi.getSpeedingEvents(transportId);
+
+      expect(mockGetSpeedingEvents).toHaveBeenCalledWith(transportId);
+      expect(speedingEvents).toEqual(expectedSpeedingEvents);
     });
   });
 
@@ -99,7 +179,7 @@ describe('Driving insights tests', () => {
         .mockImplementation((eventName, subscriptionId) => {
           capturedEventNames.push(eventName);
           capturedSubscriptionIds.push(subscriptionId);
-      });
+        });
       const removeNativeListener = activeModule.removeNativeListener
         .mockImplementation((eventName, subscriptionId) => {
           capturedEventNames.push(eventName);

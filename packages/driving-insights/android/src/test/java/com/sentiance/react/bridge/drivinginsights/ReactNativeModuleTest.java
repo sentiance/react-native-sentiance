@@ -27,6 +27,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.robolectric.annotation.Config;
 
+// TODO: move this class to the core module so that it may be shared with other modules
 @Config(manifest= Config.NONE)
 @PowerMockIgnore({"org.mockito.*", "org.robolectric.*", "android.*", "jdk.internal.reflect.*"})
 @PrepareForTest(Arguments.class)

@@ -1,37 +1,37 @@
-package com.sentiance.react.bridge.drivinginsights.util;
+package com.sentiance.react.bridge.drivinginsights.util.validators;
 
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_ACCURACY;
+import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_CALL_WHILE_MOVING_SCORE;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_DISTANCE;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_DURATION_SECONDS;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_END_TIME;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_END_TIME_EPOCH;
+import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_FOCUS_SCORE;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_ID;
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_LATITUDE;
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_LONGITUDE;
+import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_LEGAL_SCORE;
+import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_OVERALL_SCORE;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_SAFETY_SCORES;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_SMOOTH_SCORE;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_START_TIME;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_START_TIME_EPOCH;
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_TIMESTAMP;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_TRANSPORT_EVENT;
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_WAYPOINTS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.JavaOnlyMap;
-import com.facebook.react.bridge.ReadableArray;
-import com.facebook.react.bridge.ReadableMap;
 import com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsights;
 import com.sentiance.sdk.drivinginsights.api.SafetyScores;
-import com.sentiance.sdk.ondevice.api.Waypoint;
 import com.sentiance.sdk.ondevice.api.event.TransportEvent;
 
-import java.util.List;
+public class DrivingInsightsBridgeValidator implements BridgeValidator<DrivingInsights> {
 
-public class DrivingInsightsJsPayloadValidator implements JsPayloadValidator<DrivingInsights> {
+  private WaypointsBridgeValidator waypointsValidator;
+
+  public DrivingInsightsBridgeValidator() {
+    waypointsValidator = new WaypointsBridgeValidator();
+  }
 
   @Override
   public void validate(DrivingInsights expected, JavaOnlyMap actual) {
@@ -86,33 +86,38 @@ public class DrivingInsightsJsPayloadValidator implements JsPayloadValidator<Dri
         transformedTransportEvent.getDouble(JS_KEY_DISTANCE), 0.001);
     }
 
-    validateWaypoints(transportEvent.getWaypoints(), transformedTransportEvent);
-  }
-
-  private void validateWaypoints(List<Waypoint> waypoints, JavaOnlyMap transformedTransportEvent) {
-    ReadableArray transformedWaypoints = transformedTransportEvent.getArray(JS_KEY_WAYPOINTS);
-    for (int i = 0; i < waypoints.size(); i++) {
-      Waypoint waypoint = waypoints.get(i);
-      ReadableMap transformedWaypoint = transformedWaypoints.getMap(i);
-
-      if (transformedWaypoint != null) {
-        assertEquals(
-          waypoint.getLatitude(),
-          transformedWaypoint.getDouble(JS_KEY_LATITUDE), 0.001);
-        assertEquals(
-          waypoint.getLongitude(),
-          transformedWaypoint.getDouble(JS_KEY_LONGITUDE), 0.001);
-        assertEquals(
-          waypoint.getAccuracyInMeters(),
-          transformedWaypoint.getInt(JS_KEY_ACCURACY), 0.001);
-        assertEquals(
-          waypoint.getTimestamp(),
-          transformedWaypoint.getDouble(JS_KEY_TIMESTAMP), 0.001);
-      }
-    }
+    waypointsValidator.validate(transportEvent.getWaypoints(), transformedTransportEvent);
   }
 
   private void validateSafetyScores(@NonNull SafetyScores safetyScores, JavaOnlyMap transformedSafetyScores) {
-    assertEquals(safetyScores.getSmoothScore(), transformedSafetyScores.getDouble(JS_KEY_SMOOTH_SCORE), 0.0);
+    if (safetyScores.getSmoothScore() == null) {
+      assertFalse(transformedSafetyScores.hasKey(JS_KEY_SMOOTH_SCORE));
+    } else {
+      assertEquals(safetyScores.getSmoothScore(), transformedSafetyScores.getDouble(JS_KEY_SMOOTH_SCORE), 0.0);
+    }
+
+    if (safetyScores.getFocusScore() == null) {
+      assertFalse(transformedSafetyScores.hasKey(JS_KEY_FOCUS_SCORE));
+    } else {
+      assertEquals(safetyScores.getFocusScore(), transformedSafetyScores.getDouble(JS_KEY_FOCUS_SCORE), 0.0);
+    }
+
+    if (safetyScores.getCallWhileMovingScore() == null) {
+      assertFalse(transformedSafetyScores.hasKey(JS_KEY_CALL_WHILE_MOVING_SCORE));
+    } else {
+      assertEquals(safetyScores.getCallWhileMovingScore(), transformedSafetyScores.getDouble(JS_KEY_CALL_WHILE_MOVING_SCORE), 0.0);
+    }
+
+    if (safetyScores.getLegalScore() == null) {
+      assertFalse(transformedSafetyScores.hasKey(JS_KEY_LEGAL_SCORE));
+    } else {
+      assertEquals(safetyScores.getLegalScore(), transformedSafetyScores.getDouble(JS_KEY_LEGAL_SCORE), 0.0);
+    }
+
+    if (safetyScores.getOverallScore() == null) {
+      assertFalse(transformedSafetyScores.hasKey(JS_KEY_OVERALL_SCORE));
+    } else {
+      assertEquals(safetyScores.getOverallScore(), transformedSafetyScores.getDouble(JS_KEY_OVERALL_SCORE), 0.0);
+    }
   }
 }

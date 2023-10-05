@@ -3,11 +3,13 @@ package com.sentiance.react.bridge.drivinginsights;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.sentiance.sdk.drivinginsights.api.CallWhileMovingEvent;
 import com.sentiance.sdk.drivinginsights.api.DrivingEvent;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsights;
 import com.sentiance.sdk.drivinginsights.api.HarshDrivingEvent;
 import com.sentiance.sdk.drivinginsights.api.PhoneUsageEvent;
 import com.sentiance.sdk.drivinginsights.api.SafetyScores;
+import com.sentiance.sdk.drivinginsights.api.SpeedingEvent;
 import com.sentiance.sdk.ondevice.api.Waypoint;
 import com.sentiance.sdk.ondevice.api.event.TransportEvent;
 
@@ -28,12 +30,20 @@ public class DrivingInsightsConverter {
   public static final String JS_KEY_START_TIME = "startTime";
   public static final String JS_KEY_FOCUS_SCORE = "focusScore";
   public static final String JS_KEY_SMOOTH_SCORE = "smoothScore";
+  public static final String JS_KEY_LEGAL_SCORE = "legalScore";
+  public static final String JS_KEY_CALL_WHILE_MOVING_SCORE = "callWhileMovingScore";
+  public static final String JS_KEY_OVERALL_SCORE = "overallScore";
   public static final String JS_KEY_SAFETY_SCORES = "safetyScores";
   public static final String JS_KEY_END_TIME_EPOCH = "endTimeEpoch";
   public static final String JS_KEY_TRANSPORT_MODE = "transportMode";
   public static final String JS_KEY_TRANSPORT_EVENT = "transportEvent";
   public static final String JS_KEY_START_TIME_EPOCH = "startTimeEpoch";
   public static final String JS_KEY_DURATION_SECONDS = "durationInSeconds";
+  public static final String JS_KEY_SPEED_IN_MPS = "speedInMps";
+  public static final String JS_KEY_SPEED_LIMIT_IN_MPS = "speedLimitInMps";
+  public static final String JS_KEY_HAS_UNLIMITED_SPEED_LIMIT = "hasUnlimitedSpeedLimit";
+  public static final String JS_KEY_MAX_TRAVELLED_SPEED_MPS = "maxTravelledSpeedInMps";
+  public static final String JS_KEY_MIN_TRAVELLED_SPEED_MPS = "minTravelledSpeedInMps";
 
   public static WritableMap convertHarshDrivingEvent(HarshDrivingEvent event) {
     WritableMap map = convertDrivingEvent(event);
@@ -44,6 +54,27 @@ public class DrivingInsightsConverter {
 
   public static WritableMap convertPhoneUsageEvent(PhoneUsageEvent event) {
     return convertDrivingEvent(event);
+  }
+
+  public static WritableMap convertCallWhileMovingEvent(CallWhileMovingEvent event) {
+    WritableMap map = convertDrivingEvent(event);
+
+    if (event.getMinTraveledSpeedInMps() != null) {
+      map.putDouble(JS_KEY_MIN_TRAVELLED_SPEED_MPS, event.getMinTraveledSpeedInMps());
+    }
+
+    if (event.getMaxTraveledSpeedInMps() != null) {
+      map.putDouble(JS_KEY_MAX_TRAVELLED_SPEED_MPS, event.getMaxTraveledSpeedInMps());
+    }
+
+    return map;
+  }
+
+  public static WritableMap convertSpeedingEvent(SpeedingEvent event) {
+    WritableMap map = convertDrivingEvent(event);
+    map.putArray(JS_KEY_WAYPOINTS, convertWaypointList(event.getWaypoints()));
+
+    return map;
   }
 
   private static WritableMap convertDrivingEvent(DrivingEvent event) {
@@ -77,6 +108,21 @@ public class DrivingInsightsConverter {
     Float focusScore = safetyScores.getFocusScore();
     if (focusScore != null) {
       map.putDouble(JS_KEY_FOCUS_SCORE, focusScore);
+    }
+
+    Float callWhileMovingScore = safetyScores.getCallWhileMovingScore();
+    if (callWhileMovingScore != null) {
+      map.putDouble(JS_KEY_CALL_WHILE_MOVING_SCORE, callWhileMovingScore);
+    }
+
+    Float legalScore = safetyScores.getLegalScore();
+    if (legalScore != null) {
+      map.putDouble(JS_KEY_LEGAL_SCORE, legalScore);
+    }
+
+    Float overallScore = safetyScores.getOverallScore();
+    if (overallScore != null) {
+      map.putDouble(JS_KEY_OVERALL_SCORE, overallScore);
     }
 
     return map;
@@ -124,6 +170,13 @@ public class DrivingInsightsConverter {
     waypointMap.putDouble(JS_KEY_LONGITUDE, waypoint.getLongitude());
     waypointMap.putInt(JS_KEY_ACCURACY, waypoint.getAccuracyInMeters());
     waypointMap.putDouble(JS_KEY_TIMESTAMP, waypoint.getTimestamp());
+    if (waypoint.hasSpeed()) {
+      waypointMap.putDouble(JS_KEY_SPEED_IN_MPS, waypoint.getSpeed());
+    }
+    if (waypoint.hasSpeedLimit()) {
+      waypointMap.putDouble(JS_KEY_SPEED_LIMIT_IN_MPS, waypoint.getSpeedLimit());
+    }
+    waypointMap.putBoolean(JS_KEY_HAS_UNLIMITED_SPEED_LIMIT, waypoint.hasUnlimitedSpeedLimit());
 
     return waypointMap;
   }

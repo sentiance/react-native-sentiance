@@ -1,24 +1,32 @@
 package com.sentiance.react.bridge.drivinginsights;
 
+import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_SAFETY_SCORES;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsEmitter.DRIVING_INSIGHTS_READY_EVENT;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.JavaOnlyMap;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.sentiance.react.bridge.drivinginsights.util.DrivingInsightsJsPayloadValidator;
-import com.sentiance.react.bridge.drivinginsights.util.HarshEventJsPayloadValidator;
-import com.sentiance.react.bridge.drivinginsights.util.PhoneUsageEventJsPayloadValidator;
+import com.sentiance.react.bridge.drivinginsights.util.validators.CallWhileMovingEventBridgeValidator;
+import com.sentiance.react.bridge.drivinginsights.util.validators.DrivingInsightsBridgeValidator;
+import com.sentiance.react.bridge.drivinginsights.util.validators.HarshEventBridgeValidator;
+import com.sentiance.react.bridge.drivinginsights.util.validators.PhoneUsageEventBridgeValidator;
+import com.sentiance.react.bridge.drivinginsights.util.validators.SpeedingEventBridgeValidator;
+import com.sentiance.sdk.drivinginsights.api.CallWhileMovingEvent;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsights;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsightsApi;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsightsReadyListener;
 import com.sentiance.sdk.drivinginsights.api.HarshDrivingEvent;
 import com.sentiance.sdk.drivinginsights.api.PhoneUsageEvent;
 import com.sentiance.sdk.drivinginsights.api.SafetyScores;
+import com.sentiance.sdk.drivinginsights.api.SpeedingEvent;
+import com.sentiance.sdk.eventtimeline.timelines.creators.SafetyScoreType;
 import com.sentiance.sdk.ondevice.api.Waypoint;
 import com.sentiance.sdk.ondevice.api.event.TransportEvent;
 import com.sentiance.sdk.ondevice.api.event.TransportMode;
@@ -34,6 +42,7 @@ import org.robolectric.RobolectricTestRunner;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @RunWith(RobolectricTestRunner.class)
@@ -50,9 +59,11 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
   @Captor
   private ArgumentCaptor<DrivingInsightsReadyListener> drivingInsightsReadyListenerCaptor;
 
-  private HarshEventJsPayloadValidator harshEventJsPayloadValidator;
-  private PhoneUsageEventJsPayloadValidator phoneUsageEventJsPayloadValidator;
-  private DrivingInsightsJsPayloadValidator drivingInsightsJsPayloadValidator;
+  private HarshEventBridgeValidator harshEventJsPayloadValidator;
+  private PhoneUsageEventBridgeValidator phoneUsageEventJsPayloadValidator;
+  private SpeedingEventBridgeValidator speedingEventJsPayloadValidator;
+  private CallWhileMovingEventBridgeValidator callWhileMovingEventBridgeValidator;
+  private DrivingInsightsBridgeValidator drivingInsightsJsPayloadValidator;
 
   @Override
   protected DrivingInsightsModule initModule() {
@@ -64,9 +75,11 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    harshEventJsPayloadValidator = new HarshEventJsPayloadValidator();
-    phoneUsageEventJsPayloadValidator = new PhoneUsageEventJsPayloadValidator();
-    drivingInsightsJsPayloadValidator = new DrivingInsightsJsPayloadValidator();
+    harshEventJsPayloadValidator = new HarshEventBridgeValidator();
+    phoneUsageEventJsPayloadValidator = new PhoneUsageEventBridgeValidator();
+    speedingEventJsPayloadValidator = new SpeedingEventBridgeValidator();
+    callWhileMovingEventBridgeValidator = new CallWhileMovingEventBridgeValidator();
+    drivingInsightsJsPayloadValidator = new DrivingInsightsBridgeValidator();
   }
 
   @Test
@@ -108,15 +121,16 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
 
   @Test
   public void testGetPhoneUsageEvents() {
+    long now = System.currentTimeMillis();
     String transportId = "transport_id";
     List<PhoneUsageEvent> expectedPhoneUsageEvents = Arrays.asList(
       new PhoneUsageEvent(
-        DateTime.fromMillis(System.currentTimeMillis()),
-        DateTime.fromMillis(System.currentTimeMillis() + 2000)
+        DateTime.fromMillis(now),
+        DateTime.fromMillis(now + 2000)
       ),
       new PhoneUsageEvent(
-        DateTime.fromMillis(System.currentTimeMillis() + 2000),
-        DateTime.fromMillis(System.currentTimeMillis() + 4000)
+        DateTime.fromMillis(now + 2000),
+        DateTime.fromMillis(now + 4000)
       )
     );
 
@@ -138,6 +152,97 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
   }
 
   @Test
+  public void testGetCallWhileMovingEvents() {
+    long now = System.currentTimeMillis();
+    String transportId = "transport_id";
+    List<CallWhileMovingEvent> expectedCallWhileMovingEvents = Arrays.asList(
+      new CallWhileMovingEvent(
+        DateTime.fromMillis(now),
+        DateTime.fromMillis(now + 2_000),
+        10f, 5f
+      ),
+      new CallWhileMovingEvent(
+        DateTime.fromMillis(now + 4_000),
+        DateTime.fromMillis(now + 6_000),
+        null, 5f
+      ),
+      new CallWhileMovingEvent(
+        DateTime.fromMillis(now + 8_000),
+        DateTime.fromMillis(System.currentTimeMillis() + 10_000),
+        null, null
+      ),
+      new CallWhileMovingEvent(
+        DateTime.fromMillis(now + 12_000),
+        DateTime.fromMillis(now + 14_000),
+        11f, null
+      )
+    );
+
+    when(mDrivingInsightsApi.getCallWhileMovingEvents(transportId)).thenReturn(expectedCallWhileMovingEvents);
+    mModule.getCallWhileMovingEvents(transportId, mPromise);
+
+    verify(mPromise).resolve(writableArrayCaptor.capture());
+
+    WritableArray transformedCallWhileMovingEventsArray = writableArrayCaptor.getValue();
+    assertEquals(expectedCallWhileMovingEvents.size(), transformedCallWhileMovingEventsArray.size());
+
+    List<JavaOnlyMap> transformedCallWhileMovingEvents = transformedCallWhileMovingEventsArray.toArrayList()
+      .stream()
+      .map(o -> (JavaOnlyMap) o)
+      .collect(Collectors.toList());
+    for (int i = 0; i < expectedCallWhileMovingEvents.size(); i++) {
+      callWhileMovingEventBridgeValidator.validate(expectedCallWhileMovingEvents.get(i), transformedCallWhileMovingEvents.get(i));
+    }
+  }
+
+  @Test
+  public void testGetSpeedingEvents() {
+    long now = System.currentTimeMillis();
+    String transportId = "transport_id";
+
+    Waypoint mockWaypoint = mock(Waypoint.class);
+    when(mockWaypoint.hasSpeedLimit()).thenReturn(false);
+    when(mockWaypoint.hasUnlimitedSpeedLimit()).thenReturn(true);
+
+    List<SpeedingEvent> expectedSpeedingEvents = Arrays.asList(
+      new SpeedingEvent(
+        DateTime.fromMillis(now),
+        DateTime.fromMillis(now + 2000),
+        Arrays.asList(
+          mockWaypoint,
+          new Waypoint(14.14, 34.67, now, 22, 7.5f, 6.2f),
+          new Waypoint(15.14, 34.67, now, -1, -1f, -1f)
+        )
+      ),
+      new SpeedingEvent(
+        DateTime.fromMillis(now + 10_000),
+        DateTime.fromMillis(now + 20_000),
+        Arrays.asList(
+          new Waypoint(16.14, 33.67, now, -1, 5.5f, 6.5f),
+          new Waypoint(17.14, 31.67, now, 22, -1f, 6.2f),
+          new Waypoint(18.14, 30.67, now, 25, 6.5f, -1f)
+        )
+      )
+    );
+
+    when(mDrivingInsightsApi.getSpeedingEvents(transportId)).thenReturn(expectedSpeedingEvents);
+    mModule.getSpeedingEvents(transportId, mPromise);
+
+    verify(mPromise).resolve(writableArrayCaptor.capture());
+
+    WritableArray transformedSpeedingEventsArray = writableArrayCaptor.getValue();
+    assertEquals(expectedSpeedingEvents.size(), transformedSpeedingEventsArray.size());
+
+    List<JavaOnlyMap> transformedSpeedingEvents = transformedSpeedingEventsArray.toArrayList()
+      .stream()
+      .map(o -> (JavaOnlyMap) o)
+      .collect(Collectors.toList());
+    for (int i = 0; i < expectedSpeedingEvents.size(); i++) {
+      speedingEventJsPayloadValidator.validate(expectedSpeedingEvents.get(i), transformedSpeedingEvents.get(i));
+    }
+  }
+
+  @Test
   public void testGetDrivingInsights() {
     String transportId = "transport_id";
     DrivingInsights expectedDrivingInsights = createDummyDrivingInsights(transportId);
@@ -149,6 +254,24 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
 
     WritableMap transformedDrivingInsights = writableMapCaptor.getValue();
     drivingInsightsJsPayloadValidator.validate(expectedDrivingInsights, (JavaOnlyMap) transformedDrivingInsights);
+  }
+
+  @Test
+  public void testAllSafetyScoresAreExposedToJs() {
+    String transportId = "transport_id";
+    DrivingInsights expectedDrivingInsights = createDummyDrivingInsights(transportId);
+
+    when(mDrivingInsightsApi.getDrivingInsights(transportId)).thenReturn(expectedDrivingInsights);
+    mModule.getDrivingInsights(transportId, mPromise);
+
+    verify(mPromise).resolve(writableMapCaptor.capture());
+
+    WritableMap transformedDrivingInsights = writableMapCaptor.getValue();
+    JavaOnlyMap transformedSafetyScores = (JavaOnlyMap) transformedDrivingInsights.getMap(JS_KEY_SAFETY_SCORES);
+
+    int totalAvailableSafetyScoreTypes = SafetyScoreType.values().length;
+    int actualNbrOfExposedSafetyScoreTypes = transformedSafetyScores.toHashMap().size();
+    assertEquals(totalAvailableSafetyScoreTypes, actualNbrOfExposedSafetyScoreTypes);
   }
 
   @Test
@@ -195,11 +318,17 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
         DateTime.fromMillis(now + 10000),
         TransportMode.CAR,
         Collections.singletonList(
-          new Waypoint(13.14, 34.67, now, 20)
+          new Waypoint(13.14, 34.67, now, 20, 5.5f, 6.5f)
         ),
         500
       ),
-      new SafetyScores(.78f, .99f)
+      new SafetyScores.Builder()
+        .setSmoothScore(.78f)
+        .setFocusScore(.99f)
+        .setCallWhileMovingScore(.55f)
+        .setLegalScore(.88f)
+        .setOverallScore(.44f)
+        .createSafetyScores()
     );
   }
 }
