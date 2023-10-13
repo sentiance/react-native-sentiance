@@ -232,7 +232,7 @@
     if (waypoint.isSpeedSet) {
         dict[@"speedInMps"] = @(waypoint.speedInMps);
     }
-    if (waypoint.isSpeedLimitSet) {
+    if (waypoint.isSpeedLimitInfoSet) {
         dict[@"speedLimitInMps"] = @(waypoint.speedLimitInMps);
     }
     dict[@"hasUnlimitedSpeedLimit"] = @(waypoint.isSpeedLimitUnlimited);

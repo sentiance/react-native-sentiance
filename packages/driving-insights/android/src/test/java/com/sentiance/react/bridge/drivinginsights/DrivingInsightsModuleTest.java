@@ -201,7 +201,7 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
     String transportId = "transport_id";
 
     Waypoint mockWaypoint = mock(Waypoint.class);
-    when(mockWaypoint.hasSpeedLimit()).thenReturn(false);
+    when(mockWaypoint.isSpeedLimitInfoSet()).thenReturn(false);
     when(mockWaypoint.hasUnlimitedSpeedLimit()).thenReturn(true);
 
     List<SpeedingEvent> expectedSpeedingEvents = Arrays.asList(

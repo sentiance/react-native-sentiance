@@ -171,10 +171,10 @@ public class DrivingInsightsConverter {
     waypointMap.putInt(JS_KEY_ACCURACY, waypoint.getAccuracyInMeters());
     waypointMap.putDouble(JS_KEY_TIMESTAMP, waypoint.getTimestamp());
     if (waypoint.hasSpeed()) {
-      waypointMap.putDouble(JS_KEY_SPEED_IN_MPS, waypoint.getSpeed());
+      waypointMap.putDouble(JS_KEY_SPEED_IN_MPS, waypoint.getSpeedInMps());
     }
-    if (waypoint.hasSpeedLimit()) {
-      waypointMap.putDouble(JS_KEY_SPEED_LIMIT_IN_MPS, waypoint.getSpeedLimit());
+    if (waypoint.isSpeedLimitInfoSet()) {
+      waypointMap.putDouble(JS_KEY_SPEED_LIMIT_IN_MPS, waypoint.getSpeedLimitInMps());
     }
     waypointMap.putBoolean(JS_KEY_HAS_UNLIMITED_SPEED_LIMIT, waypoint.hasUnlimitedSpeedLimit());
 

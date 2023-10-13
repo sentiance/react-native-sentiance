@@ -81,7 +81,7 @@ workflows:
             tags:
               only: /^v.*/
       - deploy:
-          requires: [test]
+          requires: [test, android_test]
           filters:
             tags:
               only: /^v.*/
@@ -89,7 +89,7 @@ workflows:
               ignore: /.*/
       - publish_docs:
           context: default
-          requires: [test]
+          requires: [test, android_test]
           filters:
             branches:
               only:
