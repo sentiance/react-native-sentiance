@@ -14,11 +14,14 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
 import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
+import com.sentiance.sdk.Sentiance;
+import com.sentiance.sdk.drivinginsights.api.CallWhileMovingEvent;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsights;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsightsApi;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsightsReadyListener;
 import com.sentiance.sdk.drivinginsights.api.HarshDrivingEvent;
 import com.sentiance.sdk.drivinginsights.api.PhoneUsageEvent;
+import com.sentiance.sdk.drivinginsights.api.SpeedingEvent;
 
 import java.util.List;
 
@@ -31,10 +34,14 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
   private final DrivingInsightsEmitter mEmitter;
   private final DrivingInsightsApi mDrivingInsightsApi;
 
-  public DrivingInsightsModule(ReactApplicationContext reactApplicationContext) {
-    super(reactApplicationContext);
-    mDrivingInsightsApi = DrivingInsightsApi.getInstance(reactApplicationContext);
-    mEmitter = new DrivingInsightsEmitter(reactApplicationContext);
+  public DrivingInsightsModule(ReactApplicationContext reactApplicationContext,
+                               Sentiance sentiance,
+                               DrivingInsightsApi drivingInsightsApi,
+                               DrivingInsightsEmitter emitter,
+                               SentianceSubscriptionsManager subscriptionsManager) {
+    super(reactApplicationContext, sentiance, subscriptionsManager);
+    mDrivingInsightsApi = drivingInsightsApi;
+    mEmitter = emitter;
   }
 
   @NonNull
@@ -90,6 +97,42 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
   }
 
   @ReactMethod
+  public void getCallWhileMovingEvents(String transportId, final Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    try {
+      List<CallWhileMovingEvent> callWhileMovingEvents = mDrivingInsightsApi.getCallWhileMovingEvents(transportId);
+      WritableArray array = Arguments.createArray();
+      for (CallWhileMovingEvent event : callWhileMovingEvents) {
+        array.pushMap(DrivingInsightsConverter.convertCallWhileMovingEvent(event));
+      }
+      promise.resolve(array);
+    } catch (Exception e) {
+      promise.reject(e);
+    }
+  }
+
+  @ReactMethod
+  public void getSpeedingEvents(String transportId, final Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    try {
+      List<SpeedingEvent> speedingEvents = mDrivingInsightsApi.getSpeedingEvents(transportId);
+      WritableArray array = Arguments.createArray();
+      for (SpeedingEvent event : speedingEvents) {
+        array.pushMap(DrivingInsightsConverter.convertSpeedingEvent(event));
+      }
+      promise.resolve(array);
+    } catch (Exception e) {
+      promise.reject(e);
+    }
+  }
+
+  @ReactMethod
   public void getDrivingInsights(String transportId, final Promise promise) {
     if (rejectIfNotInitialized(promise)) {
       return;
@@ -135,7 +178,8 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
 
   @Override
   @ReactMethod
-  protected void addListener(String eventName) {}
+  protected void addListener(String eventName) {
+  }
 
   @Override
   @ReactMethod

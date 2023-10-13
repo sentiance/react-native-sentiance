@@ -19,9 +19,11 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.sentiance.react.bridge.core.SentianceConverter;
 import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
+import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.ResetCallback;
 import com.sentiance.sdk.SdkStatus;
+import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.SubmitDetectionsCallback;
 import com.sentiance.sdk.Token;
 import com.sentiance.sdk.TokenResultCallback;
@@ -40,7 +42,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
   private final StartFinishedHandlerCreator startFinishedHandlerCreator;
 
   public LegacySentianceModule(ReactApplicationContext reactContext) {
-    super(reactContext);
+    super(reactContext, Sentiance.getInstance(reactContext), new SentianceSubscriptionsManager());
     legacySentianceHelper = RNSentianceHelper.getInstance(reactContext);
     startFinishedHandlerCreator = new StartFinishedHandlerCreator();
   }
@@ -125,7 +127,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
   @ReactMethod
   @SuppressWarnings("unused")
   public void reset(final Promise promise) {
-    sdk.reset(new ResetCallback() {
+    mSdk.reset(new ResetCallback() {
       @Override
       public void onResetSuccess() {
         legacySentianceHelper.disableNativeInitialization();
@@ -167,7 +169,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       return;
     }
 
-    sdk.stop();
+    mSdk.stop();
     promise.resolve(true);
   }
 
@@ -185,7 +187,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       }
     }
     final TransportMode transportModeHint = SentianceConverter.toTransportMode(hint);
-    sdk.startTrip(metadataMap, transportModeHint, new StartTripCallback() {
+    mSdk.startTrip(metadataMap, transportModeHint, new StartTripCallback() {
       @Override
       public void onSuccess() {
         promise.resolve(true);
@@ -205,7 +207,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       return;
     }
 
-    sdk.stopTrip(new StopTripCallback() {
+    mSdk.stopTrip(new StopTripCallback() {
       @Override
       public void onSuccess() {
         promise.resolve(true);
@@ -264,7 +266,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       return;
     }
 
-    sdk.getUserAccessToken(new TokenResultCallback() {
+    mSdk.getUserAccessToken(new TokenResultCallback() {
       @Override
       public void onSuccess(@NonNull Token token) {
         promise.resolve(SentianceConverter.convertToken(token));
@@ -285,7 +287,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
       return;
     }
 
-    sdk.submitDetections(new SubmitDetectionsCallback() {
+    mSdk.submitDetections(new SubmitDetectionsCallback() {
       @Override
       public void onSuccess() {
         promise.resolve(true);

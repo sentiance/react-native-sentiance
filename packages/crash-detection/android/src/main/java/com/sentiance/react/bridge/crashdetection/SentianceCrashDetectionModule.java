@@ -6,6 +6,8 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
+import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
+import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.crashdetection.api.CrashDetectionApi;
 
 public class SentianceCrashDetectionModule extends AbstractSentianceModule {
@@ -14,7 +16,7 @@ public class SentianceCrashDetectionModule extends AbstractSentianceModule {
   private final CrashDetectionEmitter emitter;
 
   public SentianceCrashDetectionModule(ReactApplicationContext reactContext) {
-    super(reactContext);
+    super(reactContext, Sentiance.getInstance(reactContext), new SentianceSubscriptionsManager());
     emitter = new CrashDetectionEmitter(reactContext);
   }
 
@@ -31,7 +33,7 @@ public class SentianceCrashDetectionModule extends AbstractSentianceModule {
       return;
     }
 
-    CrashDetectionApi.getInstance(reactContext).setVehicleCrashListener(emitter::sendVehicleCrashEvent);
+    CrashDetectionApi.getInstance(mReactContext).setVehicleCrashListener(emitter::sendVehicleCrashEvent);
     promise.resolve(true);
   }
 
@@ -42,14 +44,14 @@ public class SentianceCrashDetectionModule extends AbstractSentianceModule {
       return;
     }
 
-    CrashDetectionApi.getInstance(reactContext).setVehicleCrashDiagnosticListener(emitter::sendVehicleCrashDiagnosticEvent);
+    CrashDetectionApi.getInstance(mReactContext).setVehicleCrashDiagnosticListener(emitter::sendVehicleCrashDiagnosticEvent);
     promise.resolve(true);
   }
 
   @ReactMethod
   @SuppressWarnings("unused")
   public void invokeDummyVehicleCrash(Promise promise) {
-    CrashDetectionApi.getInstance(reactContext).invokeDummyVehicleCrash();
+    CrashDetectionApi.getInstance(mReactContext).invokeDummyVehicleCrash();
     promise.resolve(true);
   }
 
@@ -57,7 +59,7 @@ public class SentianceCrashDetectionModule extends AbstractSentianceModule {
   @SuppressWarnings("unused")
   public void isVehicleCrashDetectionSupported(Promise promise) {
     Boolean isCrashDetectionSupported =
-      CrashDetectionApi.getInstance(reactContext).isVehicleCrashDetectionSupported();
+      CrashDetectionApi.getInstance(mReactContext).isVehicleCrashDetectionSupported();
     promise.resolve(isCrashDetectionSupported);
   }
 

@@ -1062,6 +1062,22 @@ RCT_EXPORT_METHOD(getPhoneUsageEvents:(NSString*)transportId resolver:(RCTPromis
     resolve([self convertPhoneUsageEvents:phoneUsageEvents]);
 }
 
+RCT_EXPORT_METHOD(getCallWhileMovingEvents:(NSString*)transportId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    NSArray<SENTCallWhileMovingEvent *> *callWhileMovingEvents = [[Sentiance sharedInstance] getCallsWhileMovingEventsForTransportId:transportId];
+    resolve([self convertCallWhileMovingEvents:callWhileMovingEvents]);
+}
+
+RCT_EXPORT_METHOD(getSpeedingEvents:(NSString*)transportId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    NSArray<SENTSpeedingEvent *> *speedingEvents = [[Sentiance sharedInstance] getSpeedingEventsForTransportId:transportId];
+    resolve([self convertSpeedingEvents:speedingEvents]);
+}
+
 RCT_EXPORT_METHOD(addNativeListener:(NSString *)eventName subscriptionId:(NSInteger)subscriptionId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
 

@@ -15,6 +15,18 @@ declare module "@sentiance-react-native/driving-insights" {
      * Focused driving score, between 0 and 1, where 1 is the perfect score.
      */
     focusScore?: number;
+    /**
+     * Legal driving score, between 0 and 1, where 1 is the perfect score.
+     */
+    legalScore?: number;
+    /**
+     * Call while moving driving score, between 0 and 1, where 1 is the perfect score.
+     */
+    callWhileMovingScore?: number;
+    /**
+     * Overall driving score, between 0 and 1, where 1 is the perfect score.
+     */
+    overallScore?: number;
   }
 
   export interface DrivingEvent {
@@ -29,6 +41,15 @@ declare module "@sentiance-react-native/driving-insights" {
   }
 
   export interface PhoneUsageEvent extends DrivingEvent {
+  }
+
+  export interface CallWhileMovingEvent extends DrivingEvent {
+    maxTravelledSpeedInMps?: number;
+    minTravelledSpeedInMps?: number;
+  }
+
+  export interface SpeedingEvent extends DrivingEvent {
+    waypoints: Waypoint[];
   }
 
   export interface TransportEvent {
@@ -60,6 +81,9 @@ declare module "@sentiance-react-native/driving-insights" {
     longitude: number;
     accuracy: number;   // in meters
     timestamp: number;  // UTC epoch time in milliseconds
+    speedInMps?: number;  // in meters per second
+    speedLimitInMps?: number;  // in meters per second
+    hasUnlimitedSpeedLimit: boolean;
   }
 
   export interface SentianceDrivingInsights {
@@ -70,6 +94,10 @@ declare module "@sentiance-react-native/driving-insights" {
     getHarshDrivingEvents(transportId: string): Promise<HarshDrivingEvent[]>;
 
     getPhoneUsageEvents(transportId: string): Promise<PhoneUsageEvent[]>;
+
+    getCallWhileMovingEvents(transportId: string): Promise<CallWhileMovingEvent[]>;
+
+    getSpeedingEvents(transportId: string): Promise<SpeedingEvent[]>;
   }
 
   const SentianceDrivingInsights: SentianceDrivingInsights;

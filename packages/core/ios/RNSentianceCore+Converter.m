@@ -223,12 +223,21 @@
 }
 
 - (NSDictionary*)convertWaypoint:(SENTWaypoint*)waypoint {
-    return @{
-        @"latitude": @(waypoint.latitude),
-        @"longitude": @(waypoint.longitude),
-        @"accuracy": @(waypoint.accuracyInMeters),
-        @"timestamp": @(waypoint.timestamp * 1000)
-    };
+    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+    dict[@"latitude"] = @(waypoint.latitude);
+    dict[@"longitude"] = @(waypoint.longitude);
+    dict[@"accuracy"] = @(waypoint.accuracyInMeters);
+    dict[@"timestamp"] = @(waypoint.timestamp * 1000);
+
+    if (waypoint.isSpeedSet) {
+        dict[@"speedInMps"] = @(waypoint.speedInMps);
+    }
+    if (waypoint.isSpeedLimitSet) {
+        dict[@"speedLimitInMps"] = @(waypoint.speedLimitInMps);
+    }
+    dict[@"hasUnlimitedSpeedLimit"] = @(waypoint.isSpeedLimitUnlimited);
+
+    return dict;
 }
 
 - (NSArray<NSDictionary *> *)convertWaypointArray:(NSArray<SENTWaypoint *> *)waypoints {
@@ -1140,6 +1149,21 @@
         safetyScoresDict[@"focusScore"] = focusScore;
     }
 
+    NSNumber* callWhileMovingScore = drivingInsights.safetyScores.callWhileMovingScore;
+    if (callWhileMovingScore != nil) {
+        safetyScoresDict[@"callWhileMovingScore"] = callWhileMovingScore;
+    }
+
+    NSNumber* legalScore = drivingInsights.safetyScores.legalScore;
+    if (legalScore != nil) {
+        safetyScoresDict[@"legalScore"] = legalScore;
+    }
+
+    NSNumber* overallScore = drivingInsights.safetyScores.overallScore;
+    if (overallScore != nil) {
+        safetyScoresDict[@"overallScore"] = overallScore;
+    }
+
     dict[@"safetyScores"] = safetyScoresDict;
 
     return dict;
@@ -1169,6 +1193,39 @@
 
 - (NSDictionary<NSString *, NSNumber *> *)convertPhoneUsageEvent:(SENTPhoneUsageEvent *)phoneUsageEvent {
     return [self convertDrivingEvent:phoneUsageEvent];
+}
+
+- (NSArray<NSDictionary<NSString *, NSNumber *> *> *)convertCallWhileMovingEvents:(NSArray<SENTCallWhileMovingEvent*> *)callWhileMovingEvents {
+    NSMutableArray <NSDictionary<NSString *, NSNumber *> *> *array = [[NSMutableArray alloc] init];
+    for (SENTCallWhileMovingEvent *event in callWhileMovingEvents) {
+        [array addObject:[self convertCallWhileMovingEvent:event]];
+    }
+    return array;
+}
+
+- (NSDictionary<NSString *, NSNumber *> *)convertCallWhileMovingEvent:(SENTCallWhileMovingEvent *)callWhileMovingEvent {
+    NSMutableDictionary<NSString *, NSNumber *> *dict = [self convertDrivingEvent:callWhileMovingEvent];
+    if (callWhileMovingEvent.minTraveledSpeedInMps != nil) {
+        dict[@"minTravelledSpeedInMps"] = callWhileMovingEvent.minTraveledSpeedInMps;
+    }
+    if (callWhileMovingEvent.maxTraveledSpeedInMps != nil) {
+        dict[@"maxTravelledSpeedInMps"] = callWhileMovingEvent.maxTraveledSpeedInMps;
+    }
+    return dict;
+}
+
+- (NSArray<NSDictionary<NSString *, NSNumber *> *> *)convertSpeedingEvents:(NSArray<SENTSpeedingEvent*> *)speedingEvents {
+    NSMutableArray <NSDictionary<NSString *, NSNumber *> *> *array = [[NSMutableArray alloc] init];
+    for (SENTSpeedingEvent *event in speedingEvents) {
+        [array addObject:[self convertSpeedingEvent:event]];
+    }
+    return array;
+}
+
+- (NSDictionary<NSString *, NSNumber *> *)convertSpeedingEvent:(SENTSpeedingEvent *)speedingEvent {
+    NSMutableDictionary<NSString *, NSNumber *> *dict = [self convertDrivingEvent:speedingEvent];
+    dict[@"waypoints"] = [self convertWaypointArray:speedingEvent.waypoints];
+    return dict;
 }
 
 - (NSMutableDictionary<NSString *, NSNumber *> *)convertDrivingEvent:(SENTDrivingEvent *)drivingEvent {

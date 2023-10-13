@@ -36,3 +36,6 @@ if (didLocateNativeModule) {
 }
 
 module.exports = drivingInsightsModule;
+module.exports.events = {
+  DRIVING_INSIGHTS_READY_EVENT
+};

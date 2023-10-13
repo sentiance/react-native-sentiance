@@ -7,7 +7,9 @@ import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
+import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
 import com.sentiance.react.bridge.usercontext.utils.ErrorCodes;
+import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.usercontext.api.RequestUserContextError;
 import com.sentiance.sdk.usercontext.api.UserContext;
 import com.sentiance.sdk.usercontext.api.UserContextApi;
@@ -22,7 +24,7 @@ public class SentianceUserContextModule extends AbstractSentianceModule {
   UserContextUpdateListener mUserContextUpdateListener;
 
   public SentianceUserContextModule(ReactApplicationContext reactContext) {
-    super(reactContext);
+    super(reactContext, Sentiance.getInstance(reactContext), new SentianceSubscriptionsManager());
     emitter = new SentianceUserContextEmitter(reactContext);
   }
 
@@ -39,7 +41,7 @@ public class SentianceUserContextModule extends AbstractSentianceModule {
       return;
     }
 
-    UserContextApi.getInstance(reactContext)
+    UserContextApi.getInstance(mReactContext)
       .requestUserContext()
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
@@ -60,7 +62,7 @@ public class SentianceUserContextModule extends AbstractSentianceModule {
       return;
     }
 
-    UserContextApi userContextApi = UserContextApi.getInstance(reactContext);
+    UserContextApi userContextApi = UserContextApi.getInstance(mReactContext);
 
     if (mUserContextUpdateListener != null) {
       userContextApi.removeUserContextUpdateListener(mUserContextUpdateListener);

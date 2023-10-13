@@ -65,3 +65,4 @@ class SentianceEventEmitter extends NativeEventEmitter {
 }
 
 module.exports = SentianceEventEmitter;
+

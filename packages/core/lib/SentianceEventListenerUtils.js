@@ -1,6 +1,4 @@
-const SentianceEventEmitter = require("@sentiance-react-native/core/lib/SentianceEventEmitter");
-
-exports.createEventListener = async (eventName: String, emitter: SentianceEventEmitter, callback: Function) => {
+exports.createEventListener = async (eventName, emitter, callback) => {
   const listener = (data) => {
     callback(data);
   };
