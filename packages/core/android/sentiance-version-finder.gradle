@@ -13,5 +13,8 @@ apply from: "$coreProj.projectDir/package-json-reader.gradle"
 
 def packageJson = PackageJson.of(coreProj)
 ext.getSentianceSdkVersion = {
-  return packageJson['sdkVersions']['android']['sentiance']
+  def envVarVersion = System.getenv("SENTIANCE_RN_ANDROID_SDK_VERSION")
+  def packageVersion = packageJson['sdkVersions']['android']['sentiance']
+
+  return envVarVersion ?: packageVersion
 }

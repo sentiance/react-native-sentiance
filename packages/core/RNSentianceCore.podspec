@@ -1,6 +1,7 @@
 require 'json'
 package = JSON.parse(File.read(File.join(__dir__, './package.json')))
-sentiance_sdk_version = package['sdkVersions']['ios']['sentiance']
+sentiance_sdk_package_version = package['sdkVersions']['ios']['sentiance']
+sentiance_sdk_env_var_version = ENV["SENTIANCE_RN_IOS_SDK_VERSION"]
 
 Pod::Spec.new do |s|
   s.name         = "RNSentianceCore"
@@ -20,5 +21,9 @@ Pod::Spec.new do |s|
   s.xcconfig     = { 'FRAMEWORK_SEARCH_PATHS' => '${PODS_ROOT}/SENTSDK' }
 
   s.dependency "React"
-  s.dependency "SENTSDK", sentiance_sdk_version
+
+  if sentiance_sdk_env_var_version.nil?
+    s.dependency "SENTSDK", sentiance_sdk_package_version
+  else
+    s.dependency "SENTSDK", sentiance_sdk_env_var_version
 end
