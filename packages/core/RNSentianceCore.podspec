@@ -26,4 +26,6 @@ Pod::Spec.new do |s|
     s.dependency "SENTSDK", sentiance_sdk_package_version
   else
     s.dependency "SENTSDK", sentiance_sdk_env_var_version
+  end
+
 end
