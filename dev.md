@@ -176,10 +176,6 @@ Open up the new module's `AndroidManifest.xml` file, and make sure to include th
 </manifest>
 ```
 
-Re-sync Gradle, and now you should be able to see the new module under the `Android` view:
-
-![](./images/updated_project_structure.png)
-
 Open up the new module's `build.gradle` file, and replace its contents with the following code:
 
 ```groovy
@@ -227,7 +223,11 @@ applyReactNativeDependency()
   So we add some code in there to verify that the `core` module is installed and available.
 - In order to specify this module's `minSdkVersion`, `targetSdkVersion`, `compileSdkVersion`, we add a call to `applyAndroidVersionsFrom(corePackageJson)`. This uses the values indicated on the `core` module's `package.json` file and applies them onto this module.
 
-You are now ready to create a bridge module to expose functionality to Javascript code. Create a new class called `MyNewModule`:
+Re-sync Gradle, and now you should be able to see the new module under the `Android` view:
+
+![](./images/updated_project_structure.png)
+
+You are now ready to create a bridge module to expose functionality to Javascript code. Create a new class called `SentianceNewModule`:
 
 ```java
 package com.sentiance.react.bridge.newmodule;
@@ -238,12 +238,12 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 
-public class MyNewModule extends AbstractSentianceModule {
+public class SentianceNewModule extends AbstractSentianceModule {
 
   // This is the name that Javascript code will use to refer to this native module
   private static final String NATIVE_MODULE_NAME = "MyNewModule";
 
-  public MyNewModule(ReactApplicationContext reactApplicationContext) {
+  public SentianceNewModule(ReactApplicationContext reactApplicationContext) {
     super(reactApplicationContext);
   }
 
@@ -261,6 +261,26 @@ public class MyNewModule extends AbstractSentianceModule {
   @ReactMethod
   public void removeListeners(Integer count) {
     // Remove upstream listeners, stop unnecessary background tasks
+  }
+}
+```
+Next, create a `SentianceNewModulePackage` class that will expose your new module and make it support auto-linking:
+
+```java
+public class SentianceNewModulePackage implements ReactPackage {
+  @NonNull
+  @Override
+  public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
+    List<NativeModule> modules = new ArrayList<>();
+    SentianceNewModule newModule = new SentianceNewModule();
+    modules.add(newModule);
+    return modules;
+  }
+
+  @NonNull
+  @Override
+  public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext) {
+    return Collections.emptyList();
   }
 }
 ```

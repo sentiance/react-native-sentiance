@@ -20,7 +20,6 @@
 - (void)addStationaryEventInfoToDict:(NSMutableDictionary*)dict event:(SENTStationaryEvent*)event;
 - (NSString*)convertTransportModeToString:(SENTTimelineTransportMode) mode;
 - (void)addTransportEventInfoToDict:(NSMutableDictionary*)dict event:(SENTTransportEvent*)event;
-- (NSMutableDictionary*)convertEvent:(SENTTimelineEvent*)event;
 - (nullable NSString*)convertSegmentCategoryToString:(SENTSegmentCategory)category;
 - (nullable NSString*)convertSegmentSubcategoryToString:(SENTSegmentSubcategory)subcategory;
 - (nullable NSString*)convertSegmentTypeToString:(SENTSegmentType)type;
@@ -235,6 +234,7 @@
     if (waypoint.isSpeedLimitInfoSet) {
         dict[@"speedLimitInMps"] = @(waypoint.speedLimitInMps);
     }
+    dict[@"isSpeedLimitInfoSet"] = @(waypoint.isSpeedLimitInfoSet);
     dict[@"hasUnlimitedSpeedLimit"] = @(waypoint.isSpeedLimitUnlimited);
 
     return dict;
@@ -269,6 +269,8 @@
     eventDict[@"id"] = [event eventId];
     eventDict[@"startTime"] = [event.startDate description];
     eventDict[@"startTimeEpoch"] = @((long) (event.startDate.timeIntervalSince1970 * 1000));
+    eventDict[@"lastUpdateTime"] = [event.lastUpdateDate description];
+    eventDict[@"lastUpdateTimeEpoch"] = @((long) (event.lastUpdateDate.timeIntervalSince1970 * 1000));
     if (event.endDate != nil) {
         eventDict[@"endTime"] = [event.endDate description];
         eventDict[@"endTimeEpoch"] = @((long) (event.endDate.timeIntervalSince1970 * 1000));
@@ -1223,13 +1225,13 @@
 }
 
 - (NSDictionary<NSString *, NSNumber *> *)convertSpeedingEvent:(SENTSpeedingEvent *)speedingEvent {
-    NSMutableDictionary<NSString *, NSNumber *> *dict = [self convertDrivingEvent:speedingEvent];
+    NSMutableDictionary *dict = [self convertDrivingEvent:speedingEvent];
     dict[@"waypoints"] = [self convertWaypointArray:speedingEvent.waypoints];
     return dict;
 }
 
 - (NSMutableDictionary<NSString *, NSNumber *> *)convertDrivingEvent:(SENTDrivingEvent *)drivingEvent {
-    NSMutableDictionary<NSString *, NSNumber *> *dict = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     dict[@"startTime"] = [drivingEvent.startDate description];
     dict[@"startTimeEpoch"] = @((long) (drivingEvent.startDate.timeIntervalSince1970 * 1000));
     dict[@"endTime"] = [drivingEvent.endDate description];

@@ -199,6 +199,10 @@ declare module "@sentiance-react-native/user-context" {
     longitude: number;
     accuracy: number;   // in meters
     timestamp: number;  // UTC epoch time in milliseconds
+    speedInMps?: number;  // in meters per second
+    speedLimitInMps?: number;  // in meters per second
+    hasUnlimitedSpeedLimit: boolean;
+    isSpeedLimitInfoSet: boolean;
   }
 
   export interface Venue {

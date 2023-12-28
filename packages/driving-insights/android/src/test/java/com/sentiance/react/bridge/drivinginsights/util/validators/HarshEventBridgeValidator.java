@@ -1,6 +1,7 @@
 package com.sentiance.react.bridge.drivinginsights.util.validators;
 
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_MAGNITUDE;
+
 import static org.junit.Assert.assertEquals;
 
 import com.facebook.react.bridge.JavaOnlyMap;

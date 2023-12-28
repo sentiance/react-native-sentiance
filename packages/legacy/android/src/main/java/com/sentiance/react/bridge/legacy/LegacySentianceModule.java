@@ -1,9 +1,9 @@
 package com.sentiance.react.bridge.legacy;
 
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_GET_TOKEN_ERROR;
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_START_TRIP_ERROR;
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_STOP_TRIP_ERROR;
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_GET_TOKEN_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_START_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_STOP_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -18,8 +18,8 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.sentiance.react.bridge.core.SentianceConverter;
-import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
+import com.sentiance.react.bridge.core.common.base.AbstractSentianceModule;
 import com.sentiance.sdk.OnInitCallback;
 import com.sentiance.sdk.ResetCallback;
 import com.sentiance.sdk.SdkStatus;
@@ -40,11 +40,13 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
   private final Handler mHandler = new Handler(Looper.getMainLooper());
   private final RNSentianceHelper legacySentianceHelper;
   private final StartFinishedHandlerCreator startFinishedHandlerCreator;
+  private final SentianceConverter converter;
 
   public LegacySentianceModule(ReactApplicationContext reactContext) {
     super(reactContext, Sentiance.getInstance(reactContext), new SentianceSubscriptionsManager());
     legacySentianceHelper = RNSentianceHelper.getInstance(reactContext);
     startFinishedHandlerCreator = new StartFinishedHandlerCreator();
+    converter = new SentianceConverter();
   }
 
   @NonNull
@@ -186,7 +188,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
         metadataMap.put(entry.getKey(), entry.getValue().toString());
       }
     }
-    final TransportMode transportModeHint = SentianceConverter.toTransportMode(hint);
+    final TransportMode transportModeHint = converter.toTransportMode(hint);
     mSdk.startTrip(metadataMap, transportModeHint, new StartTripCallback() {
       @Override
       public void onSuccess() {
@@ -269,7 +271,7 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
     mSdk.getUserAccessToken(new TokenResultCallback() {
       @Override
       public void onSuccess(@NonNull Token token) {
-        promise.resolve(SentianceConverter.convertToken(token));
+        promise.resolve(converter.convertToken(token));
       }
 
       @Override
@@ -329,10 +331,12 @@ public class LegacySentianceModule extends AbstractSentianceModule implements Li
 
   @Override
   @ReactMethod
-  protected void addListener(String eventName) {}
+  protected void addListener(String eventName) {
+  }
 
   @Override
   @ReactMethod
-  public void removeListeners(Integer count) {}
+  public void removeListeners(Integer count) {
+  }
 }
 

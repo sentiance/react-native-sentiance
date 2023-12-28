@@ -1,11 +1,11 @@
 {
   "name": "@sentiance-react-native/core",
   "version": "6.0.0",
-  "description": "React Native Sentiance core library",
+  "description": "The Sentiance Core library",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --verbose",
     "lint": "npx eslint lib/index.d.ts"
   },
   "keywords": [
@@ -18,7 +18,7 @@
   },
   "author": "",
   "license": "",
-  "homepage": "https://github.com/sentiance/react-native-sentiance/sentiance#readme",
+  "homepage": "https://github.com/sentiance/react-native-sentiance/tree/main/packages/core",
   "repository": "github:sentiance/react-native-sentiance",
   "publishConfig": {
     "access": "public"

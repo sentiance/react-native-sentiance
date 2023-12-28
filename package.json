@@ -4,7 +4,7 @@
   "description": "React Native libraries for the Sentiance SDK",
   "scripts": {
     "docs": "npx jsdoc2md index.d.ts > types.md",
-    "test": "jest",
+    "test": "jest --verbose",
     "androidTest": "cd ./packages && ./gradlew test",
     "fetch:npm_tag": "node ./scripts/determine-version-tag.js",
     "sync:package_versions": "node ./scripts/sync-package-versions.js",
@@ -18,7 +18,8 @@
     "packages/crash-detection",
     "packages/user-context",
     "packages/legacy",
-    "packages/driving-insights"
+    "packages/driving-insights",
+    "packages/event-timeline"
   ],
   "author": "",
   "license": "",

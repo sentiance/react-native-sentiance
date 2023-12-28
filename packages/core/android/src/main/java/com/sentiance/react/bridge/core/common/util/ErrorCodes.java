@@ -1,4 +1,4 @@
-package com.sentiance.react.bridge.core.utils;
+package com.sentiance.react.bridge.core.common.util;
 
 public class ErrorCodes {
   public static final String E_SDK_MISSING_PARAMS = "E_SDK_MISSING_PARAMS";

@@ -1,0 +1,46 @@
+plugins {
+  id "com.android.library"
+}
+
+def coreProj
+if (findProject(':core')) {
+  coreProj = project(':core')
+} else {
+  throw new GradleException('Could not find the @sentiance-react-native/core package, have you installed it?')
+}
+
+def eventTimelineProj
+if (findProject(':event-timeline')) {
+  eventTimelineProj = project(':event-timeline')
+} else {
+  throw new GradleException('Could not find the @sentiance-react-native/event-timeline package, have you installed it?')
+}
+
+android {
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+}
+
+apply from: "$coreProj.projectDir/package-json-reader.gradle"
+apply from: "$coreProj.projectDir/sentiance-version-finder.gradle"
+
+def corePackageJson = PackageJson.of(coreProj)
+applyAndroidVersionsFrom(corePackageJson)
+def sentianceSdkVersion = getSentianceSdkVersion()
+
+dependencies {
+  implementation(platform("com.sentiance:sdk-bom:${sentianceSdkVersion}"))
+  implementation coreProj
+  implementation eventTimelineProj
+
+  api "junit:junit:4.13.2"
+  api 'org.robolectric:robolectric:4.9'
+  api "org.powermock:powermock-module-junit4:1.6.6"
+  api "org.powermock:powermock-module-junit4-rule:1.6.6"
+  api "org.powermock:powermock-api-mockito:1.6.6"
+  api "org.powermock:powermock-classloading-xstream:1.6.6"
+}
+
+applyReactNativeDependency()

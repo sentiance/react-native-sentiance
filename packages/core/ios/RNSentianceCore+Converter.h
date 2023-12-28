@@ -54,5 +54,6 @@ typedef NS_ENUM(NSInteger, UIBackgroundRefreshStatus);
 - (NSArray *)convertPhoneUsageEvents:(NSArray<SENTPhoneUsageEvent*> *)phoneUsageEvents;
 - (NSArray *)convertCallWhileMovingEvents:(NSArray<SENTCallWhileMovingEvent*> *)callWhileMovingEvents;
 - (NSArray *)convertSpeedingEvents:(NSArray<SENTSpeedingEvent*> *)speedingEvents;
+- (NSMutableDictionary*)convertEvent:(SENTTimelineEvent*)event;
 
 @end

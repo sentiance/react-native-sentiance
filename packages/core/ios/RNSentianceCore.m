@@ -35,7 +35,7 @@ RCT_EXPORT_MODULE(SentianceCore)
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[SdkStatusUpdateEvent, TripTimeoutEvent, UserLinkEvent, UserActivityUpdateEvent, VehicleCrashEvent, VehicleCrashDiagnosticEvent, UserLinkEvent, UserContextUpdateEvent, DrivingInsightsReadyEvent];
+    return @[SdkStatusUpdateEvent, TripTimeoutEvent, UserLinkEvent, UserActivityUpdateEvent, VehicleCrashEvent, VehicleCrashDiagnosticEvent, UserLinkEvent, UserContextUpdateEvent, DrivingInsightsReadyEvent, TimelineUpdateEvent];
 }
 
 // Will be called when this module's first listener is added.
@@ -58,6 +58,10 @@ RCT_EXPORT_MODULE(SentianceCore)
     [self sendEventWithName:DrivingInsightsReadyEvent body:[self convertDrivingInsights:insights]];
 }
 
+- (void)onEventTimelineUpdateWithEvent:(SENTTimelineEvent * _Nonnull)event {
+    [self sendEventWithName:TimelineUpdateEvent body:[self convertEvent:event]];
+}
+
 - (instancetype)init
 {
     self = [super init];
@@ -68,6 +72,12 @@ RCT_EXPORT_MODULE(SentianceCore)
         [[Sentiance sharedInstance] setDrivingInsightsReadyDelegate:weakSelf];
     } nativeUnsubscribeLogic:^{
         [[Sentiance sharedInstance] setDrivingInsightsReadyDelegate:nil];
+    } subscriptionType:SENTSubscriptionTypeSingle];
+
+    [_subscriptionsManager addSupportedSubscriptionForEventType:TimelineUpdateEvent nativeSubscribeLogic:^{
+        [[Sentiance sharedInstance] setEventTimelineDelegate:weakSelf];
+    } nativeUnsubscribeLogic:^{
+        [[Sentiance sharedInstance] setEventTimelineDelegate:nil];
     } subscriptionType:SENTSubscriptionTypeSingle];
 
     return self;
@@ -1092,6 +1102,49 @@ RCT_EXPORT_METHOD(removeNativeListener:(NSString *)eventName subscriptionId:(NSI
     [_subscriptionsManager removeSubscriptionForId:subscriptionId eventType:eventName];
 
     resolve(nil);
+}
+
+RCT_EXPORT_METHOD(getTimelineEvent:(NSString *)eventId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    SENTTimelineEvent* event = [[Sentiance sharedInstance] getTimelineEventWithEventId:eventId];
+    if (event == nil) {
+        resolve(nil);
+    } else {
+        resolve([self convertEvent:event]);
+    }
+}
+
+RCT_EXPORT_METHOD(getTimelineUpdates:(nonnull NSNumber *)afterEpochTimeMs resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    NSTimeInterval interval = afterEpochTimeMs.longValue / 1000.0;
+    NSDate* date = [NSDate dateWithTimeIntervalSince1970:interval];
+    NSArray<SENTTimelineEvent *>* events = [[Sentiance sharedInstance] getTimelineUpdatesAfter:date];
+
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    for (SENTTimelineEvent* event in events) {
+        [array addObject:[self convertEvent:event]];
+    }
+
+    resolve(array);
+}
+
+RCT_EXPORT_METHOD(getTimelineEvents:(nonnull NSNumber *)fromEpochTimeMs toEpochTimeMs:(nonnull NSNumber *)toEpochTimeMs resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    NSTimeInterval fromInterval = fromEpochTimeMs.longValue / 1000.0;
+    NSDate* fromDate = [NSDate dateWithTimeIntervalSince1970:fromInterval];
+    NSTimeInterval toInterval = toEpochTimeMs.longValue / 1000.0;
+    NSDate* toDate = [NSDate dateWithTimeIntervalSince1970:toInterval];
+    NSArray<SENTTimelineEvent *>* events = [[Sentiance sharedInstance] getTimelineEventsFrom:fromDate to:toDate];
+
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    for (SENTTimelineEvent* event in events) {
+        [array addObject:[self convertEvent:event]];
+    }
+
+    resolve(array);
 }
 
 - (void)didUpdateUserContext:(SENTUserContext *)userContext

@@ -1,8 +1,19 @@
 package com.sentiance.react.bridge.drivinginsights;
 
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_DISTANCE;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_DURATION_SECONDS;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_END_TIME;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_END_TIME_EPOCH;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_ID;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_START_TIME;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_START_TIME_EPOCH;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_TRANSPORT_MODE;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_TYPE;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_WAYPOINTS;
+
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter;
 import com.sentiance.sdk.drivinginsights.api.CallWhileMovingEvent;
 import com.sentiance.sdk.drivinginsights.api.DrivingEvent;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsights;
@@ -10,53 +21,39 @@ import com.sentiance.sdk.drivinginsights.api.HarshDrivingEvent;
 import com.sentiance.sdk.drivinginsights.api.PhoneUsageEvent;
 import com.sentiance.sdk.drivinginsights.api.SafetyScores;
 import com.sentiance.sdk.drivinginsights.api.SpeedingEvent;
-import com.sentiance.sdk.ondevice.api.Waypoint;
 import com.sentiance.sdk.ondevice.api.event.TransportEvent;
-
-import java.util.List;
 
 public class DrivingInsightsConverter {
 
-  public static final String JS_KEY_ID = "id";
-  public static final String JS_KEY_TYPE = "type";
-  public static final String JS_KEY_END_TIME = "endTime";
-  public static final String JS_KEY_DISTANCE = "distance";
-  public static final String JS_KEY_LATITUDE = "latitude";
-  public static final String JS_KEY_ACCURACY = "accuracy";
-  public static final String JS_KEY_LONGITUDE = "longitude";
-  public static final String JS_KEY_WAYPOINTS = "waypoints";
   public static final String JS_KEY_MAGNITUDE = "magnitude";
-  public static final String JS_KEY_TIMESTAMP = "timestamp";
-  public static final String JS_KEY_START_TIME = "startTime";
   public static final String JS_KEY_FOCUS_SCORE = "focusScore";
   public static final String JS_KEY_SMOOTH_SCORE = "smoothScore";
   public static final String JS_KEY_LEGAL_SCORE = "legalScore";
   public static final String JS_KEY_CALL_WHILE_MOVING_SCORE = "callWhileMovingScore";
   public static final String JS_KEY_OVERALL_SCORE = "overallScore";
   public static final String JS_KEY_SAFETY_SCORES = "safetyScores";
-  public static final String JS_KEY_END_TIME_EPOCH = "endTimeEpoch";
-  public static final String JS_KEY_TRANSPORT_MODE = "transportMode";
   public static final String JS_KEY_TRANSPORT_EVENT = "transportEvent";
-  public static final String JS_KEY_START_TIME_EPOCH = "startTimeEpoch";
-  public static final String JS_KEY_DURATION_SECONDS = "durationInSeconds";
-  public static final String JS_KEY_SPEED_IN_MPS = "speedInMps";
-  public static final String JS_KEY_SPEED_LIMIT_IN_MPS = "speedLimitInMps";
-  public static final String JS_KEY_HAS_UNLIMITED_SPEED_LIMIT = "hasUnlimitedSpeedLimit";
   public static final String JS_KEY_MAX_TRAVELLED_SPEED_MPS = "maxTravelledSpeedInMps";
   public static final String JS_KEY_MIN_TRAVELLED_SPEED_MPS = "minTravelledSpeedInMps";
 
-  public static WritableMap convertHarshDrivingEvent(HarshDrivingEvent event) {
+  private final OnDeviceTypesConverter onDeviceTypesConverter;
+
+  public DrivingInsightsConverter() {
+    onDeviceTypesConverter = new OnDeviceTypesConverter();
+  }
+
+  public WritableMap convertHarshDrivingEvent(HarshDrivingEvent event) {
     WritableMap map = convertDrivingEvent(event);
     map.putDouble(JS_KEY_MAGNITUDE, event.getMagnitude());
 
     return map;
   }
 
-  public static WritableMap convertPhoneUsageEvent(PhoneUsageEvent event) {
+  public WritableMap convertPhoneUsageEvent(PhoneUsageEvent event) {
     return convertDrivingEvent(event);
   }
 
-  public static WritableMap convertCallWhileMovingEvent(CallWhileMovingEvent event) {
+  public WritableMap convertCallWhileMovingEvent(CallWhileMovingEvent event) {
     WritableMap map = convertDrivingEvent(event);
 
     if (event.getMinTraveledSpeedInMps() != null) {
@@ -70,14 +67,14 @@ public class DrivingInsightsConverter {
     return map;
   }
 
-  public static WritableMap convertSpeedingEvent(SpeedingEvent event) {
+  public WritableMap convertSpeedingEvent(SpeedingEvent event) {
     WritableMap map = convertDrivingEvent(event);
-    map.putArray(JS_KEY_WAYPOINTS, convertWaypointList(event.getWaypoints()));
+    map.putArray(JS_KEY_WAYPOINTS, onDeviceTypesConverter.convertWaypoints(event.getWaypoints()));
 
     return map;
   }
 
-  private static WritableMap convertDrivingEvent(DrivingEvent event) {
+  private WritableMap convertDrivingEvent(DrivingEvent event) {
     WritableMap map = Arguments.createMap();
 
     map.putString(JS_KEY_START_TIME, event.getStartTime().toString());
@@ -88,7 +85,7 @@ public class DrivingInsightsConverter {
     return map;
   }
 
-  public static WritableMap convertDrivingInsights(DrivingInsights drivingInsights) {
+  public WritableMap convertDrivingInsights(DrivingInsights drivingInsights) {
     WritableMap map = Arguments.createMap();
 
     map.putMap(JS_KEY_TRANSPORT_EVENT, convertTransportEvent(drivingInsights.getTransportEvent()));
@@ -97,7 +94,7 @@ public class DrivingInsightsConverter {
     return map;
   }
 
-  private static WritableMap convertSafetyScores(SafetyScores safetyScores) {
+  private WritableMap convertSafetyScores(SafetyScores safetyScores) {
     WritableMap map = Arguments.createMap();
 
     Float smoothScore = safetyScores.getSmoothScore();
@@ -128,7 +125,7 @@ public class DrivingInsightsConverter {
     return map;
   }
 
-  private static WritableMap convertTransportEvent(TransportEvent event) {
+  private WritableMap convertTransportEvent(TransportEvent event) {
     WritableMap map = Arguments.createMap();
 
     map.putString(JS_KEY_ID, event.getId());
@@ -146,38 +143,12 @@ public class DrivingInsightsConverter {
 
     map.putString(JS_KEY_TYPE, event.getEventType().toString());
     map.putString(JS_KEY_TRANSPORT_MODE, event.getTransportMode().toString());
-    map.putArray(JS_KEY_WAYPOINTS, convertWaypointList(event.getWaypoints()));
+    map.putArray(JS_KEY_WAYPOINTS, onDeviceTypesConverter.convertWaypoints(event.getWaypoints()));
 
     if (event.getDistanceInMeters() != null) {
       map.putInt(JS_KEY_DISTANCE, event.getDistanceInMeters());
     }
 
     return map;
-  }
-
-  private static WritableArray convertWaypointList(List<Waypoint> waypointList) {
-    WritableArray array = Arguments.createArray();
-    for (Waypoint waypoint : waypointList) {
-      array.pushMap(convertWaypoint(waypoint));
-    }
-    return array;
-  }
-
-  public static WritableMap convertWaypoint(Waypoint waypoint) {
-    WritableMap waypointMap = Arguments.createMap();
-
-    waypointMap.putDouble(JS_KEY_LATITUDE, waypoint.getLatitude());
-    waypointMap.putDouble(JS_KEY_LONGITUDE, waypoint.getLongitude());
-    waypointMap.putInt(JS_KEY_ACCURACY, waypoint.getAccuracyInMeters());
-    waypointMap.putDouble(JS_KEY_TIMESTAMP, waypoint.getTimestamp());
-    if (waypoint.hasSpeed()) {
-      waypointMap.putDouble(JS_KEY_SPEED_IN_MPS, waypoint.getSpeedInMps());
-    }
-    if (waypoint.isSpeedLimitInfoSet()) {
-      waypointMap.putDouble(JS_KEY_SPEED_LIMIT_IN_MPS, waypoint.getSpeedLimitInMps());
-    }
-    waypointMap.putBoolean(JS_KEY_HAS_UNLIMITED_SPEED_LIMIT, waypoint.hasUnlimitedSpeedLimit());
-
-    return waypointMap;
   }
 }

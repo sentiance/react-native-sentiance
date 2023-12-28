@@ -6,8 +6,8 @@ import androidx.annotation.Nullable;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
-import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
+import com.sentiance.react.bridge.core.common.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.usercontext.utils.ErrorCodes;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.usercontext.api.RequestUserContextError;
@@ -20,12 +20,14 @@ public class SentianceUserContextModule extends AbstractSentianceModule {
   private static final String NATIVE_MODULE_NAME = "SentianceUserContext";
 
   private final SentianceUserContextEmitter emitter;
+  private final SentianceUserContextConverter converter;
   private @Nullable
   UserContextUpdateListener mUserContextUpdateListener;
 
   public SentianceUserContextModule(ReactApplicationContext reactContext) {
     super(reactContext, Sentiance.getInstance(reactContext), new SentianceSubscriptionsManager());
     emitter = new SentianceUserContextEmitter(reactContext);
+    converter = new SentianceUserContextConverter();
   }
 
   @NonNull
@@ -46,11 +48,11 @@ public class SentianceUserContextModule extends AbstractSentianceModule {
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
           UserContext userContext = pendingOperation.getResult();
-          promise.resolve(SentianceUserContextConverter.convertUserContext(userContext));
+          promise.resolve(converter.convertUserContext(userContext));
         } else {
           RequestUserContextError error = pendingOperation.getError();
           promise.reject(ErrorCodes.E_SDK_REQUEST_USER_CONTEXT_ERROR,
-            SentianceUserContextConverter.stringifyGetUserContextError(error));
+            converter.stringifyGetUserContextError(error));
         }
       });
   }

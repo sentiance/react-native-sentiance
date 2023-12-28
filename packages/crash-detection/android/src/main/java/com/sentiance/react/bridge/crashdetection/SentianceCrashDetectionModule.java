@@ -5,8 +5,8 @@ import androidx.annotation.NonNull;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
-import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
+import com.sentiance.react.bridge.core.common.base.AbstractSentianceModule;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.crashdetection.api.CrashDetectionApi;
 

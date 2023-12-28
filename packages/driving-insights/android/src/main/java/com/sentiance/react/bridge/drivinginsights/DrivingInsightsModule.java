@@ -12,8 +12,8 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
-import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
+import com.sentiance.react.bridge.core.common.base.AbstractSentianceModule;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.drivinginsights.api.CallWhileMovingEvent;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsights;
@@ -33,6 +33,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
 
   private final DrivingInsightsEmitter mEmitter;
   private final DrivingInsightsApi mDrivingInsightsApi;
+  private final DrivingInsightsConverter converter;
 
   public DrivingInsightsModule(ReactApplicationContext reactApplicationContext,
                                Sentiance sentiance,
@@ -42,6 +43,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
     super(reactApplicationContext, sentiance, subscriptionsManager);
     mDrivingInsightsApi = drivingInsightsApi;
     mEmitter = emitter;
+    converter = new DrivingInsightsConverter();
   }
 
   @NonNull
@@ -70,7 +72,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
       List<HarshDrivingEvent> harshDrivingEvents = mDrivingInsightsApi.getHarshDrivingEvents(transportId);
       WritableArray array = Arguments.createArray();
       for (HarshDrivingEvent event : harshDrivingEvents) {
-        array.pushMap(DrivingInsightsConverter.convertHarshDrivingEvent(event));
+        array.pushMap(converter.convertHarshDrivingEvent(event));
       }
       promise.resolve(array);
     } catch (Exception e) {
@@ -88,7 +90,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
       List<PhoneUsageEvent> phoneUsageEvents = mDrivingInsightsApi.getPhoneUsageEvents(transportId);
       WritableArray array = Arguments.createArray();
       for (PhoneUsageEvent event : phoneUsageEvents) {
-        array.pushMap(DrivingInsightsConverter.convertPhoneUsageEvent(event));
+        array.pushMap(converter.convertPhoneUsageEvent(event));
       }
       promise.resolve(array);
     } catch (Exception e) {
@@ -106,7 +108,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
       List<CallWhileMovingEvent> callWhileMovingEvents = mDrivingInsightsApi.getCallWhileMovingEvents(transportId);
       WritableArray array = Arguments.createArray();
       for (CallWhileMovingEvent event : callWhileMovingEvents) {
-        array.pushMap(DrivingInsightsConverter.convertCallWhileMovingEvent(event));
+        array.pushMap(converter.convertCallWhileMovingEvent(event));
       }
       promise.resolve(array);
     } catch (Exception e) {
@@ -124,7 +126,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
       List<SpeedingEvent> speedingEvents = mDrivingInsightsApi.getSpeedingEvents(transportId);
       WritableArray array = Arguments.createArray();
       for (SpeedingEvent event : speedingEvents) {
-        array.pushMap(DrivingInsightsConverter.convertSpeedingEvent(event));
+        array.pushMap(converter.convertSpeedingEvent(event));
       }
       promise.resolve(array);
     } catch (Exception e) {
@@ -142,7 +144,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
       DrivingInsights drivingInsights = mDrivingInsightsApi.getDrivingInsights(transportId);
       WritableMap convertedDrivingInsights = null;
       if (drivingInsights != null) {
-        convertedDrivingInsights = DrivingInsightsConverter.convertDrivingInsights(drivingInsights);
+        convertedDrivingInsights = converter.convertDrivingInsights(drivingInsights);
       }
       promise.resolve(convertedDrivingInsights);
     } catch (Exception e) {
@@ -159,7 +161,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
 
     switch (eventName) {
       case DRIVING_INSIGHTS_READY_EVENT:
-        addSubscription(eventName, subscriptionId, (DrivingInsightsReadyListener) mEmitter::sendDrivingInsightsReadyEvent);
+        mSubscriptionsManager.addSubscription(eventName, subscriptionId, (DrivingInsightsReadyListener) mEmitter::sendDrivingInsightsReadyEvent);
         break;
     }
     promise.resolve(null);
@@ -172,7 +174,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
       return;
     }
 
-    removeSubscription(subscriptionId, eventName);
+    mSubscriptionsManager.removeSubscription(subscriptionId, eventName);
     promise.resolve(null);
   }
 

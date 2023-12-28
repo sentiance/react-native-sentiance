@@ -10,9 +10,9 @@ import static org.mockito.Mockito.when;
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.JavaOnlyMap;
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.sentiance.react.bridge.test.ReactNativeModuleTest;
 import com.sentiance.react.bridge.drivinginsights.util.validators.CallWhileMovingEventBridgeValidator;
 import com.sentiance.react.bridge.drivinginsights.util.validators.DrivingInsightsBridgeValidator;
 import com.sentiance.react.bridge.drivinginsights.util.validators.HarshEventBridgeValidator;
@@ -42,7 +42,6 @@ import org.robolectric.RobolectricTestRunner;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 @RunWith(RobolectricTestRunner.class)
@@ -52,10 +51,6 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
   private DrivingInsightsApi mDrivingInsightsApi;
   @Mock
   private DrivingInsightsEmitter mDrivingInsightsEmitter;
-  @Captor
-  private ArgumentCaptor<String> stringCaptor;
-  @Captor
-  private ArgumentCaptor<Integer> intCaptor;
   @Captor
   private ArgumentCaptor<DrivingInsightsReadyListener> drivingInsightsReadyListenerCaptor;
 
@@ -315,6 +310,7 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
       new TransportEvent(
         transportId == null ? "transport_id" : transportId,
         DateTime.fromMillis(now),
+        DateTime.fromMillis(now + 10000),
         DateTime.fromMillis(now + 10000),
         TransportMode.CAR,
         Collections.singletonList(

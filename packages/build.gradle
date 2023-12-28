@@ -1,18 +1,16 @@
-plugins {
-  id 'com.android.library' version '4.2.2' apply false
+buildscript {
+  repositories {
+    google()
+    gradlePluginPortal()
+  }
+
+  dependencies {
+    classpath "com.android.tools.build:gradle:4.2.2"
+  }
 }
 
-subprojects {
-  buildscript {
-    repositories {
-      google()
-      gradlePluginPortal()
-    }
-
-    dependencies {
-      classpath('com.android.tools.build:gradle:4.2.2')
-    }
-  }
+plugins {
+  id 'com.android.library' version '4.2.2' apply false
 }
 
 task clean(type: Delete) {

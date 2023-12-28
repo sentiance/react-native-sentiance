@@ -1,26 +1,29 @@
 package com.sentiance.react.bridge.drivinginsights.util.validators;
 
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_CALL_WHILE_MOVING_SCORE;
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_DISTANCE;
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_DURATION_SECONDS;
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_END_TIME;
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_END_TIME_EPOCH;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_FOCUS_SCORE;
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_ID;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_LEGAL_SCORE;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_OVERALL_SCORE;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_SAFETY_SCORES;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_SMOOTH_SCORE;
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_START_TIME;
-import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_START_TIME_EPOCH;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_TRANSPORT_EVENT;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_DISTANCE;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_DURATION_SECONDS;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_END_TIME;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_END_TIME_EPOCH;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_ID;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_START_TIME;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_START_TIME_EPOCH;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_TRANSPORT_MODE;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.JavaOnlyMap;
-import com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter;
+import com.sentiance.react.bridge.test.validators.BridgeValidator;
+import com.sentiance.react.bridge.test.validators.WaypointsBridgeValidator;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsights;
 import com.sentiance.sdk.drivinginsights.api.SafetyScores;
 import com.sentiance.sdk.ondevice.api.event.TransportEvent;
@@ -72,10 +75,10 @@ public class DrivingInsightsBridgeValidator implements BridgeValidator<DrivingIn
 
     assertEquals(
       transportEvent.getEventType().toString(),
-      transformedTransportEvent.getString(DrivingInsightsConverter.JS_KEY_TYPE));
+      transformedTransportEvent.getString(JS_KEY_TYPE));
     assertEquals(
       transportEvent.getTransportMode().toString(),
-      transformedTransportEvent.getString(DrivingInsightsConverter.JS_KEY_TRANSPORT_MODE));
+      transformedTransportEvent.getString(JS_KEY_TRANSPORT_MODE));
 
     Integer distanceInMeters = transportEvent.getDistanceInMeters();
     if (distanceInMeters == null) {

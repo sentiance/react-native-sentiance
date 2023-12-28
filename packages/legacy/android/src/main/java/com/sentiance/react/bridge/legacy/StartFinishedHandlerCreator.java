@@ -13,16 +13,18 @@ import java.util.List;
 public class StartFinishedHandlerCreator {
 
   private final List<OnStartFinishedHandler> startFinishedHandlers;
+  private final SentianceConverter converter;
 
   StartFinishedHandlerCreator() {
     this.startFinishedHandlers = new ArrayList<>();
+    converter = new SentianceConverter();
   }
 
   OnStartFinishedHandler createNewStartFinishedHandler(final Promise promise) {
     final OnStartFinishedHandler startFinishedHandler = new OnStartFinishedHandler() {
       @Override
       public void onStartFinished(@NonNull SdkStatus sdkStatus) {
-        promise.resolve(SentianceConverter.convertSdkStatus(sdkStatus));
+        promise.resolve(converter.convertSdkStatus(sdkStatus));
         removeStartFinishHandler(this);
       }
     };

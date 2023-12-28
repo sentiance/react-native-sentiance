@@ -1,4 +1,4 @@
-package com.sentiance.react.bridge.core.base;
+package com.sentiance.react.bridge.core.common.base;
 
 import android.content.Context;
 import android.os.Handler;

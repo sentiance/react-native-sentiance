@@ -1,11 +1,11 @@
 {
   "name": "@sentiance-react-native/driving-insights",
   "version": "6.0.0",
-  "description": "Sentiance Driving Insights SDK",
+  "description": "The Sentiance Driving Insights library",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "test": "jest",
+    "test": "jest --verbose",
     "lint": "npx eslint lib/index.d.ts"
   },
   "keywords": [
@@ -19,7 +19,7 @@
   },
   "author": "",
   "license": "",
-  "homepage": "https://github.com/sentiance/react-native-sentiance/user-context#readme",
+  "homepage": "https://github.com/sentiance/react-native-sentiance/tree/main/packages/driving-insights",
   "repository": "github:sentiance/react-native-sentiance",
   "publishConfig": {
     "access": "public"

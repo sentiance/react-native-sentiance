@@ -84,6 +84,7 @@ declare module "@sentiance-react-native/driving-insights" {
     speedInMps?: number;  // in meters per second
     speedLimitInMps?: number;  // in meters per second
     hasUnlimitedSpeedLimit: boolean;
+    isSpeedLimitInfoSet: boolean;
   }
 
   export interface SentianceDrivingInsights {

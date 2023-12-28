@@ -1,23 +1,28 @@
 package com.sentiance.react.bridge.crashdetection;
 
-import static com.sentiance.react.bridge.core.common.SentianceCommonConverter.convertLocation;
-
 import android.location.Location;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.sentiance.react.bridge.core.SentianceConverter;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashDiagnostic;
 import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 
 public class SentianceCrashDetectionConverter {
 
-  public static WritableMap convertVehicleCrashEvent(VehicleCrashEvent crashEvent) {
+  private final SentianceConverter coreConverter;
+
+  public SentianceCrashDetectionConverter() {
+    coreConverter = new SentianceConverter();
+  }
+
+  public WritableMap convertVehicleCrashEvent(VehicleCrashEvent crashEvent) {
     WritableMap map = Arguments.createMap();
 
     map.putDouble("time", (double) crashEvent.getTime());
 
-    WritableMap locationMap = convertLocation(crashEvent.getLocation());
+    WritableMap locationMap = coreConverter.convertLocation(crashEvent.getLocation());
     map.putMap("location", locationMap);
 
     map.putDouble("magnitude", crashEvent.getMagnitude());
@@ -27,14 +32,14 @@ public class SentianceCrashDetectionConverter {
 
     WritableArray precedingLocationsArray = Arguments.createArray();
     for (Location location : crashEvent.getPrecedingLocations()) {
-      precedingLocationsArray.pushMap(convertLocation(location));
+      precedingLocationsArray.pushMap(coreConverter.convertLocation(location));
     }
     map.putArray("precedingLocations", precedingLocationsArray);
 
     return map;
   }
 
-  public static WritableMap convertVehicleCrashDiagnostic(VehicleCrashDiagnostic vehicleCrashDiagnostic) {
+  public WritableMap convertVehicleCrashDiagnostic(VehicleCrashDiagnostic vehicleCrashDiagnostic) {
     WritableMap map = Arguments.createMap();
 
     map.putString("crashDetectionState", vehicleCrashDiagnostic.getCrashDetectionState().name());

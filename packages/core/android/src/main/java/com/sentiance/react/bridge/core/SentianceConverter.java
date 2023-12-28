@@ -1,7 +1,5 @@
 package com.sentiance.react.bridge.core;
 
-import static com.sentiance.react.bridge.core.common.SentianceCommonConverter.convertLocation;
-
 import android.location.Location;
 
 import com.facebook.react.bridge.Arguments;
@@ -40,11 +38,18 @@ import java.util.Map;
 
 public class SentianceConverter {
 
-  public static WritableMap createEmptyResult() {
+  public static final String JS_KEY_ALTITUDE = "altitude";
+  public static final String JS_KEY_PROVIDER = "provider";
+  public static final String JS_KEY_TIMESTAMP = "timestamp";
+  public static final String JS_KEY_LATITUDE = "latitude";
+  public static final String JS_KEY_LONGITUDE = "longitude";
+  public static final String JS_KEY_ACCURACY = "accuracy";
+
+  public WritableMap createEmptyResult() {
     return Arguments.createMap();
   }
 
-  public static Map<String, String> convertReadableMapToMap(ReadableMap inputMap) {
+  public Map<String, String> convertReadableMapToMap(ReadableMap inputMap) {
     Map<String, String> map = new HashMap<>();
     ReadableMapKeySetIterator iterator = inputMap.keySetIterator();
     while (iterator.hasNextKey()) {
@@ -58,7 +63,7 @@ public class SentianceConverter {
     return map;
   }
 
-  public static TripType toTripType(final String type) {
+  public TripType toTripType(final String type) {
     if (type.equals("sdk") || type.equals("TRIP_TYPE_SDK")) {
       return TripType.SDK_TRIP;
     } else if (type.equals("external") || type.equals("TRIP_TYPE_EXTERNAL")) {
@@ -68,7 +73,7 @@ public class SentianceConverter {
     }
   }
 
-  public static TransportMode toTransportMode(int t) {
+  public TransportMode toTransportMode(int t) {
     switch (t) {
       case 2:
         return TransportMode.CAR;
@@ -95,7 +100,7 @@ public class SentianceConverter {
     }
   }
 
-  public static String convertInitState(InitState initState) {
+  public String convertInitState(InitState initState) {
     switch (initState) {
       case NOT_INITIALIZED:
         return "NOT_INITIALIZED";
@@ -110,7 +115,7 @@ public class SentianceConverter {
     }
   }
 
-  public static WritableMap convertToken(Token token) {
+  public WritableMap convertToken(Token token) {
     WritableMap map = Arguments.createMap();
     try {
       map.putString("tokenId", token.getTokenId());
@@ -121,7 +126,7 @@ public class SentianceConverter {
     return map;
   }
 
-  public static WritableMap convertUserCreationResult(UserCreationResult result) {
+  public WritableMap convertUserCreationResult(UserCreationResult result) {
     UserInfo userInfo = result.getUserInfo();
     Token token = userInfo.getToken();
 
@@ -136,7 +141,7 @@ public class SentianceConverter {
     return userCreationResult;
   }
 
-  public static WritableMap convertUserLinkingResult(UserLinkingResult result) {
+  public WritableMap convertUserLinkingResult(UserLinkingResult result) {
     UserInfo userInfo = result.getUserInfo();
     Token token = userInfo.getToken();
 
@@ -151,14 +156,14 @@ public class SentianceConverter {
     return userLinkingResult;
   }
 
-  public static WritableMap convertInstallId(String installId) {
+  public WritableMap convertInstallId(String installId) {
     WritableMap map = Arguments.createMap();
     map.putString("installId", installId);
 
     return map;
   }
 
-  public static WritableMap convertSdkStatus(SdkStatus status) {
+  public WritableMap convertSdkStatus(SdkStatus status) {
     WritableMap map = Arguments.createMap();
     map.putString("startStatus", status.startStatus.name());
     map.putString("detectionStatus", status.detectionStatus.name());
@@ -186,7 +191,7 @@ public class SentianceConverter {
     return map;
   }
 
-  public static WritableMap convertUserActivity(UserActivity activity) {
+  public WritableMap convertUserActivity(UserActivity activity) {
     WritableMap map = Arguments.createMap();
     map.putString("type", convertUserActivityType(activity.getActivityType()));
 
@@ -209,7 +214,7 @@ public class SentianceConverter {
     return map;
   }
 
-  public static String convertTripType(TripType tripType) {
+  public String convertTripType(TripType tripType) {
     switch (tripType) {
       case ANY:
         return "ANY";
@@ -222,7 +227,7 @@ public class SentianceConverter {
     }
   }
 
-  public static String convertUserActivityType(UserActivityType activityType) {
+  public String convertUserActivityType(UserActivityType activityType) {
     switch (activityType) {
       case TRIP:
         return "USER_ACTIVITY_TYPE_TRIP";
@@ -235,23 +240,23 @@ public class SentianceConverter {
     }
   }
 
-  public static WritableMap convertEnableDetectionsResult(EnableDetectionsResult enableDetectionsResult) {
+  public WritableMap convertEnableDetectionsResult(EnableDetectionsResult enableDetectionsResult) {
     return convertDetectionsResult(enableDetectionsResult.getSdkStatus(),
       enableDetectionsResult.getDetectionStatus());
   }
 
-  public static WritableMap convertDisableDetectionsResult(DisableDetectionsResult disableDetectionsResult) {
+  public WritableMap convertDisableDetectionsResult(DisableDetectionsResult disableDetectionsResult) {
     return convertDetectionsResult(disableDetectionsResult.getSdkStatus(),
       disableDetectionsResult.getDetectionStatus());
   }
 
-  public static WritableMap convertResetResult(ResetResult resetResult) {
+  public WritableMap convertResetResult(ResetResult resetResult) {
     WritableMap result = Arguments.createMap();
     result.putString("initState", resetResult.getInitState().name());
     return result;
   }
 
-  private static WritableMap convertDetectionsResult(SdkStatus sdkStatus, DetectionStatus detectionStatus) {
+  private WritableMap convertDetectionsResult(SdkStatus sdkStatus, DetectionStatus detectionStatus) {
     WritableMap result = Arguments.createMap();
     WritableMap sdkStatusMap = convertSdkStatus(sdkStatus);
 
@@ -261,7 +266,22 @@ public class SentianceConverter {
     return result;
   }
 
-  public static String stringifyEnableDetectionsError(EnableDetectionsError error) {
+  public WritableMap convertLocation(Location location) {
+    WritableMap locationMap = Arguments.createMap();
+    locationMap.putDouble(JS_KEY_TIMESTAMP, location.getTime());
+    locationMap.putDouble(JS_KEY_LATITUDE, location.getLatitude());
+    locationMap.putDouble(JS_KEY_LONGITUDE, location.getLongitude());
+    if (location.hasAccuracy()) {
+      locationMap.putDouble(JS_KEY_ACCURACY, location.getAccuracy());
+    }
+    if (location.hasAltitude()) {
+      locationMap.putDouble(JS_KEY_ALTITUDE, location.getAltitude());
+    }
+    locationMap.putString(JS_KEY_PROVIDER, location.getProvider());
+    return locationMap;
+  }
+
+  public String stringifyEnableDetectionsError(EnableDetectionsError error) {
     EnableDetectionsFailureReason reason = error.getReason();
     String details = "";
     switch (reason) {
@@ -278,19 +298,19 @@ public class SentianceConverter {
     return String.format("Reason: %s - %s", reason.name(), details);
   }
 
-  public static String stringifyUserLinkingError(UserLinkingError error) {
+  public String stringifyUserLinkingError(UserLinkingError error) {
     return String.format("Reason: %s - %s", error.getReason().name(), error.getDetails());
   }
 
-  public static String stringifyUserCreationError(UserCreationError error) {
+  public String stringifyUserCreationError(UserCreationError error) {
     return String.format("Reason: %s - %s", error.getReason().name(), error.getDetails());
   }
 
-  public static String stringifyResetError(ResetError error) {
+  public String stringifyResetError(ResetError error) {
     return String.format("%s - caused by: %s", error.getReason().name(), error.getException());
   }
 
-  public static String stringifyStartTripError(StartTripError error) {
+  public String stringifyStartTripError(StartTripError error) {
     StartTripFailureReason reason = error.getReason();
     String details = "";
     switch (reason) {
@@ -313,7 +333,7 @@ public class SentianceConverter {
     return String.format("Reason: %s - %s", reason.name(), details);
   }
 
-  public static String stringifyStopTripError(StopTripError error) {
+  public String stringifyStopTripError(StopTripError error) {
     StopTripFailureReason reason = error.getReason();
     String details = "";
     if (reason == StopTripFailureReason.NO_ONGOING_TRIP) {
@@ -322,7 +342,7 @@ public class SentianceConverter {
     return String.format("Reason: %s - %s", reason.name(), details);
   }
 
-  public static String stringifyUserAccessTokenError(UserAccessTokenError error) {
+  public String stringifyUserAccessTokenError(UserAccessTokenError error) {
     UserAccessTokenFailureReason reason = error.getReason();
     String details = "";
     switch (reason) {

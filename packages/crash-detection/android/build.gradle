@@ -30,9 +30,8 @@ applyAndroidVersionsFrom(corePackageJson)
 def sentianceSdkVersion = getSentianceSdkVersion()
 
 dependencies {
-  api coreProj
-
   implementation(platform("com.sentiance:sdk-bom:${sentianceSdkVersion}"))
+  api coreProj
   api("com.sentiance:sdk-crash-detection") { transitive = true }
 }
 

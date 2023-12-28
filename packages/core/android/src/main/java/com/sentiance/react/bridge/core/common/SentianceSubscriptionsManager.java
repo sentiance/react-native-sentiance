@@ -3,7 +3,7 @@ package com.sentiance.react.bridge.core.common;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.sentiance.react.bridge.core.utils.SingleParamRunnable;
+import com.sentiance.react.bridge.core.common.util.SingleParamRunnable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,14 +23,14 @@ public class SentianceSubscriptionsManager {
   }
 
   public <T> void addSupportedSubscription(String eventType, SingleParamRunnable<T> nativeSubscribeLogic,
-                                       SingleParamRunnable<T> nativeUnsubscribeLogic, SubscriptionType subscriptionType) {
+                                           SingleParamRunnable<T> nativeUnsubscribeLogic, SubscriptionType subscriptionType) {
     if (mSupportedSubscriptions.containsKey(eventType)) {
       throw new IllegalArgumentException(String.format("A subscription definition for %s has already been added.",
-                                                       eventType));
+        eventType));
     }
 
     mSupportedSubscriptions.put(eventType, new SubscriptionDefinition<>(eventType, nativeSubscribeLogic,
-                                                                        nativeUnsubscribeLogic, subscriptionType));
+      nativeUnsubscribeLogic, subscriptionType));
   }
 
   public <T> void addSubscription(@NonNull String eventType, int subscriptionId, @NonNull T eventEmitterLogic) {

@@ -1,7 +1,7 @@
 {
   "name": "@sentiance-react-native/user-context",
   "version": "6.0.0",
-  "description": "React Native Sentiance - This module provides an easy API to add user context awareness into your apps.",
+  "description": "The Sentiance User Context library",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
@@ -18,7 +18,7 @@
   },
   "author": "",
   "license": "",
-  "homepage": "https://github.com/sentiance/react-native-sentiance/user-context#readme",
+  "homepage": "https://github.com/sentiance/react-native-sentiance/tree/main/packages/user-context",
   "repository": "github:sentiance/react-native-sentiance",
   "publishConfig": {
     "access": "public"

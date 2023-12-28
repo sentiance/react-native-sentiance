@@ -95,6 +95,9 @@ const TARGET_MODULES = [
   {
     name: 'driving-insights'
   },
+  {
+    name: 'event-timeline'
+  },
 ];
 
 if (isNewVersionSpecified) {

@@ -1,0 +1,26 @@
+{
+  "name": "@sentiance-react-native/event-timeline",
+  "version": "6.0.0",
+  "description": "The Sentiance Event Timeline library",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "test": "jest --verbose",
+    "lint": "npx eslint lib/index.d.ts"
+  },
+  "keywords": [
+    "react-native",
+    "event-timeline",
+    "sentiance"
+  ],
+  "peerDependencies": {
+    "@sentiance-react-native/core": "6.0.0"
+  },
+  "author": "",
+  "license": "",
+  "homepage": "https://github.com/sentiance/react-native-sentiance/tree/main/packages/event-timeline",
+  "repository": "github:sentiance/react-native-sentiance",
+  "publishConfig": {
+    "access": "public"
+  }
+}

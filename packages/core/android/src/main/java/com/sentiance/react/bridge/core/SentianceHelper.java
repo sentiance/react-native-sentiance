@@ -1,9 +1,9 @@
 package com.sentiance.react.bridge.core;
 
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_DISABLE_DETECTIONS_ERROR;
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_ENABLE_DETECTIONS_ERROR;
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_USER_LINK_AUTH_CODE_ERROR;
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_USER_LINK_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_DISABLE_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_ENABLE_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_USER_LINK_AUTH_CODE_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_USER_LINK_ERROR;
 
 import android.app.Notification;
 import android.content.Context;
@@ -38,20 +38,19 @@ public class SentianceHelper {
   private final SentianceEmitter emitter;
   private final WeakReference<Context> weakContext;
   private final UserLinker userLinker;
-
   private final OnSdkStatusUpdateHandler onSdkStatusUpdateHandler = this::onSdkStatusUpdated;
-
   private final SdkStatusUpdateListener onSdkStatusUpdateListener = this::onSdkStatusUpdated;
+  private final SentianceConverter converter;
 
   SdkStatusUpdateListener getOnSdkStatusUpdateListener() {
     return onSdkStatusUpdateListener;
   }
 
-
   protected SentianceHelper(Context context) {
     emitter = new SentianceEmitter(context);
     weakContext = new WeakReference<>(context);
     userLinker = new UserLinker(emitter);
+    converter = new SentianceConverter();
   }
 
   public static SentianceHelper getInstance(Context context) {
@@ -143,13 +142,13 @@ public class SentianceHelper {
         if (pendingOperation.isSuccessful()) {
           EnableDetectionsResult result = pendingOperation.getResult();
           if (promise != null) {
-            promise.resolve(SentianceConverter.convertEnableDetectionsResult(result));
+            promise.resolve(converter.convertEnableDetectionsResult(result));
           }
         } else {
           EnableDetectionsError error = pendingOperation.getError();
           if (promise != null) {
             promise.reject(E_SDK_ENABLE_DETECTIONS_ERROR,
-              SentianceConverter.stringifyEnableDetectionsError(error));
+              converter.stringifyEnableDetectionsError(error));
           }
         }
       });
@@ -161,7 +160,7 @@ public class SentianceHelper {
             .addOnCompleteListener(pendingOperation -> {
               if (pendingOperation.isSuccessful()) {
                 DisableDetectionsResult result = pendingOperation.getResult();
-                promise.resolve(SentianceConverter.convertDisableDetectionsResult(result));
+                promise.resolve(converter.convertDisableDetectionsResult(result));
               } else {
                 promise.reject(E_SDK_DISABLE_DETECTIONS_ERROR, "");
               }
@@ -173,11 +172,11 @@ public class SentianceHelper {
     sentiance.linkUser(userLinker)
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
-          promise.resolve(SentianceConverter.convertUserLinkingResult(pendingOperation.getResult()));
+          promise.resolve(converter.convertUserLinkingResult(pendingOperation.getResult()));
         } else {
           UserLinkingError error = pendingOperation.getError();
           promise.reject(E_SDK_USER_LINK_ERROR,
-            SentianceConverter.stringifyUserLinkingError(error));
+            converter.stringifyUserLinkingError(error));
         }
       });
   }
@@ -187,11 +186,11 @@ public class SentianceHelper {
     sentiance.linkUser(authCode)
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
-          promise.resolve(SentianceConverter.convertUserLinkingResult(pendingOperation.getResult()));
+          promise.resolve(converter.convertUserLinkingResult(pendingOperation.getResult()));
         } else {
           UserLinkingError error = pendingOperation.getError();
           promise.reject(E_SDK_USER_LINK_AUTH_CODE_ERROR,
-            SentianceConverter.stringifyUserLinkingError(error));
+            converter.stringifyUserLinkingError(error));
         }
       });
   }

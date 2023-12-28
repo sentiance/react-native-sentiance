@@ -1,11 +1,11 @@
 package com.sentiance.react.bridge.core;
 
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_GET_TOKEN_ERROR;
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_MISSING_PARAMS;
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_RESET_ERROR;
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_START_TRIP_ERROR;
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_STOP_TRIP_ERROR;
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_GET_TOKEN_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_MISSING_PARAMS;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_RESET_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_START_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_STOP_TRIP_ERROR;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_SUBMIT_DETECTIONS_ERROR;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -22,8 +22,8 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
-import com.sentiance.react.bridge.core.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
+import com.sentiance.react.bridge.core.common.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.core.utils.SentianceUtils;
 import com.sentiance.react.bridge.core.utils.UserCreationCompletionHandler;
 import com.sentiance.sdk.InitState;
@@ -53,11 +53,13 @@ public class SentianceModule extends AbstractSentianceModule {
   private final Handler mHandler = new Handler(Looper.getMainLooper());
   private final SentianceHelper sentianceHelper;
   private final SentianceEmitter emitter;
+  private final SentianceConverter converter;
 
   public SentianceModule(ReactApplicationContext reactContext) {
     super(reactContext, Sentiance.getInstance(reactContext), new SentianceSubscriptionsManager());
     sentianceHelper = SentianceHelper.getInstance(reactContext);
     emitter = new SentianceEmitter(reactContext);
+    converter = new SentianceConverter();
   }
 
   @NonNull
@@ -166,10 +168,10 @@ public class SentianceModule extends AbstractSentianceModule {
     mSdk.reset()
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
-          promise.resolve(SentianceConverter.convertResetResult(pendingOperation.getResult()));
+          promise.resolve(converter.convertResetResult(pendingOperation.getResult()));
         } else {
           ResetError error = pendingOperation.getError();
-          promise.reject(E_SDK_RESET_ERROR, SentianceConverter.stringifyResetError(error));
+          promise.reject(E_SDK_RESET_ERROR, converter.stringifyResetError(error));
         }
       });
   }
@@ -178,7 +180,7 @@ public class SentianceModule extends AbstractSentianceModule {
   @SuppressWarnings("unused")
   public void getInitState(final Promise promise) {
     InitState initState = mSdk.getInitState();
-    promise.resolve(SentianceConverter.convertInitState(initState));
+    promise.resolve(converter.convertInitState(initState));
   }
 
   @ReactMethod
@@ -194,15 +196,15 @@ public class SentianceModule extends AbstractSentianceModule {
         metadataMap.put(entry.getKey(), entry.getValue().toString());
       }
     }
-    final TransportMode transportModeHint = SentianceConverter.toTransportMode(hint);
+    final TransportMode transportModeHint = converter.toTransportMode(hint);
     mSdk.startTrip(metadataMap, transportModeHint)
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
-          promise.resolve(SentianceConverter.createEmptyResult());
+          promise.resolve(converter.createEmptyResult());
         } else {
           StartTripError error = pendingOperation.getError();
           promise.reject(E_SDK_START_TRIP_ERROR,
-            SentianceConverter.stringifyStartTripError(error));
+            converter.stringifyStartTripError(error));
         }
       });
   }
@@ -216,11 +218,11 @@ public class SentianceModule extends AbstractSentianceModule {
     mSdk.stopTrip()
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
-          promise.resolve(SentianceConverter.createEmptyResult());
+          promise.resolve(converter.createEmptyResult());
         } else {
           StopTripError error = pendingOperation.getError();
           promise.reject(E_SDK_STOP_TRIP_ERROR,
-            SentianceConverter.stringifyStopTripError(error));
+            converter.stringifyStopTripError(error));
         }
       });
   }
@@ -233,7 +235,7 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     SdkStatus sdkStatus = mSdk.getSdkStatus();
-    promise.resolve(SentianceConverter.convertSdkStatus(sdkStatus));
+    promise.resolve(converter.convertSdkStatus(sdkStatus));
   }
 
   @ReactMethod
@@ -254,7 +256,7 @@ public class SentianceModule extends AbstractSentianceModule {
       promise.reject(E_SDK_MISSING_PARAMS, "TripType is required");
       return;
     }
-    final TripType type = SentianceConverter.toTripType(typeParam);
+    final TripType type = converter.toTripType(typeParam);
     Boolean isTripOngoing = mSdk.isTripOngoing(type);
     promise.resolve(isTripOngoing);
   }
@@ -270,11 +272,11 @@ public class SentianceModule extends AbstractSentianceModule {
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
           Token token = pendingOperation.getResult();
-          promise.resolve(SentianceConverter.convertToken(token));
+          promise.resolve(converter.convertToken(token));
         } else {
           UserAccessTokenError error = pendingOperation.getError();
           promise.reject(E_SDK_GET_TOKEN_ERROR,
-            SentianceConverter.stringifyUserAccessTokenError(error));
+            converter.stringifyUserAccessTokenError(error));
         }
       });
   }
@@ -313,7 +315,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    final Map<String, String> metadata = SentianceConverter.convertReadableMapToMap(inputMetadata);
+    final Map<String, String> metadata = converter.convertReadableMapToMap(inputMetadata);
     boolean result = mSdk.addTripMetadata(metadata);
     promise.resolve(result);
   }
@@ -330,7 +332,7 @@ public class SentianceModule extends AbstractSentianceModule {
       return;
     }
 
-    final Map<String, String> metadata = SentianceConverter.convertReadableMapToMap(inputMetadata);
+    final Map<String, String> metadata = converter.convertReadableMapToMap(inputMetadata);
     mSdk.addUserMetadataFields(metadata);
     promise.resolve(null);
   }
@@ -361,7 +363,7 @@ public class SentianceModule extends AbstractSentianceModule {
     mSdk.submitDetections()
       .addOnCompleteListener(pendingOperation -> {
         if (pendingOperation.isSuccessful()) {
-          promise.resolve(SentianceConverter.createEmptyResult());
+          promise.resolve(converter.createEmptyResult());
         } else {
           SubmitDetectionsError error = pendingOperation.getError();
           promise.reject(E_SDK_SUBMIT_DETECTIONS_ERROR, error.getReason().name());
@@ -466,7 +468,7 @@ public class SentianceModule extends AbstractSentianceModule {
     }
 
     UserActivity activity = Sentiance.getInstance(mReactContext).getUserActivity();
-    promise.resolve(SentianceConverter.convertUserActivity(activity));
+    promise.resolve(converter.convertUserActivity(activity));
   }
 
   @ReactMethod

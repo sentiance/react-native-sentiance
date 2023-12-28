@@ -1,8 +1,6 @@
-package com.sentiance.react.bridge.core.base;
+package com.sentiance.react.bridge.core.common.base;
 
-import static com.sentiance.react.bridge.core.utils.ErrorCodes.E_SDK_NOT_INITIALIZED;
-
-import androidx.annotation.NonNull;
+import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_NOT_INITIALIZED;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -44,14 +42,6 @@ public abstract class AbstractSentianceModule extends ReactContextBaseJavaModule
 
   protected void addSupportedEventSubscriptions(SentianceSubscriptionsManager subscriptionsManager) {
 
-  }
-
-  protected <T> void addSubscription(@NonNull String eventType, int subscriptionId, @NonNull T eventEmitterLogic) {
-    mSubscriptionsManager.addSubscription(eventType, subscriptionId, eventEmitterLogic);
-  }
-
-  protected <T> void removeSubscription(int subscriptionId, @NonNull String eventType) {
-    mSubscriptionsManager.removeSubscription(subscriptionId, eventType);
   }
 
   protected abstract void removeNativeListener(String eventName, int subscriptionId, Promise promise);

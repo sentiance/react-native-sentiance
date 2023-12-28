@@ -1,7 +1,7 @@
 {
   "name": "@sentiance-react-native/legacy",
   "version": "6.0.0",
-  "description": "React Native Sentiance - This module provides a legacy API.",
+  "description": "The Sentiance Legacy library",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
@@ -18,7 +18,7 @@
   },
   "author": "",
   "license": "",
-  "homepage": "https://github.com/sentiance/react-native-sentiance/legacy#readme",
+  "homepage": "https://github.com/sentiance/react-native-sentiance/tree/main/packages/legacy",
   "repository": "github:sentiance/react-native-sentiance",
   "publishConfig": {
     "access": "public"

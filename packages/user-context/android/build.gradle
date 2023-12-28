@@ -15,6 +15,17 @@ if (findProject(':core')) {
   throw new GradleException('Could not find the @sentiance-react-native/core package, have you installed it?')
 }
 
+def eventTimelineProj
+if (findProject(':event-timeline')) {
+  eventTimelineProj = project(':event-timeline')
+} else if (findProject(':sentiance-react-native_event-timeline')) {
+  eventTimelineProj = project(':sentiance-react-native_event-timeline')
+} else if (findProject(':@sentiance-react-native_event-timeline')) {
+  eventTimelineProj = project(':@sentiance-react-native_event-timeline')
+} else {
+  throw new GradleException('Could not find the @sentiance-react-native/event-timeline package, have you installed it?')
+}
+
 android {
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
@@ -30,10 +41,10 @@ applyAndroidVersionsFrom(corePackageJson)
 def sentianceSdkVersion = getSentianceSdkVersion()
 
 dependencies {
-  api coreProj
-
   implementation(platform("com.sentiance:sdk-bom:${sentianceSdkVersion}"))
   api("com.sentiance:sdk-user-context") { transitive = true }
+  implementation coreProj
+  implementation eventTimelineProj
 }
 
 applyReactNativeDependency()
