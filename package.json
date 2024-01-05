@@ -27,7 +27,7 @@
   "bugs": "https://github.com/sentiance/react-native-sentiance/issues",
   "repository": "github:sentiance/react-native-sentiance",
   "devDependencies": {
-    "react-native": "0.61.5",
+    "react-native": "0.69.12",
     "@babel/core": "7.18.0",
     "@babel/preset-env": "^7.22.4",
     "@babel/runtime": "^7.22.3",
