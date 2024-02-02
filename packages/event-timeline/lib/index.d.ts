@@ -96,13 +96,18 @@ declare module "@sentiance-react-native/event-timeline" {
     isSpeedLimitInfoSet: boolean;
   }
 
-  export interface EventTimelineApi {
+  export interface SentianceEventTimeline {
     getTimelineUpdates(afterEpochTimeMs: number): Promise<Event[]>;
     getTimelineEvents(fromEpochTimeMs: number, toEpochTimeMs: number): Promise<Event[]>;
     getTimelineEvent(eventId: string): Promise<Event | null>;
     addTimelineUpdateListener(onTimelineUpdated: (event: Event) => void): Promise<EmitterSubscription>;
   }
 
-  const EventTimelineApi: EventTimelineApi;
-  export default EventTimelineApi;
+  /**
+   * @deprecated Use SentianceEventTimeline instead.
+   */
+  export type EventTimelineApi = SentianceEventTimeline;
+
+  const sentianceEventTimeline: SentianceEventTimeline;
+  export default sentianceEventTimeline;
 }
