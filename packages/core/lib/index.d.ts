@@ -122,7 +122,10 @@ declare module "@sentiance-react-native/core" {
     isBgAccessPermGranted?: boolean; // iOS only
     locationSetting?: string; // Android only
     isAirplaneModeEnabled?: boolean; // Android only
-    isLocationAvailable?: boolean; // Android only
+    /**
+     * This field is always set starting from version 6.7.0, but is kept nullable for backwards compatibility.
+     */
+    isLocationAvailable?: boolean;
     isGooglePlayServicesMissing?: boolean; // Android only
     isBatteryOptimizationEnabled?: boolean; // Android only
     isBackgroundProcessingRestricted?: boolean; // Android only

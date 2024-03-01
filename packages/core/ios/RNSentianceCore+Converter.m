@@ -614,6 +614,7 @@
                            @"isRemoteEnabled":@(status.isRemoteEnabled),
                            @"locationPermission":[self convertLocationPermissionToString:status.locationPermission],
                            @"isPreciseLocationAuthorizationGranted":@(status.isPreciseLocationAuthorizationGranted),
+                           @"isLocationAvailable":@(status.isLocationAvailable),
                            @"isAccelPresent":@(status.isAccelPresent),
                            @"isGyroPresent":@(status.isGyroPresent),
                            @"isGpsPresent":@(status.isGpsPresent),
