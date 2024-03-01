@@ -1,0 +1,3 @@
+[submodule "react-native-sentiance-private-resources"]
+	path = other-resources
+	url = git@bitbucket.org:getjini/react-native-sentiance-private-resources.git
