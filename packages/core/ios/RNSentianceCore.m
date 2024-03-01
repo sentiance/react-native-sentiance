@@ -1147,6 +1147,20 @@ RCT_EXPORT_METHOD(getTimelineEvents:(nonnull NSNumber *)fromEpochTimeMs toEpochT
     resolve(array);
 }
 
+RCT_EXPORT_METHOD(setIsAllowedToUseMobileData:(BOOL)isAllowed resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    [[Sentiance sharedInstance] setAllowedToUseMobileData:isAllowed];
+
+    resolve(nil);
+}
+
+RCT_EXPORT_METHOD(isAllowedToUseMobileData:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    resolve(@(Sentiance.sharedInstance.isAllowedToUseMobileData));
+}
+
 - (void)didUpdateUserContext:(SENTUserContext *)userContext
              forCriteriaMask:(SENTUserContextUpdateCriteria)criteriaMask {
     NSDictionary *dict = @{

@@ -26,13 +26,13 @@ import org.robolectric.annotation.Config;
 @PrepareForTest(Arguments.class)
 public abstract class ReactNativeTest {
 
-  @Rule
-  public PowerMockRule rule = new PowerMockRule();
+    @Rule
+    public PowerMockRule rule = new PowerMockRule();
 
-  @Before
-  public void setUp() throws Exception {
-    PowerMockito.mockStatic(Arguments.class);
-    PowerMockito.when(Arguments.createArray()).thenAnswer((Answer<WritableArray>) invocation -> new JavaOnlyArray());
-    PowerMockito.when(Arguments.createMap()).thenAnswer((Answer<WritableMap>) invocation -> new JavaOnlyMap());
-  }
+    @Before
+    public void setUp() throws Exception {
+        PowerMockito.mockStatic(Arguments.class);
+        PowerMockito.when(Arguments.createArray()).thenAnswer((Answer<WritableArray>) invocation -> new JavaOnlyArray());
+        PowerMockito.when(Arguments.createMap()).thenAnswer((Answer<WritableMap>) invocation -> new JavaOnlyMap());
+    }
 }

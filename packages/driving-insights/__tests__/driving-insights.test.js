@@ -1,14 +1,14 @@
-import {allEqual, runOnEachPlatform} from "../../../jest/test_util";
-import {mockNativeDrivingInsightsModule} from "../jest/mockNativeModule";
+import { allEqual, runOnEachPlatform } from "../../../jest/test_util";
+import { mockNativeDrivingInsightsModule } from "../jest/mockNativeModule";
 
-describe('Driving insights tests', () => {
+describe("Driving insights tests", () => {
   beforeEach(() => jest.resetModules());
 
   describe("Get driving insights returns expected results", () => {
 
     const expectedTransportEvent = {
-      id: 'transport_event_id',
-      transportMode: 'CAR',
+      id: "transport_event_id",
+      transportMode: "CAR",
       distance: 200
     };
     const expectedSafetyScores = {
@@ -16,24 +16,24 @@ describe('Driving insights tests', () => {
       focusScore: 0.66,
       callWhileMovingScore: 0.55,
       legalScore: 0.44,
-      overallScore: 0.33,
+      overallScore: 0.33
     };
 
-    runOnEachPlatform(platform => {
+    runOnEachPlatform(async platform => {
       const mockGetDrivingInsights = jest.fn();
       mockNativeDrivingInsightsModule(platform, {
-        getDrivingInsights: mockGetDrivingInsights,
+        getDrivingInsights: mockGetDrivingInsights
       });
 
-      mockGetDrivingInsights.mockImplementation(transportId => ({
+      mockGetDrivingInsights.mockResolvedValueOnce({
         transportEvent: JSON.parse(JSON.stringify(expectedTransportEvent)),
         safetyScores: JSON.parse(JSON.stringify(expectedSafetyScores))
-      }));
+      });
 
-      const drivingInsightsApi = require('../lib');
-      const transportId = 'transport_id';
-      const drivingInsights = drivingInsightsApi.getDrivingInsights(transportId);
-      const {transportEvent, safetyScores} = drivingInsights;
+      const drivingInsightsApi = require("../lib");
+      const transportId = "transport_id";
+      const drivingInsights = await drivingInsightsApi.getDrivingInsights(transportId);
+      const { transportEvent, safetyScores } = drivingInsights;
 
       expect(mockGetDrivingInsights).toHaveBeenCalledWith(transportId);
       expect(transportEvent).toEqual(expectedTransportEvent);
@@ -49,20 +49,19 @@ describe('Driving insights tests', () => {
       magnitude
     }));
 
-    runOnEachPlatform(platform => {
+    runOnEachPlatform(async platform => {
       const mockGetHarshDrivingEvents = jest.fn();
       mockNativeDrivingInsightsModule(platform, {
-        getHarshDrivingEvents: mockGetHarshDrivingEvents,
+        getHarshDrivingEvents: mockGetHarshDrivingEvents
       });
 
-      mockGetHarshDrivingEvents.mockImplementation(transportId => JSON.parse(JSON.stringify(expectedHarshEvents)));
+      mockGetHarshDrivingEvents.mockResolvedValueOnce(JSON.parse(JSON.stringify(expectedHarshEvents)));
 
-      const drivingInsightsApi = require('../lib');
-      const transportId = 'transport_id';
-      const harshEvents = drivingInsightsApi.getHarshDrivingEvents(transportId);
+      const drivingInsightsApi = require("../lib");
+      const transportId = "transport_id";
 
+      expect(drivingInsightsApi.getHarshDrivingEvents(transportId)).resolves.toBe(expectedHarshEvents);
       expect(mockGetHarshDrivingEvents).toHaveBeenCalledWith(transportId);
-      expect(harshEvents).toEqual(expectedHarshEvents);
     });
   });
 
@@ -76,17 +75,16 @@ describe('Driving insights tests', () => {
     runOnEachPlatform(platform => {
       const mockGetPhoneUsageEvents = jest.fn();
       mockNativeDrivingInsightsModule(platform, {
-        getPhoneUsageEvents: mockGetPhoneUsageEvents,
+        getPhoneUsageEvents: mockGetPhoneUsageEvents
       });
 
-      mockGetPhoneUsageEvents.mockImplementation(transportId => JSON.parse(JSON.stringify(expectedPhoneUsageEvents)));
+      mockGetPhoneUsageEvents.mockResolvedValueOnce(JSON.parse(JSON.stringify(expectedPhoneUsageEvents)));
 
-      const drivingInsightsApi = require('../lib');
-      const transportId = 'transport_id';
-      const phoneUsageEvents = drivingInsightsApi.getPhoneUsageEvents(transportId);
+      const drivingInsightsApi = require("../lib");
+      const transportId = "transport_id";
 
+      expect(drivingInsightsApi.getPhoneUsageEvents(transportId)).resolves.toBe(expectedPhoneUsageEvents);
       expect(mockGetPhoneUsageEvents).toHaveBeenCalledWith(transportId);
-      expect(phoneUsageEvents).toEqual(expectedPhoneUsageEvents);
     });
   });
 
@@ -102,17 +100,16 @@ describe('Driving insights tests', () => {
     runOnEachPlatform(platform => {
       const mockGetCallWhileMovingEvents = jest.fn();
       mockNativeDrivingInsightsModule(platform, {
-        getCallWhileMovingEvents: mockGetCallWhileMovingEvents,
+        getCallWhileMovingEvents: mockGetCallWhileMovingEvents
       });
 
-      mockGetCallWhileMovingEvents.mockImplementation(transportId => JSON.parse(JSON.stringify(expectedCallWhileMovingEvents)));
+      mockGetCallWhileMovingEvents.mockResolvedValueOnce(JSON.parse(JSON.stringify(expectedCallWhileMovingEvents)));
 
-      const drivingInsightsApi = require('../lib');
-      const transportId = 'transport_id';
-      const callWhileMovingEvents = drivingInsightsApi.getCallWhileMovingEvents(transportId);
+      const drivingInsightsApi = require("../lib");
+      const transportId = "transport_id";
 
+      expect(drivingInsightsApi.getCallWhileMovingEvents(transportId)).resolves.toBe(expectedCallWhileMovingEvents);
       expect(mockGetCallWhileMovingEvents).toHaveBeenCalledWith(transportId);
-      expect(callWhileMovingEvents).toEqual(expectedCallWhileMovingEvents);
     });
   });
 
@@ -146,24 +143,23 @@ describe('Driving insights tests', () => {
           timestamp: Date.now(),
           speedInMps: 5.5,
           hasUnlimitedSpeedLimit: true
-        },
+        }
       ]
     }));
 
     runOnEachPlatform(platform => {
       const mockGetSpeedingEvents = jest.fn();
       mockNativeDrivingInsightsModule(platform, {
-        getSpeedingEvents: mockGetSpeedingEvents,
+        getSpeedingEvents: mockGetSpeedingEvents
       });
 
-      mockGetSpeedingEvents.mockImplementation(transportId => JSON.parse(JSON.stringify(expectedSpeedingEvents)));
+      mockGetSpeedingEvents.mockResolvedValueOnce(JSON.parse(JSON.stringify(expectedSpeedingEvents)));
 
-      const drivingInsightsApi = require('../lib');
-      const transportId = 'transport_id';
-      const speedingEvents = drivingInsightsApi.getSpeedingEvents(transportId);
+      const drivingInsightsApi = require("../lib");
+      const transportId = "transport_id";
 
+      expect(drivingInsightsApi.getSpeedingEvents(transportId)).resolves.toBe(expectedSpeedingEvents);
       expect(mockGetSpeedingEvents).toHaveBeenCalledWith(transportId);
-      expect(speedingEvents).toEqual(expectedSpeedingEvents);
     });
   });
 
@@ -186,11 +182,9 @@ describe('Driving insights tests', () => {
           capturedSubscriptionIds.push(subscriptionId);
         });
 
-      const drivingInsightsApi = require('../lib');
-      const {DRIVING_INSIGHTS_READY_EVENT} = drivingInsightsApi.events;
-      const subscription = await drivingInsightsApi.addDrivingInsightsReadyListener(drivingInsights => {
-
-      });
+      const drivingInsightsApi = require("../lib");
+      const { DRIVING_INSIGHTS_READY_EVENT } = drivingInsightsApi.events;
+      const subscription = await drivingInsightsApi.addDrivingInsightsReadyListener(() => undefined);
 
       expect(addNativeListener).toHaveBeenCalled();
       await subscription.remove();
@@ -203,6 +197,6 @@ describe('Driving insights tests', () => {
       expect(allEqual(capturedSubscriptionIds)).toBeTruthy();
     });
   });
-})
+});
 
 

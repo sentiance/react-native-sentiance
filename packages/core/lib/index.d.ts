@@ -235,6 +235,10 @@ declare module "@sentiance-react-native/core" {
     ): Promise<void>;
 
     getTransmittableDataTypes(): Promise<Array<TransmittableDataType>>;
+
+    setIsAllowedToUseMobileData(isAllowed: boolean): Promise<void>;
+
+    isAllowedToUseMobileData(): Promise<boolean>;
   }
 
   const SentianceCore: SentianceCore;

@@ -55,11 +55,16 @@ public class SentianceModule extends AbstractSentianceModule {
   private final SentianceEmitter emitter;
   private final SentianceConverter converter;
 
-  public SentianceModule(ReactApplicationContext reactContext) {
-    super(reactContext, Sentiance.getInstance(reactContext), new SentianceSubscriptionsManager());
-    sentianceHelper = SentianceHelper.getInstance(reactContext);
-    emitter = new SentianceEmitter(reactContext);
-    converter = new SentianceConverter();
+  public SentianceModule(ReactApplicationContext reactContext,
+                         Sentiance sentiance,
+                         SentianceSubscriptionsManager subscriptionsManager,
+                         SentianceHelper sentianceHelper,
+                         SentianceEmitter sentianceEmitter,
+                         SentianceConverter converter) {
+    super(reactContext, sentiance, subscriptionsManager);
+    this.sentianceHelper = sentianceHelper;
+    this.emitter = sentianceEmitter;
+    this.converter = converter;
   }
 
   @NonNull
@@ -561,6 +566,25 @@ public class SentianceModule extends AbstractSentianceModule {
       args.pushString(type.name());
     }
     promise.resolve(args);
+  }
+
+  @ReactMethod
+  public void setIsAllowedToUseMobileData(boolean isAllowed, Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    mSdk.setIsAllowedToUseMobileData(isAllowed);
+    promise.resolve(null);
+  }
+
+  @ReactMethod
+  public void isAllowedToUseMobileData(Promise promise) {
+    if (rejectIfNotInitialized(promise)) {
+      return;
+    }
+
+    promise.resolve(mSdk.isAllowedToUseMobileData());
   }
 
   @Override

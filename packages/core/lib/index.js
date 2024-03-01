@@ -33,6 +33,8 @@ const getWiFiQuotaLimit = () => core.getWiFiQuotaLimit();
 const getWiFiQuotaUsage = () => core.getWiFiQuotaUsage();
 const linkUserWithAuthCode = (authCode) => core.linkUserWithAuthCode(authCode);
 const NO_OP_LINKER = {}
+const setIsAllowedToUseMobileData = (isAllowed) => core.setIsAllowedToUseMobileData(isAllowed);
+const isAllowedToUseMobileData = () => core.isAllowedToUseMobileData();
 
 var startTrip
 var stopTrip
@@ -237,6 +239,8 @@ module.exports = {
   listenTripTimeout,
   setTransmittableDataTypes,
   getTransmittableDataTypes,
+  setIsAllowedToUseMobileData,
+  isAllowedToUseMobileData,
   transportModes,
   NO_OP_LINKER
 };
