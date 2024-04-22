@@ -23,7 +23,7 @@
 - (nullable NSString*)convertSegmentCategoryToString:(SENTSegmentCategory)category;
 - (nullable NSString*)convertSegmentSubcategoryToString:(SENTSegmentSubcategory)subcategory;
 - (nullable NSString*)convertSegmentTypeToString:(SENTSegmentType)type;
-- (NSMutableDictionary*)convertSegmentAttributesToDict:(NSArray<SENTAttribute *>*)attributes;
+- (NSArray*)convertSegmentAttributes:(NSArray<SENTAttribute *>*)attributes;
 - (nullable NSDictionary*)convertSegment:(SENTSegment*)segment;
 - (NSString*)convertBackgroundRefreshStatus:(UIBackgroundRefreshStatus)backgroundRefreshStatus;
 
@@ -462,14 +462,17 @@
     }
 }
 
-- (NSMutableDictionary*)convertSegmentAttributesToDict:(NSArray<SENTAttribute *>*)attributes {
-    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
-
+- (NSArray*)convertSegmentAttributes:(NSArray<SENTAttribute *>*)attributes {
+    NSMutableArray *attributeArray = [[NSMutableArray alloc] init];
+    
     for (SENTAttribute* attribute in attributes) {
-        dict[attribute.name] = @(attribute.value);
+        NSMutableDictionary *attributeDict = [[NSMutableDictionary alloc] init];
+        attributeDict[@"name"] = attribute.name;
+        attributeDict[@"value"] = @(attribute.value);
+        [attributeArray addObject:attributeDict];
     }
-
-    return dict;
+    
+    return attributeArray;
 }
 
 - (nullable NSDictionary*)convertSegment:(SENTSegment*)segment {
@@ -493,7 +496,7 @@
         dict[@"endTime"] = [segment.endDate description];
         dict[@"endTimeEpoch"] = @((long) (segment.endDate.timeIntervalSince1970 * 1000));
     }
-    dict[@"attributes"] = [self convertSegmentAttributesToDict:segment.attributes];
+    dict[@"attributes"] = [self convertSegmentAttributes:segment.attributes];
 
     return dict;
 }
