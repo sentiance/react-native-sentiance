@@ -43,6 +43,7 @@ def sentianceSdkVersion = getSentianceSdkVersion()
 dependencies {
   implementation(platform("com.sentiance:sdk-bom:${sentianceSdkVersion}"))
   api("com.sentiance:sdk-user-context") { transitive = true }
+  api("com.sentiance:sdk-lifestyle") { transitive = true }
   implementation coreProj
   implementation eventTimelineProj
 }
