@@ -55,5 +55,8 @@ typedef NS_ENUM(NSInteger, UIBackgroundRefreshStatus);
 - (NSArray *)convertCallWhileMovingEvents:(NSArray<SENTCallWhileMovingEvent*> *)callWhileMovingEvents;
 - (NSArray *)convertSpeedingEvents:(NSArray<SENTSpeedingEvent*> *)speedingEvents;
 - (NSMutableDictionary*)convertEvent:(SENTTimelineEvent*)event;
+- (NSError *)convertSmartGeofencesRefreshError:(SENTSmartGeofencesRefreshError *)refreshError;
+- (NSString *)stringifySmartGeofencesDetectionMode:(SENTSmartGeofenceDetectionMode)detectionMode;
+- (NSDictionary*)convertSmartGeofenceEvent:(SENTSmartGeofenceEvent*)event;
 
 @end

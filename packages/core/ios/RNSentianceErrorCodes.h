@@ -18,3 +18,4 @@ extern NSString * const ESDKUserLinkAuthCodeError;
 extern NSString * const ESDKCreateUserError;
 extern NSString * const ESDKResetError;
 extern NSString * const ESDKRequestUserContextError;
+extern NSString * const ESDKSmartGeofencesRefreshError;

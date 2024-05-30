@@ -22,25 +22,9 @@ public abstract class ReactNativeModuleTest<T extends AbstractSentianceModule> e
     @Mock
     protected Sentiance mSentiance;
     @Mock
-    protected ReactApplicationContext mReactApplicationContext;
-    @Mock
     protected Promise mPromise;
     @Mock
     protected SentianceSubscriptionsManager mSentianceSubscriptionsManager;
-    @Mock
-    protected WritableArray mockWritableArray;
-    @Mock
-    protected WritableMap mockWritableMap;
-    @Captor
-    protected ArgumentCaptor<WritableArray> writableArrayCaptor;
-    @Captor
-    protected ArgumentCaptor<WritableMap> writableMapCaptor;
-    @Captor
-    protected ArgumentCaptor<String> stringCaptor;
-    @Captor
-    protected ArgumentCaptor<Integer> intCaptor;
-    @Captor
-    protected ArgumentCaptor<Boolean> boolCaptor;
 
     protected T mModule;
 

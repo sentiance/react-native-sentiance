@@ -10,6 +10,9 @@
 @import UIKit.UIApplication;
 @import CoreLocation;
 
+static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofencesModule";
+
+
 @interface RNSentianceCore (Private)
 
 - (NSString*)convertTimelineEventTypeToString:(SENTTimelineEventType)type;
@@ -464,14 +467,14 @@
 
 - (NSArray*)convertSegmentAttributes:(NSArray<SENTAttribute *>*)attributes {
     NSMutableArray *attributeArray = [[NSMutableArray alloc] init];
-    
+
     for (SENTAttribute* attribute in attributes) {
         NSMutableDictionary *attributeDict = [[NSMutableDictionary alloc] init];
         attributeDict[@"name"] = attribute.name;
         attributeDict[@"value"] = @(attribute.value);
         [attributeArray addObject:attributeDict];
     }
-    
+
     return attributeArray;
 }
 
@@ -1240,6 +1243,99 @@
     dict[@"startTimeEpoch"] = @((long) (drivingEvent.startDate.timeIntervalSince1970 * 1000));
     dict[@"endTime"] = [drivingEvent.endDate description];
     dict[@"endTimeEpoch"] = @((long) (drivingEvent.endDate.timeIntervalSince1970 * 1000));
+    return dict;
+}
+
+- (NSError *)convertSmartGeofencesRefreshError:(SENTSmartGeofencesRefreshError *)refreshError {
+    NSString *reason;
+    NSString *details = refreshError.details == nil ? @"": refreshError.details;
+
+    switch (refreshError.failureReason) {
+        case SENTSmartGeofencesRefreshFailureReasonNetworkUsageRestricted:
+            reason = @"NETWORK_USAGE_RESTRICTED";
+            break;
+        case SENTSmartGeofencesRefreshFailureReasonNetworkError:
+            reason = @"NETWORK_ERROR";
+            break;
+        case SENTSmartGeofencesRefreshFailureReasonServerError:
+            reason = @"SERVER_ERROR";
+            break;
+        case SENTSmartGeofencesRefreshFailureReasonTooManyFrequentCalls:
+            reason = @"TOO_MANY_FREQUENT_CALLS";
+            break;
+        case SENTSmartGeofencesRefreshFailureReasonFeatureNotEnabled:
+            reason = @"FEATURE_NOT_ENABLED";
+            break;
+        case SENTSmartGeofencesRefreshFailureReasonUnexpectedError:
+        default:
+            reason = @"UNEXPECTED_ERROR";
+            break;
+    }
+
+    NSMutableDictionary *errorInfo = [NSMutableDictionary dictionary];
+    errorInfo[@"reason"] = reason;
+    errorInfo[@"details"] = details;
+
+    NSError *error = [NSError errorWithDomain:SmartGeofencesErrorDomain
+                                         code:0
+                                         userInfo:errorInfo];
+
+    return error;
+}
+
+- (NSString *)stringifySmartGeofencesDetectionMode:(SENTSmartGeofenceDetectionMode)detectionMode {
+    switch (detectionMode) {
+        case SENTSmartGeofenceDetectionModeBackground:
+            return @"BACKGROUND";
+        case SENTSmartGeofenceDetectionModeForeground:
+            return @"FOREGROUND";
+        case SENTSmartGeofenceDetectionModeDisabled:
+            return @"DISABLED";
+        case SENTSmartGeofenceDetectionModeFeatureNotEnabled:
+        default:
+            return @"FEATURE_NOT_ENABLED";
+    }
+}
+
+- (NSDictionary*)convertSmartGeofenceEvent:(SENTSmartGeofenceEvent*)event {
+    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+
+    dict[@"timestamp"] = @((long) ([event.eventDate timeIntervalSince1970] * 1000));
+    dict[@"triggeringLocation"] = [self convertCllocation:event.triggeringLocation];
+
+    NSString *eventType;
+    switch(event.eventType) {
+        case SENTSmartGeofenceEventTypeEntry:
+            eventType = @"ENTRY";
+            break;
+        case SENTSmartGeofenceEventTypeExit:
+            eventType = @"EXIT";
+            break;
+    }
+
+    dict[@"eventType"] = eventType;
+    dict[@"geofences"] = [self convertSmartGeofences:event.geofences];
+
+    return dict;
+}
+
+- (NSArray<NSDictionary<NSString *, NSNumber *> *> *)convertSmartGeofences:(NSArray<SENTSmartGeofence*> *)smartGeofences {
+    NSMutableArray <NSDictionary*> *array = [[NSMutableArray alloc] init];
+    for (SENTSmartGeofence *smartGeofence in smartGeofences) {
+        [array addObject:[self convertSmartGeofence:smartGeofence]];
+    }
+    return array;
+}
+
+- (NSDictionary*)convertSmartGeofence:(SENTSmartGeofence*)smartGeofence {
+    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+
+    dict[@"sentianceId"] = smartGeofence.sentianceId;
+    dict[@"latitude"] = @(smartGeofence.latitude);
+    dict[@"longitude"] = @(smartGeofence.longitude);
+    dict[@"radius"] = @(smartGeofence.radius);
+    dict[@"externalId"] = smartGeofence.externalId;
+
     return dict;
 }
 

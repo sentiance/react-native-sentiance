@@ -20,3 +20,4 @@ NSString * const ESDKUserLinkAuthCodeError = @"E_SDK_USER_LINK_AUTH_CODE_ERROR";
 NSString * const ESDKCreateUserError = @"E_SDK_CREATE_USER_ERROR";
 NSString * const ESDKResetError = @"E_SDK_RESET_ERROR";
 NSString * const ESDKRequestUserContextError = @"E_SDK_REQUEST_USER_CONTEXT_ERROR";
+NSString * const ESDKSmartGeofencesRefreshError = @"E_SDK_SMART_GEOFENCES_REFRESH_ERROR";

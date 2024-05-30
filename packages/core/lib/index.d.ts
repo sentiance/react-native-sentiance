@@ -61,6 +61,7 @@ declare module "@sentiance-react-native/core" {
   }
 
   export interface Location {
+    timestamp?: number; // marked optional to maintain compatibility, but is always present
     latitude: number;
     longitude: number;
     accuracy?: number;

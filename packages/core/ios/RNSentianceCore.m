@@ -35,7 +35,7 @@ RCT_EXPORT_MODULE(SentianceCore)
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[SdkStatusUpdateEvent, TripTimeoutEvent, UserLinkEvent, UserActivityUpdateEvent, VehicleCrashEvent, VehicleCrashDiagnosticEvent, UserLinkEvent, UserContextUpdateEvent, DrivingInsightsReadyEvent, TimelineUpdateEvent];
+    return @[SdkStatusUpdateEvent, TripTimeoutEvent, UserLinkEvent, UserActivityUpdateEvent, VehicleCrashEvent, VehicleCrashDiagnosticEvent, UserLinkEvent, UserContextUpdateEvent, DrivingInsightsReadyEvent, TimelineUpdateEvent, SmartGeofenceEvent];
 }
 
 // Will be called when this module's first listener is added.
@@ -62,6 +62,10 @@ RCT_EXPORT_MODULE(SentianceCore)
     [self sendEventWithName:TimelineUpdateEvent body:[self convertEvent:event]];
 }
 
+- (void)onSmartGeofenceEvent:(SENTSmartGeofenceEvent * _Nonnull)smartGeofenceEvent {
+    [self sendEventWithName:SmartGeofenceEvent body:[self convertSmartGeofenceEvent:smartGeofenceEvent]];
+}
+
 - (instancetype)init
 {
     self = [super init];
@@ -78,6 +82,12 @@ RCT_EXPORT_MODULE(SentianceCore)
         [[Sentiance sharedInstance] setEventTimelineDelegate:weakSelf];
     } nativeUnsubscribeLogic:^{
         [[Sentiance sharedInstance] setEventTimelineDelegate:nil];
+    } subscriptionType:SENTSubscriptionTypeSingle];
+
+    [_subscriptionsManager addSupportedSubscriptionForEventType:SmartGeofenceEvent nativeSubscribeLogic:^{
+        [[Sentiance sharedInstance] setSmartGeofenceEventsDelegate:weakSelf];
+    } nativeUnsubscribeLogic:^{
+        [[Sentiance sharedInstance] setSmartGeofenceEventsDelegate:nil];
     } subscriptionType:SENTSubscriptionTypeSingle];
 
     return self;
@@ -1159,6 +1169,33 @@ RCT_EXPORT_METHOD(isAllowedToUseMobileData:(RCTPromiseResolveBlock)resolve rejec
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
 
     resolve(@(Sentiance.sharedInstance.isAllowedToUseMobileData));
+}
+
+RCT_EXPORT_METHOD(refreshGeofences:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    @try {
+        [[Sentiance sharedInstance] refreshSmartGeofencesWithCompletionHandler:^(SENTSmartGeofencesRefreshResult * _Nullable result, SENTSmartGeofencesRefreshError * _Nullable error) {
+            if (error != nil) {
+                reject(ESDKSmartGeofencesRefreshError, @"Failed to refresh smart geofences", [self convertSmartGeofencesRefreshError:error]);
+            }
+            else {
+                resolve(nil);
+            }
+        }];
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
+}
+
+RCT_EXPORT_METHOD(getDetectionMode:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    @try {
+        resolve([self stringifySmartGeofencesDetectionMode:Sentiance.sharedInstance.smartGeofenceDetectionMode]);
+    } @catch (NSException *e) {
+        reject(e.name, e.reason, nil);
+    }
 }
 
 - (void)didUpdateUserContext:(SENTUserContext *)userContext

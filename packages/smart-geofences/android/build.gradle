@@ -30,9 +30,13 @@ applyAndroidVersionsFrom(corePackageJson)
 def sentianceSdkVersion = getSentianceSdkVersion()
 
 dependencies {
+    implementation(platform("com.sentiance:sdk-bom:${sentianceSdkVersion}"))
+    api("com.sentiance:sdk-smart-geofences") { transitive = true }
     api coreProj
 
-    // Add here any other dependencies that the new module requires
+    if (findProject(':test-common')) {
+        testImplementation project(':test-common')
+    }
 }
 
 applyReactNativeDependency()

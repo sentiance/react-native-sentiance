@@ -14,8 +14,9 @@ static NSString * _Nonnull const VehicleCrashDiagnosticEvent = @"SENTIANCE_VEHIC
 static NSString * _Nonnull const UserContextUpdateEvent = @"SENTIANCE_USER_CONTEXT_UPDATE_EVENT";
 static NSString * _Nonnull const DrivingInsightsReadyEvent = @"SENTIANCE_DRIVING_INSIGHTS_READY_EVENT";
 static NSString * _Nonnull const TimelineUpdateEvent = @"SENTIANCE_TIMELINE_UPDATE_EVENT";
+static NSString * _Nonnull const SmartGeofenceEvent = @"SENTIANCE_SMART_GEOFENCE_EVENT";
 
-@interface RNSentianceCore : RCTEventEmitter <RCTBridgeModule, SENTUserContextDelegate, SENTDrivingInsightsReadyDelegate, SENTEventTimelineDelegate>
+@interface RNSentianceCore : RCTEventEmitter <RCTBridgeModule, SENTUserContextDelegate, SENTDrivingInsightsReadyDelegate, SENTEventTimelineDelegate, SENTSmartGeofenceEventDelegate>
 typedef void (^SdkStatusHandler)(SENTSDKStatus * _Nonnull status);
 - (SENTUserLinker _Nonnull ) getUserLinker;
 - (SdkStatusHandler _Nonnull) getSdkStatusUpdateHandler;
