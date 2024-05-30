@@ -78,27 +78,7 @@ if (!newVersion) {
   isNewVersionSpecified = false;
 }
 
-const TARGET_MODULES = [
-  {
-    name: 'core',
-    iosModuleName: 'RNSentianceCore'
-  },
-  {
-    name: 'crash-detection'
-  },
-  {
-    name: 'user-context'
-  },
-  {
-    name: 'legacy'
-  },
-  {
-    name: 'driving-insights'
-  },
-  {
-    name: 'event-timeline'
-  },
-];
+const TARGET_MODULES = require("./sdk_modules_map.json");
 
 if (isNewVersionSpecified) {
   updateVersionNumberForTopLevelModule();

@@ -37,6 +37,7 @@ dependencyResolutionManagement {
   'driving-insights',
   'user-context',
   'legacy',
+  'smart-geofences',
 ].each { projectName ->
   def module = ":$projectName"
   include(module)

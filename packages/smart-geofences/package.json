@@ -1,0 +1,24 @@
+{
+  "name": "@sentiance-react-native/smart-geofences",
+  "version": "0.0.1",
+  "description": "New module description goes here",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx eslint lib/index.d.ts"
+  },
+  "keywords": [
+    "react-native",
+    "smart-geofences",
+    "sentiance"
+  ],
+  "peerDependencies": {
+    "@sentiance-react-native/core": "6.0.0"
+  },
+  "homepage": "https://github.com/sentiance/react-native-sentiance/packages/smart-geofences#readme",
+  "repository": "github:sentiance/react-native-sentiance",
+  "publishConfig": {
+    "access": "public"
+  }
+}

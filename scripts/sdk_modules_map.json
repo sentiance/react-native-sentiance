@@ -1,0 +1,24 @@
+[
+  {
+    "name": "core",
+    "iosModuleName": "RNSentianceCore"
+  },
+  {
+    "name": "crash-detection"
+  },
+  {
+    "name": "user-context"
+  },
+  {
+    "name": "legacy"
+  },
+  {
+    "name": "driving-insights"
+  },
+  {
+    "name": "event-timeline"
+  },
+  {
+    "name": "smart-geofences"
+  }
+]

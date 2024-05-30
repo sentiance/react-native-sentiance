@@ -19,7 +19,8 @@
     "packages/user-context",
     "packages/legacy",
     "packages/driving-insights",
-    "packages/event-timeline"
+    "packages/event-timeline",
+    "packages/smart-geofences"
   ],
   "author": "",
   "license": "",
