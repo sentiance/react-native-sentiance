@@ -10,7 +10,7 @@ import com.sentiance.react.bridge.core.SentianceConverter;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
 import com.sentiance.react.bridge.smartgeofences.converters.SmartGeofencesConverter;
 import com.sentiance.sdk.Sentiance;
-import com.sentiance.smartgeofences.api.SmartGeofenceApi;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofenceApi;
 
 import java.util.ArrayList;
 import java.util.Collections;

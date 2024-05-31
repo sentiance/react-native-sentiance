@@ -6,7 +6,7 @@ import static org.junit.Assert.assertFalse;
 import com.facebook.react.bridge.JavaOnlyMap;
 import com.sentiance.react.bridge.smartgeofences.converters.SmartGeofencesConverter;
 import com.sentiance.react.bridge.test.validators.BridgeValidator;
-import com.sentiance.smartgeofences.api.SmartGeofencesRefreshError;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofencesRefreshError;
 
 public class SmartGeofenceRefreshErrorBridgeValidator implements BridgeValidator<SmartGeofencesRefreshError> {
 

@@ -4,10 +4,10 @@ import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.sentiance.react.bridge.core.SentianceConverter;
-import com.sentiance.smartgeofences.api.DetectionMode;
-import com.sentiance.smartgeofences.api.SmartGeofence;
-import com.sentiance.smartgeofences.api.SmartGeofenceEvent;
-import com.sentiance.smartgeofences.api.SmartGeofencesRefreshError;
+import com.sentiance.sdk.smartgeofences.api.DetectionMode;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofence;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofenceEvent;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofencesRefreshError;
 
 import java.util.List;
 

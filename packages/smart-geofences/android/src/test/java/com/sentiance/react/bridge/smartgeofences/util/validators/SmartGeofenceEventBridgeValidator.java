@@ -9,8 +9,8 @@ import com.facebook.react.bridge.ReadableMap;
 import com.sentiance.react.bridge.smartgeofences.converters.SmartGeofencesConverter;
 import com.sentiance.react.bridge.test.validators.BridgeValidator;
 import com.sentiance.react.bridge.test.validators.LocationBridgeValidator;
-import com.sentiance.smartgeofences.api.SmartGeofence;
-import com.sentiance.smartgeofences.api.SmartGeofenceEvent;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofence;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofenceEvent;
 
 import java.util.List;
 

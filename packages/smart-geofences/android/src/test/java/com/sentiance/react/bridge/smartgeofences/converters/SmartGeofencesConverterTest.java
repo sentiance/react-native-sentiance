@@ -8,10 +8,10 @@ import com.sentiance.react.bridge.core.SentianceConverter;
 import com.sentiance.react.bridge.smartgeofences.util.validators.SmartGeofenceEventBridgeValidator;
 import com.sentiance.react.bridge.smartgeofences.util.validators.SmartGeofenceRefreshErrorBridgeValidator;
 import com.sentiance.react.bridge.test.ReactNativeTest;
-import com.sentiance.smartgeofences.api.SmartGeofence;
-import com.sentiance.smartgeofences.api.SmartGeofenceEvent;
-import com.sentiance.smartgeofences.api.SmartGeofencesRefreshError;
-import com.sentiance.smartgeofences.api.SmartGeofencesRefreshFailureReason;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofence;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofenceEvent;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofencesRefreshError;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofencesRefreshFailureReason;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +51,7 @@ public class SmartGeofencesConverterTest extends ReactNativeTest {
     public void testConvertSmartGeofenceEvent() {
         List<SmartGeofenceEvent> events = Arrays.asList(
             new SmartGeofenceEvent(
+              System.currentTimeMillis(),
                 Arrays.asList(
                     new SmartGeofence("sent_id1", 1.23, 4.56, 100, "external_id1"),
                     new SmartGeofence("sent_id2", 1.23, 4.56, 10, "external_id2")
@@ -59,7 +60,8 @@ public class SmartGeofencesConverterTest extends ReactNativeTest {
                 new Location("gps")
             ),
             new SmartGeofenceEvent(
-                Arrays.asList(
+              System.currentTimeMillis(),
+              Arrays.asList(
                     new SmartGeofence("sent_id1", 1.23, 4.56, 100, null),
                     new SmartGeofence("sent_id2", 1.23, 4.56, 10, "external_id2")
                 ),

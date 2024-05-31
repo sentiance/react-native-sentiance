@@ -12,9 +12,9 @@ import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
 import com.sentiance.react.bridge.core.common.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.smartgeofences.converters.SmartGeofencesConverter;
 import com.sentiance.sdk.Sentiance;
-import com.sentiance.smartgeofences.api.DetectionMode;
-import com.sentiance.smartgeofences.api.SmartGeofenceApi;
-import com.sentiance.smartgeofences.api.SmartGeofenceEventListener;
+import com.sentiance.sdk.smartgeofences.api.DetectionMode;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofenceApi;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofenceEventListener;
 
 public class SmartGeofencesModule extends AbstractSentianceModule {
 

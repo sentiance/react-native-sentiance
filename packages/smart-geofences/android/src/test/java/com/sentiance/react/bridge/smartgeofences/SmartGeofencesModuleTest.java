@@ -3,6 +3,7 @@ package com.sentiance.react.bridge.smartgeofences;
 import static com.sentiance.react.bridge.smartgeofences.SmartGeofenceEmitter.SMART_GEOFENCE_EVENT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 
 import android.location.Location;
@@ -16,14 +17,14 @@ import com.sentiance.react.bridge.smartgeofences.utils.ErrorCodes;
 import com.sentiance.react.bridge.test.ReactNativeModuleTest;
 import com.sentiance.sdk.pendingoperation.OnCompleteListener;
 import com.sentiance.sdk.pendingoperation.PendingOperation;
-import com.sentiance.smartgeofences.api.DetectionMode;
-import com.sentiance.smartgeofences.api.SmartGeofence;
-import com.sentiance.smartgeofences.api.SmartGeofenceApi;
-import com.sentiance.smartgeofences.api.SmartGeofenceEvent;
-import com.sentiance.smartgeofences.api.SmartGeofenceEventListener;
-import com.sentiance.smartgeofences.api.SmartGeofencesRefreshError;
-import com.sentiance.smartgeofences.api.SmartGeofencesRefreshFailureReason;
-import com.sentiance.smartgeofences.api.SmartGeofencesRefreshResult;
+import com.sentiance.sdk.smartgeofences.api.DetectionMode;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofence;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofenceApi;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofenceEvent;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofenceEventListener;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofencesRefreshError;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofencesRefreshFailureReason;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofencesRefreshResult;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -100,7 +101,7 @@ public class SmartGeofencesModuleTest extends ReactNativeModuleTest<SmartGeofenc
 
         mModule.refreshGeofences(mPromise);
 
-        verify(mPromise).reject(Mockito.eq(ErrorCodes.E_SMART_GEOFENCES_REFRESH_ERROR), writableMapCaptor.capture());
+        verify(mPromise).reject(Mockito.eq(ErrorCodes.E_SMART_GEOFENCES_REFRESH_ERROR), anyString(), writableMapCaptor.capture());
         WritableMap capturedErrorMap = writableMapCaptor.getValue();
 
         refreshErrorBridgeValidator.validate(expectedError, (JavaOnlyMap) capturedErrorMap);
@@ -129,6 +130,7 @@ public class SmartGeofencesModuleTest extends ReactNativeModuleTest<SmartGeofenc
 
         SmartGeofenceEventListener listener = smartGeofenceEventListenerCaptor.getValue();
         SmartGeofenceEvent event = new SmartGeofenceEvent(
+          System.currentTimeMillis(),
             Arrays.asList(
                 new SmartGeofence("sent_id1", 1.23, 4.56, 100, null),
                 new SmartGeofence("sent_id2", 1.23, 4.56, 10, "external_id2")

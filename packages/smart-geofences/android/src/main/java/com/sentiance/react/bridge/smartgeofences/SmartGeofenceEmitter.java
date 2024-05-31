@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.sentiance.react.bridge.core.common.base.AbstractSentianceEmitter;
 import com.sentiance.react.bridge.smartgeofences.converters.SmartGeofencesConverter;
-import com.sentiance.smartgeofences.api.SmartGeofenceEvent;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofenceEvent;
 
 public class SmartGeofenceEmitter extends AbstractSentianceEmitter {
     public static final String SMART_GEOFENCE_EVENT = "SENTIANCE_SMART_GEOFENCE_EVENT";

@@ -6,7 +6,7 @@ import com.facebook.react.bridge.JavaOnlyMap;
 import com.sentiance.react.bridge.core.SentianceConverter;
 import com.sentiance.react.bridge.smartgeofences.converters.SmartGeofencesConverter;
 import com.sentiance.react.bridge.test.validators.BridgeValidator;
-import com.sentiance.smartgeofences.api.SmartGeofence;
+import com.sentiance.sdk.smartgeofences.api.SmartGeofence;
 
 public class SmartGeofenceBridgeValidator implements BridgeValidator<SmartGeofence> {
     @Override
