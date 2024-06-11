@@ -5,12 +5,12 @@ buildscript {
   }
 
   dependencies {
-    classpath "com.android.tools.build:gradle:4.2.2"
+    classpath "com.android.tools.build:gradle:8.3.2"
   }
 }
 
 plugins {
-  id 'com.android.library' version '4.2.2' apply false
+  id 'com.android.library' version '8.3.2' apply false
 }
 
 task clean(type: Delete) {
@@ -18,6 +18,15 @@ task clean(type: Delete) {
 }
 
 subprojects {
+  // Check if the build was started by Android Studio
+  def ideBuild = project.properties['android.injected.invoked.from.ide']
+  // Check if the build was started with -PtestEnv=true
+  def isTestEnv = project.hasProperty('testEnv') && project.testEnv.toBoolean()
+
+  if (ideBuild || isTestEnv) {
+    apply from: rootProject.file('./gradle-scripts/common-test-config.gradle')
+  }
+
   project.plugins.withId('com.android.library') {
     android {
       testOptions {

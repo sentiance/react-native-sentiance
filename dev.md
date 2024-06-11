@@ -1,8 +1,8 @@
 # Creating new SDK modules
 
-Start by running `npm i` to download and install the project's dependencies.
+Start by running `npm i` to download and install the project's dependencies. Then, run the following command: 
 
-Then, run the script located at `scripts/new-sdk-module/run.sh` from the root of the project and follow the steps.
+`npm run new-sdk-module`
 
 ## iOS specific configuration
 

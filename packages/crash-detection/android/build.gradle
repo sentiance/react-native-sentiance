@@ -16,6 +16,8 @@ if (findProject(':core')) {
 }
 
 android {
+  namespace "com.sentiance.react.bridge.crashdetection"
+
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8

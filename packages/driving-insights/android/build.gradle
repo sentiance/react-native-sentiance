@@ -27,6 +27,8 @@ if (findProject(':event-timeline')) {
 }
 
 android {
+  namespace "com.sentiance.react.bridge.drivinginsights"
+
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8

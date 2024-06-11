@@ -5,13 +5,14 @@
   "scripts": {
     "docs": "npx jsdoc2md index.d.ts > types.md",
     "test": "jest --verbose",
-    "androidTest": "cd ./packages && ./gradlew test --stacktrace",
+    "androidTest": "cd ./packages && ./gradlew test -PtestEnv=true --stacktrace",
     "fetch:npm_tag": "node ./scripts/determine-version-tag.js",
     "sync:package_versions": "node ./scripts/sync-package-versions.js",
     "lint": "npm run lint --workspaces",
     "prepublishLocal": "npm run sync:package_versions",
     "publishLocal": "npm publish --workspaces --registry http://localhost:4873/ --tag $(npm run fetch:npm_tag --silent)",
-    "publishLocal:overwrite": "npm unpublish --force --workspaces --registry http://localhost:4873/ && npm publish --workspaces --registry http://localhost:4873/ --tag $(npm run fetch:npm_tag --silent)"
+    "publishLocal:overwrite": "npm unpublish --force --workspaces --registry http://localhost:4873/ && npm publish --workspaces --registry http://localhost:4873/ --tag $(npm run fetch:npm_tag --silent)",
+    "new-sdk-module": "./scripts/new-sdk-module/run.sh"
   },
   "workspaces": [
     "packages/core",

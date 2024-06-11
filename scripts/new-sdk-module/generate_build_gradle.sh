@@ -4,6 +4,7 @@ SCRIPTS_FOLDER="scripts"
 source "$SCRIPTS_FOLDER/new-sdk-module/shared.sh"
 
 output_file="$1"
+fully_qualified_module_name="$2"
 
 cat << EOF > "$output_file"
 plugins {
@@ -24,6 +25,8 @@ if (findProject(':core')) {
 }
 
 android {
+  namespace "$fully_qualified_module_name"
+
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8

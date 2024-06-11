@@ -33,7 +33,7 @@ jobs:
       - run: npm run test
   android_test:
     docker:
-      - image: cimg/android:2022.01.1-node
+      - image: cimg/android:2024.01.1-node
     environment:
       BUNDLE_PATH: vendor/bundle
       _JAVA_OPTIONS: -Xmx3g

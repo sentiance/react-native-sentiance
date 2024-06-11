@@ -93,7 +93,7 @@ function createManifestFile() {
 function createModuleGradleBuildFile() {
   local buildGradleFile="$android_folder/build.gradle"
 
-  $GENERATE_BUILD_GRADLE $buildGradleFile
+  $GENERATE_BUILD_GRADLE $buildGradleFile $fully_qualified_module_name
 
   if [ $? -ne $SUCCESS ]; then
     echo_red "Failed to create a $buildGradleFile file."

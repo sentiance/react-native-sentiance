@@ -1,0 +1,23 @@
+allprojects {
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin('com.android.library')) {
+            android {
+                testOptions {
+                    unitTests.all {
+                        // Add JVM options to open specific packages
+                        allJvmArgs += [
+                                '--add-opens=java.base/java.lang=ALL-UNNAMED',
+                                '--add-opens=java.base/java.util=ALL-UNNAMED',
+                                '--add-opens=java.base/java.text=ALL-UNNAMED',
+                                '--add-opens=java.base/java.net=ALL-UNNAMED',
+                                '--add-opens=java.base/java.security=ALL-UNNAMED',
+                                '--add-opens=java.base/java.lang.reflect=ALL-UNNAMED',
+                                '--add-opens=java.base/java.util.stream=ALL-UNNAMED',
+                                '--add-opens=java.desktop/java.awt.font=ALL-UNNAMED',
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
