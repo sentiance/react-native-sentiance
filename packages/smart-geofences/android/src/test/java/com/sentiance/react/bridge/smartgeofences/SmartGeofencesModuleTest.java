@@ -27,14 +27,17 @@ import com.sentiance.sdk.smartgeofences.api.SmartGeofencesRefreshFailureReason;
 import com.sentiance.sdk.smartgeofences.api.SmartGeofencesRefreshResult;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.Arrays;
 
+@RunWith(RobolectricTestRunner.class)
 public class SmartGeofencesModuleTest extends ReactNativeModuleTest<SmartGeofencesModule> {
 
     @Mock

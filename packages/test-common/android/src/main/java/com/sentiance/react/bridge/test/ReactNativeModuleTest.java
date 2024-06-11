@@ -20,6 +20,24 @@ import org.mockito.MockitoAnnotations;
 public abstract class ReactNativeModuleTest<T extends AbstractSentianceModule> extends ReactNativeTest {
 
     @Mock
+    protected ReactApplicationContext mReactApplicationContext;
+
+    @Mock
+    protected WritableArray mockWritableArray;
+    @Mock
+    protected WritableMap mockWritableMap;
+    @Captor
+    protected ArgumentCaptor<WritableArray> writableArrayCaptor;
+    @Captor
+    protected ArgumentCaptor<WritableMap> writableMapCaptor;
+    @Captor
+    protected ArgumentCaptor<String> stringCaptor;
+    @Captor
+    protected ArgumentCaptor<Integer> intCaptor;
+    @Captor
+    protected ArgumentCaptor<Boolean> boolCaptor;
+
+    @Mock
     protected Sentiance mSentiance;
     @Mock
     protected Promise mPromise;

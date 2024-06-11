@@ -16,3 +16,19 @@ plugins {
 task clean(type: Delete) {
   delete rootProject.buildDir
 }
+
+subprojects {
+  project.plugins.withId('com.android.library') {
+    android {
+      testOptions {
+        unitTests.all {
+          testLogging {
+            events "passed", "skipped", "failed"
+            showStandardStreams = true
+            exceptionFormat "full"
+          }
+        }
+      }
+    }
+  }
+}
