@@ -1,6 +1,6 @@
 {
   "name": "sentiance-react-native",
-  "version": "6.8.0-rc.1",
+  "version": "6.8.0-rc.2",
   "description": "React Native libraries for the Sentiance SDK",
   "scripts": {
     "docs": "npx jsdoc2md index.d.ts > types.md",
