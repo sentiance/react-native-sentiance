@@ -32,6 +32,14 @@ declare module "@sentiance-react-native/smart-geofences" {
      * An unexpected error occurred. Check the corresponding {@link SmartGeofencesRefreshError#details} for more info.
      */
     UNEXPECTED_ERROR: "UNEXPECTED_ERROR";
+    /**
+     * No Sentiance user is present on device. Call {@link SentianceCore.createUser} to create a user.
+     */
+    NO_USER: "NO_USER";
+    /**
+     * The user is disabled remotely.
+     */
+    USER_DISABLED_REMOTELY: "USER_DISABLED_REMOTELY";
   }
 
   export enum DetectionMode {

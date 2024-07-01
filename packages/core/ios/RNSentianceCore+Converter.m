@@ -1266,6 +1266,12 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
         case SENTSmartGeofencesRefreshFailureReasonFeatureNotEnabled:
             reason = @"FEATURE_NOT_ENABLED";
             break;
+        case SENTSmartGeofencesRefreshFailureReasonNoUser:
+            reason = @"NO_USER";
+            break;
+        case SENTSmartGeofencesRefreshFailureReasonUserDisabledRemotely:
+            reason = @"USER_DISABLED_REMOTELY";
+            break;
         case SENTSmartGeofencesRefreshFailureReasonUnexpectedError:
         default:
             reason = @"UNEXPECTED_ERROR";
