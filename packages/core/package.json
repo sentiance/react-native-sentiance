@@ -29,10 +29,10 @@
       "targetSdk": 34,
       "compileSdk": 34,
       "buildTools": "34.0.0",
-      "sentiance": "6.8.0-rc4"
+      "sentiance": "6.8.+"
     },
     "ios": {
-      "sentiance": "6.8.0-rc3"
+      "sentiance": "~> 6.8.0"
     }
   }
 }
