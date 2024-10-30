@@ -171,6 +171,11 @@ declare module "@sentiance-react-native/user-context" {
     | "EVENING"
     | "NIGHT";
 
+  export type UserContextUpdateCriteria =
+    | "CURRENT_EVENT"
+    | "ACTIVE_SEGMENTS"
+    | "VISITED_VENUES";
+
   export interface Event {
     id: string;
     startTime: string;
@@ -237,11 +242,16 @@ declare module "@sentiance-react-native/user-context" {
     semanticTime: SemanticTime;
   }
 
+  export interface UserContextUpdate {
+    readonly criteria: UserContextUpdateCriteria[];
+    readonly userContext: UserContext;
+  }
+
   export interface SentianceUserContext {
     requestUserContext(): Promise<UserContext>;
 
     addUserContextUpdateListener(
-      onUserContextUpdated: (userContext: UserContext) => void
+      onUserContextUpdated: (userContextUpdate: UserContextUpdate) => void
     ): Promise<EmitterSubscription>;
   }
 
