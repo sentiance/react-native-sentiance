@@ -1,15 +1,25 @@
 package com.sentiance.react.bridge.eventtimeline;
 
+import static com.sentiance.react.bridge.eventtimeline.ErrorCodes.E_TRANSPORT_TAG_ERROR;
 import static com.sentiance.react.bridge.eventtimeline.EventTimelineEmitter.TIMELINE_UPDATE_EVENT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
 import com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter;
 import com.sentiance.react.bridge.test.ReactNativeModuleTest;
+import com.sentiance.sdk.NoSentianceUserException;
+import com.sentiance.sdk.SdkException;
 import com.sentiance.sdk.eventtimeline.api.EventTimelineApi;
 import com.sentiance.sdk.eventtimeline.api.EventTimelineUpdateListener;
 import com.sentiance.sdk.ondevice.api.event.Event;
@@ -22,6 +32,7 @@ import org.mockito.Mock;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class SentianceEventTimelineModuleTest extends ReactNativeModuleTest<SentianceEventTimelineModule> {
 
@@ -134,5 +145,54 @@ public class SentianceEventTimelineModuleTest extends ReactNativeModuleTest<Sent
 
         assertEquals(TIMELINE_UPDATE_EVENT, stringCaptor.getValue());
         assertEquals(subscriptionId, intCaptor.getValue().intValue());
+    }
+
+    @Test
+    public void testSetTransportTags() {
+        ReadableMap tags = mock(ReadableMap.class);
+        Map<String, String> convertedTags = mock(Map.class);
+
+        when(commonConverter.convertTransportTags(tags)).thenReturn(convertedTags);
+
+        mModule.setTransportTags(tags, mPromise);
+
+        verify(eventTimelineApi).setTransportTags(convertedTags);
+        verify(mPromise).resolve(null);
+    }
+
+    @Test
+    public void testSetTransportTagsThrowsCustomErrorIfAnIllegalArgumentExceptionIsRaised() {
+        String exceptionMessage = "failed to set transport tags";
+        doThrow(new IllegalArgumentException(exceptionMessage))
+            .when(eventTimelineApi)
+            .setTransportTags(any());
+
+        mModule.setTransportTags(mock(ReadableMap.class), mPromise);
+
+        verify(mPromise).reject(eq(E_TRANSPORT_TAG_ERROR), eq(exceptionMessage));
+    }
+
+    @Test
+    public void testSetTransportTagsThrowsCustomErrorIfNoSentianceUserExceptionIsRaised() {
+        NoSentianceUserException exception = new NoSentianceUserException();
+        doThrow(exception)
+            .when(eventTimelineApi)
+            .setTransportTags(any());
+
+        mModule.setTransportTags(mock(ReadableMap.class), mPromise);
+
+        verify(mPromise).reject(eq(E_TRANSPORT_TAG_ERROR), eq(exception.getMessage()));
+    }
+
+    @Test
+    public void testSetTransportTagsThrowsGeneralError() {
+        SdkException ex = new SdkException("failed to set transport tags");
+        doThrow(ex)
+            .when(eventTimelineApi)
+            .setTransportTags(any());
+
+        mModule.setTransportTags(mock(ReadableMap.class), mPromise);
+
+        verify(mPromise).reject(eq(ex));
     }
 }

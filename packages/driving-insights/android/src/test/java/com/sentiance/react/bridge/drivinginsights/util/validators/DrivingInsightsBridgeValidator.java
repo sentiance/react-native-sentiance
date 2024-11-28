@@ -37,7 +37,7 @@ public class DrivingInsightsBridgeValidator implements BridgeValidator<DrivingIn
   }
 
   @Override
-  public void validate(DrivingInsights expected, JavaOnlyMap actual) {
+  public void validate(@NonNull DrivingInsights expected, @NonNull JavaOnlyMap actual) {
     TransportEvent transportEvent = expected.getTransportEvent();
     SafetyScores safetyScores = expected.getSafetyScores();
 

@@ -4,13 +4,15 @@ import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverte
 
 import static org.junit.Assert.assertEquals;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.JavaOnlyMap;
 import com.sentiance.sdk.drivinginsights.api.HarshDrivingEvent;
 
 public class HarshEventBridgeValidator extends DrivingEventBridgeValidator<HarshDrivingEvent> {
 
   @Override
-  public void validate(HarshDrivingEvent expected, JavaOnlyMap actual) {
+  public void validate(@NonNull HarshDrivingEvent expected, @NonNull JavaOnlyMap actual) {
     super.validate(expected, actual);
     assertEquals(
       expected.getMagnitude(),

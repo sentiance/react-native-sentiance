@@ -6,6 +6,8 @@ import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.JavaOnlyMap;
 import com.sentiance.sdk.ondevice.api.GeoLocation;
 import com.sentiance.sdk.ondevice.api.venue.Venue;
@@ -19,7 +21,7 @@ public class VenueBridgeValidator implements BridgeValidator<Venue> {
   }
 
   @Override
-  public void validate(Venue expected, JavaOnlyMap actual) {
+  public void validate(@NonNull Venue expected, @NonNull JavaOnlyMap actual) {
     GeoLocation location = expected.getLocation();
     if (location == null) {
       assertFalse(actual.hasKey(JS_KEY_LOCATION));

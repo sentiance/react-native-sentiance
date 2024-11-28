@@ -12,6 +12,8 @@ import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesC
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.JavaOnlyMap;
 import com.sentiance.sdk.ondevice.api.Waypoint;
 
@@ -19,7 +21,7 @@ import org.junit.Assert;
 
 public class WaypointBridgeValidator implements BridgeValidator<Waypoint> {
   @Override
-  public void validate(Waypoint expected, JavaOnlyMap actual) {
+  public void validate(@NonNull Waypoint expected, @NonNull JavaOnlyMap actual) {
     assertEquals(expected.getLatitude(), actual.getDouble(JS_KEY_LATITUDE), 0.000001);
     assertEquals(expected.getLongitude(), actual.getDouble(JS_KEY_LONGITUDE), 0.000001);
     assertEquals(expected.getAccuracyInMeters(), actual.getInt(JS_KEY_ACCURACY), 0.00001);

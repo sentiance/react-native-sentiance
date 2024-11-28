@@ -222,6 +222,10 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     if (event.distanceInMeters != nil) {
         dict[@"distance"] = event.distanceInMeters;
     }
+
+    if (event.tags != nil) {
+        dict[@"transportTags"] = event.tags;
+    }
 }
 
 - (NSDictionary*)convertWaypoint:(SENTWaypoint*)waypoint {
@@ -1144,9 +1148,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     NSMutableDictionary *transportEventDict = [[NSMutableDictionary alloc] init];
     NSMutableDictionary *safetyScoresDict = [[NSMutableDictionary alloc] init];
 
-    [self _addBaseEventFields:transportEventDict event:drivingInsights.transportEvent];
-    [self addTransportEventInfoToDict:transportEventDict event:drivingInsights.transportEvent];
-    dict[@"transportEvent"] = transportEventDict;
+    dict[@"transportEvent"] = [self convertEvent:drivingInsights.transportEvent];
 
     NSNumber* smoothScore = drivingInsights.safetyScores.smoothScore;
     if (smoothScore != nil) {

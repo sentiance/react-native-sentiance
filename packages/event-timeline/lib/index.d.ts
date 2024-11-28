@@ -18,6 +18,7 @@ declare module "@sentiance-react-native/event-timeline" {
     transportMode: TransportMode | null;
     waypoints: Waypoint[];
     distance?: number; // in meters
+    transportTags: TransportTags;
   }
 
   export interface GeoLocation {
@@ -96,11 +97,48 @@ declare module "@sentiance-react-native/event-timeline" {
     isSpeedLimitInfoSet: boolean;
   }
 
+  export type TransportTags = { [key: string]: string };
+
   export interface SentianceEventTimeline {
     getTimelineUpdates(afterEpochTimeMs: number): Promise<Event[]>;
     getTimelineEvents(fromEpochTimeMs: number, toEpochTimeMs: number): Promise<Event[]>;
     getTimelineEvent(eventId: string): Promise<Event | null>;
     addTimelineUpdateListener(onTimelineUpdated: (event: Event) => void): Promise<EmitterSubscription>;
+
+    /**
+     * Sets the tags that will be assigned to a detected transport.
+     *
+     * @remarks
+     * The provided tags will be assigned to a transport at the moment the transport ends. When you
+     * receive an {@link Event} representing the ended transport, it will include these tags.
+     *
+     * The supplied tags are persisted and applied to future transports, even after the app is restarted.
+     * By calling this method again, you will replace the tags that will be assigned to future transports.
+     *
+     * You can include up to 6 tags (key-value pairs), and each tag component (key or value) must
+     * be at most 256 characters.
+     *
+     * @example Setting custom transport tags
+     * try {
+     *   await SentianceEventTimeline.setTransportTags({
+     *    key1: "value1",
+     *    key2: "value2"
+     *   });
+     *   console.log('Transport tags have been set.');
+     * } catch (error) {
+     *   if (error instanceof TransportTagsError) {
+     *     console.error(`Failed to set transport tags: ${error.message}`);
+     *   } else {
+     *     console.error(`Error: ${error.message}`);
+     *   }
+     * }
+     *
+     * @param tags The transport tags to set
+     *
+     * @throws TransportTaggingError if the supplied tags count is more than 6, or if one of the tag components exceeds
+     * the 256 characters limit.
+     */
+    setTransportTags(tags: TransportTags): Promise<void>;
   }
 
   /**

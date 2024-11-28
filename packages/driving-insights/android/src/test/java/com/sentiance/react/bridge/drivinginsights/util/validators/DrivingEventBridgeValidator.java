@@ -6,13 +6,15 @@ import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesC
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_START_TIME_EPOCH;
 import static org.junit.Assert.assertEquals;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.JavaOnlyMap;
 import com.sentiance.react.bridge.test.validators.BridgeValidator;
 import com.sentiance.sdk.drivinginsights.api.DrivingEvent;
 
 public class DrivingEventBridgeValidator<T extends DrivingEvent> implements BridgeValidator<T> {
   @Override
-  public void validate(T expected, JavaOnlyMap actual) {
+  public void validate(@NonNull T expected, @NonNull JavaOnlyMap actual) {
     assertEquals(
       expected.getStartTime().toString(),
       actual.getString(JS_KEY_START_TIME));

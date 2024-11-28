@@ -8,9 +8,9 @@
 #import "RNSentianceSubscriptionsManager.h"
 
 #define REJECT_IF_SDK_NOT_INITIALIZED(reject) if ([self isSdkNotInitialized]) {                            \
-                                                  reject(ESDKNotInitialized, @"Sdk not initialized", nil); \
-                                                  return;                                                  \
-                                              }
+reject(ESDKNotInitialized, @"Sdk not initialized", nil); \
+return;                                                  \
+}
 
 @interface RNSentianceCore()
 
@@ -135,11 +135,11 @@ RCT_EXPORT_MODULE(SentianceCore)
 }
 
 - (BOOL) initSDKIfUserLinkingCompleted:(NSString *)appId
-          secret:(NSString *)secret
-         baseURL:(nullable NSString *)baseURL
-     shouldStart:(BOOL)shouldStart
-        resolver:(RCTPromiseResolveBlock)resolve
-        rejecter:(RCTPromiseRejectBlock)reject
+                                secret:(NSString *)secret
+                               baseURL:(nullable NSString *)baseURL
+                           shouldStart:(BOOL)shouldStart
+                              resolver:(RCTPromiseResolveBlock)resolve
+                              rejecter:(RCTPromiseRejectBlock)reject
 {
     BOOL isThirdPartyLinked = [self isThirdPartyLinked];
     if (isThirdPartyLinked) {
@@ -303,8 +303,8 @@ RCT_EXPORT_METHOD(startWithStopDate:(nonnull NSNumber *)stopEpochTimeMs
 }
 
 RCT_EXPORT_METHOD(enableDetectionsWithExpiryDate:(nonnull NSNumber *)expiryEpochTimeMs
-                                        resolver:(RCTPromiseResolveBlock)resolve
-                                        rejecter:(RCTPromiseRejectBlock)reject)
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
 {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
 
@@ -1195,6 +1195,25 @@ RCT_EXPORT_METHOD(getDetectionMode:(RCTPromiseResolveBlock)resolve rejecter:(RCT
         resolve([self stringifySmartGeofencesDetectionMode:Sentiance.sharedInstance.smartGeofenceDetectionMode]);
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
+    }
+}
+
+RCT_EXPORT_METHOD(setTransportTags:(NSDictionary *)tags
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+    NSError *error = nil;
+
+    [[Sentiance sharedInstance] setTransportTags:tags error:&error];
+
+    if (error != nil) {
+        if ([error.domain isEqualToString:@"SENTTransportTaggingDomain"]) {
+            reject(ESDKTransportTaggingError, error.localizedDescription, nil);
+        } else {
+            reject(@"E_SDK_SET_TRANSPORT_TAGS", @"Unexpected error while attempting to set transport tags", error);
+        }
+    } else {
+        resolve(nil);
     }
 }
 

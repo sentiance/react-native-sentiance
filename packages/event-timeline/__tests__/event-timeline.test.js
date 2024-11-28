@@ -1,5 +1,6 @@
 import { allEqual, runOnEachPlatform } from "../../../jest/test_util";
 import { mockNativeEventTimelineModule } from "../jest/mockNativeModule";
+import { E_TRANSPORT_TAG_ERROR, TransportTagsError } from "../lib/errors/errors.js";
 
 describe("Event Timeline API tests", () => {
   beforeEach(() => jest.resetModules());
@@ -146,6 +147,86 @@ describe("Event Timeline API tests", () => {
       expect(capturedSubscriptionIds.length).toBe(expectedNativeModuleFuncInvocations);
       expect(allEqual(capturedEventNames)).toBeTruthy();
       expect(allEqual(capturedSubscriptionIds)).toBeTruthy();
+    });
+  });
+
+  describe("Test set custom transport tags succeeds", () => {
+    runOnEachPlatform(async platform => {
+      const mockSetTransportTags = jest.fn();
+      mockNativeEventTimelineModule(platform, {
+        setTransportTags: mockSetTransportTags
+      });
+
+      const expectedResult = null;
+      mockSetTransportTags.mockResolvedValueOnce(expectedResult);
+
+      const eventTimelineApi = require("../lib");
+      const tags = {
+        "key1": "value1",
+        "key2": "value2",
+        "key3": "value3"
+      };
+
+      await expect(eventTimelineApi.setTransportTags(tags)).resolves.toEqual(expectedResult);
+    });
+  });
+
+  describe("Test set custom transport tags fails with transport tag error", () => {
+    runOnEachPlatform(async platform => {
+      const mockSetTransportTags = jest.fn();
+      mockNativeEventTimelineModule(platform, {
+        setTransportTags: mockSetTransportTags
+      });
+
+      const expectedErrorMessage = "Failed to set transport tags because X and Y";
+      mockSetTransportTags.mockRejectedValueOnce({
+        code: E_TRANSPORT_TAG_ERROR,
+        message: expectedErrorMessage
+      });
+
+      const eventTimelineApi = require("../lib");
+
+      const tags = {
+        "key1": "value1",
+        "key2": "value2",
+        "key3": "value3"
+      };
+      await expect(eventTimelineApi.setTransportTags(tags))
+        .rejects
+        .toEqual(new TransportTagsError(expectedErrorMessage));
+    });
+  });
+
+  describe("Test set custom transport tags fails with non transport tag error", () => {
+    runOnEachPlatform(async platform => {
+      const mockSetTransportTags = jest.fn();
+      mockNativeEventTimelineModule(platform, {
+        setTransportTags: mockSetTransportTags
+      });
+
+      const errors = [
+        { message: "message1" },
+        { code: "some_error_code", message: "message2" },
+        { code: null, message: "message3" },
+        { code: undefined, message: "message4" },
+        { code: "some_error_code", message: "message5", extraField: 1 },
+      ];
+
+      // for every test case defined above, we fail with a different error
+      for (const error of errors) {
+        const eventTimelineApi = require("../lib");
+
+        mockSetTransportTags.mockRejectedValueOnce(error);
+
+        const tags = {
+          "key1": "value1",
+          "key2": "value2",
+          "key3": "value3"
+        };
+        await expect(eventTimelineApi.setTransportTags(tags))
+          .rejects
+          .toEqual(error);
+      }
     });
   });
 });

@@ -12,11 +12,13 @@ import static org.junit.Assert.assertFalse;
 
 import android.location.Location;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.JavaOnlyMap;
 
 public class LocationBridgeValidator implements BridgeValidator<Location> {
   @Override
-  public void validate(Location expected, JavaOnlyMap actual) {
+  public void validate(@NonNull Location expected, @NonNull JavaOnlyMap actual) {
     assertEquals(expected.getTime(), actual.getDouble(JS_KEY_TIMESTAMP), 0.001);
     assertEquals(expected.getLatitude(), actual.getDouble(JS_KEY_LATITUDE), 0.001);
     assertEquals(expected.getLongitude(), actual.getDouble(JS_KEY_LONGITUDE), 0.001);

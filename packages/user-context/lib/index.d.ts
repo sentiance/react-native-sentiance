@@ -176,10 +176,14 @@ declare module "@sentiance-react-native/user-context" {
     | "ACTIVE_SEGMENTS"
     | "VISITED_VENUES";
 
+  export type TransportTags = { [key: string]: string };
+
   export interface Event {
     id: string;
     startTime: string;
     startTimeEpoch: number; // in milliseconds
+    lastUpdateTime: string;
+    lastUpdateTimeEpoch: number; // in milliseconds
     endTime: string | null;
     endTimeEpoch: number | null; // in milliseconds
     durationInSeconds: number | null;
@@ -191,6 +195,7 @@ declare module "@sentiance-react-native/user-context" {
     transportMode: TransportMode | null;
     waypoints: Waypoint[];
     distance?: number; // in meters
+    transportTags: TransportTags;
   }
 
   export interface GeoLocation {

@@ -3,6 +3,8 @@ package com.sentiance.react.bridge.smartgeofences.util.validators;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.JavaOnlyMap;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
@@ -25,7 +27,7 @@ public class SmartGeofenceEventBridgeValidator implements BridgeValidator<SmartG
     }
 
     @Override
-    public void validate(SmartGeofenceEvent expected, JavaOnlyMap actual) {
+    public void validate(@NonNull SmartGeofenceEvent expected, @NonNull JavaOnlyMap actual) {
         assertTrue(actual.hasKey(SmartGeofencesConverter.JS_KEY_GEOFENCES));
         validateSmartGeofences(expected.getGeofences(), actual.getArray(SmartGeofencesConverter.JS_KEY_GEOFENCES));
 

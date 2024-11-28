@@ -1,4 +1,4 @@
-package com.sentiance.react.bridge.test.validators;
+package com.sentiance.react.bridge.eventtimeline.validators;
 
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_DISTANCE;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_DURATION_SECONDS;
@@ -11,13 +11,20 @@ import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesC
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_START_TIME;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_START_TIME_EPOCH;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_TRANSPORT_MODE;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_TRANSPORT_TAGS;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_TYPE;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_VENUE;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_WAYPOINTS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.JavaOnlyMap;
+import com.sentiance.react.bridge.test.validators.BridgeValidator;
+import com.sentiance.react.bridge.test.validators.GeoLocationBridgeValidator;
+import com.sentiance.react.bridge.test.validators.VenueBridgeValidator;
+import com.sentiance.react.bridge.test.validators.WaypointsBridgeValidator;
 import com.sentiance.sdk.ondevice.api.GeoLocation;
 import com.sentiance.sdk.ondevice.api.event.Event;
 import com.sentiance.sdk.ondevice.api.event.StationaryEvent;
@@ -29,15 +36,17 @@ public class EventBridgeValidator implements BridgeValidator<Event> {
   private final GeoLocationBridgeValidator geoLocationBridgeValidator;
   private final VenueBridgeValidator venueBridgeValidator;
   private final WaypointsBridgeValidator waypointsBridgeValidator;
+  private final TransportTagsValidator transportTagsValidator;
 
   public EventBridgeValidator() {
-    this.geoLocationBridgeValidator = new GeoLocationBridgeValidator();
-    this.venueBridgeValidator = new VenueBridgeValidator();
-    this.waypointsBridgeValidator = new WaypointsBridgeValidator();
+    geoLocationBridgeValidator = new GeoLocationBridgeValidator();
+    venueBridgeValidator = new VenueBridgeValidator();
+    waypointsBridgeValidator = new WaypointsBridgeValidator();
+    transportTagsValidator = new TransportTagsValidator();
   }
 
   @Override
-  public void validate(Event expected, JavaOnlyMap actual) {
+  public void validate(@NonNull Event expected, @NonNull JavaOnlyMap actual) {
     assertEquals(expected.getId(), actual.getString(JS_KEY_ID));
     assertEquals(expected.getStartTime().getEpochTime(), actual.getDouble(JS_KEY_START_TIME_EPOCH), 0.000001);
     assertEquals(expected.getStartTime().toString(), actual.getString(JS_KEY_START_TIME));
@@ -69,6 +78,7 @@ public class EventBridgeValidator implements BridgeValidator<Event> {
         assertFalse(actual.hasKey(JS_KEY_TRANSPORT_MODE));
         assertFalse(actual.hasKey(JS_KEY_WAYPOINTS));
         assertFalse(actual.hasKey(JS_KEY_DISTANCE));
+        assertFalse(actual.hasKey(JS_KEY_TRANSPORT_TAGS));
       } else {
         TransportEvent transport = (TransportEvent) expected;
         assertEquals(transport.getTransportMode().toString(), actual.getString(JS_KEY_TRANSPORT_MODE));
@@ -80,6 +90,8 @@ public class EventBridgeValidator implements BridgeValidator<Event> {
         } else {
           assertEquals(distance.intValue(), actual.getInt(JS_KEY_DISTANCE));
         }
+
+        transportTagsValidator.validate(transport.getTags(), (JavaOnlyMap) actual.getMap(JS_KEY_TRANSPORT_TAGS));
       }
     } else {
       StationaryEvent stationary = (StationaryEvent) expected;

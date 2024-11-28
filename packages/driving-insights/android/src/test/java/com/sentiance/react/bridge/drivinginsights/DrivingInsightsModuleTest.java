@@ -39,7 +39,9 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsightsModule> {
@@ -297,6 +299,13 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
         assertEquals(DRIVING_INSIGHTS_READY_EVENT, stringCaptor.getValue());
     }
 
+    private Map<String, String> dummyTransportTags() {
+        return new HashMap<String, String>() {{
+            put("key1", "value1");
+            put("key2", "value2");
+        }};
+    }
+
     private DrivingInsights createDummyDrivingInsights() {
         return createDummyDrivingInsights(null);
     }
@@ -313,7 +322,8 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
                 Collections.singletonList(
                     new Waypoint(13.14, 34.67, now, 20, 5.5f, 6.5f)
                 ),
-                500
+                500,
+                dummyTransportTags()
             ),
             new SafetyScores.Builder()
                 .setSmoothScore(.78f)

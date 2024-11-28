@@ -5,13 +5,15 @@ import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverte
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.JavaOnlyMap;
 import com.sentiance.sdk.drivinginsights.api.CallWhileMovingEvent;
 
 public class CallWhileMovingEventBridgeValidator extends DrivingEventBridgeValidator<CallWhileMovingEvent> {
 
   @Override
-  public void validate(CallWhileMovingEvent expected, JavaOnlyMap actual) {
+  public void validate(@NonNull CallWhileMovingEvent expected, @NonNull JavaOnlyMap actual) {
     super.validate(expected, actual);
 
     if (expected.getMaxTraveledSpeedInMps() == null) {

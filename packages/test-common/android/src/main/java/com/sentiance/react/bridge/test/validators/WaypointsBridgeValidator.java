@@ -3,6 +3,8 @@ package com.sentiance.react.bridge.test.validators;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_WAYPOINTS;
 import static org.junit.Assert.assertTrue;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.JavaOnlyMap;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
@@ -19,7 +21,7 @@ public class WaypointsBridgeValidator implements BridgeValidator<List<Waypoint>>
   }
 
   @Override
-  public void validate(List<Waypoint> expected, JavaOnlyMap actual) {
+  public void validate(@NonNull List<Waypoint> expected, @NonNull JavaOnlyMap actual) {
     assertTrue(actual.hasKey(JS_KEY_WAYPOINTS));
     ReadableArray transformedWaypoints = actual.getArray(JS_KEY_WAYPOINTS);
     for (int i = 0; i < expected.size(); i++) {
