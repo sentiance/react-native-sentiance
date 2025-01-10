@@ -1,6 +1,6 @@
 import { allEqual, runOnEachPlatform } from "../../../jest/test_util";
 import { mockNativeEventTimelineModule } from "../jest/mockNativeModule";
-import { E_TRANSPORT_TAG_ERROR, TransportTagsError } from "../lib/errors/errors.js";
+import { E_TRANSPORT_TAG_ERROR, TransportTaggingError } from "../lib/errors/errors.js";
 
 describe("Event Timeline API tests", () => {
   beforeEach(() => jest.resetModules());
@@ -193,7 +193,7 @@ describe("Event Timeline API tests", () => {
       };
       await expect(eventTimelineApi.setTransportTags(tags))
         .rejects
-        .toEqual(new TransportTagsError(expectedErrorMessage));
+        .toEqual(new TransportTaggingError(expectedErrorMessage));
     });
   });
 

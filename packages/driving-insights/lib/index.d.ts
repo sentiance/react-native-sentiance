@@ -36,8 +36,15 @@ declare module "@sentiance-react-native/driving-insights" {
     endTimeEpoch: number; // in milliseconds
   }
 
+  export type HarshDrivingEventType =
+    | "ACCELERATION"
+    | "BRAKING"
+    | "TURN";
+
   export interface HarshDrivingEvent extends DrivingEvent {
-    magnitude: number
+    magnitude: number;
+    confidence: number;
+    type: HarshDrivingEventType;
   }
 
   export interface PhoneUsageEvent extends DrivingEvent {

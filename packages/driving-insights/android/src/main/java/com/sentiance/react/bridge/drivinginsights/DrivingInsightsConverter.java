@@ -20,6 +20,8 @@ import com.sentiance.sdk.drivinginsights.api.SpeedingEvent;
 public class DrivingInsightsConverter {
 
   public static final String JS_KEY_MAGNITUDE = "magnitude";
+  public static final String JS_KEY_CONFIDENCE = "confidence";
+  public static final String JS_KEY_TYPE = "type";
   public static final String JS_KEY_FOCUS_SCORE = "focusScore";
   public static final String JS_KEY_SMOOTH_SCORE = "smoothScore";
   public static final String JS_KEY_LEGAL_SCORE = "legalScore";
@@ -38,7 +40,8 @@ public class DrivingInsightsConverter {
   public WritableMap convertHarshDrivingEvent(HarshDrivingEvent event) {
     WritableMap map = convertDrivingEvent(event);
     map.putDouble(JS_KEY_MAGNITUDE, event.getMagnitude());
-
+    map.putInt(JS_KEY_CONFIDENCE, event.getConfidence());
+    map.putString(JS_KEY_TYPE, event.getType().name());
     return map;
   }
 

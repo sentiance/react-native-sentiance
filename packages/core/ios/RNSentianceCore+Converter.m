@@ -1143,7 +1143,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     return [typesSet copy];
 }
 
-- (NSDictionary<NSString *, NSDictionary<NSString *, NSNumber *> *> *)convertDrivingInsights:(SENTDrivingInsights *)drivingInsights {
+- (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)convertDrivingInsights:(SENTDrivingInsights *)drivingInsights {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     NSMutableDictionary *transportEventDict = [[NSMutableDictionary alloc] init];
     NSMutableDictionary *safetyScoresDict = [[NSMutableDictionary alloc] init];
@@ -1180,7 +1180,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     return dict;
 }
 
-- (NSArray<NSDictionary<NSString *, NSNumber *> *> *)convertHarshDrivingEvents:(NSArray<SENTHarshDrivingEvent*> *)harshDrivingEvents {
+- (NSArray<NSDictionary<NSString *, id> *> *)convertHarshDrivingEvents:(NSArray<SENTHarshDrivingEvent*> *)harshDrivingEvents {
     NSMutableArray <NSDictionary<NSString *, NSNumber *> *> *array = [[NSMutableArray alloc] init];
     for (SENTHarshDrivingEvent *event in harshDrivingEvents) {
         [array addObject:[self convertHarshDrivingEvent:event]];
@@ -1188,13 +1188,15 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     return array;
 }
 
-- (NSDictionary<NSString *, NSNumber *> *)convertHarshDrivingEvent:(SENTHarshDrivingEvent *)harshDrivingEvent {
-    NSMutableDictionary<NSString *, NSNumber *> *dict = [self convertDrivingEvent:harshDrivingEvent];
+- (NSDictionary<NSString *, id> *)convertHarshDrivingEvent:(SENTHarshDrivingEvent *)harshDrivingEvent {
+    NSMutableDictionary<NSString *, id> *dict = [self convertDrivingEvent:harshDrivingEvent];
     dict[@"magnitude"] = @(harshDrivingEvent.magnitude);
+    dict[@"confidence"] = @(harshDrivingEvent.confidence);
+    dict[@"type"] = [self stringifyHarshEventType:harshDrivingEvent.type];
     return dict;
 }
 
-- (NSArray<NSDictionary<NSString *, NSNumber *> *> *)convertPhoneUsageEvents:(NSArray<SENTPhoneUsageEvent*> *)phoneUsageEvents {
+- (NSArray<NSDictionary<NSString *, id> *> *)convertPhoneUsageEvents:(NSArray<SENTPhoneUsageEvent*> *)phoneUsageEvents {
     NSMutableArray <NSDictionary<NSString *, NSNumber *> *> *array = [[NSMutableArray alloc] init];
     for (SENTPhoneUsageEvent *event in phoneUsageEvents) {
         [array addObject:[self convertPhoneUsageEvent:event]];
@@ -1202,11 +1204,11 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     return array;
 }
 
-- (NSDictionary<NSString *, NSNumber *> *)convertPhoneUsageEvent:(SENTPhoneUsageEvent *)phoneUsageEvent {
+- (NSDictionary<NSString *, id> *)convertPhoneUsageEvent:(SENTPhoneUsageEvent *)phoneUsageEvent {
     return [self convertDrivingEvent:phoneUsageEvent];
 }
 
-- (NSArray<NSDictionary<NSString *, NSNumber *> *> *)convertCallWhileMovingEvents:(NSArray<SENTCallWhileMovingEvent*> *)callWhileMovingEvents {
+- (NSArray<NSDictionary<NSString *, id> *> *)convertCallWhileMovingEvents:(NSArray<SENTCallWhileMovingEvent*> *)callWhileMovingEvents {
     NSMutableArray <NSDictionary<NSString *, NSNumber *> *> *array = [[NSMutableArray alloc] init];
     for (SENTCallWhileMovingEvent *event in callWhileMovingEvents) {
         [array addObject:[self convertCallWhileMovingEvent:event]];
@@ -1214,8 +1216,8 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     return array;
 }
 
-- (NSDictionary<NSString *, NSNumber *> *)convertCallWhileMovingEvent:(SENTCallWhileMovingEvent *)callWhileMovingEvent {
-    NSMutableDictionary<NSString *, NSNumber *> *dict = [self convertDrivingEvent:callWhileMovingEvent];
+- (NSDictionary<NSString *, id> *)convertCallWhileMovingEvent:(SENTCallWhileMovingEvent *)callWhileMovingEvent {
+    NSMutableDictionary<NSString *, id> *dict = [self convertDrivingEvent:callWhileMovingEvent];
     if (callWhileMovingEvent.minTraveledSpeedInMps != nil) {
         dict[@"minTravelledSpeedInMps"] = callWhileMovingEvent.minTraveledSpeedInMps;
     }
@@ -1225,7 +1227,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     return dict;
 }
 
-- (NSArray<NSDictionary<NSString *, NSNumber *> *> *)convertSpeedingEvents:(NSArray<SENTSpeedingEvent*> *)speedingEvents {
+- (NSArray<NSDictionary<NSString *, id> *> *)convertSpeedingEvents:(NSArray<SENTSpeedingEvent*> *)speedingEvents {
     NSMutableArray <NSDictionary<NSString *, NSNumber *> *> *array = [[NSMutableArray alloc] init];
     for (SENTSpeedingEvent *event in speedingEvents) {
         [array addObject:[self convertSpeedingEvent:event]];
@@ -1233,13 +1235,13 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     return array;
 }
 
-- (NSDictionary<NSString *, NSNumber *> *)convertSpeedingEvent:(SENTSpeedingEvent *)speedingEvent {
+- (NSDictionary<NSString *, id> *)convertSpeedingEvent:(SENTSpeedingEvent *)speedingEvent {
     NSMutableDictionary *dict = [self convertDrivingEvent:speedingEvent];
     dict[@"waypoints"] = [self convertWaypointArray:speedingEvent.waypoints];
     return dict;
 }
 
-- (NSMutableDictionary<NSString *, NSNumber *> *)convertDrivingEvent:(SENTDrivingEvent *)drivingEvent {
+- (NSMutableDictionary<NSString *, id> *)convertDrivingEvent:(SENTDrivingEvent *)drivingEvent {
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     dict[@"startTime"] = [drivingEvent.startDate description];
     dict[@"startTimeEpoch"] = @((long) (drivingEvent.startDate.timeIntervalSince1970 * 1000));
@@ -1345,6 +1347,17 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     dict[@"externalId"] = smartGeofence.externalId;
 
     return dict;
+}
+
+- (NSString *)stringifyHarshEventType:(HarshDrivingEventType)type {
+    switch (type) {
+        case HarshDrivingEventTypeAcceleration:
+            return @"ACCELERATION";
+        case HarshDrivingEventTypeBraking:
+            return @"BRAKING";
+        case HarshDrivingEventTypeTurn:
+            return @"TURN";
+    }
 }
 
 @end
