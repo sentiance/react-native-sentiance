@@ -1349,13 +1349,13 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     return dict;
 }
 
-- (NSString *)stringifyHarshEventType:(HarshDrivingEventType)type {
+- (NSString *)stringifyHarshEventType:(SENTHarshDrivingEventType)type {
     switch (type) {
-        case HarshDrivingEventTypeAcceleration:
+        case SENTHarshDrivingEventTypeAcceleration:
             return @"ACCELERATION";
-        case HarshDrivingEventTypeBraking:
+        case SENTHarshDrivingEventTypeBraking:
             return @"BRAKING";
-        case HarshDrivingEventTypeTurn:
+        case SENTHarshDrivingEventTypeTurn:
             return @"TURN";
     }
 }
