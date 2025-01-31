@@ -3,7 +3,9 @@ const { varToString } = require("@sentiance-react-native/core/lib/utils");
 const SentianceEventEmitter = require("@sentiance-react-native/core/lib/SentianceEventEmitter");
 const { createEventListener } = require("@sentiance-react-native/core/lib/SentianceEventListenerUtils");
 const { TransportTaggingError, E_TRANSPORT_TAG_ERROR } = require("./errors/errors");
-const { SentianceEventTimeline, SentianceCore } = NativeModules;
+const { SentianceEventTimeline, SentianceCore} = NativeModules;
+const sentianceFeedback = require("./feedback");
+
 
 const TIMELINE_UPDATE_EVENT = "SENTIANCE_TIMELINE_UPDATE_EVENT";
 
@@ -61,8 +63,10 @@ module.exports = {
   getTimelineEvents,
   getTimelineEvent,
   addTimelineUpdateListener,
-  setTransportTags
+  setTransportTags,
+  sentianceFeedback
 };
+
 module.exports.events = {
   TIMELINE_UPDATE_EVENT
 };

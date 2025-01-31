@@ -19,6 +19,7 @@ declare module "@sentiance-react-native/event-timeline" {
     waypoints: Waypoint[];
     distance?: number; // in meters
     transportTags: TransportTags;
+    occupantRole: OccupantRole
   }
 
   export interface GeoLocation {
@@ -86,6 +87,21 @@ declare module "@sentiance-react-native/event-timeline" {
     | "BUS"
     | "MOTORCYCLE";
 
+  export type OccupantRole =
+    | "DRIVER"
+    | "PASSENGER"
+    | "UNAVAILABLE";
+
+  export type OccupantRoleFeedback = Exclude<OccupantRole, "UNAVAILABLE">;
+
+  export type OccupantRoleFeedbackResult =
+    | "ACCEPTED"
+    | "TRANSPORT_TYPE_NOT_SUPPORTED"
+    | "TRANSPORT_NOT_FOUND"
+    | "TRANSPORT_NOT_YET_COMPLETE"
+    | "FEEDBACK_ALREADY_PROVIDED"
+    | "UNEXPECTED_ERROR";
+
   export interface Waypoint {
     latitude: number;
     longitude: number;
@@ -99,6 +115,10 @@ declare module "@sentiance-react-native/event-timeline" {
   }
 
   export type TransportTags = { [key: string]: string };
+
+  export interface SentianceFeedback {
+    submitOccupantRoleFeedback(transportId: string, occupantRoleFeedback: OccupantRoleFeedback): Promise<OccupantRoleFeedbackResult>;
+  }
 
   export interface SentianceEventTimeline {
     getTimelineUpdates(afterEpochTimeMs: number): Promise<Event[]>;
@@ -140,6 +160,8 @@ declare module "@sentiance-react-native/event-timeline" {
      * the 256 characters limit.
      */
     setTransportTags(tags: TransportTags): Promise<void>;
+
+    sentianceFeedback: SentianceFeedback;
   }
 
   /**

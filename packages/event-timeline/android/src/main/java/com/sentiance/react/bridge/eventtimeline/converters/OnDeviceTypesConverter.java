@@ -5,10 +5,14 @@ import static com.sentiance.react.bridge.core.SentianceConverter.JS_KEY_LATITUDE
 import static com.sentiance.react.bridge.core.SentianceConverter.JS_KEY_LONGITUDE;
 import static com.sentiance.react.bridge.core.SentianceConverter.JS_KEY_TIMESTAMP;
 
+import androidx.annotation.Nullable;
+
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.sentiance.sdk.feedback.api.OccupantRoleFeedback;
+import com.sentiance.sdk.feedback.api.OccupantRoleFeedbackResult;
 import com.sentiance.sdk.ondevice.api.GeoLocation;
 import com.sentiance.sdk.ondevice.api.Waypoint;
 import com.sentiance.sdk.ondevice.api.event.Event;
@@ -41,6 +45,8 @@ public class OnDeviceTypesConverter {
     public static final String JS_KEY_IS_SPEED_LIMIT_INFO_SET = "isSpeedLimitInfoSet";
     public static final String JS_KEY_TRANSPORT_TAGS = "transportTags";
     public static final String JS_KEY_IS_SYNTHETIC = "isSynthetic";
+    public static final String JS_KEY_OCCUPANT_ROLE = "occupantRole";
+
 
     private final TransportTagsConverter transportTagsConverter;
 
@@ -87,7 +93,7 @@ public class OnDeviceTypesConverter {
 
         map.putString(JS_KEY_TYPE, event.getEventType().toString());
 
-        if (event instanceof StationaryEvent) {
+      if (event instanceof StationaryEvent) {
             addStationaryEventInfo(map, (StationaryEvent) event);
         } else if (event instanceof TransportEvent) {
             addTransportEventInfo(map, (TransportEvent) event);
@@ -118,6 +124,7 @@ public class OnDeviceTypesConverter {
     private void addTransportEventInfo(WritableMap map, TransportEvent event) {
         map.putString(JS_KEY_TRANSPORT_MODE, event.getTransportMode().toString());
         map.putArray(JS_KEY_WAYPOINTS, convertWaypointList(event.getWaypoints()));
+        map.putString(JS_KEY_OCCUPANT_ROLE, event.getOccupantRole().name());
 
         if (event.getDistanceInMeters() != null) {
             map.putInt(JS_KEY_DISTANCE, event.getDistanceInMeters());
@@ -165,5 +172,14 @@ public class OnDeviceTypesConverter {
 
     public Map<String, String> convertTransportTags(ReadableMap tags) {
         return transportTagsConverter.convertFrom(tags);
+    }
+
+    @Nullable
+    public OccupantRoleFeedback getOccupantRoleFeedbackFrom(String value) {
+      try {
+        return OccupantRoleFeedback.valueOf(value.toUpperCase());  // Ensures case insensitivity
+      } catch (IllegalArgumentException | NullPointerException e) {
+        return null;
+      }
     }
 }

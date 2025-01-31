@@ -1,6 +1,6 @@
 {
   "name": "@sentiance-react-native/smart-geofences",
-  "version": "0.0.1",
+  "version": "6.0.0",
   "description": "New module description goes here",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",

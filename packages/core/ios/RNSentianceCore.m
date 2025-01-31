@@ -1225,6 +1225,32 @@ RCT_EXPORT_METHOD(setTransportTags:(NSDictionary *)tags
     }
 }
 
+RCT_EXPORT_METHOD(submitOccupantRoleFeedback:(NSString *)transportId
+                  occupantFeedbackRole:(NSString *)occupantFeedbackRoleString
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+    
+    NSNumber *feedbackValue = [self occupantRoleFeedbackFromString:occupantFeedbackRoleString];
+    if (!feedbackValue) {
+        // This should never happen, as JS validates input before calling native code.
+        reject(@"E_SDK_INVALID_FEEDBACK_TYPE", @"Invalid occupant role provided.", nil);
+        return;
+    }
+    
+    SENTOccupantRoleFeedback occupantRoleFeedback = feedbackValue.integerValue;
+    id<SENTFeedback> feedback = [[Sentiance sharedInstance] feedback];
+    
+    if (!feedback) {
+        reject(ESDKFeedbackNotAvailableError, @"Feedback service is not available.", nil);
+        return;
+    }
+    
+    SENTOccupantRoleFeedbackResult result = [feedback submitOccupantRoleFeedbackWithTransportId:transportId feedbackRole:occupantRoleFeedback];
+    
+    resolve([self convertSENTOccupantRoleFeedbackResultToString:result]);
+}
+
 - (void)didUpdateUserContext:(SENTUserContext *)userContext
              forCriteriaMask:(SENTUserContextUpdateCriteria)criteriaMask {
     NSDictionary *dict = @{

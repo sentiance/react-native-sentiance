@@ -4,24 +4,26 @@ import static com.sentiance.react.bridge.eventtimeline.ErrorCodes.E_TRANSPORT_TA
 import static com.sentiance.react.bridge.eventtimeline.EventTimelineEmitter.TIMELINE_UPDATE_EVENT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.bridge.WritableMap;
 import com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter;
 import com.sentiance.react.bridge.test.ReactNativeModuleTest;
 import com.sentiance.sdk.NoSentianceUserException;
 import com.sentiance.sdk.SdkException;
 import com.sentiance.sdk.eventtimeline.api.EventTimelineApi;
 import com.sentiance.sdk.eventtimeline.api.EventTimelineUpdateListener;
+import com.sentiance.sdk.feedback.api.FeedbackApi;
+import com.sentiance.sdk.feedback.api.OccupantRoleFeedback;
+import com.sentiance.sdk.feedback.api.OccupantRoleFeedbackResult;
 import com.sentiance.sdk.ondevice.api.event.Event;
 
 import org.junit.Test;
@@ -194,5 +196,45 @@ public class SentianceEventTimelineModuleTest extends ReactNativeModuleTest<Sent
         mModule.setTransportTags(mock(ReadableMap.class), mPromise);
 
         verify(mPromise).reject(eq(ex));
+    }
+
+    @Test
+    public void testSubmitOccupantRoleFeedback() {
+        for (OccupantRoleFeedback feedback : OccupantRoleFeedback.values()) {
+            testFeedbackForAllResults(feedback);
+        }
+    }
+
+    private void testFeedbackForAllResults(OccupantRoleFeedback feedback) {
+        for (OccupantRoleFeedbackResult feedbackResultExpected : OccupantRoleFeedbackResult.values()) {
+            FeedbackApi feedbackApi = mock(FeedbackApi.class);
+            SentianceFeedbackModule feedbackModule = createFeedBackModule(feedbackApi);
+
+            when(feedbackApi.submitOccupantRoleFeedback(any(), any())).thenReturn(feedbackResultExpected);
+            when(commonConverter.getOccupantRoleFeedbackFrom(anyString())).thenReturn(feedback);
+
+            feedbackModule.submitOccupantRoleFeedback("1000", feedback.name(), mPromise);
+
+            ArgumentCaptor<String> feedbackResultStringCaptor = ArgumentCaptor.forClass(String.class);
+            ArgumentCaptor<String> feedbackRoleStringCaptor = ArgumentCaptor.forClass(String.class);
+
+            verify(commonConverter).getOccupantRoleFeedbackFrom(feedbackRoleStringCaptor.capture());
+            assertEquals(feedback.name(), feedbackRoleStringCaptor.getValue());
+
+            verify(mPromise).resolve(feedbackResultStringCaptor.capture());
+            assertEquals(feedbackResultExpected.name(), feedbackResultStringCaptor.getValue());
+
+            reset(commonConverter, mPromise);
+        }
+    }
+
+    private SentianceFeedbackModule createFeedBackModule(FeedbackApi feedbackApi) {
+        return new SentianceFeedbackModule(
+            mock(ReactApplicationContext.class),
+            mSentiance,
+            feedbackApi,
+            mSentianceSubscriptionsManager,
+            commonConverter
+        );
     }
 }

@@ -22,3 +22,4 @@ NSString * const ESDKResetError = @"E_SDK_RESET_ERROR";
 NSString * const ESDKRequestUserContextError = @"E_SDK_REQUEST_USER_CONTEXT_ERROR";
 NSString * const ESDKSmartGeofencesRefreshError = @"E_SDK_SMART_GEOFENCES_REFRESH_ERROR";
 NSString * const ESDKTransportTaggingError = @"E_TRANSPORT_TAG_ERROR";
+NSString * const ESDKFeedbackNotAvailableError = @"E_SDK_FEEDBACK_NOT_AVAILABLE";

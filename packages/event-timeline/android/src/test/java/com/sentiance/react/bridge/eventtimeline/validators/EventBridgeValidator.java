@@ -8,6 +8,7 @@ import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesC
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_LAST_UPDATE_TIME;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_LAST_UPDATE_TIME_EPOCH;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_LOCATION;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_OCCUPANT_ROLE;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_START_TIME;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_START_TIME_EPOCH;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_TRANSPORT_MODE;
@@ -90,7 +91,7 @@ public class EventBridgeValidator implements BridgeValidator<Event> {
         } else {
           assertEquals(distance.intValue(), actual.getInt(JS_KEY_DISTANCE));
         }
-
+        assertEquals(transport.getOccupantRole().name(), actual.getString(JS_KEY_OCCUPANT_ROLE));
         transportTagsValidator.validate(transport.getTags(), (JavaOnlyMap) actual.getMap(JS_KEY_TRANSPORT_TAGS));
       }
     } else {

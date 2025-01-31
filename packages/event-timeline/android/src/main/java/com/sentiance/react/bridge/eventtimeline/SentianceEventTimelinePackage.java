@@ -10,8 +10,10 @@ import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
 import com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter;
 import com.sentiance.sdk.Sentiance;
 import com.sentiance.sdk.eventtimeline.api.EventTimelineApi;
+import com.sentiance.sdk.feedback.api.FeedbackApi;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +21,6 @@ public class SentianceEventTimelinePackage implements ReactPackage {
   @NonNull
   @Override
   public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
-    List<NativeModule> modules = new ArrayList<>();
     SentianceEventTimelineModule eventTimelineModule = new SentianceEventTimelineModule(
       reactContext,
       Sentiance.getInstance(reactContext),
@@ -28,8 +29,16 @@ public class SentianceEventTimelinePackage implements ReactPackage {
       new EventTimelineEmitter(reactContext),
       new OnDeviceTypesConverter()
     );
-    modules.add(eventTimelineModule);
-    return modules;
+
+    SentianceFeedbackModule feedbackModule = new SentianceFeedbackModule(
+      reactContext,
+      Sentiance.getInstance(reactContext),
+      FeedbackApi.getInstance(),
+      new SentianceSubscriptionsManager(),
+      new OnDeviceTypesConverter()
+    );
+
+    return Arrays.asList(eventTimelineModule, feedbackModule);
   }
 
   @NonNull

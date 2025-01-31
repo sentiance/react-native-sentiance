@@ -9,3 +9,13 @@ export function mockNativeEventTimelineModule(platform, module) {
     },
     module);
 }
+
+export function mockNativeFeedbackModule(platform, module) {
+  return mockNativeModule(
+    platform,
+    {
+      androidName: 'SentianceFeedback',
+      iosName: 'SentianceCore'
+    },
+    module);
+}

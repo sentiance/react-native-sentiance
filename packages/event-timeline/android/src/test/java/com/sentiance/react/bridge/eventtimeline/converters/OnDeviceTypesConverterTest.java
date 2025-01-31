@@ -19,6 +19,7 @@ import com.sentiance.react.bridge.test.validators.WaypointBridgeValidator;
 import com.sentiance.sdk.ondevice.api.GeoLocation;
 import com.sentiance.sdk.ondevice.api.Waypoint;
 import com.sentiance.sdk.ondevice.api.event.Event;
+import com.sentiance.sdk.ondevice.api.event.OccupantRole;
 import com.sentiance.sdk.ondevice.api.event.OffTheGridEvent;
 import com.sentiance.sdk.ondevice.api.event.StationaryEvent;
 import com.sentiance.sdk.ondevice.api.event.TransportEvent;
@@ -73,7 +74,7 @@ public class OnDeviceTypesConverterTest extends ReactNativeTest {
             put("key2", "value2");
         }};
         TransportEvent transport2 = new TransportEvent("transport2", DateTime.now(), DateTime.fromMillis(now() + 2000), DateTime.now(),
-            TransportMode.BUS, Collections.emptyList(), 100, tags);
+            TransportMode.BUS, Collections.emptyList(), 100, tags, OccupantRole.UNAVAILABLE);
 
         List<Event> events = Arrays.asList(otg, stationary1, stationary2, transport1, transport2);
         for (Event event : events) {

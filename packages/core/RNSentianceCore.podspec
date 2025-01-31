@@ -5,7 +5,7 @@ sentiance_sdk_env_var_version = ENV["SENTIANCE_RN_IOS_SDK_VERSION"]
 
 Pod::Spec.new do |s|
   s.name         = "RNSentianceCore"
-  s.version      = "6.4.0-rc.3"
+  s.version      = "6.10.0"
   s.summary      = "RNSentianceCore"
   s.description  = <<-DESC
                    RNSentianceCore

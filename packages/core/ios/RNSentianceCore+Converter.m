@@ -34,6 +34,38 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
 
 @implementation RNSentianceCore (Converter)
 
+- (NSNumber * _Nullable)occupantRoleFeedbackFromString:(NSString *)stringValue {
+    if ([stringValue isEqualToString:@"DRIVER"]) {
+        return @(SENTOccupantRoleFeedback_Driver);
+    }
+    else if ([stringValue isEqualToString:@"PASSENGER"]) {
+        return @(SENTOccupantRoleFeedback_Passenger);
+    }
+    else {
+        return nil;
+    }
+}
+
+- (NSString *_Nonnull)convertSENTOccupantRoleFeedbackResultToString:(SENTOccupantRoleFeedbackResult)feedbackResult {
+    switch (feedbackResult) {
+        case SENTOccupantRoleFeedbackResult_Accepted:
+            return @"ACCEPTED";
+        case SENTOccupantRoleFeedbackResult_TransportTypeNotSupported:
+            return @"TRANSPORT_TYPE_NOT_SUPPORTED";
+        case SENTOccupantRoleFeedbackResult_TransportNotFound:
+            return @"TRANSPORT_NOT_FOUND";
+        case SENTOccupantRoleFeedbackResult_FeedbackAlreadyProvided:
+            return @"FEEDBACK_ALREADY_PROVIDED";
+        case SENTOccupantRoleFeedbackResult_TransportNotYetComplete:
+            return @"TRANSPORT_TYPE_NOT_SUPPORTED";
+        case SENTOccupantRoleFeedbackResult_UnexpectedError:
+            return @"UNEXPECTED_ERROR";
+        default:
+            return @"UNEXPECTED_ERROR";
+    }
+}
+
+
 - (NSString*)convertTimelineEventTypeToString:(SENTTimelineEventType)type {
     switch (type) {
         case SENTTimelineEventTypeStationary:
@@ -61,14 +93,14 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     dict[@"timestamp"] = @((long) ([location.timestamp timeIntervalSince1970] * 1000));
     dict[@"latitude"] = @(location.coordinate.latitude);
     dict[@"longitude"] = @(location.coordinate.longitude);
-
+    
     if (location.horizontalAccuracy >= 0) {
         dict[@"accuracy"] = @(location.horizontalAccuracy);
     }
     if (location.verticalAccuracy > 0) {
         dict[@"altitude"] = @(location.altitude);
     }
-
+    
     return dict;
 }
 
@@ -172,14 +204,14 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
 
 - (NSDictionary*)convertVenue:(SENTVenue*)venue {
     NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
-
+    
     if (venue.location != nil) {
         dict[@"location"] = [self convertGeolocation:venue.location];
     }
-
+    
     dict[@"significance"] = [self convertVenueSignificance:venue.significance];
     dict[@"type"] = [self convertVenueType:venue.type];
-
+    
     return dict;
 }
 
@@ -187,7 +219,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     if (event.location != nil) {
         dict[@"location"] = [self convertGeolocation:event.location];
     }
-
+    
     dict[@"venue"] = [self convertVenue:event.venue];
 }
 
@@ -231,13 +263,28 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
 - (void)addTransportEventInfoToDict:(NSMutableDictionary*)dict event:(SENTTransportEvent*)event {
     dict[@"transportMode"] = [self convertTransportModeToString:event.transportMode];
     dict[@"waypoints"] = [self convertWaypointArray:event.waypoints];
-
+    dict[@"occupantRole"] = [self convertOccupantRole:event.occupantRole];
+    
+    
     if (event.distanceInMeters != nil) {
         dict[@"distance"] = event.distanceInMeters;
     }
-
+    
     if (event.tags != nil) {
         dict[@"transportTags"] = event.tags;
+    }
+}
+
+- (NSString*)convertOccupantRole:(SENTOccupantRole)occupantRole {
+    switch (occupantRole) {
+        case SENTOccupantRole_Driver:
+            return @"DRIVER";
+        case SENTOccupantRole_Passenger:
+            return @"PASSENGER";
+        case SENTOccupantRole_Unavailable:
+            return @"UNAVAILABLE";
+        default:
+            return @"UNAVAILABLE";
     }
 }
 

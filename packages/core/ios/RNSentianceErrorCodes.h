@@ -20,3 +20,4 @@ extern NSString * const ESDKResetError;
 extern NSString * const ESDKRequestUserContextError;
 extern NSString * const ESDKSmartGeofencesRefreshError;
 extern NSString * const ESDKTransportTaggingError;
+extern NSString * const ESDKFeedbackNotAvailableError;

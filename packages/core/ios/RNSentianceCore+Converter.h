@@ -59,5 +59,7 @@ typedef NS_ENUM(NSInteger, UIBackgroundRefreshStatus);
 - (NSString *)stringifySmartGeofencesDetectionMode:(SENTSmartGeofenceDetectionMode)detectionMode;
 - (NSDictionary*)convertSmartGeofenceEvent:(SENTSmartGeofenceEvent*)event;
 - (SENTSafetyScoreRequestParameters*)convertToSafetyScoreRequestParameters:(NSDictionary*)params;
+- (NSNumber * _Nullable)occupantRoleFeedbackFromString:(NSString * _Nonnull)stringValue;
+- (NSString *_Nonnull)convertSENTOccupantRoleFeedbackResultToString:(SENTOccupantRoleFeedbackResult)feedbackResult;
 
 @end
