@@ -243,6 +243,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     }
     dict[@"isSpeedLimitInfoSet"] = @(waypoint.isSpeedLimitInfoSet);
     dict[@"hasUnlimitedSpeedLimit"] = @(waypoint.isSpeedLimitUnlimited);
+    dict[@"isSynthetic"] = @(waypoint.isSynthetic);
 
     return dict;
 }
@@ -1236,9 +1237,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
 }
 
 - (NSDictionary<NSString *, id> *)convertSpeedingEvent:(SENTSpeedingEvent *)speedingEvent {
-    NSMutableDictionary *dict = [self convertDrivingEvent:speedingEvent];
-    dict[@"waypoints"] = [self convertWaypointArray:speedingEvent.waypoints];
-    return dict;
+    return [self convertDrivingEvent:speedingEvent];
 }
 
 - (NSMutableDictionary<NSString *, id> *)convertDrivingEvent:(SENTDrivingEvent *)drivingEvent {
@@ -1247,6 +1246,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     dict[@"startTimeEpoch"] = @((long) (drivingEvent.startDate.timeIntervalSince1970 * 1000));
     dict[@"endTime"] = [drivingEvent.endDate description];
     dict[@"endTimeEpoch"] = @((long) (drivingEvent.endDate.timeIntervalSince1970 * 1000));
+    dict[@"waypoints"] = [self convertWaypointArray:drivingEvent.waypoints];
     return dict;
 }
 

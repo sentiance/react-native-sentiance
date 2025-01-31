@@ -40,6 +40,7 @@ public class OnDeviceTypesConverter {
     public static final String JS_KEY_HAS_UNLIMITED_SPEED_LIMIT = "hasUnlimitedSpeedLimit";
     public static final String JS_KEY_IS_SPEED_LIMIT_INFO_SET = "isSpeedLimitInfoSet";
     public static final String JS_KEY_TRANSPORT_TAGS = "transportTags";
+    public static final String JS_KEY_IS_SYNTHETIC = "isSynthetic";
 
     private final TransportTagsConverter transportTagsConverter;
 
@@ -149,6 +150,7 @@ public class OnDeviceTypesConverter {
         }
         waypointMap.putBoolean(JS_KEY_IS_SPEED_LIMIT_INFO_SET, waypoint.isSpeedLimitInfoSet());
         waypointMap.putBoolean(JS_KEY_HAS_UNLIMITED_SPEED_LIMIT, waypoint.hasUnlimitedSpeedLimit());
+        waypointMap.putBoolean(JS_KEY_IS_SYNTHETIC, waypoint.isSynthetic());
 
         return waypointMap;
     }

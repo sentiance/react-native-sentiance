@@ -92,8 +92,8 @@ public class OnDeviceTypesConverterTest extends ReactNativeTest {
 
     @Test
     public void testConvertWaypoint() {
-        Waypoint waypoint = new Waypoint(0.54, 8.76, now(), 10, 5.5f, 7f);
-        Waypoint waypointWithoutSpeedLimitInfo = new Waypoint(0.545, 8.76, now(), 10, 5.5f, -1);
+        Waypoint waypoint = new Waypoint(0.54, 8.76, now(), 10, 5.5f, 7f, true);
+        Waypoint waypointWithoutSpeedLimitInfo = new Waypoint(0.545, 8.76, now(), 10, 5.5f, -1, false);
         Waypoint unlimitedSpeedLimitWaypoint = mock(Waypoint.class);
         when(unlimitedSpeedLimitWaypoint.getLatitude()).thenReturn(0.56);
         when(unlimitedSpeedLimitWaypoint.getLongitude()).thenReturn(0.56);

@@ -85,14 +85,16 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
                 DateTime.fromMillis(System.currentTimeMillis() + 2000),
                 HarshDrivingEvent.Type.ACCELERATION,
                 78,
-                0.55
+                0.55,
+                createDummyWaypoints()
             ),
             new HarshDrivingEvent(
                 DateTime.fromMillis(System.currentTimeMillis()),
                 DateTime.fromMillis(System.currentTimeMillis() + 2000),
                 HarshDrivingEvent.Type.BRAKING,
                 90,
-                0.43
+                0.43,
+                createDummyWaypoints()
             )
         );
 
@@ -120,11 +122,13 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
         List<PhoneUsageEvent> expectedPhoneUsageEvents = Arrays.asList(
             new PhoneUsageEvent(
                 DateTime.fromMillis(now),
-                DateTime.fromMillis(now + 2000)
+                DateTime.fromMillis(now + 2000),
+                createDummyWaypoints()
             ),
             new PhoneUsageEvent(
                 DateTime.fromMillis(now + 2000),
-                DateTime.fromMillis(now + 4000)
+                DateTime.fromMillis(now + 4000),
+                createDummyWaypoints()
             )
         );
 
@@ -153,12 +157,14 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
             new CallWhileMovingEvent(
                 DateTime.fromMillis(now),
                 DateTime.fromMillis(now + 2_000),
-                10f, 5f
+                10f, 5f,
+                createDummyWaypoints()
             ),
             new CallWhileMovingEvent(
                 DateTime.fromMillis(now + 4_000),
                 DateTime.fromMillis(now + 6_000),
-                null, 5f
+                null, 5f,
+                createDummyWaypoints()
             ),
             new CallWhileMovingEvent(
                 DateTime.fromMillis(now + 8_000),
@@ -194,28 +200,16 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
         long now = System.currentTimeMillis();
         String transportId = "transport_id";
 
-        Waypoint mockWaypoint = mock(Waypoint.class);
-        when(mockWaypoint.isSpeedLimitInfoSet()).thenReturn(false);
-        when(mockWaypoint.hasUnlimitedSpeedLimit()).thenReturn(true);
-
         List<SpeedingEvent> expectedSpeedingEvents = Arrays.asList(
             new SpeedingEvent(
                 DateTime.fromMillis(now),
                 DateTime.fromMillis(now + 2000),
-                Arrays.asList(
-                    mockWaypoint,
-                    new Waypoint(14.14, 34.67, now, 22, 7.5f, 6.2f),
-                    new Waypoint(15.14, 34.67, now, -1, -1f, -1f)
-                )
+                createDummyWaypoints()
             ),
             new SpeedingEvent(
                 DateTime.fromMillis(now + 10_000),
                 DateTime.fromMillis(now + 20_000),
-                Arrays.asList(
-                    new Waypoint(16.14, 33.67, now, -1, 5.5f, 6.5f),
-                    new Waypoint(17.14, 31.67, now, 22, -1f, 6.2f),
-                    new Waypoint(18.14, 30.67, now, 25, 6.5f, -1f)
-                )
+                createDummyWaypoints()
             )
         );
 
@@ -332,6 +326,20 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
                 .setLegalScore(.88f)
                 .setOverallScore(.44f)
                 .createSafetyScores()
+        );
+    }
+
+    private List<Waypoint> createDummyWaypoints() {
+        long now = System.currentTimeMillis();
+
+        Waypoint mockWaypoint = mock(Waypoint.class);
+        when(mockWaypoint.isSpeedLimitInfoSet()).thenReturn(false);
+        when(mockWaypoint.hasUnlimitedSpeedLimit()).thenReturn(true);
+
+        return Arrays.asList(
+            mockWaypoint,
+            new Waypoint(14.14, 34.67, now, 22, 7.5f, 6.2f, true),
+            new Waypoint(15.14, 34.67, now, -1, -1f, -1f, false)
         );
     }
 }

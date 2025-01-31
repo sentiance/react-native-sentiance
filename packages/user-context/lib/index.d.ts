@@ -213,6 +213,7 @@ declare module "@sentiance-react-native/user-context" {
     speedLimitInMps?: number;  // in meters per second
     hasUnlimitedSpeedLimit: boolean;
     isSpeedLimitInfoSet: boolean;
+    isSynthetic: boolean;
   }
 
   export interface Venue {

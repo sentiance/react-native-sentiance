@@ -95,6 +95,7 @@ declare module "@sentiance-react-native/event-timeline" {
     speedLimitInMps?: number;  // in meters per second
     hasUnlimitedSpeedLimit: boolean;
     isSpeedLimitInfoSet: boolean;
+    isSynthetic: boolean;
   }
 
   export type TransportTags = { [key: string]: string };

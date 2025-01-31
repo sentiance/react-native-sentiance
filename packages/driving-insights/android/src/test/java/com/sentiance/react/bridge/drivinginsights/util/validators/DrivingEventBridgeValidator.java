@@ -10,9 +10,17 @@ import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.JavaOnlyMap;
 import com.sentiance.react.bridge.test.validators.BridgeValidator;
+import com.sentiance.react.bridge.test.validators.WaypointsBridgeValidator;
 import com.sentiance.sdk.drivinginsights.api.DrivingEvent;
 
 public class DrivingEventBridgeValidator<T extends DrivingEvent> implements BridgeValidator<T> {
+
+  private final WaypointsBridgeValidator waypointsValidator;
+
+  public DrivingEventBridgeValidator() {
+    waypointsValidator = new WaypointsBridgeValidator();
+  }
+
   @Override
   public void validate(@NonNull T expected, @NonNull JavaOnlyMap actual) {
     assertEquals(
@@ -27,5 +35,7 @@ public class DrivingEventBridgeValidator<T extends DrivingEvent> implements Brid
     assertEquals(
       expected.getEndTime().getEpochTime(),
       actual.getDouble(JS_KEY_END_TIME_EPOCH), 0.00000001);
+
+    waypointsValidator.validate(expected.getWaypoints(), actual);
   }
 }

@@ -34,6 +34,7 @@ declare module "@sentiance-react-native/driving-insights" {
     startTimeEpoch: number; // in milliseconds
     endTime: string;
     endTimeEpoch: number; // in milliseconds
+    waypoints: Waypoint[];
   }
 
   export type HarshDrivingEventType =
@@ -56,7 +57,6 @@ declare module "@sentiance-react-native/driving-insights" {
   }
 
   export interface SpeedingEvent extends DrivingEvent {
-    waypoints: Waypoint[];
   }
 
   export interface TransportEvent {
@@ -97,6 +97,7 @@ declare module "@sentiance-react-native/driving-insights" {
     speedLimitInMps?: number;  // in meters per second
     hasUnlimitedSpeedLimit: boolean;
     isSpeedLimitInfoSet: boolean;
+    isSynthetic: boolean;
   }
 
   export interface SentianceDrivingInsights {

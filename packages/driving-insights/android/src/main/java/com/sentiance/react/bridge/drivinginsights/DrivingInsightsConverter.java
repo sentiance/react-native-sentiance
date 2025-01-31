@@ -64,10 +64,7 @@ public class DrivingInsightsConverter {
   }
 
   public WritableMap convertSpeedingEvent(SpeedingEvent event) {
-    WritableMap map = convertDrivingEvent(event);
-    map.putArray(JS_KEY_WAYPOINTS, onDeviceTypesConverter.convertWaypoints(event.getWaypoints()));
-
-    return map;
+    return convertDrivingEvent(event);
   }
 
   private WritableMap convertDrivingEvent(DrivingEvent event) {
@@ -77,6 +74,7 @@ public class DrivingInsightsConverter {
     map.putDouble(JS_KEY_START_TIME_EPOCH, event.getStartTime().getEpochTime());
     map.putString(JS_KEY_END_TIME, event.getEndTime().toString());
     map.putDouble(JS_KEY_END_TIME_EPOCH, event.getEndTime().getEpochTime());
+    map.putArray(JS_KEY_WAYPOINTS, onDeviceTypesConverter.convertWaypoints(event.getWaypoints()));
 
     return map;
   }
