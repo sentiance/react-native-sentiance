@@ -1098,6 +1098,14 @@ RCT_EXPORT_METHOD(getSpeedingEvents:(NSString*)transportId resolver:(RCTPromiseR
     resolve([self convertSpeedingEvents:speedingEvents]);
 }
 
+RCT_EXPORT_METHOD(getAverageOverallSafetyScore:(NSDictionary *)params resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+{
+    REJECT_IF_SDK_NOT_INITIALIZED(reject);
+
+    SENTSafetyScoreRequestParameters* requestParams = [self convertToSafetyScoreRequestParameters:params];
+    resolve([[Sentiance sharedInstance] objc_averageOverallSafetyScoreWithParams:requestParams]);
+}
+
 RCT_EXPORT_METHOD(addNativeListener:(NSString *)eventName subscriptionId:(NSInteger)subscriptionId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
 

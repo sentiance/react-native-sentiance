@@ -194,7 +194,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
 - (NSString*)convertTransportModeToString:(SENTTimelineTransportMode)mode {
     switch (mode) {
         case SENTTimelineTransportModeBicycle:
-            return @"BYCICLE";
+            return @"BICYCLE";
         case SENTTimelineTransportModeWalking:
             return @"WALKING";
         case SENTTimelineTransportModeRunning:
@@ -213,6 +213,19 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
         default:
             return @"UNKNOWN";
     }
+}
+
+- (SENTTimelineTransportMode)transportModeFromString:(NSString*)value {
+    if ([value isEqualToString:@"WALKING"]) return SENTTimelineTransportModeWalking;
+    if ([value isEqualToString:@"RUNNING"]) return SENTTimelineTransportModeRunning;
+    if ([value isEqualToString:@"BICYCLE"]) return SENTTimelineTransportModeBicycle;
+    if ([value isEqualToString:@"TRAM"]) return SENTTimelineTransportModeTram;
+    if ([value isEqualToString:@"TRAIN"]) return SENTTimelineTransportModeTrain;
+    if ([value isEqualToString:@"CAR"]) return SENTTimelineTransportModeCar;
+    if ([value isEqualToString:@"BUS"]) return SENTTimelineTransportModeBus;
+    if ([value isEqualToString:@"MOTORCYCLE"]) return SENTTimelineTransportModeMotorcycle;
+
+    return SENTTimelineTransportModeUnknown;
 }
 
 - (void)addTransportEventInfoToDict:(NSMutableDictionary*)dict event:(SENTTransportEvent*)event {
@@ -597,9 +610,9 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
 
         if(userActivity.stationaryInfo.location) {
             NSDictionary *location = @{
-                                       @"latitude": @(userActivity.stationaryInfo.location.coordinate.latitude),
-                                       @"longitude": @(userActivity.stationaryInfo.location.coordinate.longitude)
-                                       };
+                @"latitude": @(userActivity.stationaryInfo.location.coordinate.latitude),
+                @"longitude": @(userActivity.stationaryInfo.location.coordinate.longitude)
+            };
             [stationaryInfoDict setObject:location forKey:@"location"];
         }
 
@@ -619,24 +632,24 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     }
 
     NSDictionary *dict = @{
-                           @"startStatus":[self convertStartStatusToString:status.startStatus],
-                           @"detectionStatus":[self convertDetectionStatusToString:status.detectionStatus],
-                           @"canDetect":@(status.canDetect),
-                           @"isRemoteEnabled":@(status.isRemoteEnabled),
-                           @"locationPermission":[self convertLocationPermissionToString:status.locationPermission],
-                           @"isPreciseLocationAuthorizationGranted":@(status.isPreciseLocationAuthorizationGranted),
-                           @"isLocationAvailable":@(status.isLocationAvailable),
-                           @"isAccelPresent":@(status.isAccelPresent),
-                           @"isGyroPresent":@(status.isGyroPresent),
-                           @"isGpsPresent":@(status.isGpsPresent),
-                           @"wifiQuotaStatus":[self convertQuotaStatusToString:status.wifiQuotaStatus],
-                           @"mobileQuotaStatus":[self convertQuotaStatusToString:status.mobileQuotaStatus],
-                           @"diskQuotaStatus":[self convertQuotaStatusToString:status.diskQuotaStatus],
-                           @"userExists":@(status.userExists),
-                           @"isBatterySavingEnabled":@(status.isDeviceLowPowerModeEnabled),
-                           @"isActivityRecognitionPermGranted":@(status.isMotionActivityPermissionGranted),
-                           @"backgroundRefreshStatus":[self convertBackgroundRefreshStatus:status.backgroundRefreshStatus]
-                           };
+        @"startStatus":[self convertStartStatusToString:status.startStatus],
+        @"detectionStatus":[self convertDetectionStatusToString:status.detectionStatus],
+        @"canDetect":@(status.canDetect),
+        @"isRemoteEnabled":@(status.isRemoteEnabled),
+        @"locationPermission":[self convertLocationPermissionToString:status.locationPermission],
+        @"isPreciseLocationAuthorizationGranted":@(status.isPreciseLocationAuthorizationGranted),
+        @"isLocationAvailable":@(status.isLocationAvailable),
+        @"isAccelPresent":@(status.isAccelPresent),
+        @"isGyroPresent":@(status.isGyroPresent),
+        @"isGpsPresent":@(status.isGpsPresent),
+        @"wifiQuotaStatus":[self convertQuotaStatusToString:status.wifiQuotaStatus],
+        @"mobileQuotaStatus":[self convertQuotaStatusToString:status.mobileQuotaStatus],
+        @"diskQuotaStatus":[self convertQuotaStatusToString:status.diskQuotaStatus],
+        @"userExists":@(status.userExists),
+        @"isBatterySavingEnabled":@(status.isDeviceLowPowerModeEnabled),
+        @"isActivityRecognitionPermGranted":@(status.isMotionActivityPermissionGranted),
+        @"backgroundRefreshStatus":[self convertBackgroundRefreshStatus:status.backgroundRefreshStatus]
+    };
 
     return dict;
 }
@@ -740,9 +753,9 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
 
     if(crashEvent.location != nil) {
         NSDictionary *location = @{
-                                   @"latitude": @(crashEvent.location.coordinate.latitude),
-                                   @"longitude": @(crashEvent.location.coordinate.longitude)
-                                   };
+            @"latitude": @(crashEvent.location.coordinate.latitude),
+            @"longitude": @(crashEvent.location.coordinate.longitude)
+        };
         dict[@"location"] = location;
     }
 
@@ -761,7 +774,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
 }
 
 - (NSString *)_vehicleCrashDiagnosticStateName:(SENTVehicleCrashDetectionState)crashDetectionState {
-        switch (crashDetectionState) {
+    switch (crashDetectionState) {
         case 0:
             return @"CANDIDATE_DETECTED";
         case 1:
@@ -1117,14 +1130,14 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
 - (NSSet<NSString*> *)convertIntegerTransmittableDataTypes:(NSArray<NSNumber*>*)intDataTypes {
     NSMutableSet *typesSet = [[NSMutableSet alloc] init];
     NSDictionary *dict = @{
-      @(SENTTransmittableDataTypeAll): @"ALL",
-      @(SENTTransmittableDataTypeSdkInfo): @"SDK_INFO",
-      @(SENTTransmittableDataTypeVehicleCrashInfo): @"VEHICLE_CRASH_INFO",
-      @(SENTTransmittableDataTypeGeneralDetections): @"GENERAL_DETECTIONS"
+        @(SENTTransmittableDataTypeAll): @"ALL",
+        @(SENTTransmittableDataTypeSdkInfo): @"SDK_INFO",
+        @(SENTTransmittableDataTypeVehicleCrashInfo): @"VEHICLE_CRASH_INFO",
+        @(SENTTransmittableDataTypeGeneralDetections): @"GENERAL_DETECTIONS"
     };
 
     for(NSNumber* intDataType in intDataTypes) {
-      [typesSet addObject:dict[intDataType]];
+        [typesSet addObject:dict[intDataType]];
     }
     return [typesSet copy];
 }
@@ -1132,14 +1145,14 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
 - (NSSet<NSNumber*> *)convertStringTransmittableDataTypes:(NSArray<NSString*>*)stringDataTypes {
     NSMutableSet *typesSet = [[NSMutableSet alloc] init];
     NSDictionary *dict = @{
-      @"ALL": @(SENTTransmittableDataTypeAll),
-      @"SDK_INFO": @(SENTTransmittableDataTypeSdkInfo),
-      @"VEHICLE_CRASH_INFO": @(SENTTransmittableDataTypeVehicleCrashInfo),
-      @"GENERAL_DETECTIONS": @(SENTTransmittableDataTypeGeneralDetections)
+        @"ALL": @(SENTTransmittableDataTypeAll),
+        @"SDK_INFO": @(SENTTransmittableDataTypeSdkInfo),
+        @"VEHICLE_CRASH_INFO": @(SENTTransmittableDataTypeVehicleCrashInfo),
+        @"GENERAL_DETECTIONS": @(SENTTransmittableDataTypeGeneralDetections)
     };
 
     for(NSString * strType in stringDataTypes) {
-      [typesSet addObject:dict[strType]];
+        [typesSet addObject:dict[strType]];
     }
     return [typesSet copy];
 }
@@ -1288,7 +1301,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
 
     NSError *error = [NSError errorWithDomain:SmartGeofencesErrorDomain
                                          code:0
-                                         userInfo:errorInfo];
+                                     userInfo:errorInfo];
 
     return error;
 }
@@ -1358,6 +1371,54 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
         case SENTHarshDrivingEventTypeTurn:
             return @"TURN";
     }
+}
+
+- (SENTSafetyScoreRequestParameters*)convertToSafetyScoreRequestParameters:(NSDictionary<NSString *, id>*)params {
+    NSNumber *period = params[@"period"];
+    NSArray<NSString*> *transportModes = params[@"transportModes"];
+    NSArray<NSString*> *occupantRoles = params[@"occupantRoles"];
+
+    return [[SENTSafetyScoreRequestParameters alloc] initWithPeriod:[self intToPeriod:period]
+                                                     transportModes:[self arrayToTransportModes:transportModes]
+                                                      occupantRoles:[self arrayToOccupantRoles:occupantRoles]];
+}
+
+- (SENTSafetyScoreRequestPeriodObjc*)intToPeriod:(NSNumber*)value {
+    switch (value.intValue) {
+        case 7:
+            return SENTSafetyScoreRequestPeriodObjc.last7days;
+        case 14:
+            return SENTSafetyScoreRequestPeriodObjc.last14days;
+        case 30:
+            return SENTSafetyScoreRequestPeriodObjc.last30days;
+        default:
+            // this should not happen, as input validation already happens on the JS side
+            @throw [NSException exceptionWithName:@"InvalidPeriodException"
+                                           reason:[NSString stringWithFormat:@"Invalid period value: %@", value]
+                                         userInfo:nil];
+    }
+}
+
+- (SENTSafetyScoreRequestTransportOptionModeObjc*)arrayToTransportModes:(NSArray<NSString*>*)transportModeValues {
+    NSMutableArray<NSNumber*> *array = [[NSMutableArray alloc] init];
+    for (NSString* transportMode in transportModeValues) {
+        [array addObject:@([self transportModeFromString:transportMode])];
+    }
+    return [SENTSafetyScoreRequestTransportOptionModeObjc timelineTransportModes:array];
+}
+
+- (SENTSafetyScoreRequestOccupantRoleOptionObjc*)arrayToOccupantRoles:(NSArray<NSString*>*)occupantRoleValues {
+    NSMutableArray<NSNumber*> *array = [[NSMutableArray alloc] init];
+    for (NSString* occupantRole in occupantRoleValues) {
+        [array addObject:@([self occupantRoleFromString:occupantRole])];
+    }
+    return [SENTSafetyScoreRequestOccupantRoleOptionObjc occupantRoles:array];
+}
+
+- (SENTOccupantRole)occupantRoleFromString:(NSString*)value {
+    if ([value isEqualToString:@"DRIVER"]) return SENTOccupantRole_Driver;
+    if ([value isEqualToString:@"PASSENGER"]) return SENTOccupantRole_Passenger;
+    return SENTOccupantRole_Unavailable;
 }
 
 @end

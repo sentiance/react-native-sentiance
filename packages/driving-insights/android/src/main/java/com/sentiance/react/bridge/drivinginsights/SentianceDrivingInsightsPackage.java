@@ -15,24 +15,24 @@ import java.util.Collections;
 import java.util.List;
 
 public class SentianceDrivingInsightsPackage implements ReactPackage {
+    @NonNull
+    @Override
+    public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
+        List<NativeModule> modules = new ArrayList<>();
+        DrivingInsightsModule drivingInsightsModule = new DrivingInsightsModule(
+            reactContext,
+            Sentiance.getInstance(reactContext),
+            DrivingInsightsApi.getInstance(reactContext),
+            new DrivingInsightsEmitter(reactContext),
+            new SentianceSubscriptionsManager(),
+            new DrivingInsightsConverter());
+        modules.add(drivingInsightsModule);
+        return modules;
+    }
 
-  @NonNull
-  @Override
-  public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
-    List<NativeModule> modules = new ArrayList<>();
-    DrivingInsightsModule drivingInsightsModule = new DrivingInsightsModule(
-      reactContext,
-      Sentiance.getInstance(reactContext),
-      DrivingInsightsApi.getInstance(reactContext),
-      new DrivingInsightsEmitter(reactContext),
-      new SentianceSubscriptionsManager());
-    modules.add(drivingInsightsModule);
-    return modules;
-  }
-
-  @NonNull
-  @Override
-  public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext) {
-    return Collections.emptyList();
-  }
+    @NonNull
+    @Override
+    public List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext) {
+        return Collections.emptyList();
+    }
 }

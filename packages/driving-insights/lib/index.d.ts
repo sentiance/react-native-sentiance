@@ -1,5 +1,5 @@
 declare module "@sentiance-react-native/driving-insights" {
-  import {EmitterSubscription} from "react-native";
+  import { EmitterSubscription } from "react-native";
 
   export interface DrivingInsights {
     transportEvent: TransportEvent,
@@ -100,18 +100,91 @@ declare module "@sentiance-react-native/driving-insights" {
     isSynthetic: boolean;
   }
 
+  export type OccupantRole =
+    | "DRIVER"
+    | "PASSENGER"
+    | "UNAVAILABLE";
+
+  export interface SafetyScoreRequestParameters {
+    /**
+     * A period of the last 7, 14 or 30 days.
+     */
+    period: 7 | 14 | 30;
+    /**
+     * Transport modes of interest.
+     *
+     * @defaultValue "ALL_MODES"
+     */
+    transportModes: TransportMode[] | "ALL_MODES";
+    /**
+     * Occupant roles of interest.
+     *
+     * @defaultValue "ALL_ROLES"
+     */
+    occupantRoles: OccupantRole[] | "ALL_ROLES";
+  }
+
   export interface SentianceDrivingInsights {
+    /**
+     * Adds a listener that will be invoked when the driving insights for a completed transport becomes ready.
+     *
+     * @param onDrivingInsightsReady - listener to receive the driving insights
+     */
     addDrivingInsightsReadyListener(onDrivingInsightsReady: (drivingInsights: DrivingInsights) => void): Promise<EmitterSubscription>;
 
+    /**
+     * Returns the driving insights for a given transport, or `null` if there are no driving insights or the transport ID is invalid.
+     *
+     * @param transportId - the id of the desired transport
+     */
     getDrivingInsights(transportId: string): Promise<DrivingInsights>;
 
+    /**
+     * Returns the harsh driving events for a completed transport.
+     *
+     * @param transportId - the id of the desired transport
+     */
     getHarshDrivingEvents(transportId: string): Promise<HarshDrivingEvent[]>;
 
+    /**
+     * Returns the phone usage events for a completed transport.
+     *
+     * @param transportId - the id of the desired transport
+     */
     getPhoneUsageEvents(transportId: string): Promise<PhoneUsageEvent[]>;
 
+    /**
+     * Returns the call while moving events for a completed transport.
+     *
+     * @param transportId - the id of the desired transport
+     */
     getCallWhileMovingEvents(transportId: string): Promise<CallWhileMovingEvent[]>;
 
+    /**
+     * Returns the speeding events for a completed transport.
+     *
+     * @param transportId - the id of the desired transport
+     */
     getSpeedingEvents(transportId: string): Promise<SpeedingEvent[]>;
+
+    /**
+     * Returns the average overall safety score for a given set of parameters.
+     *
+     * @param params - the parameters for which the score will be calculated.
+     * @returns the average overall safety score, or `null` if a score is not available.
+     * @throws {@link Error} if any of the inputs provided is invalid.
+     * @example
+     * ```
+     * import drivingInsights from "@sentiance-react-native/driving-insights";
+     * const params = {
+     *    period: 7,
+     *    transportModes: ["CAR", "BUS"],
+     *    occupantRoles: "ALL_ROLES"
+     * }
+     * const avgOverallScore = await drivingInsights.getAverageOverallSafetyScore(params);
+     * ```
+     */
+    getAverageOverallSafetyScore(params: SafetyScoreRequestParameters): Promise<number>;
   }
 
   const SentianceDrivingInsights: SentianceDrivingInsights;

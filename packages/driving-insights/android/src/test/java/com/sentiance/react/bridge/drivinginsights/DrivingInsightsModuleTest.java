@@ -1,15 +1,21 @@
 package com.sentiance.react.bridge.drivinginsights;
 
+import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_OCCUPANT_ROLES;
+import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_PERIOD;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_SAFETY_SCORES;
+import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_TRANSPORT_MODES;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsEmitter.DRIVING_INSIGHTS_READY_EVENT;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import androidx.annotation.Nullable;
 
+import com.facebook.react.bridge.JavaOnlyArray;
 import com.facebook.react.bridge.JavaOnlyMap;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.sentiance.react.bridge.drivinginsights.util.validators.CallWhileMovingEventBridgeValidator;
@@ -24,10 +30,12 @@ import com.sentiance.sdk.drivinginsights.api.DrivingInsightsApi;
 import com.sentiance.sdk.drivinginsights.api.DrivingInsightsReadyListener;
 import com.sentiance.sdk.drivinginsights.api.HarshDrivingEvent;
 import com.sentiance.sdk.drivinginsights.api.PhoneUsageEvent;
+import com.sentiance.sdk.drivinginsights.api.SafetyScoreRequestParameters;
 import com.sentiance.sdk.drivinginsights.api.SafetyScores;
 import com.sentiance.sdk.drivinginsights.api.SpeedingEvent;
 import com.sentiance.sdk.eventtimeline.timelines.creators.SafetyScoreType;
 import com.sentiance.sdk.ondevice.api.Waypoint;
+import com.sentiance.sdk.ondevice.api.event.OccupantRole;
 import com.sentiance.sdk.ondevice.api.event.TransportEvent;
 import com.sentiance.sdk.ondevice.api.event.TransportMode;
 import com.sentiance.sdk.util.DateTime;
@@ -42,6 +50,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsightsModule> {
@@ -63,7 +72,7 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
     protected DrivingInsightsModule initModule() {
         return new DrivingInsightsModule(
             mReactApplicationContext, mSentiance, mDrivingInsightsApi, mDrivingInsightsEmitter,
-            mSentianceSubscriptionsManager);
+            mSentianceSubscriptionsManager, new DrivingInsightsConverter());
     }
 
     @Override
@@ -291,6 +300,30 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
 
         assertEquals(subscriptionId, intCaptor.getValue().intValue());
         assertEquals(DRIVING_INSIGHTS_READY_EVENT, stringCaptor.getValue());
+    }
+
+    @Test
+    public void testGetAverageOverallSafetyScore() {
+        float expectedScore = 0.76f;
+        when(mDrivingInsightsApi.getAverageOverallSafetyScore(any()))
+            .thenReturn(expectedScore);
+
+        ReadableMap jsInput = JavaOnlyMap.of(
+            JS_KEY_PERIOD, 30,
+            JS_KEY_TRANSPORT_MODES, JavaOnlyArray.of(TransportMode.CAR.name(), TransportMode.WALKING.name()),
+            JS_KEY_OCCUPANT_ROLES, JavaOnlyArray.of(OccupantRole.DRIVER.name())
+        );
+
+        mModule.getAverageOverallSafetyScore(jsInput, mPromise);
+
+        ArgumentCaptor<SafetyScoreRequestParameters> captor = ArgumentCaptor.forClass(SafetyScoreRequestParameters.class);
+        verify(mPromise).resolve(expectedScore);
+        verify(mDrivingInsightsApi).getAverageOverallSafetyScore(captor.capture());
+
+        SafetyScoreRequestParameters capturedParams = captor.getValue();
+        assertEquals(SafetyScoreRequestParameters.Period.LAST_30_DAYS, capturedParams.getPeriod());
+        assertEquals(Arrays.asList(TransportMode.CAR, TransportMode.WALKING), capturedParams.getTransportModes().getModes());
+        assertEquals(Collections.singletonList(OccupantRole.DRIVER), capturedParams.getOccupantRoles().getRoles());
     }
 
     private Map<String, String> dummyTransportTags() {
