@@ -73,6 +73,7 @@ declare module "@sentiance-react-native/driving-insights" {
     waypoints: Waypoint[];
     distance?: number; // in meters
     transportTags: TransportTags;
+    occupantRole: OccupantRole;
   }
 
   export type TransportTags = { [key: string]: string };

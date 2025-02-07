@@ -176,6 +176,11 @@ declare module "@sentiance-react-native/user-context" {
     | "ACTIVE_SEGMENTS"
     | "VISITED_VENUES";
 
+  export type OccupantRole =
+    | "DRIVER"
+    | "PASSENGER"
+    | "UNAVAILABLE";
+
   export type TransportTags = { [key: string]: string };
 
   export interface Event {
@@ -196,6 +201,7 @@ declare module "@sentiance-react-native/user-context" {
     waypoints: Waypoint[];
     distance?: number; // in meters
     transportTags: TransportTags;
+    occupantRole: OccupantRole;
   }
 
   export interface GeoLocation {

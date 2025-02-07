@@ -19,7 +19,7 @@ declare module "@sentiance-react-native/event-timeline" {
     waypoints: Waypoint[];
     distance?: number; // in meters
     transportTags: TransportTags;
-    occupantRole: OccupantRole
+    occupantRole: OccupantRole;
   }
 
   export interface GeoLocation {
