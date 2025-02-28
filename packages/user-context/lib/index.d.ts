@@ -193,6 +193,22 @@ declare module "@sentiance-react-native/user-context" {
     endTimeEpoch: number | null; // in milliseconds
     durationInSeconds: number | null;
     type: string;
+    /**
+     * Indicates whether the event is provisional.
+     *
+     * <p>A provisional event is identified based on real-time detections, but may change in the near future
+     * as more data is collected and processed, to filter out unwanted artifacts.
+     * For example, a provisional car transport may get identified, followed by a provisional bus transport.
+     * After the full trip is complete, these provisional events may get merged into a single final car event.</p>
+     *
+     * <p>Final events are generated independently of the provisional events, and have unique event IDs. They are
+     * not linked to the provisional events they may resemble, replace, or overlap with.</p>
+     *
+     * <p>Currently, provisional events apply only to 'transport' types, as the SDK tries to determine the mode of
+     * transport in (near) real time. When the full trip is complete (e.g. the user becomes stationary),
+     * the collected data is reprocessed to produce a more accurate and cleaned up list of transport events.</p>
+     */
+    isProvisional: boolean;
     // stationary event fields
     location: GeoLocation | null;
     venue: Venue | null;
