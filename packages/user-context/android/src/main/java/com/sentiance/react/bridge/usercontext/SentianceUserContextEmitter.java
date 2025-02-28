@@ -10,9 +10,9 @@ import com.sentiance.sdk.usercontext.api.UserContextUpdateCriteria;
 
 import java.util.List;
 
-class SentianceUserContextEmitter extends AbstractSentianceEmitter {
+public class SentianceUserContextEmitter extends AbstractSentianceEmitter {
 
-  private static final String USER_CONTEXT_EVENT = "SENTIANCE_USER_CONTEXT_UPDATE_EVENT";
+  static final String USER_CONTEXT_EVENT = "SENTIANCE_USER_CONTEXT_UPDATE_EVENT";
   private final SentianceUserContextConverter converter;
 
   public SentianceUserContextEmitter(Context context) {

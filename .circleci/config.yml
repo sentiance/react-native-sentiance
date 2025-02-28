@@ -30,6 +30,7 @@ jobs:
       - checkout
       - run: npm install
       - run: npm run lint
+      - run: npm run tsc
       - run: npm run test
   android_test:
     docker:
@@ -55,6 +56,9 @@ jobs:
       - run:
           name: Sync package versions for all modules
           command: npm run sync:package_versions
+      - run:
+          name: Compile Typescript code
+          command: npm run tsc
       - run:
           name: Tag and publish all subpackages
           command: |

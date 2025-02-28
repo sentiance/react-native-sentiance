@@ -5,6 +5,7 @@ import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesC
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_END_TIME;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_END_TIME_EPOCH;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_ID;
+import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_IS_PROVISIONAL;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_LAST_UPDATE_TIME;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_LAST_UPDATE_TIME_EPOCH;
 import static com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter.JS_KEY_LOCATION;
@@ -70,6 +71,7 @@ public class EventBridgeValidator implements BridgeValidator<Event> {
     assertEquals(expected.getLastUpdateTime().toString(), actual.getString(JS_KEY_LAST_UPDATE_TIME));
     assertEquals(expected.getLastUpdateTime().getEpochTime(), actual.getDouble(JS_KEY_LAST_UPDATE_TIME_EPOCH), 0.000001);
     assertEquals(expected.getEventType().toString(), actual.getString(JS_KEY_TYPE));
+    assertEquals(expected.isProvisional(), actual.getBoolean(JS_KEY_IS_PROVISIONAL));
 
     if (!(expected instanceof StationaryEvent)) {
       assertFalse(actual.hasKey(JS_KEY_LOCATION));

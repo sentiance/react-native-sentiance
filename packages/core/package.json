@@ -1,6 +1,6 @@
 {
   "name": "@sentiance-react-native/core",
-  "version": "6.0.0",
+  "version": "6.10.1",
   "description": "The Sentiance Core library",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",

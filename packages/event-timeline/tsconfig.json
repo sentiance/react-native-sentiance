@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "./src",
+    "outDir": "./lib",
+    "declarationDir": "./lib",
+    "paths": {
+      "react-native": [
+        "../../node_modules/react-native"
+      ]
+    }
+  },
+  "references": [
+    {
+      "path": "../core"
+    }
+  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "lib"]
+}

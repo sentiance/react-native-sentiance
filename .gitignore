@@ -45,3 +45,6 @@ buck-out/
 *.keystore
 
 .npmrc
+
+# TS
+*.tsbuildinfo

@@ -1,3 +1,5 @@
 __tests__
 /jest
 android/src/test
+tsconfig.json
+/src

@@ -260,10 +260,11 @@ declare module "@sentiance-react-native/user-context" {
   }
 
   export interface SentianceUserContext {
-    requestUserContext(): Promise<UserContext>;
+    requestUserContext(includeProvisionalEvents?: boolean): Promise<UserContext>;
 
     addUserContextUpdateListener(
-      onUserContextUpdated: (userContextUpdate: UserContextUpdate) => void
+      onUserContextUpdated: (userContextUpdate: UserContextUpdate) => void,
+      includeProvisionalEvents?: boolean
     ): Promise<EmitterSubscription>;
   }
 

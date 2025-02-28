@@ -1,6 +1,6 @@
 {
   "name": "@sentiance-react-native/event-timeline",
-  "version": "6.0.0",
+  "version": "6.10.1",
   "description": "The Sentiance Event Timeline library",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -14,7 +14,7 @@
     "sentiance"
   ],
   "peerDependencies": {
-    "@sentiance-react-native/core": "6.0.0"
+    "@sentiance-react-native/core": "6.10.1"
   },
   "author": "",
   "license": "",

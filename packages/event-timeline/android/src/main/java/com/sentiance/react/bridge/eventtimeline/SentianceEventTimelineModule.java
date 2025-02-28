@@ -4,6 +4,7 @@ import static com.sentiance.react.bridge.eventtimeline.ErrorCodes.E_TRANSPORT_TA
 import static com.sentiance.react.bridge.eventtimeline.EventTimelineEmitter.TIMELINE_UPDATE_EVENT;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -22,7 +23,8 @@ import java.util.Date;
 import java.util.List;
 
 public class SentianceEventTimelineModule extends AbstractSentianceModule {
-    public static final String NATIVE_MODULE_NAME = "SentianceEventTimeline";
+    static final String NATIVE_MODULE_NAME = "SentianceEventTimeline";
+    static final String JS_PAYLOAD_KEY_INCLUDE_PROVISIONAL_EVENTS = "includeProvisionalEvents";
 
     private final EventTimelineApi mEventTimelineApi;
     private final EventTimelineEmitter mEmitter;
@@ -42,12 +44,27 @@ public class SentianceEventTimelineModule extends AbstractSentianceModule {
 
     @Override
     protected void addSupportedEventSubscriptions(SentianceSubscriptionsManager subscriptionsManager) {
-        subscriptionsManager.addSupportedSubscription(
+        mSubscriptionsManager.addSupportedSubscription(
             TIMELINE_UPDATE_EVENT,
-            mEventTimelineApi::setTimelineUpdateListener,
+            mEventTimelineApi::setProvisionalAwareTimelineUpdateListener,
             listener -> mEventTimelineApi.setTimelineUpdateListener(null),
             SentianceSubscriptionsManager.SubscriptionType.SINGLE
         );
+    }
+
+    @Override
+    @ReactMethod
+    protected void addNativeListener(String eventName, int subscriptionId, @Nullable ReadableMap payload, Promise promise) {
+        if (rejectIfNotInitialized(promise)) {
+            return;
+        }
+
+        switch (eventName) {
+            case TIMELINE_UPDATE_EVENT:
+                mSubscriptionsManager.addSubscription(eventName, subscriptionId, (EventTimelineUpdateListener) mEmitter::sendTimelineUpdateEvent);
+                break;
+        }
+        promise.resolve(null);
     }
 
     @Override
@@ -58,21 +75,6 @@ public class SentianceEventTimelineModule extends AbstractSentianceModule {
         }
 
         mSubscriptionsManager.removeSubscription(subscriptionId, eventName);
-        promise.resolve(null);
-    }
-
-    @Override
-    @ReactMethod
-    protected void addNativeListener(String eventName, int subscriptionId, Promise promise) {
-        if (rejectIfNotInitialized(promise)) {
-            return;
-        }
-
-        switch (eventName) {
-            case TIMELINE_UPDATE_EVENT:
-                mSubscriptionsManager.addSubscription(eventName, subscriptionId, (EventTimelineUpdateListener) mEmitter::sendTimelineUpdateEvent);
-                break;
-        }
         promise.resolve(null);
     }
 
@@ -95,25 +97,40 @@ public class SentianceEventTimelineModule extends AbstractSentianceModule {
     }
 
     @ReactMethod
-    public void getTimelineUpdates(final Double afterEpochTimeMs, final Promise promise) {
+    public void getTimelineUpdates(final Double afterEpochTimeMs,
+                                   final boolean includeProvisionalEvents,
+                                   final Promise promise) {
         if (rejectIfNotInitialized(promise)) {
             return;
         }
 
         Date afterDate = new Date(afterEpochTimeMs.longValue());
-        List<Event> events = mEventTimelineApi.getTimelineUpdates(afterDate);
+        List<Event> events;
+        if (includeProvisionalEvents) {
+            events = mEventTimelineApi.getTimelineUpdatesIncludingProvisionalEvents(afterDate);
+        } else {
+            events = mEventTimelineApi.getTimelineUpdates(afterDate);
+        }
         promise.resolve(onDeviceTypesConverter.convertEvents(events));
     }
 
     @ReactMethod
-    public void getTimelineEvents(final Double fromEpochTimeMs, final Double toEpochTimeMs, final Promise promise) {
+    public void getTimelineEvents(final Double fromEpochTimeMs,
+                                  final Double toEpochTimeMs,
+                                  final boolean includeProvisionalEvents,
+                                  final Promise promise) {
         if (rejectIfNotInitialized(promise)) {
             return;
         }
 
         Date fromDate = new Date(fromEpochTimeMs.longValue());
         Date toDate = new Date(toEpochTimeMs.longValue());
-        List<Event> events = mEventTimelineApi.getTimelineEvents(fromDate, toDate);
+        List<Event> events;
+        if (includeProvisionalEvents) {
+            events = mEventTimelineApi.getTimelineEventsIncludingProvisionalOnes(fromDate, toDate);
+        } else {
+            events = mEventTimelineApi.getTimelineEvents(fromDate, toDate);
+        }
         promise.resolve(onDeviceTypesConverter.convertEvents(events));
     }
 

@@ -59,11 +59,28 @@ RCT_EXPORT_MODULE(SentianceCore)
 }
 
 - (void)onEventTimelineUpdateWithEvent:(SENTTimelineEvent * _Nonnull)event {
+    // Explicitly left blank, even though it's optional
+}
+
+- (void)onProvisionalAwareEventTimelineUpdateWithEvent:(SENTTimelineEvent * _Nonnull)event {
     [self sendEventWithName:TimelineUpdateEvent body:[self convertEvent:event]];
 }
 
 - (void)onSmartGeofenceEvent:(SENTSmartGeofenceEvent * _Nonnull)smartGeofenceEvent {
     [self sendEventWithName:SmartGeofenceEvent body:[self convertSmartGeofenceEvent:smartGeofenceEvent]];
+}
+
+- (void)didUpdateProvisionalAwareUserContext:(SENTUserContext *)userContext forCriteriaMask:(SENTUserContextUpdateCriteria)criteriaMask {
+    NSDictionary *dict = @{
+        @"userContext": [self convertUserContextToDict:userContext],
+        @"criteria": [self convertUserContextCriteriaToArray:criteriaMask]
+    };
+    [self sendEventWithName:UserContextUpdateEvent body:dict];
+}
+
+- (void)didUpdateUserContext:(SENTUserContext *)userContext
+             forCriteriaMask:(SENTUserContextUpdateCriteria)criteriaMask {
+    // Explicitly left blank, even though it's optional
 }
 
 - (instancetype)init
@@ -72,22 +89,29 @@ RCT_EXPORT_MODULE(SentianceCore)
     _subscriptionsManager = [RNSentianceSubscriptionsManager new];
     __weak typeof(self) weakSelf = self;
 
-    [_subscriptionsManager addSupportedSubscriptionForEventType:DrivingInsightsReadyEvent nativeSubscribeLogic:^{
-        [[Sentiance sharedInstance] setDrivingInsightsReadyDelegate:weakSelf];
-    } nativeUnsubscribeLogic:^{
-        [[Sentiance sharedInstance] setDrivingInsightsReadyDelegate:nil];
-    } subscriptionType:SENTSubscriptionTypeSingle];
-
     [_subscriptionsManager addSupportedSubscriptionForEventType:TimelineUpdateEvent nativeSubscribeLogic:^{
         [[Sentiance sharedInstance] setEventTimelineDelegate:weakSelf];
     } nativeUnsubscribeLogic:^{
         [[Sentiance sharedInstance] setEventTimelineDelegate:nil];
     } subscriptionType:SENTSubscriptionTypeSingle];
 
+    [_subscriptionsManager addSupportedSubscriptionForEventType:DrivingInsightsReadyEvent nativeSubscribeLogic:^{
+        [[Sentiance sharedInstance] setDrivingInsightsReadyDelegate:weakSelf];
+    } nativeUnsubscribeLogic:^{
+        [[Sentiance sharedInstance] setDrivingInsightsReadyDelegate:nil];
+    } subscriptionType:SENTSubscriptionTypeSingle];
+
     [_subscriptionsManager addSupportedSubscriptionForEventType:SmartGeofenceEvent nativeSubscribeLogic:^{
         [[Sentiance sharedInstance] setSmartGeofenceEventsDelegate:weakSelf];
     } nativeUnsubscribeLogic:^{
         [[Sentiance sharedInstance] setSmartGeofenceEventsDelegate:nil];
+    } subscriptionType:SENTSubscriptionTypeSingle];
+
+    [_subscriptionsManager addSupportedSubscriptionForEventType:UserContextUpdateEvent nativeSubscribeLogic:^{
+        [Sentiance sharedInstance].criteriaMaskForUserContextUpdates = SENTUserContextUpdateCriteriaAll;
+        [[Sentiance sharedInstance] setUserContextDelegate:weakSelf];
+    } nativeUnsubscribeLogic:^{
+        [[Sentiance sharedInstance] setUserContextDelegate:nil];
     } subscriptionType:SENTSubscriptionTypeSingle];
 
     return self;
@@ -850,13 +874,13 @@ RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(R
     return [[Sentiance sharedInstance] isUserLinked];
 }
 
-RCT_EXPORT_METHOD(requestUserContext:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(requestUserContext:(BOOL)includeProvisionalEvents resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
 
     __weak typeof(self) weakSelf = self;
 
-    [[Sentiance sharedInstance] requestUserContextWithCompletionHandler:^(SENTUserContext * _Nullable userContext, SENTRequestUserContextError * _Nullable error) {
+    [[Sentiance sharedInstance] requestUserContextIncludingProvisionalEvents:(BOOL)includeProvisionalEvents completionHandler:^(SENTUserContext * _Nullable userContext, SENTRequestUserContextError * _Nullable error) {
         if (error) {
             reject(ESDKRequestUserContextError, [self stringifyUserContextError:error], nil);
         }
@@ -864,17 +888,6 @@ RCT_EXPORT_METHOD(requestUserContext:(RCTPromiseResolveBlock)resolve rejecter:(R
             resolve([weakSelf convertUserContextToDict:userContext]);
         }
     }];
-}
-
-RCT_EXPORT_METHOD(listenUserContextUpdates:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    REJECT_IF_SDK_NOT_INITIALIZED(reject);
-
-    [Sentiance sharedInstance].userContextDelegate = self;
-    [Sentiance sharedInstance].criteriaMaskForUserContextUpdates = SENTUserContextUpdateCriteriaCurrentEvent |
-                                                                            SENTUserContextUpdateCriteriaActiveSegments |
-                                                                            SENTUserContextUpdateCriteriaVisitedVenues;
-    resolve(nil);
 }
 
 RCT_EXPORT_METHOD(setAppSessionDataCollectionEnabled:(BOOL)enabled
@@ -1106,11 +1119,10 @@ RCT_EXPORT_METHOD(getAverageOverallSafetyScore:(NSDictionary *)params resolver:(
     resolve([[Sentiance sharedInstance] objc_averageOverallSafetyScoreWithParams:requestParams]);
 }
 
-RCT_EXPORT_METHOD(addNativeListener:(NSString *)eventName subscriptionId:(NSInteger)subscriptionId resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(addNativeListener:(NSString *)eventName subscriptionId:(NSInteger)subscriptionId payload:(nullable NSDictionary*)payload resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
 
     [_subscriptionsManager addSubscriptionForEventType:eventName subscriptionId:subscriptionId];
-
     resolve(nil);
 }
 
@@ -1133,12 +1145,18 @@ RCT_EXPORT_METHOD(getTimelineEvent:(NSString *)eventId resolver:(RCTPromiseResol
     }
 }
 
-RCT_EXPORT_METHOD(getTimelineUpdates:(nonnull NSNumber *)afterEpochTimeMs resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(getTimelineUpdates:(nonnull NSNumber *)afterEpochTimeMs includeProvisionalEvents:(BOOL)includeProvisionalEvents  resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
 
     NSTimeInterval interval = afterEpochTimeMs.longValue / 1000.0;
     NSDate* date = [NSDate dateWithTimeIntervalSince1970:interval];
-    NSArray<SENTTimelineEvent *>* events = [[Sentiance sharedInstance] getTimelineUpdatesAfter:date];
+
+    NSArray<SENTTimelineEvent *>* events;
+    if (includeProvisionalEvents) {
+        events = [[Sentiance sharedInstance] getTimelineUpdatesIncludingProvisionalEventsAfter:date];
+    } else {
+        events = [[Sentiance sharedInstance] getTimelineUpdatesAfter:date];
+    }
 
     NSMutableArray *array = [[NSMutableArray alloc] init];
     for (SENTTimelineEvent* event in events) {
@@ -1148,14 +1166,20 @@ RCT_EXPORT_METHOD(getTimelineUpdates:(nonnull NSNumber *)afterEpochTimeMs resolv
     resolve(array);
 }
 
-RCT_EXPORT_METHOD(getTimelineEvents:(nonnull NSNumber *)fromEpochTimeMs toEpochTimeMs:(nonnull NSNumber *)toEpochTimeMs resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
+RCT_EXPORT_METHOD(getTimelineEvents:(nonnull NSNumber *)fromEpochTimeMs toEpochTimeMs:(nonnull NSNumber *)toEpochTimeMs includeProvisionalEvents:(BOOL)includeProvisionalEvents resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
 
     NSTimeInterval fromInterval = fromEpochTimeMs.longValue / 1000.0;
     NSDate* fromDate = [NSDate dateWithTimeIntervalSince1970:fromInterval];
     NSTimeInterval toInterval = toEpochTimeMs.longValue / 1000.0;
     NSDate* toDate = [NSDate dateWithTimeIntervalSince1970:toInterval];
-    NSArray<SENTTimelineEvent *>* events = [[Sentiance sharedInstance] getTimelineEventsFrom:fromDate to:toDate];
+
+    NSArray<SENTTimelineEvent *>* events;
+    if (includeProvisionalEvents) {
+        events = [[Sentiance sharedInstance] getTimelineEventsIncludingProvisionalOnesFrom:fromDate to:toDate];
+    } else {
+        events = [[Sentiance sharedInstance] getTimelineEventsFrom:fromDate to:toDate];
+    }
 
     NSMutableArray *array = [[NSMutableArray alloc] init];
     for (SENTTimelineEvent* event in events) {
@@ -1230,34 +1254,25 @@ RCT_EXPORT_METHOD(submitOccupantRoleFeedback:(NSString *)transportId
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     REJECT_IF_SDK_NOT_INITIALIZED(reject);
-    
+
     NSNumber *feedbackValue = [self occupantRoleFeedbackFromString:occupantFeedbackRoleString];
     if (!feedbackValue) {
         // This should never happen, as JS validates input before calling native code.
         reject(@"E_SDK_INVALID_FEEDBACK_TYPE", @"Invalid occupant role provided.", nil);
         return;
     }
-    
+
     SENTOccupantRoleFeedback occupantRoleFeedback = feedbackValue.integerValue;
     id<SENTFeedback> feedback = [[Sentiance sharedInstance] feedback];
-    
+
     if (!feedback) {
         reject(ESDKFeedbackNotAvailableError, @"Feedback service is not available.", nil);
         return;
     }
-    
-    SENTOccupantRoleFeedbackResult result = [feedback submitOccupantRoleFeedbackWithTransportId:transportId feedbackRole:occupantRoleFeedback];
-    
-    resolve([self convertSENTOccupantRoleFeedbackResultToString:result]);
-}
 
-- (void)didUpdateUserContext:(SENTUserContext *)userContext
-             forCriteriaMask:(SENTUserContextUpdateCriteria)criteriaMask {
-    NSDictionary *dict = @{
-        @"userContext": [self convertUserContextToDict:userContext],
-        @"criteria": [self convertUserContextCriteriaToArray:criteriaMask]
-    };
-    [self sendEventWithName:UserContextUpdateEvent body:dict];
+    SENTOccupantRoleFeedbackResult result = [feedback submitOccupantRoleFeedbackWithTransportId:transportId feedbackRole:occupantRoleFeedback];
+
+    resolve([self convertSENTOccupantRoleFeedbackResultToString:result]);
 }
 
 - (BOOL)isNativeInitializationEnabled {

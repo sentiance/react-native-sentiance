@@ -24,11 +24,6 @@ public class SentianceSubscriptionsManager {
 
   public <T> void addSupportedSubscription(String eventType, SingleParamRunnable<T> nativeSubscribeLogic,
                                            SingleParamRunnable<T> nativeUnsubscribeLogic, SubscriptionType subscriptionType) {
-    if (mSupportedSubscriptions.containsKey(eventType)) {
-      throw new IllegalArgumentException(String.format("A subscription definition for %s has already been added.",
-        eventType));
-    }
-
     mSupportedSubscriptions.put(eventType, new SubscriptionDefinition<>(eventType, nativeSubscribeLogic,
       nativeUnsubscribeLogic, subscriptionType));
   }
@@ -95,10 +90,10 @@ public class SentianceSubscriptionsManager {
       return true;
     }
 
-    return definition.subscriptionType == SubscriptionType.SINGLE && !subscriptionsExists(definition.eventType);
+    return definition.subscriptionType == SubscriptionType.SINGLE && !subscriptionExists(definition.eventType);
   }
 
-  private boolean subscriptionsExists(String eventType) {
+  private boolean subscriptionExists(String eventType) {
     synchronized (mSubscriptions) {
       for (Subscription sub : mSubscriptions) {
         if (sub.eventType.equals(eventType)) {
@@ -115,9 +110,9 @@ public class SentianceSubscriptionsManager {
     private final T eventEmitterLogic;
     private final String eventType;
 
-    public Subscription(int id, @Nullable T eventEmmitterLogic, String eventType) {
+    public Subscription(int id, @Nullable T eventEmitterLogic, String eventType) {
       this.id = id;
-      this.eventEmitterLogic = eventEmmitterLogic;
+      this.eventEmitterLogic = eventEmitterLogic;
       this.eventType = eventType;
     }
 

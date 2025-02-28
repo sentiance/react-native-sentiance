@@ -2,9 +2,12 @@ package com.sentiance.react.bridge.core.common.base;
 
 import static com.sentiance.react.bridge.core.common.util.ErrorCodes.E_SDK_NOT_INITIALIZED;
 
+import androidx.annotation.Nullable;
+
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReadableMap;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
 import com.sentiance.sdk.InitState;
 import com.sentiance.sdk.Sentiance;
@@ -62,9 +65,10 @@ public abstract class AbstractSentianceModule extends ReactContextBaseJavaModule
    *                       an attempt to add a listener for the provided event name. By default,
    *                       React Native supports adding multiple listeners for the same event,
    *                       but most of the Sentiance native SDKs don't.
+   * @param payload extra information that was passed-in during the corresponding JS listener registration.
    * @param promise that resolves once the native SDK listener(s) has/have been set.
    */
-  protected abstract void addNativeListener(String eventName, int subscriptionId, Promise promise);
+  protected abstract void addNativeListener(String eventName, int subscriptionId, @Nullable ReadableMap payload, Promise promise);
 
   protected abstract void addListener(String eventName);
 

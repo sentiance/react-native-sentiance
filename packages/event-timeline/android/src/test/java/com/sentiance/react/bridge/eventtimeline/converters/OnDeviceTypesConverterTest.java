@@ -24,6 +24,7 @@ import com.sentiance.sdk.ondevice.api.event.OffTheGridEvent;
 import com.sentiance.sdk.ondevice.api.event.StationaryEvent;
 import com.sentiance.sdk.ondevice.api.event.TransportEvent;
 import com.sentiance.sdk.ondevice.api.event.TransportMode;
+import com.sentiance.sdk.ondevice.api.event.UnknownEvent;
 import com.sentiance.sdk.ondevice.api.venue.Venue;
 import com.sentiance.sdk.ondevice.api.venue.VenueSignificance;
 import com.sentiance.sdk.ondevice.api.venue.VenueType;
@@ -51,10 +52,13 @@ public class OnDeviceTypesConverterTest extends ReactNativeTest {
 
     @Test
     public void testConvertEvents() {
-        OffTheGridEvent otg = new OffTheGridEvent("otg", DateTime.now(), DateTime.fromMillis(now() + 2000), DateTime.now());
+        OffTheGridEvent otg1 = new OffTheGridEvent("otg", DateTime.now(), DateTime.fromMillis(now() + 2000), DateTime.now());
+        OffTheGridEvent otg2 = new OffTheGridEvent("otg2", DateTime.now(), DateTime.fromMillis(now() + 2000), DateTime.now(), true);
         StationaryEvent stationary = new StationaryEvent("stationary1", DateTime.now(), DateTime.fromMillis(now() + 2000), DateTime.now(),
             newVenue(newGeoLocation()), null);
-        List<Event> events = Arrays.asList(otg, stationary);
+        UnknownEvent unknown1 = new UnknownEvent("unknown", DateTime.now(), DateTime.fromMillis(now() + 2000), DateTime.now());
+        UnknownEvent unknown2 = new UnknownEvent("unknown2", DateTime.now(), DateTime.fromMillis(now() + 2000), DateTime.now(), true);
+        List<Event> events = Arrays.asList(otg1, otg2, stationary, unknown1, unknown2);
         WritableArray transformedEvents = converter.convertEvents(events);
         assertEquals(events.size(), transformedEvents.size());
     }
@@ -67,7 +71,7 @@ public class OnDeviceTypesConverterTest extends ReactNativeTest {
         StationaryEvent stationary2 = new StationaryEvent("stationary2", DateTime.now(), null, DateTime.now(),
             newVenue(null), newGeoLocation());
         TransportEvent transport1 = new TransportEvent("transport1", DateTime.now(), DateTime.fromMillis(now() + 2000), DateTime.now(),
-            TransportMode.TRAIN, Collections.emptyList(), null, new HashMap<>());
+            TransportMode.TRAIN, Collections.emptyList(), null, new HashMap<>(), OccupantRole.PASSENGER);
 
         Map<String, String> tags = new HashMap<String, String>() {{
             put("key1", "value1");
@@ -75,8 +79,10 @@ public class OnDeviceTypesConverterTest extends ReactNativeTest {
         }};
         TransportEvent transport2 = new TransportEvent("transport2", DateTime.now(), DateTime.fromMillis(now() + 2000), DateTime.now(),
             TransportMode.BUS, Collections.emptyList(), 100, tags, OccupantRole.UNAVAILABLE);
+        TransportEvent transport3 = new TransportEvent("transport3", DateTime.now(), DateTime.fromMillis(now() + 4000), DateTime.now(),
+            TransportMode.BUS, Collections.emptyList(), 150, tags, OccupantRole.DRIVER, true);
 
-        List<Event> events = Arrays.asList(otg, stationary1, stationary2, transport1, transport2);
+        List<Event> events = Arrays.asList(otg, stationary1, stationary2, transport1, transport2, transport3);
         for (Event event : events) {
             JavaOnlyMap transformedEvent = (JavaOnlyMap) converter.convertEvent(event);
             new EventBridgeValidator().validate(event, transformedEvent);

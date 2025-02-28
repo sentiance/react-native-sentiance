@@ -4,10 +4,12 @@ import static com.sentiance.react.bridge.smartgeofences.SmartGeofenceEmitter.SMA
 import static com.sentiance.react.bridge.smartgeofences.utils.ErrorCodes.E_SMART_GEOFENCES_REFRESH_ERROR;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
 import com.sentiance.react.bridge.core.common.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.smartgeofences.converters.SmartGeofencesConverter;
@@ -102,7 +104,7 @@ public class SmartGeofencesModule extends AbstractSentianceModule {
 
     @Override
     @ReactMethod
-    protected void addNativeListener(String eventName, int subscriptionId, Promise promise) {
+    protected void addNativeListener(String eventName, int subscriptionId, @Nullable ReadableMap payload, Promise promise) {
         if (rejectIfNotInitialized(promise)) {
             return;
         }

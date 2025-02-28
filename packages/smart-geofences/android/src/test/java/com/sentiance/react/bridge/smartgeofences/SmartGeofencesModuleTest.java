@@ -122,7 +122,7 @@ public class SmartGeofencesModuleTest extends ReactNativeModuleTest<SmartGeofenc
     @Test
     public void testAddSmartGeofenceEventListener() {
         int subscriptionId = 1;
-        mModule.addNativeListener(SMART_GEOFENCE_EVENT, subscriptionId, mPromise);
+        mModule.addNativeListener(SMART_GEOFENCE_EVENT, subscriptionId, null, mPromise);
 
         verify(mPromise).resolve(null);
         verify(mSentianceSubscriptionsManager)

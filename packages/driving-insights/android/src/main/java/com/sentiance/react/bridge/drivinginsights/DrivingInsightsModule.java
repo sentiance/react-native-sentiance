@@ -4,6 +4,7 @@ import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsEmitter.
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsModule.NATIVE_MODULE_NAME;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -167,7 +168,7 @@ public class DrivingInsightsModule extends AbstractSentianceModule {
 
     @Override
     @ReactMethod
-    public void addNativeListener(String eventName, int subscriptionId, Promise promise) {
+    protected void addNativeListener(String eventName, int subscriptionId, @Nullable ReadableMap payload, Promise promise) {
         if (rejectIfNotInitialized(promise)) {
             return;
         }

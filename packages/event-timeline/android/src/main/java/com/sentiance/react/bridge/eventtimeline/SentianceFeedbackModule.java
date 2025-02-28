@@ -4,9 +4,12 @@ import static com.sentiance.react.bridge.eventtimeline.ErrorCodes.E_INVALID_FEED
 import static com.sentiance.react.bridge.eventtimeline.ErrorCodes.E_OCCUPANT_ROLE_FEEDBACK_SUBMISSION;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
 import com.sentiance.react.bridge.core.common.base.AbstractSentianceModule;
 import com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter;
@@ -32,12 +35,14 @@ public class SentianceFeedbackModule extends AbstractSentianceModule {
     }
 
     @Override
+    @ReactMethod
     protected void removeNativeListener(String eventName, int subscriptionId, Promise promise) {
         // Implementation can be added here if needed
     }
 
     @Override
-    protected void addNativeListener(String eventName, int subscriptionId, Promise promise) {
+    @ReactMethod
+    protected void addNativeListener(String eventName, int subscriptionId, @Nullable ReadableMap payload, Promise promise) {
         // Implementation can be added here if needed
     }
 

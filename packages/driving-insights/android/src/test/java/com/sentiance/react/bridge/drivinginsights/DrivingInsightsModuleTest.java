@@ -274,7 +274,7 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
     @Test
     public void testAddDrivingInsightsListener() {
         int subscriptionId = 1;
-        mModule.addNativeListener(DRIVING_INSIGHTS_READY_EVENT, subscriptionId, mPromise);
+        mModule.addNativeListener(DRIVING_INSIGHTS_READY_EVENT, subscriptionId, null, mPromise);
 
         verify(mPromise).resolve(null);
         verify(mSentianceSubscriptionsManager)

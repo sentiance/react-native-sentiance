@@ -1,5 +1,5 @@
 const {NativeModules, NativeEventEmitter} = require("react-native");
-const {varToString} = require("./utils");
+const {varToString} = require("./generated/utils");
 const {SentianceCore} = NativeModules;
 
 const SDK_STATUS_UPDATE_EVENT = "SENTIANCE_STATUS_UPDATE_EVENT";

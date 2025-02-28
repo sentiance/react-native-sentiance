@@ -1,10 +1,12 @@
 package com.sentiance.react.bridge.crashdetection;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
 import com.sentiance.react.bridge.core.common.base.AbstractSentianceModule;
 import com.sentiance.sdk.Sentiance;
@@ -65,7 +67,7 @@ public class SentianceCrashDetectionModule extends AbstractSentianceModule {
 
   @Override
   @ReactMethod
-  protected void addNativeListener(String eventName, int subscriptionId, Promise promise) {
+  protected void addNativeListener(String eventName, int subscriptionId, @Nullable ReadableMap payload, Promise promise) {
 
   }
 

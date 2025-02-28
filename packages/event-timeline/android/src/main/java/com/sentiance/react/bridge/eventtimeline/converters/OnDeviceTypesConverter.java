@@ -46,7 +46,7 @@ public class OnDeviceTypesConverter {
     public static final String JS_KEY_TRANSPORT_TAGS = "transportTags";
     public static final String JS_KEY_IS_SYNTHETIC = "isSynthetic";
     public static final String JS_KEY_OCCUPANT_ROLE = "occupantRole";
-
+    public static final String JS_KEY_IS_PROVISIONAL = "isProvisional";
 
     private final TransportTagsConverter transportTagsConverter;
 
@@ -92,8 +92,9 @@ public class OnDeviceTypesConverter {
         map.putDouble(JS_KEY_LAST_UPDATE_TIME_EPOCH, event.getLastUpdateTime().getEpochTime());
 
         map.putString(JS_KEY_TYPE, event.getEventType().toString());
+        map.putBoolean(JS_KEY_IS_PROVISIONAL, event.isProvisional());
 
-      if (event instanceof StationaryEvent) {
+        if (event instanceof StationaryEvent) {
             addStationaryEventInfo(map, (StationaryEvent) event);
         } else if (event instanceof TransportEvent) {
             addTransportEventInfo(map, (TransportEvent) event);

@@ -12,9 +12,12 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
+import com.sentiance.react.bridge.core.common.SentianceSubscriptionsManager;
+import com.sentiance.react.bridge.core.common.util.SingleParamRunnable;
 import com.sentiance.react.bridge.eventtimeline.converters.OnDeviceTypesConverter;
 import com.sentiance.react.bridge.test.ReactNativeModuleTest;
 import com.sentiance.sdk.NoSentianceUserException;
@@ -45,9 +48,7 @@ public class SentianceEventTimelineModuleTest extends ReactNativeModuleTest<Sent
     @Mock
     private OnDeviceTypesConverter commonConverter;
     @Captor
-    private ArgumentCaptor<List<Event>> eventsCaptor;
-    @Captor
-    private ArgumentCaptor<Date> dateCaptor;
+    private ArgumentCaptor<SingleParamRunnable> singleParamRunnableCaptor;
     @Captor
     private ArgumentCaptor<EventTimelineUpdateListener> eventTimelineUpdateListenerCaptor;
 
@@ -60,47 +61,69 @@ public class SentianceEventTimelineModuleTest extends ReactNativeModuleTest<Sent
     }
 
     @Test
-    public void testGetTimelineUpdates() {
+    public void testGetTimelineUpdates_includeProvisionalEvents() {
+        Double afterTimestamp = 1000.0;
+        Date afterDate = new Date(afterTimestamp.longValue());
+
         List<Event> mockEvents = Arrays.asList(mock(Event.class), mock(Event.class));
-        when(eventTimelineApi.getTimelineUpdates(any())).thenReturn(mockEvents);
+        when(eventTimelineApi.getTimelineUpdatesIncludingProvisionalEvents(eq(afterDate)))
+            .thenReturn(mockEvents);
         when(commonConverter.convertEvents(mockEvents)).thenReturn(mockWritableArray);
 
-        mModule.getTimelineUpdates(1000.0, mPromise);
+        mModule.getTimelineUpdates(afterTimestamp, true, mPromise);
 
-        verify(commonConverter).convertEvents(eventsCaptor.capture());
-        verify(mPromise).resolve(writableArrayCaptor.capture());
-
-        WritableArray transformedEvents = writableArrayCaptor.getValue();
-        assertEquals(mockWritableArray, transformedEvents);
-
-        List<Event> capturedEvents = eventsCaptor.getValue();
-        assertEquals(mockEvents, capturedEvents);
+        verify(mPromise).resolve(eq(mockWritableArray));
     }
 
     @Test
-    public void testGetTimelineEvents() {
-        List<Event> mockEvents = Arrays.asList(mock(Event.class), mock(Event.class));
+    public void testGetTimelineUpdates_notIncludingProvisionalEvents() {
+        Double afterTimestamp = 1000.0;
+        Date afterDate = new Date(afterTimestamp.longValue());
 
-        when(eventTimelineApi.getTimelineEvents(any(), any())).thenReturn(mockEvents);
+        List<Event> mockEvents = Arrays.asList(mock(Event.class), mock(Event.class));
+        when(eventTimelineApi.getTimelineUpdates(eq(afterDate)))
+            .thenReturn(mockEvents);
         when(commonConverter.convertEvents(mockEvents)).thenReturn(mockWritableArray);
 
-        double fromTimestamp = 1000.0;
-        double toTimestamp = 10_000.0;
-        mModule.getTimelineEvents(fromTimestamp, toTimestamp, mPromise);
+        mModule.getTimelineUpdates(afterTimestamp, false, mPromise);
 
-        verify(eventTimelineApi).getTimelineEvents(dateCaptor.capture(), dateCaptor.capture());
-        verify(commonConverter).convertEvents(eventsCaptor.capture());
-        verify(mPromise).resolve(writableArrayCaptor.capture());
+        verify(mPromise).resolve(eq(mockWritableArray));
+    }
 
-        List<Date> dates = dateCaptor.getAllValues();
-        assertEquals(fromTimestamp, dates.get(0).getTime(), 0.000001);
-        assertEquals(toTimestamp, dates.get(1).getTime(), 0.000001);
+    @Test
+    public void testGetTimelineEvents_includeProvisionalEvents() {
+        Double fromTimestamp = 1000.0;
+        Date fromDate = new Date(fromTimestamp.longValue());
+        Double toTimestamp = 2000.0;
+        Date toDate = new Date(toTimestamp.longValue());
 
-        WritableArray transformedEvents = writableArrayCaptor.getValue();
-        assertEquals(mockWritableArray, transformedEvents);
+        List<Event> mockEvents = Arrays.asList(mock(Event.class), mock(Event.class));
 
-        List<Event> capturedEvents = eventsCaptor.getValue();
-        assertEquals(mockEvents, capturedEvents);
+        when(eventTimelineApi.getTimelineEventsIncludingProvisionalOnes(eq(fromDate), eq(toDate)))
+            .thenReturn(mockEvents);
+        when(commonConverter.convertEvents(mockEvents)).thenReturn(mockWritableArray);
+
+        mModule.getTimelineEvents(fromTimestamp, toTimestamp, true, mPromise);
+
+        verify(mPromise).resolve(eq(mockWritableArray));
+    }
+
+    @Test
+    public void testGetTimelineEvents_notIncludingProvisionalEvents() {
+        Double fromTimestamp = 1000.0;
+        Date fromDate = new Date(fromTimestamp.longValue());
+        Double toTimestamp = 2000.0;
+        Date toDate = new Date(toTimestamp.longValue());
+
+        List<Event> mockEvents = Arrays.asList(mock(Event.class), mock(Event.class));
+
+        when(eventTimelineApi.getTimelineEvents(eq(fromDate), eq(toDate)))
+            .thenReturn(mockEvents);
+        when(commonConverter.convertEvents(mockEvents)).thenReturn(mockWritableArray);
+
+        mModule.getTimelineEvents(fromTimestamp, toTimestamp, false, mPromise);
+
+        verify(mPromise).resolve(eq(mockWritableArray));
     }
 
     @Test
@@ -119,22 +142,29 @@ public class SentianceEventTimelineModuleTest extends ReactNativeModuleTest<Sent
     }
 
     @Test
-    public void testAddTimelineUpdateListener() {
+    public void addTimelineUpdateListener_includeProvisionalEvents() {
         int subscriptionId = 1;
-        mModule.addNativeListener(TIMELINE_UPDATE_EVENT, subscriptionId, mPromise);
+        WritableMap payload = Arguments.createMap();
+        payload.putBoolean(SentianceEventTimelineModule.JS_PAYLOAD_KEY_INCLUDE_PROVISIONAL_EVENTS, true);
+        mModule.addNativeListener(TIMELINE_UPDATE_EVENT, subscriptionId, payload, mPromise);
 
         verify(mPromise).resolve(null);
+
         verify(mSentianceSubscriptionsManager)
-            .addSubscription(stringCaptor.capture(), intCaptor.capture(), eventTimelineUpdateListenerCaptor.capture());
+            .addSubscription((eq(TIMELINE_UPDATE_EVENT)), eq(subscriptionId), eventTimelineUpdateListenerCaptor.capture());
+    }
 
-        assertEquals(TIMELINE_UPDATE_EVENT, stringCaptor.getValue());
-        assertEquals(subscriptionId, intCaptor.getValue().intValue());
+    @Test
+    public void addTimelineUpdateListener_notIncludingProvisionalEvents() {
+        int subscriptionId = 1;
+        WritableMap payload = Arguments.createMap();
+        payload.putBoolean(SentianceEventTimelineModule.JS_PAYLOAD_KEY_INCLUDE_PROVISIONAL_EVENTS, false);
+        mModule.addNativeListener(TIMELINE_UPDATE_EVENT, subscriptionId, payload, mPromise);
 
-        EventTimelineUpdateListener listener = eventTimelineUpdateListenerCaptor.getValue();
-        Event mockEvent = mock(Event.class);
-        listener.onEventTimelineUpdated(mockEvent);
+        verify(mPromise).resolve(null);
 
-        verify(eventTimelineEmitter).sendTimelineUpdateEvent(mockEvent);
+        verify(mSentianceSubscriptionsManager)
+            .addSubscription((eq(TIMELINE_UPDATE_EVENT)), eq(subscriptionId), eventTimelineUpdateListenerCaptor.capture());
     }
 
     @Test
@@ -143,10 +173,7 @@ public class SentianceEventTimelineModuleTest extends ReactNativeModuleTest<Sent
         mModule.removeNativeListener(TIMELINE_UPDATE_EVENT, subscriptionId, mPromise);
 
         verify(mSentianceSubscriptionsManager)
-            .removeSubscription(intCaptor.capture(), stringCaptor.capture());
-
-        assertEquals(TIMELINE_UPDATE_EVENT, stringCaptor.getValue());
-        assertEquals(subscriptionId, intCaptor.getValue().intValue());
+            .removeSubscription(eq(subscriptionId), eq(TIMELINE_UPDATE_EVENT));
     }
 
     @Test

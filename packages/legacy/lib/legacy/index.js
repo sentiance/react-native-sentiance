@@ -1,5 +1,5 @@
 const {NativeModules, Platform} = require('react-native');
-const {varToString} = require('@sentiance-react-native/core/lib/utils');
+const {varToString} = require("@sentiance-react-native/core/lib/generated/utils");
 
 const {RNSentiance, SentianceCore} = NativeModules;
 
