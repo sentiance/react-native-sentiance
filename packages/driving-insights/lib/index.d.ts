@@ -27,6 +27,18 @@ declare module "@sentiance-react-native/driving-insights" {
      * Overall driving score, between 0 and 1, where 1 is the perfect score.
      */
     overallScore?: number;
+    /**
+     * Harsh braking score, between 0 and 1, where 1 is the perfect score.
+     */
+    harshBrakingScore?: number;
+    /**
+     * Harsh turning score, between 0 and 1, where 1 is the perfect score.
+     */
+    harshTurningScore?: number;
+    /**
+     * Harsh acceleration score, between 0 and 1, where 1 is the perfect score.
+     */
+    harshAccelerationScore?: number;
   }
 
   export interface DrivingEvent {

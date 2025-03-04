@@ -36,6 +36,9 @@ public class DrivingInsightsConverter {
     public static final String JS_KEY_LEGAL_SCORE = "legalScore";
     public static final String JS_KEY_CALL_WHILE_MOVING_SCORE = "callWhileMovingScore";
     public static final String JS_KEY_OVERALL_SCORE = "overallScore";
+    public static final String JS_KEY_HARSH_BRAKING_SCORE = "harshBrakingScore";
+    public static final String JS_KEY_HARSH_TURNING_SCORE = "harshTurningScore";
+    public static final String JS_KEY_HARSH_ACCELERATION_SCORE = "harshAccelerationScore";
     public static final String JS_KEY_SAFETY_SCORES = "safetyScores";
     public static final String JS_KEY_TRANSPORT_EVENT = "transportEvent";
     public static final String JS_KEY_MAX_TRAVELLED_SPEED_MPS = "maxTravelledSpeedInMps";
@@ -178,6 +181,21 @@ public class DrivingInsightsConverter {
         Float overallScore = safetyScores.getOverallScore();
         if (overallScore != null) {
             map.putDouble(JS_KEY_OVERALL_SCORE, overallScore);
+        }
+
+        Float harshBrakingScore = safetyScores.getHarshBrakingScore();
+        if (harshBrakingScore != null) {
+            map.putDouble(JS_KEY_HARSH_BRAKING_SCORE, harshBrakingScore);
+        }
+
+        Float harshTurningScore = safetyScores.getHarshTurningScore();
+        if (harshTurningScore != null) {
+            map.putDouble(JS_KEY_HARSH_TURNING_SCORE, harshTurningScore);
+        }
+
+        Float harshAccelerationScore = safetyScores.getHarshAccelerationScore();
+        if (harshAccelerationScore != null) {
+            map.putDouble(JS_KEY_HARSH_ACCELERATION_SCORE, harshAccelerationScore);
         }
 
         return map;

@@ -2,6 +2,9 @@ package com.sentiance.react.bridge.drivinginsights.util.validators;
 
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_CALL_WHILE_MOVING_SCORE;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_FOCUS_SCORE;
+import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_HARSH_ACCELERATION_SCORE;
+import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_HARSH_BRAKING_SCORE;
+import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_HARSH_TURNING_SCORE;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_LEGAL_SCORE;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_OVERALL_SCORE;
 import static com.sentiance.react.bridge.drivinginsights.DrivingInsightsConverter.JS_KEY_SAFETY_SCORES;
@@ -121,6 +124,24 @@ public class DrivingInsightsBridgeValidator implements BridgeValidator<DrivingIn
       assertFalse(transformedSafetyScores.hasKey(JS_KEY_OVERALL_SCORE));
     } else {
       assertEquals(safetyScores.getOverallScore(), transformedSafetyScores.getDouble(JS_KEY_OVERALL_SCORE), 0.0);
+    }
+
+    if (safetyScores.getHarshBrakingScore() == null) {
+      assertFalse(transformedSafetyScores.hasKey(JS_KEY_HARSH_BRAKING_SCORE));
+    } else {
+      assertEquals(safetyScores.getHarshBrakingScore(), transformedSafetyScores.getDouble(JS_KEY_HARSH_BRAKING_SCORE), 0.0);
+    }
+
+    if (safetyScores.getHarshTurningScore() == null) {
+      assertFalse(transformedSafetyScores.hasKey(JS_KEY_HARSH_TURNING_SCORE));
+    } else {
+      assertEquals(safetyScores.getHarshTurningScore(), transformedSafetyScores.getDouble(JS_KEY_HARSH_TURNING_SCORE), 0.0);
+    }
+
+    if (safetyScores.getHarshAccelerationScore() == null) {
+      assertFalse(transformedSafetyScores.hasKey(JS_KEY_HARSH_ACCELERATION_SCORE));
+    } else {
+      assertEquals(safetyScores.getHarshAccelerationScore(), transformedSafetyScores.getDouble(JS_KEY_HARSH_ACCELERATION_SCORE), 0.0);
     }
   }
 }

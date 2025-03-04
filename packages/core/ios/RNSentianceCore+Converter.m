@@ -1238,6 +1238,21 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
         safetyScoresDict[@"overallScore"] = overallScore;
     }
 
+    NSNumber* harshBrakingScore = drivingInsights.safetyScores.harshBrakingScore;
+    if (harshBrakingScore != nil) {
+        safetyScoresDict[@"harshBrakingScore"] = harshBrakingScore;
+    }
+
+    NSNumber* harshTurningScore = drivingInsights.safetyScores.harshTurningScore;
+    if (harshTurningScore != nil) {
+        safetyScoresDict[@"harshTurningScore"] = harshTurningScore;
+    }
+
+    NSNumber* harshAccelerationScore = drivingInsights.safetyScores.harshAccelerationScore;
+    if (harshAccelerationScore != nil) {
+        safetyScoresDict[@"harshAccelerationScore"] = harshAccelerationScore;
+    }
+
     dict[@"safetyScores"] = safetyScoresDict;
 
     return dict;

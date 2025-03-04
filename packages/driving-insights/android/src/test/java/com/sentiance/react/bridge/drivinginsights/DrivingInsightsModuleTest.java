@@ -50,7 +50,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsightsModule> {
@@ -358,6 +357,9 @@ public class DrivingInsightsModuleTest extends ReactNativeModuleTest<DrivingInsi
                 .setCallWhileMovingScore(.55f)
                 .setLegalScore(.88f)
                 .setOverallScore(.44f)
+                .setHarshBrakingScore(.44f)
+                .setHarshTurningScore(.44f)
+                .setHarshAccelerationScore(.44f)
                 .createSafetyScores()
         );
     }
