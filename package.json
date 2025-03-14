@@ -1,6 +1,6 @@
 {
   "name": "sentiance-react-native",
-  "version": "6.11.0",
+  "version": "6.12.0-rc.1",
   "description": "React Native libraries for the Sentiance SDK",
   "scripts": {
     "tsc": "tsc --build --verbose",
