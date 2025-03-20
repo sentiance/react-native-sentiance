@@ -4,7 +4,8 @@
     "iosModuleName": "RNSentianceCore"
   },
   {
-    "name": "crash-detection"
+    "name": "crash-detection",
+    "iosModuleName": "SentianceCrashDetection"
   },
   {
     "name": "user-context"

@@ -11,40 +11,52 @@ import com.sentiance.sdk.crashdetection.api.VehicleCrashEvent;
 
 public class SentianceCrashDetectionConverter {
 
-  private final SentianceConverter coreConverter;
+    public static final String JS_KEY_TIME = "time";
+    public static final String JS_KEY_DELTA_V = "deltaV";
+    public static final String JS_KEY_LOCATION = "location";
+    public static final String JS_KEY_MAGNITUDE = "magnitude";
+    public static final String JS_KEY_CONFIDENCE = "confidence";
+    public static final String JS_KEY_CRASH_SEVERITY = "crashSeverity";
+    public static final String JS_KEY_SPEED_AT_IMPACT = "speedAtImpact";
+    public static final String JS_KEY_PRECEDING_LOCATIONS = "precedingLocations";
+    public static final String JS_KEY_CRASH_DETECTION_STATE = "crashDetectionState";
+    public static final String JS_KEY_CRASH_DETECTION_STATE_DESC = "crashDetectionStateDescription";
 
-  public SentianceCrashDetectionConverter() {
-    coreConverter = new SentianceConverter();
-  }
+    private final SentianceConverter coreConverter;
 
-  public WritableMap convertVehicleCrashEvent(VehicleCrashEvent crashEvent) {
-    WritableMap map = Arguments.createMap();
-
-    map.putDouble("time", (double) crashEvent.getTime());
-
-    WritableMap locationMap = coreConverter.convertLocation(crashEvent.getLocation());
-    map.putMap("location", locationMap);
-
-    map.putDouble("magnitude", crashEvent.getMagnitude());
-    map.putDouble("speedAtImpact", crashEvent.getSpeedAtImpact());
-    map.putDouble("deltaV", crashEvent.getDeltaV());
-    map.putInt("confidence", crashEvent.getConfidence());
-
-    WritableArray precedingLocationsArray = Arguments.createArray();
-    for (Location location : crashEvent.getPrecedingLocations()) {
-      precedingLocationsArray.pushMap(coreConverter.convertLocation(location));
+    public SentianceCrashDetectionConverter() {
+        coreConverter = new SentianceConverter();
     }
-    map.putArray("precedingLocations", precedingLocationsArray);
 
-    return map;
-  }
+    public WritableMap convertVehicleCrashEvent(VehicleCrashEvent crashEvent) {
+        WritableMap map = Arguments.createMap();
 
-  public WritableMap convertVehicleCrashDiagnostic(VehicleCrashDiagnostic vehicleCrashDiagnostic) {
-    WritableMap map = Arguments.createMap();
+        map.putDouble(JS_KEY_TIME, (double) crashEvent.getTime());
 
-    map.putString("crashDetectionState", vehicleCrashDiagnostic.getCrashDetectionState().name());
-    map.putString("crashDetectionStateDescription", vehicleCrashDiagnostic.getCrashDetectionStateDescription());
+        WritableMap locationMap = coreConverter.convertLocation(crashEvent.getLocation());
+        map.putMap(JS_KEY_LOCATION, locationMap);
 
-    return map;
-  }
+        map.putDouble(JS_KEY_MAGNITUDE, crashEvent.getMagnitude());
+        map.putDouble(JS_KEY_SPEED_AT_IMPACT, crashEvent.getSpeedAtImpact());
+        map.putDouble(JS_KEY_DELTA_V, crashEvent.getDeltaV());
+        map.putInt(JS_KEY_CONFIDENCE, crashEvent.getConfidence());
+
+        WritableArray precedingLocationsArray = Arguments.createArray();
+        for (Location location : crashEvent.getPrecedingLocations()) {
+            precedingLocationsArray.pushMap(coreConverter.convertLocation(location));
+        }
+        map.putArray(JS_KEY_PRECEDING_LOCATIONS, precedingLocationsArray);
+        map.putString(JS_KEY_CRASH_SEVERITY, crashEvent.getCrashSeverity().name());
+
+        return map;
+    }
+
+    public WritableMap convertVehicleCrashDiagnostic(VehicleCrashDiagnostic vehicleCrashDiagnostic) {
+        WritableMap map = Arguments.createMap();
+
+        map.putString(JS_KEY_CRASH_DETECTION_STATE, vehicleCrashDiagnostic.getCrashDetectionState().name());
+        map.putString(JS_KEY_CRASH_DETECTION_STATE_DESC, vehicleCrashDiagnostic.getCrashDetectionStateDescription());
+
+        return map;
+    }
 }

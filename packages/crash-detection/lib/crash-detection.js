@@ -5,7 +5,7 @@ const SDK_VEHICLE_CRASH_EVENT = "SENTIANCE_VEHICLE_CRASH_EVENT";
 const SDK_VEHICLE_CRASH_DIAGNOSTIC_EVENT = "SENTIANCE_VEHICLE_CRASH_DIAGNOSTIC_EVENT";
 
 let didLocateNativeModule = true;
-var crashDetectionModule = {};
+let crashDetectionModule = {};
 if (Platform.OS === 'android') {
   if (!SentianceCrashDetection) {
     didLocateNativeModule = false;
@@ -21,8 +21,17 @@ if (Platform.OS === 'android') {
     const nativeModuleName = varToString({SentianceCore});
     console.error(`Could not locate the native ${nativeModuleName} module.
     Make sure that your native code is properly linked, and that the module name you specified is correct.`);
+  } else if (!SentianceCrashDetection) {
+    didLocateNativeModule = false;
+    const nativeModuleName = varToString({SentianceCrashDetection});
+    console.error(`Could not locate the native ${nativeModuleName} module.
+    Make sure that your native code is properly linked, and that the module name you specified is correct.`);
   } else {
-    crashDetectionModule = SentianceCore
+    crashDetectionModule = {
+      ...SentianceCore,
+      isVehicleCrashDetectionSupported: SentianceCrashDetection.isVehicleCrashDetectionSupported,
+      invokeDummyVehicleCrash: SentianceCrashDetection.invokeDummyVehicleCrash,
+    }
   }
 }
 
