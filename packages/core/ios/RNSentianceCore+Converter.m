@@ -300,8 +300,10 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     if (waypoint.isSpeedSet) {
         dict[@"speedInMps"] = @(waypoint.speedInMps);
     }
-    if (waypoint.isSpeedLimitInfoSet) {
+    if (waypoint.isSpeedLimitInfoSet && !waypoint.isSpeedLimitUnlimited) {
         dict[@"speedLimitInMps"] = @(waypoint.speedLimitInMps);
+    } else if (waypoint.isSpeedLimitUnlimited) {
+        dict[@"speedLimitInMps"] = @(DBL_MAX);
     }
     dict[@"isSpeedLimitInfoSet"] = @(waypoint.isSpeedLimitInfoSet);
     dict[@"hasUnlimitedSpeedLimit"] = @(waypoint.isSpeedLimitUnlimited);

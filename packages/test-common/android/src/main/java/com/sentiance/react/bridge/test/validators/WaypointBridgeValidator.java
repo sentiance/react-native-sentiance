@@ -34,10 +34,11 @@ public class WaypointBridgeValidator implements BridgeValidator<Waypoint> {
 
         if (expected.hasUnlimitedSpeedLimit()) {
             assertTrue(actual.getBoolean(JS_KEY_HAS_UNLIMITED_SPEED_LIMIT));
-            assertFalse(actual.hasKey(JS_KEY_SPEED_LIMIT_IN_MPS));
-        } else if (expected.isSpeedLimitInfoSet()) {
+            assertEquals(Double.MAX_VALUE, actual.getDouble(JS_KEY_SPEED_LIMIT_IN_MPS), 0.00001);
+        } else if (expected.isSpeedLimitInfoSet() && !expected.hasUnlimitedSpeedLimit()) {
             assertEquals(expected.getSpeedLimitInMps(), actual.getDouble(JS_KEY_SPEED_LIMIT_IN_MPS), 0.00001);
             assertFalse(actual.getBoolean(JS_KEY_HAS_UNLIMITED_SPEED_LIMIT));
+            assertTrue(actual.getBoolean(JS_KEY_IS_SPEED_LIMIT_INFO_SET));
         } else {
             assertFalse(actual.getBoolean(JS_KEY_HAS_UNLIMITED_SPEED_LIMIT));
             assertFalse(actual.hasKey(JS_KEY_SPEED_LIMIT_IN_MPS));
