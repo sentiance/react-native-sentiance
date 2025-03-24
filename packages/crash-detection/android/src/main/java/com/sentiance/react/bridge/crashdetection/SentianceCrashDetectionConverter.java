@@ -16,7 +16,7 @@ public class SentianceCrashDetectionConverter {
     public static final String JS_KEY_LOCATION = "location";
     public static final String JS_KEY_MAGNITUDE = "magnitude";
     public static final String JS_KEY_CONFIDENCE = "confidence";
-    public static final String JS_KEY_CRASH_SEVERITY = "crashSeverity";
+    public static final String JS_KEY_CRASH_SEVERITY = "severity";
     public static final String JS_KEY_SPEED_AT_IMPACT = "speedAtImpact";
     public static final String JS_KEY_PRECEDING_LOCATIONS = "precedingLocations";
     public static final String JS_KEY_CRASH_DETECTION_STATE = "crashDetectionState";
@@ -46,7 +46,7 @@ public class SentianceCrashDetectionConverter {
             precedingLocationsArray.pushMap(coreConverter.convertLocation(location));
         }
         map.putArray(JS_KEY_PRECEDING_LOCATIONS, precedingLocationsArray);
-        map.putString(JS_KEY_CRASH_SEVERITY, crashEvent.getCrashSeverity().name());
+        map.putString(JS_KEY_CRASH_SEVERITY, crashEvent.getSeverity().name());
 
         return map;
     }

@@ -819,7 +819,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
         [precedingLocations addObject:[self convertCllocation:location]];
     }
     dict[@"precedingLocations"] = precedingLocations;
-    dict[@"crashSeverity"] = [self convertCrashSeverityToString:crashEvent.severity];
+    dict[@"severity"] = [self convertCrashSeverityToString:crashEvent.severity];
 
     return [dict copy];
 }

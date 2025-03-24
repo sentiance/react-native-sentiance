@@ -18,7 +18,7 @@ declare module "@sentiance-react-native/crash-detection" {
     speedAtImpact: number;
     deltaV: number;
     confidence: number;
-    crashSeverity: CrashSeverity;
+    severity: CrashSeverity;
   }
 
   export type VehicleCrashDetectionState =
