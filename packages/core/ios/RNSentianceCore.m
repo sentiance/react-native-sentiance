@@ -41,13 +41,11 @@ RCT_EXPORT_MODULE(SentianceCore)
 // Will be called when this module's first listener is added.
 - (void)startObserving {
     self.hasListeners = YES;
-    // Set up any upstream listeners or background tasks as necessary
 }
 
 // Will be called when this module's last listener is removed, or on dealloc.
 - (void)stopObserving {
     self.hasListeners = NO;
-    // Remove upstream listeners, stop unnecessary background tasks
 }
 
 + (BOOL)requiresMainQueueSetup {
@@ -846,22 +844,6 @@ RCT_EXPORT_METHOD(listenVehicleCrashDiagnostic:(RCTPromiseResolveBlock)resolve r
     } @catch (NSException *e) {
         reject(e.name, e.reason, nil);
     }
-}
-
-RCT_EXPORT_METHOD(invokeDummyVehicleCrash:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    REJECT_IF_SDK_NOT_INITIALIZED(reject);
-
-    [[Sentiance sharedInstance] invokeDummyVehicleCrash];
-    resolve(@(YES));
-}
-
-RCT_EXPORT_METHOD(isVehicleCrashDetectionSupported:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
-{
-    REJECT_IF_SDK_NOT_INITIALIZED(reject);
-
-    BOOL supported = [[Sentiance sharedInstance] isVehicleCrashDetectionSupported];
-    resolve(supported ? @(YES) : @(NO));
 }
 
 RCT_EXPORT_METHOD(isThirdPartyLinked:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)

@@ -300,8 +300,10 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     if (waypoint.isSpeedSet) {
         dict[@"speedInMps"] = @(waypoint.speedInMps);
     }
-    if (waypoint.isSpeedLimitInfoSet) {
+    if (waypoint.isSpeedLimitInfoSet && !waypoint.isSpeedLimitUnlimited) {
         dict[@"speedLimitInMps"] = @(waypoint.speedLimitInMps);
+    } else if (waypoint.isSpeedLimitUnlimited) {
+        dict[@"speedLimitInMps"] = @(DBL_MAX);
     }
     dict[@"isSpeedLimitInfoSet"] = @(waypoint.isSpeedLimitInfoSet);
     dict[@"hasUnlimitedSpeedLimit"] = @(waypoint.isSpeedLimitUnlimited);
@@ -799,7 +801,6 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     double time = [crashEvent.date timeIntervalSince1970] * 1000;
     dict[@"time"] = @(time);
 
-
     if(crashEvent.location != nil) {
         NSDictionary *location = @{
             @"latitude": @(crashEvent.location.coordinate.latitude),
@@ -818,8 +819,22 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
         [precedingLocations addObject:[self convertCllocation:location]];
     }
     dict[@"precedingLocations"] = precedingLocations;
+    dict[@"crashSeverity"] = [self convertCrashSeverityToString:crashEvent.severity];
 
     return [dict copy];
+}
+
+- (NSString*)convertCrashSeverityToString:(SENTVehicleCrashSeverity) severity {
+    switch (severity) {
+        case SENTVehicleCrashSeverityLow:
+            return @"LOW";
+        case SENTVehicleCrashSeverityMedium:
+            return @"MEDIUM";
+        case SENTVehicleCrashSeverityHigh:
+            return @"HIGH";
+        case SENTVehicleCrashSeverityUnavailable:
+            return @"UNAVAILABLE";
+    }
 }
 
 - (NSString *)_vehicleCrashDiagnosticStateName:(SENTVehicleCrashDetectionState)crashDetectionState {

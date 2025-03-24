@@ -1,14 +1,14 @@
 require 'json'
-package = JSON.parse(File.read(File.join(__dir__, './package.json')))
-sentiance_sdk_package_version = package['sdkVersions']['ios']['sentiance']
+corePackage = JSON.parse(File.read(File.join('..', 'core', 'package.json')))
+sentiance_sdk_package_version = corePackage['sdkVersions']['ios']['sentiance']
 sentiance_sdk_env_var_version = ENV["SENTIANCE_RN_IOS_SDK_VERSION"]
 
 Pod::Spec.new do |s|
-  s.name         = "RNSentianceCore"
-  s.version      = "6.10.1"
-  s.summary      = "RNSentianceCore"
+  s.name         = "SentianceCrashDetection"
+  s.version      = "6.12.0-alpha.8"
+  s.summary      = "SentianceCrashDetection"
   s.description  = <<-DESC
-                   RNSentianceCore
+                   SentianceCrashDetection
                    DESC
   s.homepage     = "https://developers.sentiance.com/docs"
   s.license      = "MIT"
@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,m,swift}"
   s.requires_arc = true
   s.xcconfig     = { 'FRAMEWORK_SEARCH_PATHS' => '${PODS_ROOT}/SENTSDK' }
-
+  s.swift_version = '5.0'
   s.dependency "React"
 
   if sentiance_sdk_env_var_version.nil?

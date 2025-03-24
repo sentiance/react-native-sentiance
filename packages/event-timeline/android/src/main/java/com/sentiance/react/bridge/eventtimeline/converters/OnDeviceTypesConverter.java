@@ -155,6 +155,8 @@ public class OnDeviceTypesConverter {
         }
         if (waypoint.isSpeedLimitInfoSet() && !waypoint.hasUnlimitedSpeedLimit()) {
             waypointMap.putDouble(JS_KEY_SPEED_LIMIT_IN_MPS, waypoint.getSpeedLimitInMps());
+        } else if (waypoint.hasUnlimitedSpeedLimit()) {
+            waypointMap.putDouble(JS_KEY_SPEED_LIMIT_IN_MPS, Double.MAX_VALUE);
         }
         waypointMap.putBoolean(JS_KEY_IS_SPEED_LIMIT_INFO_SET, waypoint.isSpeedLimitInfoSet());
         waypointMap.putBoolean(JS_KEY_HAS_UNLIMITED_SPEED_LIMIT, waypoint.hasUnlimitedSpeedLimit());

@@ -172,6 +172,10 @@ export interface Waypoint {
   accuracy: number;   // in meters
   timestamp: number;  // UTC epoch time in milliseconds
   speedInMps?: number;  // in meters per second
+  /**
+   * - If {@link isSpeedLimitInfoSet} is `false`, then this value will be `undefined`.
+   * - If {@link hasUnlimitedSpeedLimit} is `true`, then this value will be `Number.MAX_VALUE`.
+   */
   speedLimitInMps?: number;  // in meters per second
   hasUnlimitedSpeedLimit: boolean;
   isSpeedLimitInfoSet: boolean;

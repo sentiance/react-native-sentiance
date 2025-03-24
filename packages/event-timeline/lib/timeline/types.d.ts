@@ -111,6 +111,10 @@ export interface Waypoint {
     accuracy: number;
     timestamp: number;
     speedInMps?: number;
+    /**
+     * - If {@link isSpeedLimitInfoSet} is `false`, then this value will be `undefined`.
+     * - If {@link hasUnlimitedSpeedLimit} is `true`, then this value will be `Number.MAX_VALUE`.
+     */
     speedLimitInMps?: number;
     hasUnlimitedSpeedLimit: boolean;
     isSpeedLimitInfoSet: boolean;
