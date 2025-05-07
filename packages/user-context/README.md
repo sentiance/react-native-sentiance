@@ -6,4 +6,4 @@ https://github.com/sentiance/sample-apps-react-native
 
 ## Usage
 
-To use the user context SDK module, please visit the corresponding [API reference page.](https://docs.sentiance.com/sdk/api-reference/react-native/user-context)
+To use the user context SDK module, please visit the corresponding [API reference page.](https://docs.sentiance.com/important-topics/sdk/api-reference/react-native/user-context)
