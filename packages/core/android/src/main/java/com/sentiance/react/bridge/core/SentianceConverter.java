@@ -187,6 +187,7 @@ public class SentianceConverter {
     map.putString("mobileQuotaStatus", status.mobileQuotaStatus.toString());
     map.putString("diskQuotaStatus", status.diskQuotaStatus.toString());
     map.putBoolean("userExists", status.userExists);
+    map.putBoolean("canMonitorGeofences", true); // For Android, this will default to true
 
     return map;
   }

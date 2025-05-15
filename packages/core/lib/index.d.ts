@@ -132,6 +132,10 @@ declare module "@sentiance-react-native/core" {
     isBackgroundProcessingRestricted?: boolean; // Android only
     isSchedulingExactAlarmsPermitted?: boolean; // Android only
     backgroundRefreshStatus: BackgroundRefreshStatus; // iOS only
+    /**
+     * The SDK's ability to monitor regions (geofences).
+     */
+    canMonitorGeofences: boolean; // iOS only
   }
 
   export interface EnableDetectionsResult {

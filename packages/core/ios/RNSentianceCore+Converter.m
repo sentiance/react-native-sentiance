@@ -699,7 +699,8 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
         @"userExists":@(status.userExists),
         @"isBatterySavingEnabled":@(status.isDeviceLowPowerModeEnabled),
         @"isActivityRecognitionPermGranted":@(status.isMotionActivityPermissionGranted),
-        @"backgroundRefreshStatus":[self convertBackgroundRefreshStatus:status.backgroundRefreshStatus]
+        @"backgroundRefreshStatus":[self convertBackgroundRefreshStatus:status.backgroundRefreshStatus],
+        @"canMonitorGeofences":@(status.canMonitorRegions)
     };
 
     return dict;
