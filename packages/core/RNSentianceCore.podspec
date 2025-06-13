@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.xcconfig     = { 'FRAMEWORK_SEARCH_PATHS' => '${PODS_ROOT}/SENTSDK' }
   s.static_framework = true
-
+  s.pod_target_xcconfig = { "DEFINES_MODULE" => "YES" }
   s.dependency "React"
 
   if sentiance_sdk_env_var_version.nil?
