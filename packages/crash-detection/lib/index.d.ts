@@ -19,6 +19,7 @@ declare module "@sentiance-react-native/crash-detection" {
     deltaV: number;
     confidence: number;
     severity: CrashSeverity;
+    readonly detectorMode: CrashDetectorMode;
   }
 
   export type VehicleCrashDetectionState =
@@ -32,6 +33,8 @@ declare module "@sentiance-react-native/crash-detection" {
     | "CANDIDATE_NOT_DETECTED";
 
   export type CrashSeverity = "UNAVAILABLE" | "LOW" | "MEDIUM" | "HIGH";
+
+  export type CrashDetectorMode = "UNKNOWN" | "TWO_WHEELER" | "CAR";
 
   export interface VehicleCrashDiagnostic {
     crashDetectionState: VehicleCrashDetectionState;

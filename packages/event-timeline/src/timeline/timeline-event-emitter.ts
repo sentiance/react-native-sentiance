@@ -6,7 +6,7 @@ import { type Event } from "./types";
 export type TimelineUpdateListener = (event: Event) => void;
 export const TIMELINE_UPDATE_EVENT = "SENTIANCE_TIMELINE_UPDATE_EVENT";
 
-export default class EventTimelineEventEmitter extends SentianceEventEmitter {
+export default class EventTimelineEventEmitter extends SentianceEventEmitter<EventTimelineModule> {
 
   constructor(nativeModule: EventTimelineModule) {
     super(nativeModule);

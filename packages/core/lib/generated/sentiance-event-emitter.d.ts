@@ -1,9 +1,9 @@
 import { type EmitterSubscription, NativeEventEmitter } from "react-native";
 import { type NativeModule } from "./native-module";
-export default class SentianceEventEmitter {
-    protected nativeModule: NativeModule;
+export default class SentianceEventEmitter<NM extends NativeModule> {
+    protected nativeModule: NM;
     protected reactNativeEventEmitter: NativeEventEmitter;
-    constructor(nativeModule: NativeModule);
+    constructor(nativeModule: NM);
     /**
      * Registers a new listener with the React Native framework, in addition to our own
      * native modules via the `addNativeListener` binding.
