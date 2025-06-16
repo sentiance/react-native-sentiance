@@ -821,6 +821,7 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
     }
     dict[@"precedingLocations"] = precedingLocations;
     dict[@"severity"] = [self convertCrashSeverityToString:crashEvent.severity];
+    dict[@"detectorMode"] = [self convertCrashDetectorModeToString:crashEvent.detectorMode];
 
     return [dict copy];
 }
@@ -835,6 +836,17 @@ static NSString * const SmartGeofencesErrorDomain = @"com.sentiance.SmartGeofenc
             return @"HIGH";
         case SENTVehicleCrashSeverityUnavailable:
             return @"UNAVAILABLE";
+    }
+}
+
+- (NSString*)convertCrashDetectorModeToString:(SENTVehicleCrashDetectorMode) detectorMode {
+    switch (detectorMode) {
+        case SENTVehicleCrashDetectorMode_Car:
+            return @"CAR";
+        case SENTVehicleCrashDetectorMode_TwoWheeler:
+            return @"TWO_WHEELER";
+        case SENTVehicleCrashDetectorMode_Unknown:
+            return @"UNKNOWN";
     }
 }
 

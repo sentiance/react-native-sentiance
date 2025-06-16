@@ -2,11 +2,11 @@ import { type EmitterSubscription, NativeEventEmitter } from "react-native";
 import { type NativeModule } from "./native-module";
 import subscriptionIdGenerator from "./subscription-id-gen";
 
-export default class SentianceEventEmitter {
+export default class SentianceEventEmitter<NM extends NativeModule> {
 
   protected reactNativeEventEmitter: NativeEventEmitter;
 
-  constructor(protected nativeModule: NativeModule) {
+  constructor(protected nativeModule: NM) {
     this.reactNativeEventEmitter = new NativeEventEmitter(nativeModule);
   }
 
