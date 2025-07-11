@@ -91,10 +91,3 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
-      - publish_docs:
-          context: default
-          requires: [test, android_test]
-          filters:
-            branches:
-              only:
-                - main
