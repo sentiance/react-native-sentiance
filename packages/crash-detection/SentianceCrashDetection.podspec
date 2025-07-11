@@ -12,6 +12,7 @@ Pod::Spec.new do |s|
   s.source       = { :path => '.' }
   s.source_files = "ios/**/*.{h,m,swift}"
   s.requires_arc = true
+  s.static_framework = true
   s.xcconfig     = { 'FRAMEWORK_SEARCH_PATHS' => '${PODS_ROOT}/SENTSDK' }
   s.swift_version = '5.0'
   s.dependency "React"

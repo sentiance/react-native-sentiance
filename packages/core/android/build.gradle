@@ -1,14 +1,26 @@
 plugins {
-  id "com.android.library"
+    id "com.android.library"
 }
 
 android {
-  namespace "com.sentiance.react.bridge.core"
+    namespace "com.sentiance.react.bridge.core"
 
-  compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
-  }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    def isNewArchEnabled =
+            (project.findProperty('newArchEnabled') ?: "false").toBoolean()
+
+    defaultConfig {
+        consumerProguardFiles 'rules-consumer.pro'
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchEnabled.toString()
+    }
 }
 
 apply from: "$project.projectDir/package-json-reader.gradle"
@@ -19,12 +31,12 @@ applyAndroidVersionsFrom(packageJson)
 def sentianceSdkVersion = getSentianceSdkVersion()
 
 dependencies {
-  implementation(platform("com.sentiance:sdk-bom:${sentianceSdkVersion}"))
-  api("com.sentiance:sdk") { transitive = true }
+    implementation(platform("com.sentiance:sdk-bom:${sentianceSdkVersion}"))
+    api("com.sentiance:sdk") { transitive = true }
 
-  if (findProject(':test-common')) {
-    testImplementation project(':test-common')
-  }
+    if (findProject(':test-common')) {
+        testImplementation project(':test-common')
+    }
 }
 
 applyReactNativeDependency()

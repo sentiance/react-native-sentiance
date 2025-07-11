@@ -27,11 +27,9 @@ if (Platform.OS === 'android') {
     console.error(`Could not locate the native ${nativeModuleName} module.
     Make sure that your native code is properly linked, and that the module name you specified is correct.`);
   } else {
-    crashDetectionModule = {
-      ...SentianceCore,
-      isVehicleCrashDetectionSupported: SentianceCrashDetection.isVehicleCrashDetectionSupported,
-      invokeDummyVehicleCrash: SentianceCrashDetection.invokeDummyVehicleCrash,
-    }
+    crashDetectionModule = SentianceCore;
+    crashDetectionModule.isVehicleCrashDetectionSupported = SentianceCrashDetection.isVehicleCrashDetectionSupported;
+    crashDetectionModule.invokeDummyVehicleCrash = SentianceCrashDetection.invokeDummyVehicleCrash;
   }
 }
 

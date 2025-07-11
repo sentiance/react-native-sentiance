@@ -8,22 +8,16 @@ import androidx.annotation.Nullable;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.bridge.ReactContext;
+import com.sentiance.react.bridge.core.BuildConfig;
 
 public final class ReactContextProvider {
 
     private static final String TAG = "ReactNativeContextProvider";
-    private static Boolean isNewArchEnabled = null;
 
-    private final Context mApplicationContext;
     private final ReactApplication mReactApplication;
 
     public ReactContextProvider(Context applicationContext) {
-        mApplicationContext = applicationContext;
-        mReactApplication = (ReactApplication) mApplicationContext;
-
-        if (isNewArchEnabled == null) {
-            isNewArchEnabled = isNewArchEnabled();
-        }
+        mReactApplication = (ReactApplication) applicationContext;
     }
 
     /**
@@ -37,7 +31,7 @@ public final class ReactContextProvider {
      */
     @Nullable
     public ReactContext createReactContext() {
-        if (isNewArchEnabled) {
+        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
             return createReactContextInNewArchMode();
         } else {
             return createReactContextInLegacyArchMode();
@@ -74,21 +68,5 @@ public final class ReactContextProvider {
             reactNativeHost.getReactInstanceManager().createReactContextInBackground();
 
         return reactNativeHost.getReactInstanceManager().getCurrentReactContext();
-    }
-
-    private boolean isNewArchEnabled() {
-        try {
-            String pkg = mApplicationContext.getPackageName();
-            Class<?> cfg = Class.forName(pkg + ".BuildConfig");
-            return cfg.getField("IS_NEW_ARCHITECTURE_ENABLED").getBoolean(null);
-        } catch (Throwable ignore) { /* app wasn't generated with the flag */ }
-
-        try {
-            Class<?> cfg = Class.forName("com.facebook.react.BuildConfig");
-            return cfg.getField("IS_NEW_ARCHITECTURE_ENABLED").getBoolean(null);
-        } catch (Throwable ignore) {
-        }
-
-        return false;
     }
 }
