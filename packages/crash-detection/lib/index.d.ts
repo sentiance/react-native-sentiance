@@ -55,8 +55,7 @@ declare module "@sentiance-react-native/crash-detection" {
      * </p>
      *
      * <br/>
-     * <p>Note that this function is intended for testing your integration, and will only run on debug versions of your
-     * app (i.e. when the <code>android:debuggable</code> manifest flag is set to <code>true</code>).
+     * <p>Note that this method is intended only for testing your integration. It will not generate a real vehicle crash.
      * </p>
      */
     invokeDummyVehicleCrash(): Promise<boolean>;
