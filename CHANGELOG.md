@@ -1,4 +1,1 @@
-# Change Log
-All notable changes to this project will be documented in this file.
-
-## Unreleased
+All notable changes can be found [here](https://docs.sentiance.com/important-topics/sdk/changelog/react-native).
